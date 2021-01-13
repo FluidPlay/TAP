@@ -1,0 +1,71 @@
+﻿v1.03 changelog:
+* Improved auto-assist logic for just-built builders & FARKs
+* Added "P" shortcut to build Air Pads and Adv. Air Pads
+* Core Leveler weapon damage now 72 (was 100)
+* Bullet damage multiplier vs defense armor type now 0.18 (was 0.263), vs defenseAA 0.25 (was 0.35)
+* Arm Guardian and Core Punisher now deal explosive damage type (was Plasma)
+* Fixed Toaster and Ambusher morphs requiring Tier 3 (now T2)
+* Explosive damage multiplier vs SupportBot and SupportVeh armor types now 0.65 (was 0.75)
+* Arm Poker missile final speed now 340 (was 290)
+* Plasma damage multiplier vs LightVeh armor type now 0.9 (was 0.8)
+* Bullet damage multiplier vs LightBot armor type now 1.1 (was 1)
+* Pyro metal cost 225 (was 200), max health now 966 (was 1047), attack burst reduced to 16 (was 22)
+* Warrior cost 275 (was 250)
+* Arm & Core basic missile Towers energy buildcost reduced by 35%
+* Sumo morph metal cost now 2,100 (was 1,900)
+* Core Krogoth max health reduced by 35%
+* Commanders level 3 and 4 morph metal costs increased by 25%
+* Core Leveler range now 395 (was 410)
+* Fort Walls cost now 70 (was 40), Dragon Teeth can now be morphed into them
+* Arm Guardian metal cost now 750 (was 850)
+* Core Punisher metal cost now 800 (was 950)
+* Arm Bantha heavy rockets now deal explosive damage-type (was rocket)
+* Arm Razorback now deals laser damage-type (was plasma)
+* Arm Juggernaut laser weaponry fixed to deal laser damage-type (was omni), health reduced to 150k (was 300k)
+* Core Karganeth Head Weapon is now a Flak Launcher
+
+v1.02 changelog:
+* Missile Towers metal cost now 175 (was 80), weapon range 450 (was 475), now drain 25 energy / tick to run
+* Core Pulverizer (Missile Tower) max health now 750 (was 1000)
+* Arm Defender (Missile Tower) max health now 800 (was 950)
+* LLT (light laser towers) cost increased to 125 (was 90), damage reduced by 20%
+* Plasma damage type multiplier vs DefenseAA armor now 1 (was 0.6)
+* Core Dominator (T2 flak artillery) range now 725 (was 800)
+* Homing damage type multiplier vs Defense armor now 0.5 (was 0.75)
+* Fixed enabled per-unit upgrade buttons not showing their tooltips
+* Updated auto_reclaim_heal_assist to stop auto-assist when a direct shift+build order is issued
+* Fixed Core Intimidator (Long Range Siege Cannon) not being built by Adv. Outposts
+* Core Sumo max health now 11,550 (was 14k)
+* Core Krow metal cost now 4700 (was 5100), max velocity now 3.335 (was 3.1)
+* Arm Maverick now accelerates 2x faster
+* Core Catapult (T4 missile kbot) damage now 560 / missile (was 450)
+* Arm DEVA base damage now 5x120 (was 5x100), fire reload now 2.22s (was 3.33), DPS doubled
+* Core Shredder DPS adjusted to match Arm DEVA's, with faster reload for ground weapon
+* Fixed Core Advanced Builders not being able to build T0 & T1 structures
+* Core Catalyst (Tactical Nuke Launcher) weapon damage now 3750 (was 2500)
+
+v1.01 changelog:
+* Plasma damage type multiplier vs supportbot armor type now 0.75 (was 0.45), vs heavybot 0.3 (was 1) and heavyveh 0.5 (was 0.8), vs supportveh 0.45 (was 0.65)
+* Flak vs supportbot 0.65 (was 0.5), vs lightbot 0.5 (was 0.75), vs lightveh 0.45 (was 0.75)
+* Fatboy damage now 512 (was 600)
+* Core Commando Cost 800 (was 900), main weapon reload now 2.1 (was 1.5)
+* Removed "isAirbase" checks from gadgets (deprecated in Spring 101, removed in recent engine release)
+* Arm Freedom (T0 fighter) air-to-ground range now 550 (was 630)
+* Flak damage type vs lightveh armor type multiplier now 0.35 (was 0.45)
+* Core Commando and Arm Zipper damage types now Rail (was thermo)
+* Rail damage type multiplier vs supportbot armor now 2.4 (was 1.4), vs heavybot now 1 (was 0.6)
+* Rocket damage type multiplier vs supportbot armor now 0.35 (was 0.5)
+* Core Defiler cost 900 (was 1200), max health 1540 (was 2800)
+* Cannon damage type multiplier vs heavybot armor now 0.6 (was 0.4)
+
+v1.0 (First Public Release) changelog:
+* Fixed Destroyed Airpads showing wrong wreckage model
+* Fighters and bombers now set to'fly' mode automatically after being built
+* Fixed and added missing build pics
+* Tier 3 and Tier 4 commanders shields are now less effective
+* Fixed Core Radar being too hard to fire at by some units
+* Core Shredder (Flak Tower) cost now 600 (was 700), max health reduced by 10%
+* Fixed multiple defense collider sizes
+* Big bertha and Intimidator (Long-range artillery) footprint sensibly increased to match their T4 morph sizes
+* Arm and Core Juno Towers are now "floaty", can be built on water
+* Fixed ctrl+shift+c shortcut to select+center camera on commander
