@@ -45,6 +45,7 @@ local unitsNormalMapTemplate = Spring.Utilities.MergeWithDefault(matTemplate, {
         vertex_ao = true,
         health_displace = true,
         health_texturing = true,
+	normalmap_flip   = true,
     },
     deferredOptions = {
         normalmapping = true,
@@ -52,6 +53,7 @@ local unitsNormalMapTemplate = Spring.Utilities.MergeWithDefault(matTemplate, {
         vertex_ao = true,
         health_displace = true,
         health_texturing = true,
+	normalmap_flip   = true,
     },
 })
 
