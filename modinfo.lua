@@ -1,10 +1,10 @@
 return {
-  name='Total Annihilation Prime',
-  description='Prequel to Total Annihilation with an advanced RPS countering system',
+  name='Total Atomization Prime',
+  description='Retro Sci-fi RTS with advanced tech trees and a modern rock-paper-scissors countering system',
   shortname='TAP',
   version='2.0RC1',
   mutator='Official',
-  game='Total Annihilation Prime',
+  game='Total Atomization Prime',
   shortgame='TAP',
   modtype=1,
   url = "https://www.fluidplay.co/taprime",

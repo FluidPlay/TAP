@@ -1,8 +1,13 @@
+Spring.Utilities = Spring.Utilities or {}
+--if not Spring.Utilities.Base64Decode then
+--	VFS.Include("LuaRules/Utilities/base64.lua")
+--end
+
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
 --deep not safe with circular tables! defaults To false
-function Spring.Utilities.CopyTable(tableToCopy, deep)
-  local copy = {}
+function Spring.Utilities.CopyTable(tableToCopy, deep, appendTo)
+  local copy = appendTo or {}
   for key, value in pairs(tableToCopy) do
     if (deep and type(value) == "table") then
       copy[key] = Spring.Utilities.CopyTable(value, true)
@@ -29,6 +34,20 @@ function Spring.Utilities.MergeTable(primary, secondary, deep)
 		end
 	end
 	return new
+end
+
+function Spring.Utilities.OverwriteTableInplace(primary, secondary, deep)
+	for i, v in pairs(secondary) do
+		if primary[i] and type(primary[i]) == "table" and type(v) == "table"  then
+			Spring.Utilities.OverwriteTableInplace(primary[i], v, deep)
+		else
+			if (deep and type(v) == "table") then
+				primary[i] = Spring.Utilities.CopyTable(v, true)
+			else
+				primary[i] = v
+			end
+		end
+	end
 end
 
 function Spring.Utilities.MergeWithDefault(default, override)
@@ -138,30 +157,30 @@ end
 
 Spring.Utilities.TableEcho = TableEcho
 
-function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
-	if not dataRaw then
-		return
-	end
-	if not type(dataRaw) == 'string' then
-		Spring.Echo("Customkey data error! type == " .. type(dataRaw))
-	else
-		dataRaw = string.gsub(dataRaw, '_', '=')
-		dataRaw = Spring.Utilities.Base64Decode(dataRaw)
-		local dataFunc, err = loadstring("return " .. dataRaw)
-		if dataFunc then
-			local success, usefulTable = pcall(dataFunc)
-			if success then
-				if collectgarbage then
-					collectgarbage("collect")
-				end
-				return usefulTable
-			end
-		end
-		if err then
-			Spring.Echo("Customkey error", err)
-		end
-	end
-	if collectgarbage then
-		collectgarbage("collect")
-	end
-end
+--function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
+--	if not dataRaw then
+--		return
+--	end
+--	if not type(dataRaw) == 'string' then
+--		Spring.Echo("Customkey data error! type == " .. type(dataRaw))
+--	else
+--		dataRaw = string.gsub(dataRaw, '_', '=')
+--		dataRaw = Spring.Utilities.Base64Decode(dataRaw)
+--		local dataFunc, err = loadstring("return " .. dataRaw)
+--		if dataFunc then
+--			local success, usefulTable = pcall(dataFunc)
+--			if success then
+--				if collectgarbage then
+--					collectgarbage("collect")
+--				end
+--				return usefulTable
+--			end
+--		end
+--		if err then
+--			Spring.Echo("Customkey error", err)
+--		end
+--	end
+--	if collectgarbage then
+--		collectgarbage("collect")
+--	end
+--end
