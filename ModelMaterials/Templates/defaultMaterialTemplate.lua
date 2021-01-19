@@ -1771,16 +1771,16 @@ local function SunChanged(luaShader)
     luaShader:SetUniformAlways("sunSpecular", gl.GetSun("specular" ,"unit"))
 
     luaShader:SetUniformFloatArrayAlways("pbrParams", {
-        Spring.GetConfigFloat("tonemapA", 4.8),
-        Spring.GetConfigFloat("tonemapB", 0.8),
-        Spring.GetConfigFloat("tonemapC", 3.35),
-        Spring.GetConfigFloat("tonemapD", 1.0),
-        Spring.GetConfigFloat("tonemapE", 1.15),
+        Spring.GetConfigFloat("tonemapA", 3.41), --4.8
+        Spring.GetConfigFloat("tonemapB", 1.18), --0.8
+        Spring.GetConfigFloat("tonemapC", 3.45), --3.35
+        Spring.GetConfigFloat("tonemapD", 0.88), --1.0
+        Spring.GetConfigFloat("tonemapE", 0.99), --1.15
         Spring.GetConfigFloat("envAmbient", 0.3),
-        Spring.GetConfigFloat("unitSunMult", 1.35),
-        Spring.GetConfigFloat("unitExposureMult", 1.0),
+        Spring.GetConfigFloat("unitSunMult", 1.65), --1.35
+        Spring.GetConfigFloat("unitExposureMult", 1.03), --1.0
     })
-    luaShader:SetUniformFloatAlways("gamma", Spring.GetConfigFloat("modelGamma", 1.0))
+    luaShader:SetUniformFloatAlways("gamma", Spring.GetConfigFloat("modelGamma", 1.05)) --1.0
 end
 
 defaultMaterialTemplate.ProcessOptions = ProcessOptions

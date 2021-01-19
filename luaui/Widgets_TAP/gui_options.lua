@@ -4130,15 +4130,15 @@ function init()
         },
         { id = "tonemapDefaults", group = "dev", name = widgetOptionColor .. "   "..texts.option.tonemapDefaults, type = "bool", value = GetWidgetToggleValue("Unit Reclaimer"), description = "",
           onchange = function(i, value)
-              Spring.SetConfigFloat("tonemapA", 4.8)
-              Spring.SetConfigFloat("tonemapB", 0.8)
-              Spring.SetConfigFloat("tonemapC", 3.35)
-              Spring.SetConfigFloat("tonemapD", 1.0)
-              Spring.SetConfigFloat("tonemapE", 1.15)
+              Spring.SetConfigFloat("tonemapA", 3.41) --4.8
+              Spring.SetConfigFloat("tonemapB", 1.18) --0.8
+              Spring.SetConfigFloat("tonemapC", 3.45) --3.35
+              Spring.SetConfigFloat("tonemapD", 0.88) --1.0
+              Spring.SetConfigFloat("tonemapE", 0.99) --1.15
               Spring.SetConfigFloat("envAmbient", 0.3)
-              Spring.SetConfigFloat("unitSunMult", 1.35)
-              Spring.SetConfigFloat("unitExposureMult", 1.0)
-              Spring.SetConfigFloat("modelGamma", 1.0)
+              Spring.SetConfigFloat("unitSunMult", 1.65) --1.35
+              Spring.SetConfigFloat("unitExposureMult", 1.03) --1.0
+              Spring.SetConfigFloat("modelGamma", 1.05) --1.0
               options[getOptionByID('tonemapA')].value = Spring.GetConfigFloat("tonemapA")
               options[getOptionByID('tonemapB')].value = Spring.GetConfigFloat("tonemapB")
               options[getOptionByID('tonemapC')].value = Spring.GetConfigFloat("tonemapC")
