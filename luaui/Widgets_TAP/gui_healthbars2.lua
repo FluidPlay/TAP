@@ -666,9 +666,9 @@ do
         health,maxHealth,paralyzeDamage = GetUnitHealth(unitID)
         paralyzeDamage = GetUnitRulesParam(unitID, "real_para") or paralyzeDamage
 
-        local empHP = ((not paralyzeOnMaxHealth) and health) or maxHealth
+        local empHP = ((not paralyzeOnMaxHealth) and health) or (maxHealth or 1)
         emp = (paralyzeDamage or 0)/(empHP or 1)
-        hp  = (health or 0)/maxHealth
+        hp  = (health or 0)/(maxHealth or 1)
         morph = UnitMorphs[unitID]
 
         if (drawUnitsOnFire)and(GetUnitRulesParam(unitID,"on_fire")==1) then

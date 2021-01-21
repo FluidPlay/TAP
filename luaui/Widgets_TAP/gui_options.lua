@@ -3050,13 +3050,13 @@ function init()
           onload = function(i)
               loadWidgetData("CameraShake", "camerashake", { 'powerScale' })
               if options[i].value > 0 then
-                  widgetHandler:EnableWidget("CameraShake")
+                  --widgetHandler:EnableWidget("CameraShake") --TODO: Set this properly
               end
           end,
           onchange = function(i, value)
               saveOptionValue('CameraShake', 'camerashake', 'setStrength', { 'powerScale' }, value)
               if value > 0 then
-                  widgetHandler:EnableWidget("CameraShake")
+                  --widgetHandler:EnableWidget("CameraShake")
               end
           end,
         },
