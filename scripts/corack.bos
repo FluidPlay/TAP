@@ -186,22 +186,22 @@ MotionControl(moving, building)
 
 Go()
 {
-	move lnanocase to x-axis [0.000000] now;
-	move lnanocase to x-axis [-2.889996] speed [5.000000];
-	move rnanocase to x-axis [0.000000] now;
-	move rnanocase to x-axis [2.800000] speed [5.000000];
-	move rcasedoor to x-axis [0.000000] now;
-	move lcasedoor to x-axis [0.000000] now;
-	sleep 513;
+	turn rgunjoint to z-axis <90.000000> speed <400.000000>;
+	sleep 300;
+	turn lgunjoint to z-axis <-90.000000> speed <400.000000>;
+	sleep 500;
+	
+	turn lnanocase to y-axis <-90.000000> speed <600.000000>;
+	turn rnanocase to y-axis <90.000000> speed <600.000000>;
+	sleep 200;
+	
+	turn rgunjoint to z-axis <0.000000> speed <1500.000000>;
+	sleep 200;
+	turn lgunjoint to z-axis <0.000000> speed <400.000000>;
+	sleep 200;
 
-	turn lnanocase to y-axis <-90.021978> speed <173.000000>;
-	turn rnanocase to y-axis <90.021978> speed <173.000000>;
-	turn rcasedoor to z-axis <-90.021978> speed <173.000000>;
-	turn lcasedoor to z-axis <90.021978> speed <173.000000>;
-	sleep 518;
-
-	move rgunjoint to x-axis [4.750000] speed [9.000000];
-	move lgunjoint to x-axis [-4.739996] speed [9.000000];
+	move lnanogun to x-axis [-2.000000] speed [9.000000];
+	move rnanogun to x-axis [2.000000] speed [9.000000];
 	sleep 520;
 }
 
@@ -210,30 +210,25 @@ Stop()
 	set INBUILDSTANCE to 0;
 	turn torso to y-axis <0.000000> speed <160.000000>;
 	wait-for-turn torso around y-axis;
+	
+	move lnanogun to x-axis [0.000000] speed [900.000000];
+	move rnanogun to x-axis [0.000000] speed [900.000000];
+	sleep 520;
+	
+	turn rgunjoint to z-axis <90.000000> speed <400.000000>;
+	sleep 200;
+	turn lgunjoint to z-axis <-90.000000> speed <400.000000>;
+	sleep 200;
+	
+	turn lnanocase to y-axis <0.000000> speed <600.000000>;
+	turn rnanocase to y-axis <0.000000> speed <600.000000>;
+	sleep 200;
 
-	move lnanocase to x-axis [-2.889996] now;
-	move rnanocase to x-axis [2.800000] now;
-	move rgunjoint to x-axis [4.750000] now;
-	move rgunjoint to x-axis [0.000000] speed [6.000000];
-	move rcasedoor to x-axis [0.000000] now;
-	move lgunjoint to x-axis [-4.739996] now;
-	move lgunjoint to x-axis [0.000000] speed [6.000000];
-	move lcasedoor to x-axis [0.000000] now;
-	turn lnanocase to y-axis <-90.021978> now;
-	turn rnanocase to y-axis <90.021978> now;
-	turn rcasedoor to z-axis <-90.021978> now;
-	turn lcasedoor to z-axis <90.021978> now;
-	sleep 683;
+	turn rgunjoint to z-axis <0.000000> speed <400.000000>;
+	sleep 300;
+	turn lgunjoint to z-axis <0.000000> speed <400.000000>;
+	sleep 500;
 
-	turn lnanocase to y-axis <0.000000> speed <130.000000>;
-	turn rnanocase to y-axis <0.000000> speed <130.000000>;
-	turn rcasedoor to z-axis <0.000000> speed <131.000000>;
-	turn lcasedoor to z-axis <0.000000> speed <130.000000>;
-	sleep 689;
-
-	move lnanocase to x-axis [0.000000] speed [4.000000];
-	move rnanocase to x-axis [0.000000] speed [4.000000];
-	sleep 691;
 }
 
 RequestState(requestedstate, currentstate)
