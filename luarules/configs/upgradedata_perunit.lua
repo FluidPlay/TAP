@@ -248,7 +248,7 @@ UnitUpgrades = {
         type = "perunit",
         buttonToUnlock = nil,
         buttonToUnlockTooltip = "",
-        upgradableDefIDs = { [UnitDefNames["armstump"].id] = true,  -- tanks (T1 & T2), missile trucks, T3 artillery
+        upgradableDefIDs = { --[UnitDefNames["armstump"].id] = true,  -- tanks (T1 & T2), missile trucks, T3 artillery
                              [UnitDefNames["corraid"].id] = true,
                              [UnitDefNames["armbull"].id] = true,
                              [UnitDefNames["correap"].id] = true,
