@@ -795,7 +795,7 @@ function gadget:MousePress(x,y,button)
 		x,y = correctMouseForScaling(x,y)
 		if (x > bx+w-quitX-5) and (x < bx+w-quitX+16*gl.GetTextWidth('Quit')+5) and (y>by+50-5) and (y<by+50+16+5) then --quit button
             disableAwardsPanel()
-			Spring.SendCommands("QuitMenu") --quitforce
+			Spring.SendCommands("ReloadForce") --quitforce | reloadforce should quit to game menu (for Chobby)
 		end
 		if (x > bx+w-graphsX-5) and (x < bx+w-graphsX+16*gl.GetTextWidth('Show Graphs')+5) and (y>by+50-5) and (y<by+50+16+5) then
 			Spring.SendCommands('endgraph 1')

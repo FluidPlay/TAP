@@ -348,12 +348,12 @@ local function updateButtons()
     local totalWidth = area[3] - area[1]
 
     local text = '    '
-    if (WG['teamstats'] ~= nil) then text = text..'Stats     ' end
-    if (WG['commands'] ~= nil) then text = text..'Cmd    ' end
-    if (WG['keybinds'] ~= nil) then text = text..'Keys    ' end
-    if (WG['changelog'] ~= nil) then text = text..'Changes     ' end
-    if (WG['options'] ~= nil) then text = text..'Options       ' end
-    text = text..'Quit    '
+    if (WG['teamstats'] ~= nil) then text = text..'Stats    ' end
+    if (WG['commands'] ~= nil) then text = text..'Cmd   ' end
+    if (WG['keybinds'] ~= nil) then text = text..'Keys   ' end
+    if (WG['changelog'] ~= nil) then text = text..'Changes   ' end
+    if (WG['options'] ~= nil) then text = text..'Options     ' end
+    text = text..'Quit  '
 
     local fontsize = totalWidth / glGetTextWidth(text)
     if fontsize > (height*widgetScale)/3 then
@@ -388,35 +388,35 @@ local function updateButtons()
             if (WG['teamstats'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('   Stats  ') * fontsize
+                width = glGetTextWidth('   Stats   ') * fontsize
                 buttonsArea['buttons']['stats'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4] }
             end
             if (WG['commands'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Cmd  ') * fontsize
+                width = glGetTextWidth('  Cmd   ') * fontsize
                 buttonsArea['buttons']['commands'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['keybinds'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Keys  ') * fontsize
+                width = glGetTextWidth('  Keys   ') * fontsize
                 buttonsArea['buttons']['keybinds'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['changelog'] ~= nil) then
                 button = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Changes  ') * fontsize
+                width = glGetTextWidth('  Changes   ') * fontsize
                 buttonsArea['buttons']['changelog'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['options'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Options  ') * fontsize
+                width = glGetTextWidth('  Options    ') * fontsize
                 buttonsArea['buttons']['options'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             offset = offset+width
-            width = glGetTextWidth('  Quit    ') * fontsize
+            width = glGetTextWidth(' Quit   ') * fontsize
             buttonsArea['buttons']['quit'] = {area[1]+offset, area[2]+margin, area[3], area[4]}
         end
     end)
