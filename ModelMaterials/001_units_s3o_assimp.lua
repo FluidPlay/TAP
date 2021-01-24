@@ -396,14 +396,14 @@ local unitAtlases = {
 
 local wreckAtlases = {
     ["arm"] = {
-        "unittextures/Arm_wreck_color.dds",
-        "unittextures/Arm_wreck_other.dds",
-        "unittextures/Arm_wreck_color_normal.dds",
+        "unittextures/bow_wreck_color.dds",
+        "unittextures/bow_wreck_other.dds",
+        "unittextures/bow_wreck_normal.dds",
     },
     ["cor"] = {
-        "unittextures/cor_color_wreck.dds",
-        "unittextures/cor_other_wreck.dds",
-        "unittextures/cor_color_wreck_normal.dds",
+        "unittextures/kern_wreck_color.dds",
+        "unittextures/bow_wreck_other.dds",
+        "unittextures/bow_wreck_normal.dds",
     },
 }
 
