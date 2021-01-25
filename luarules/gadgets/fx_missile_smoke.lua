@@ -6,7 +6,7 @@
 function gadget:GetInfo()
   return {
     name      = "Missile smoke",
-    desc      = "addes smoke ceg after missile flighttime is over",
+    desc      = "adds smoke ceg after missile flighttime is over",
     version   = "tart",
     author    = "Floris",
     date      = "October 2017",
@@ -64,6 +64,7 @@ end
 
 
 function gadget:ProjectileCreated(proID, proOwnerID, weaponDefID)
+    --missileWeapons[weaponDef.id] = 'missiletrailsmall-smoke'
     if missileWeapons[weaponDefID] then
         missiles[proID] = {Spring.GetGameFrame()-4 + Spring.GetProjectileTimeToLive(proID), missileWeapons[weaponDefID]}
     end

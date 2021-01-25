@@ -72,6 +72,10 @@ local frameRate = 4
 if not gadgetHandler:IsSyncedCode() then
     return end
 
+for _,upgrade in pairs(UnitUpgrades) do
+    UnitUpgrades[upgrade] = true
+end
+
 local function startUpgrade(unitID, unitUpg, cmdParams)
     --Spring.Echo("Added "..unitID..", count: "..#upgradingUnits)
     upgradingUnits[unitID] = { progress = 0, unitUpg = unitUpg, }
@@ -125,9 +129,6 @@ end
 function gadget:Initialize()
     -- Sets the dgun cursor to the FireRain ability
     Spring.AssignMouseCursor("firerain", "cursordgun", false)
-    for _,upgrade in pairs(UnitUpgrades) do
-        UnitUpgrades[upgrade] = true
-    end
     --GG.UnitUpgrades = UnitUpgrades
     local allUnits = spGetAllUnits()
     for i = 1, #allUnits do

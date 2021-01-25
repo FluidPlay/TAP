@@ -38,6 +38,8 @@ local spGetProjectileDefID      = Spring.GetProjectileDefID
 local spSetProjectileVelocity   = Spring.SetProjectileVelocity
 local spGetProjectileVelocity   = Spring.GetProjectileVelocity
 
+local movingsprayanglethreshold = 0.7  -- Above 70% of max speed results in the movingsprayangle
+
 --local armfavweapID = WeaponDefNames["armfav_janus_rocket"].id
 
 
@@ -62,17 +64,21 @@ local trackedUnits = {}     --[unitID] = movingsprayangle:number
 local function toDeg(x) return x / 182.044 end
 
 function gadget:UnitFinished(unitID, unitDefID, teamID)
-    local ud = UnitDefs[unitDefID]
-    if ud == nil or ud.customParams.movingsprayangle == nil then
+    local unitDef = UnitDefs[unitDefID]
+    if unitDef == nil or unitDef.customParams.movingsprayangle == nil then
         return end
-    local mSprayAngle = tonumber(ud.customParams.movingsprayangle)
+    local mSprayAngle = tonumber(unitDef.customParams.movingsprayangle)
     --local defSprayAngle = WeaponDefs[UnitDefs[ud].weapons[1].weaponDef].sprayangle
     --Spring.Echo(ud.weapons[1] and (ud.weapons[1]) or "null")
-    local weapDef = WeaponDefs[ud.weapons[1].weaponDef]
+    local weapDef = WeaponDefs[unitDef.weapons[1].weaponDef]
     local defSprayAngle = tonumber(weapDef.sprayAngle)  -- Converting from CAU to angles
     -- Default Spray Angle is stored in CAU. Divide and make it in angles
-    trackedUnits[unitID] = { movingsprayangle = toDeg(mSprayAngle), sprayangle = toDeg(defSprayAngle), weaponCount = #ud.weapons }
-    --Spring.Echo("Unit added: "..ud.name.."defsprayangle: "..toDeg(defSprayAngle).." msprayangle: ".. toDeg(mSprayAngle))
+    trackedUnits[unitID] = { movingsprayangle = toDeg(mSprayAngle),
+                             sprayangle = toDeg(defSprayAngle),
+                             weaponCount = #unitDef.weapons,
+                             maxMoveSpeed = unitDef.speed / 30,
+                           }
+    Spring.Echo("Unit added: ".. unitDef.name.."defsprayangle: "..toDeg(defSprayAngle).." msprayangle: ".. toDeg(mSprayAngle).." maxspeed: "..unitDef.speed / 30)
 end
 
 function gadget:GameFrame(f)
@@ -80,32 +86,39 @@ function gadget:GameFrame(f)
         return end
 
     for unitID, sprayangleData in pairs(trackedUnits) do
-        -- Spring.GetUnitVelocity ( number unitID ) -> nil | number velx, number vely, number velz, number velLength
         local unitMoveSpeed = select(4, spGetUnitVelocity(unitID))
-        if not unitID == nil then
-            trackedUnits[unitID] = nil
-        elseif isnumber(unitMoveSpeed) then
-            local newSprayAngle = (unitMoveSpeed > minMoveSpeed) and sprayangleData.movingsprayangle or sprayangleData.sprayangle
-            for weapNum = 1, sprayangleData.weaponCount do
-                spSetUnitWeaponState (unitID, weapNum, "sprayAngle", newSprayAngle)
+        if IsValidUnit(unitID) then
+            if isnumber(unitMoveSpeed) then
+                local t = inverselerp(0, sprayangleData.maxMoveSpeed * movingsprayanglethreshold, unitMoveSpeed)
+                Spring.Echo("MoveSpeed: "..unitMoveSpeed.." max: "..sprayangleData.maxMoveSpeed.." t: "..math.min(1,t))
+                local movingSprayAngle = lerp(sprayangleData.sprayangle, sprayangleData.movingsprayangle, math.min(1,t))
+                local newSprayAngle = (unitMoveSpeed > minMoveSpeed) and movingSprayAngle or sprayangleData.sprayangle
+                for weapNum = 1, sprayangleData.weaponCount do
+                    spSetUnitWeaponState (unitID, weapNum, "sprayAngle", newSprayAngle)
+                end
             end
         end
     end
 end
 
-local function isTrackedWeapon(wDefID)
-    for weapID, _ in pairs(trackedWeapIDs) do
-        if WeaponDefNames[weapID].id == wDefID then
-            return true
-        end
-    end
-    return false
-end
+--local function isTrackedWeapon(wDefID)
+--    for weapID, _ in pairs(trackedWeapIDs) do
+--        if WeaponDefNames[weapID].id == wDefID then
+--            return true
+--        end
+--    end
+--    return false
+--end
 
 function gadget:ProjectileCreated(projID, proOwnerID, weaponDefID)
-    local wDefID = spGetProjectileDefID(projID)
-    if isTrackedWeapon(wDefID) then
-        local velx, vely, velz = spGetProjectileVelocity( projID )
+    --Spring.GetProjectileDefID(number projectileID) -> nil | number weaponDefID
+        --local wDefID = spGetProjectileDefID(projID)
+    local weaponDef = WeaponDefs[weaponDefID]
+    if not weaponDef then
+        return end
+    if trackedWeapIDs[weaponDef.name] then
+        --Spring.Echo("Tracked weapon defID")
+        local velx, _, velz = spGetProjectileVelocity( projID )
         spSetProjectileVelocity(projID, velx, 0, velz)
     end
 end
