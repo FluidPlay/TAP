@@ -78,7 +78,7 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
                              weaponCount = #unitDef.weapons,
                              maxMoveSpeed = unitDef.speed / 30,
                            }
-    Spring.Echo("Unit added: ".. unitDef.name.."defsprayangle: "..toDeg(defSprayAngle).." msprayangle: ".. toDeg(mSprayAngle).." maxspeed: "..unitDef.speed / 30)
+    --Spring.Echo("Unit added: ".. unitDef.name.."defsprayangle: "..toDeg(defSprayAngle).." msprayangle: ".. toDeg(mSprayAngle).." maxspeed: "..unitDef.speed / 30)
 end
 
 function gadget:GameFrame(f)
@@ -90,7 +90,7 @@ function gadget:GameFrame(f)
         if IsValidUnit(unitID) then
             if isnumber(unitMoveSpeed) then
                 local t = inverselerp(0, sprayangleData.maxMoveSpeed * movingsprayanglethreshold, unitMoveSpeed)
-                Spring.Echo("MoveSpeed: "..unitMoveSpeed.." max: "..sprayangleData.maxMoveSpeed.." t: "..math.min(1,t))
+                --Spring.Echo("MoveSpeed: "..unitMoveSpeed.." max: "..sprayangleData.maxMoveSpeed.." t: "..math.min(1,t))
                 local movingSprayAngle = lerp(sprayangleData.sprayangle, sprayangleData.movingsprayangle, math.min(1,t))
                 local newSprayAngle = (unitMoveSpeed > minMoveSpeed) and movingSprayAngle or sprayangleData.sprayangle
                 for weapNum = 1, sprayangleData.weaponCount do

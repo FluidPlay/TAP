@@ -405,7 +405,7 @@ local function addOrderCommand(cmd)
         end
         button:SetCaption(truncName) --cmd.name
         local s = (btWidth - button.textPadding * 2) / glGetTextWidth(button.caption)
-        button.font:SetSize(max(s, Config.labels.captionFontMaxSize) + fontSizeOffset)
+        button.font:SetSize(min(s, Config.labels.captionFontMaxSize) + fontSizeOffset)
     end
     chiliCache['button' .. cmd.id] = button
     applyHighlightHandler(button, cmd)
