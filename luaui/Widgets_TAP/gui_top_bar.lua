@@ -388,19 +388,19 @@ local function updateButtons()
             if (WG['teamstats'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('   Stats   ') * fontsize
+                width = glGetTextWidth('   Stats    ') * fontsize
                 buttonsArea['buttons']['stats'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4] }
             end
             if (WG['commands'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
                 width = glGetTextWidth('  Cmd   ') * fontsize
-                buttonsArea['buttons']['commands'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
+                buttonsArea['buttons']['commands '] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['keybinds'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Keys   ') * fontsize
+                width = glGetTextWidth('  Keys    ') * fontsize
                 buttonsArea['buttons']['keybinds'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['changelog'] ~= nil) then
@@ -412,7 +412,7 @@ local function updateButtons()
             if (WG['options'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Options    ') * fontsize
+                width = glGetTextWidth('  Options      ') * fontsize
                 buttonsArea['buttons']['options'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             offset = offset+width
@@ -1475,7 +1475,7 @@ function widget:MousePress(x, y, button)
                     if playSounds then
                         Spring.PlaySoundFile(leftclick, 0.75, 'ui')
                     end
-                    Spring.SendCommands("QuitForce")
+                    Spring.SendCommands("ReloadForce") --"QuitForce"
                     showQuitscreen = nil
                     hideQuitWindow = os.clock()
                     return true

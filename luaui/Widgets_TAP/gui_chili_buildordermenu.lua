@@ -30,7 +30,7 @@ local ceil = math.ceil
 local max = math.max
 local min = math.min
 
-local fontSizeOffset = 0 -- -5 || Buttons' font size offset (anything but zero is breaking with small screen sizes)
+local fontSizeOffset = -3 -- -5 || Buttons' font size offset (anything but zero is breaking with small screen sizes)
 local minSideMenuWidth = 280
 
 local glGetTextWidth = gl.GetTextWidth
@@ -83,7 +83,7 @@ local Config = {
         --captionFontMinSize = 12, -- test, not being used currently
         captionFontMaxSize = 16, --10, --18,
         queueFontSize = 24, --18, --32 (MaDDoX)
-        costFontSize = 15, --9,
+        costFontSize = 14, --9, 15
         showMetalCost = true,
         showEnergyCost = false, --true
     },
@@ -405,7 +405,7 @@ local function addOrderCommand(cmd)
         end
         button:SetCaption(truncName) --cmd.name
         local s = (btWidth - button.textPadding * 2) / glGetTextWidth(button.caption)
-        button.font:SetSize(min(s, Config.labels.captionFontMaxSize) + fontSizeOffset)
+        button.font:SetSize(max(s, Config.labels.captionFontMaxSize) + fontSizeOffset)
     end
     chiliCache['button' .. cmd.id] = button
     applyHighlightHandler(button, cmd)
@@ -432,7 +432,7 @@ local function addStateCommand(cmd)
             cmdID = cmd.id,
             image = image,
             caption = '',
-            textPadding = 8, -- (MaDDoX)
+            textPadding = 14, -- (MaDDoX)
             padding = {0, 0, 0, 0},
             margin = {2, 2, 2, 2},
             OnMouseUp = {ActionCommand},
@@ -444,7 +444,7 @@ local function addStateCommand(cmd)
             name = 'button' .. cmd.id,
             cmdID = cmd.id,
             caption = cmd.params[cmd.params[1] + 2],
-            textPadding = 12, --8,
+            textPadding = 14, --8, 12
             padding = {0, 0, 0, 0},
             margin = {2, 2, 2, 2},
             OnMouseUp = {ActionCommand},

@@ -61,7 +61,7 @@ local lockcameraHideEnemies = true 			-- specfullview
 local lockcameraLos = true					-- togglelos
 local collapsable = false
 local loadedFontSize = 32
-local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
+local font = gl.LoadFont(FontPath, loadedFontSize, 18, 1.25) --24
 
 --------------------------------------------------------------------------------
 -- SPEED UPS
@@ -328,6 +328,8 @@ local specListShow = true
 
 local collapsed = false
 local collapsedHeight = 42
+
+local playerNameCharSize = 18 --14
 
 --------------------------------------------------
 -- Modules
@@ -646,7 +648,7 @@ function SetMaxPlayerNameWidth()
 			end
 		end
 		local charSize
-		if spec then charSize = 11 else charSize = 14 end
+		if spec then charSize = 11 else charSize = playerNameCharSize end --14
 		nextWidth = charSize*gl_GetTextWidth(name)+8
 		if nextWidth > maxWidth then
 			maxWidth = nextWidth
