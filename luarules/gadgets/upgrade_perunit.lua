@@ -61,6 +61,8 @@ local unitRulesParamName = "upgrade"
 local unitRulesCompletedParamName = "upgraded"
 local oldFrame = 0
 
+local CMD_ATTACK = CMD.ATTACK
+
 --local tooltipRequirement = "\n"..RedStr.."Requires ".. prereq,
 --local UpgradeTooltip = 'Enables D-gun ability / command'
 --local tooltipRequirement = "\n"..RedStr.."Requires ".. PUU.dgun.prereq
