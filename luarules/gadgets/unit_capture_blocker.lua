@@ -35,9 +35,9 @@ if gadgetHandler:IsSyncedCode() then
         if not IsValidUnit(unitID) then
             return end
         if trackedUnits[unitID] and cmdID and cmdID == CMD_CAPTURE then
-            local unitPosY = select(2, spGetUnitPosition(unitID))
+            local unitPosY = select(2, spGetUnitPosition(unitID)) or 0
             local targetUID = cmdParams[1]
-            local targetPosY = select(2, spGetUnitPosition(targetUID))
+            local targetPosY = select(2, spGetUnitPosition(targetUID)) or 0
             local heightDiff = math_abs(targetPosY - unitPosY)
             local buildDistance = UnitDefs[unitDefID].buildDistance or 100  -- fallback build distance in case of stats error
             if heightDiff > (heightDiffPercentage * buildDistance) then
