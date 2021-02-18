@@ -5508,7 +5508,7 @@ function widget:GetConfigData(data)
         desiredWaterValue = desiredWaterValue,
         waterDetected = waterDetected,
 
-        disticon = { 'UnitIconDist', tonumber(Spring.GetConfigInt("UnitIconDist", 1) or 160) },
+        disticon = { 'UnitIconDist', tonumber(Spring.GetConfigInt("UnitIconDist", 85) or 85) }, --was: 160
         particles = { 'MaxParticles', tonumber(Spring.GetConfigInt("MaxParticles", 1) or 15000) },
         --nanoparticles = {'MaxNanoParticles', tonumber(Spring.GetConfigInt("MaxNanoParticles",1) or 500)},	-- already saved above in: maxNanoParticles
         decals = { 'GroundDecals', tonumber(Spring.GetConfigInt("GroundDecals", 1) or 1) },

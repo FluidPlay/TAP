@@ -25,6 +25,16 @@ if not tonumber(Spring.GetConfigInt("AdvMapShading",0) or 0) then
 	Spring.SetConfigInt("AdvMapShading", 1)
 end
 
+-- unit Icon dist
+if not tonumber(Spring.GetConfigInt("UnitIconDist",0) or 0) then
+    Spring.SetConfigInt("AdvMapShading", 85)
+end
+
+-- Mouse drag scroll threshold (-1 means no drag-scroll allowed, the default on TAP)
+if not tonumber(Spring.GetConfigFloat("MouseDragScrollThreshold",0) or 0) then
+    Spring.SetConfigFloat("MouseDragScrollThreshold", -1)
+end
+
 ---- make sure default/minimum ui opacity is set
 --if Spring.GetConfigFloat("ui_opacity", 0.6) < 0.3 then
 --	Spring.SetConfigFloat("ui_opacity", 0.6)

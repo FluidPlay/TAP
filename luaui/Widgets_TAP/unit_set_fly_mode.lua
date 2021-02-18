@@ -2,8 +2,8 @@
 --------------------------------------------------------------------------------
 function widget:GetInfo()
     return {
-        name      = "Set fighters, drones & bombers to Fly mode",
-        desc      = "Setting fighters & bombers to Fly mode",
+        name      = "Unit - Auto-set Fly Mode",
+        desc      = "Set created air plants, fighters, drones & bombers to Fly mode",
         author    = "Floris (original unit_air_allways_fly widget by [teh]Decay)",
         date      = "july 2017",
         license   = "GNU GPL, v2 or later",
@@ -31,7 +31,10 @@ local function switchToFlyMode(unitID, unitDefID)
        unitDefID == UnitDefNames["corhurc"].id or unitDefID == UnitDefNames["armpnix"].id or
        unitDefID == UnitDefNames["armca"].id or unitDefID == UnitDefNames["corca"].id or
        unitDefID == UnitDefNames["armaca"].id or unitDefID == UnitDefNames["coraca"].id or
-       unitDefID == UnitDefNames["armliche"].id or unitDefID == UnitDefNames["corstil"].id
+       unitDefID == UnitDefNames["armliche"].id or unitDefID == UnitDefNames["corstil"].id or
+
+       unitDefID == UnitDefNames["armap"].id or unitDefID == UnitDefNames["corap"].id or
+       unitDefID == UnitDefNames["armaap"].id or unitDefID == UnitDefNames["coraap"].id
     then
         spGiveOrderToUnit(unitID, cmdFly, { 0 }, {}) end
 end
