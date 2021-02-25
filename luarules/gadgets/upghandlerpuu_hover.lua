@@ -10,7 +10,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "27 December 2020",
         license   = "GNU GPL, v2 or later",
-        layer     = -50,
+        layer     = 0,
         enabled   = true,
     }
 end
@@ -33,7 +33,7 @@ local spGetUnitDefID = Spring.GetUnitDefID
 
 local trackedUnits = {}     -- { unitID = true, ...} | who'll get the speed improved once upgrade done
 
-local upgradableDefIDs = {} -- { UnitDefID = {}, ..} | Reverse table built in Initialize()
+local upgradableDefIDs = {} -- { UnitDefID = {}, ..}
 local upgData = {}          -- { [UnitDefNames["armstump"].id] = true, ... }
 
 local updateRate = 5        -- How often to check for pending-research techs
@@ -65,7 +65,8 @@ end
 -- Constantly poll to check if per-unit upgrade is done (processed by upgrade_perunit.lua)
 local function Update()
     for unitID, unitDefID in pairs(trackedUnits) do
-        if spGetUnitRulesParam(unitID, unitRulesCompletedParamName) == 1 then
+        if spGetUnitRulesParam(unitID, unitRulesCompletedParamName) == "1" then
+            Spring.Echo("Hover upgrade detected")
             ApplyHover(unitID, unitDefID, false)
             trackedUnits[unitID] = nil
         end

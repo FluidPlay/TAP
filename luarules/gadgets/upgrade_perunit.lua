@@ -215,7 +215,7 @@ local function finishUpgrade(unitID, unitUpg)
     spSetUnitRulesParam(unitID, unitRulesParamName, nil)
 
     -- This is to be consumed by upghandlerpuus (like upghandlerpuu_hover.lua)
-    spSetUnitRulesParam(unitID, unitRulesCompletedParamName, 1)
+    spSetUnitRulesParam(unitID, unitRulesCompletedParamName, "1")
 
     --- Below is alerting all players about upgrade finished. Looks like an engine bug.
     --if unitUpg.alertWhenDone then

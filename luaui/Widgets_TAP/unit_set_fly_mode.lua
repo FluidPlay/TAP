@@ -21,12 +21,14 @@ local spGetMyTeamId = Spring.GetMyTeamID
 local spGetTeamUnits = Spring.GetTeamUnits
 local spGetUnitDefID = Spring.GetUnitDefID
 local cmdFly = 145
+local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
 --------------------------------------------------------------------------------
 
 local function switchToFlyMode(unitID, unitDefID)
     if unitDefID == UnitDefNames["armfig"].id  or unitDefID == UnitDefNames["armsfig"].id or unitDefID == UnitDefNames["armhawk"].id or
        unitDefID == UnitDefNames["corveng"].id or unitDefID == UnitDefNames["corsfig"].id or unitDefID == UnitDefNames["corvamp"].id or
-       unitDefID == UnitDefNames["corbw"].id or unitDefID == UnitDefNames["armkam"].id or unitDefID == UnitDefNames["armbrawl"].id or unitDefID == UnitDefNames["corape"].id or
+       unitDefID == UnitDefNames["corbw"].id or unitDefID == UnitDefNames["armkam"].id or
+       unitDefID == UnitDefNames["armbrawl"].id or unitDefID == UnitDefNames["corape"].id or
        unitDefID == UnitDefNames["corshad"].id or unitDefID == UnitDefNames["armthund"].id or
        unitDefID == UnitDefNames["corhurc"].id or unitDefID == UnitDefNames["armpnix"].id or
        unitDefID == UnitDefNames["armca"].id or unitDefID == UnitDefNames["corca"].id or
@@ -36,7 +38,9 @@ local function switchToFlyMode(unitID, unitDefID)
        unitDefID == UnitDefNames["armap"].id or unitDefID == UnitDefNames["corap"].id or
        unitDefID == UnitDefNames["armaap"].id or unitDefID == UnitDefNames["coraap"].id
     then
-        spGiveOrderToUnit(unitID, cmdFly, { 0 }, {}) end
+        spGiveOrderToUnit(unitID, cmdFly, { 0 }, {})
+        spGiveOrderToUnit(unitID, cmdAirRepairLevel, { 0 }, {})
+    end
 end
 
 function widget:UnitCreated(unitID, unitDefID, teamID, builderID)

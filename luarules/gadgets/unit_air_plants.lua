@@ -57,7 +57,7 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
   if AIRPLANT[unitDefID] then
     InsertUnitCmdDesc(unitID, 500, landCmd)
     InsertUnitCmdDesc(unitID, 500, airCmd)
-    plantList[unitID] = {landAt=1, repairAt=1}
+    plantList[unitID] = {landAt=1, repairAt=0} --repairAt=1
   elseif plantList[builderID] then
     GiveOrderToUnit(unitID, CMD.AUTOREPAIRLEVEL, { plantList[builderID].repairAt }, { })
     GiveOrderToUnit(unitID, CMD.IDLEMODE, { plantList[builderID].landAt }, { })
