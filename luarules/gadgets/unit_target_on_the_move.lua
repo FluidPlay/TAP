@@ -595,9 +595,9 @@ function gadget:GameFrame(n)
 			if not checkTarget(unitID,targetData.target) then
 				removeTarget(unitID,index)
 			else
-				--if setTarget(unitID,targetData) then
-					targetIndex = index
-					break
+				--if setTarget(unitID,targetData) then [[Removed to improve lock persistency - MaDDoX]]
+                targetIndex = index
+                break
 				--end
 			end
 		end
