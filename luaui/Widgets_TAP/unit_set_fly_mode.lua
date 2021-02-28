@@ -35,6 +35,9 @@ local function switchToFlyMode(unitID, unitDefID)
        unitDefID == UnitDefNames["armaca"].id or unitDefID == UnitDefNames["coraca"].id or
        unitDefID == UnitDefNames["armliche"].id or unitDefID == UnitDefNames["corstil"].id or
 
+       unitDefID == UnitDefNames["armatlas"].id or unitDefID == UnitDefNames["armdfly"].id or
+       unitDefID == UnitDefNames["corvalk"].id or unitDefID == UnitDefNames["corseah"].id or
+
        unitDefID == UnitDefNames["armap"].id or unitDefID == UnitDefNames["corap"].id or
        unitDefID == UnitDefNames["armaap"].id or unitDefID == UnitDefNames["coraap"].id
     then
