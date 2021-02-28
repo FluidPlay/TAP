@@ -595,10 +595,10 @@ function gadget:GameFrame(n)
 			if not checkTarget(unitID,targetData.target) then
 				removeTarget(unitID,index)
 			else
-				if setTarget(unitID,targetData) then
+				--if setTarget(unitID,targetData) then
 					targetIndex = index
 					break
-				end
+				--end
 			end
 		end
 		if unitData.currentIndex ~= targetIndex then
@@ -607,15 +607,16 @@ function gadget:GameFrame(n)
 		end
 	end
 
-	if n%USEEN_UPDATE_FREQUENCY == 0 then
-		for unitID, unitData in pairs(unitTargets) do
-			for index,targetData in ipairs(unitData.targets) do
-				if removeUnseenTarget(targetData,unitData.allyTeam) then
-					removeTarget(unitID,index)
-				end
-			end
-		end
-	end
+    ---TEST (MaDDoX)
+	--if n%USEEN_UPDATE_FREQUENCY < 0.001 then
+	--	for unitID, unitData in pairs(unitTargets) do
+	--		for index,targetData in ipairs(unitData.targets) do
+	--			if removeUnseenTarget(targetData,unitData.allyTeam) then
+	--				removeTarget(unitID,index)
+	--			end
+	--		end
+	--	end
+	--end
 
 end
 
