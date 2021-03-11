@@ -23,17 +23,6 @@ local trackedUnits = {} -- Air Transports
 local maxspeedReductionFactor = 0.6
 local mygravityReductionFactor = 0.85 --unused
 
-local transportUDIDs = {}
-
---function gadget:Initialize()
---    for udefID = 1,#UnitDefs do
---        local unitDefID = UnitDefs[udefID]
---        if unitDefID.transportSize and unitDefID.transportSize > 0 then
---            transportUDIDs[udefID] = true
---        end
---    end
---end
-
 function gadget:UnitFinished(unitID, unitDefID, unitTeam, builderID)
     -- Check if it's an air transport
     local uDef = UnitDefs[unitDefID]
@@ -68,7 +57,6 @@ end
 -- if mass of transportees is > 60% of the transport's mass limit, reduce maxspeed by 40%
 function gadget:UnitLoaded(unitID, unitDefID, unitTeam, transportID, transportTeam)
     if not trackedUnits[transportID] then
-        Spring.Echo("Not a tracked transport")
         return end
     local loadedMass, transpMassLimit = GetTotalTransportWeight(transportID)
     if loadedMass > (transpMassLimit * 0.6) then
