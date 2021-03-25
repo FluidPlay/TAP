@@ -3,7 +3,7 @@
 function widget:GetInfo()
   return {
     name      = "Map Edge Extension",
-    version   = "v0.5-BA", -- WARNING: This version was customized for BA
+    version   = "v0.5", -- WARNING: This version was formerly customized for BA
     desc      = "Draws a mirrored map next to the edges of the real map",
     author    = "Pako",
     date      = "2010.10.27 - 2011.10.29", --YYYY.MM.DD, created - updated

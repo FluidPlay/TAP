@@ -14,7 +14,6 @@ end
 VFS.Include("gamedata/taptools.lua")
 
 local loadedFontSize = 32
-local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25) --"LuaUI/Fonts/FreeSansBold.otf"
 local ui_opacity = Spring.GetConfigFloat("ui_opacity",0.66)
 
 local height = 38
@@ -63,7 +62,7 @@ local currentPlanecap = 0
 local currentPlaneCount = 0
 local currentTidal = 0
 local gameStarted = false
-local displayComCounter = true -- TODO: revert; false
+local displayComCounter = false
 
 --gl.LoadFont
 --
@@ -143,6 +142,21 @@ local now = os.clock()
 local gameFrame = Spring.GetGameFrame()
 
 local draggingShareIndicatorValue = {}
+local font, font2, bgpadding, chobbyInterface, firstButton, fontSize, comcountChanged, showQuitscreen, resbarHover
+local draggingConversionIndicatorValue, draggingShareIndicator, draggingConversionIndicator
+local conversionIndicatorArea, quitscreenArea, quitscreenQuitArea, quitscreenResignArea, hoveringTopbar, hideQuitWindow
+local dlistButtonsGuishader, dlistRejoinGuishader, dlistComsGuishader, dlistButtonsGuishader, dlistWindGuishader, dlistQuit
+
+local armcomDefID = UnitDefNames.armcom.id
+local corcomDefID = UnitDefNames.corcom.id
+local armcom1DefID = UnitDefNames.armcom1.id
+local corcom1DefID = UnitDefNames.corcom1.id
+local armcom2DefID = UnitDefNames.armcom2.id
+local corcom2DefID = UnitDefNames.corcom2.id
+local armcom3DefID = UnitDefNames.armcom3.id
+local corcom3DefID = UnitDefNames.corcom3.id
+local armcom4DefID = UnitDefNames.armcom4.id
+local corcom4DefID = UnitDefNames.corcom4.id
 
 --------------------------------------------------------------------------------
 -- Rejoin
@@ -171,6 +185,11 @@ function widget:ViewResize(n_vsx,n_vsy)
     vsx, vsy = gl.GetViewSizes()
     widgetScale = (vsy / height) * 0.043	-- using 734 because redui-console uses this value too
     xPos = vsx*relXpos
+
+    --font = WG['fonts'].getFont(fontfile)
+    --font2 = WG['fonts'].getFont(fontfile2)
+    font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
+    font2 = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 
     for n,_ in pairs(dlistWindText) do
         glDeleteList(dlistWindText[n])
@@ -880,7 +899,7 @@ function widget:GameStart()
     checkStatus()
     if displayComCounter then
         comcountChanged = true
-        countComs()
+        countComs(true)
     end
 end
 
@@ -986,7 +1005,7 @@ function widget:Update(dt)
     -- coms
     if displayComCounter then
         secComCount = secComCount + dt
-        if secComCount>0.5 then
+        if secComCount > 0.5 then
             secComCount = 0
             countComs()
         end
@@ -1532,10 +1551,13 @@ function widget:PlayerChanged()
     spec = spGetSpectatingState()
     checkStatus()
     if displayComCounter then
-        countComs()
+        countComs(true)
     end
     if spec then
         resbarHover = nil
+    end
+    if not prevSpec and prevSpec ~= spec then
+        init()
     end
 end
 
@@ -1550,24 +1572,19 @@ function isCom(unitID,unitDefID)
     return UnitDefs[unitDefID].customParams.iscommander ~= nil
 end
 
-function countComs()
+function countComs(forceUpdate)
     -- recount my own ally team coms
     local prevAllyComs = allyComs
     local prevEnemyComs = enemyComs
     allyComs = 0
     local myAllyTeamList = spGetTeamList(myAllyTeamID)
-
-    local teamComTypeCount = 0
-    for _,teamID in ipairs(myAllyTeamList) do
-        --comDefIDs = { [1] = { id = UnitDefNames.armcom.id },
-        for i, data in ipairs(comDefIDs) do
-            teamComTypeCount = spGetTeamUnitDefCount(teamID, data.id)
-            if isnumber(teamComTypeCount) then
-                allyComs = allyComs + teamComTypeCount
-            end
-        end
+    for _, teamID in ipairs(myAllyTeamList) do
+        allyComs = allyComs + spGetTeamUnitDefCount(teamID, armcomDefID)  + spGetTeamUnitDefCount(teamID, corcomDefID) +
+                              spGetTeamUnitDefCount(teamID, armcom1DefID) + spGetTeamUnitDefCount(teamID, corcom1DefID)+
+                              spGetTeamUnitDefCount(teamID, armcom2DefID) + spGetTeamUnitDefCount(teamID, corcom2DefID)+
+                              spGetTeamUnitDefCount(teamID, armcom3DefID) + spGetTeamUnitDefCount(teamID, corcom3DefID)+
+                              spGetTeamUnitDefCount(teamID, armcom4DefID) + spGetTeamUnitDefCount(teamID, corcom4DefID)
     end
-    comcountChanged = true
 
     local newEnemyComCount = spGetTeamRulesParam(myTeamID, "enemyComCount")
     if type(newEnemyComCount) == 'number' then
@@ -1578,7 +1595,7 @@ function countComs()
         end
     end
 
-    if allyComs ~= prevAllyComs or enemyComs ~= prevEnemyComs then
+    if forceUpdate or allyComs ~= prevAllyComs or enemyComs ~= prevEnemyComs then
         comcountChanged = true
     end
 
@@ -1651,7 +1668,6 @@ function widget:Initialize()
     WG['topbar'].setResourceBgTint = function(value)
         resourcebarBgTint = value
     end
-
 
     init()
 end

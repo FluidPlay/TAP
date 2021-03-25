@@ -1,4 +1,36 @@
-﻿v1.03 changelog:
+﻿v2.0 changelog:
+* Bow Flare (formerly Arm Flash) now has 430 weapon range (was 415)
+* Moving spray angle (reduced accuracy for some weapons when moving) now works progressively according to speed
+* Kern Merc (formerly Core Commando) capture ability disabled
+* hflaser damage type multiplier vs defense armor now 0.2 (was 0.6)
+* T0 Commander d-gun being enabled was fixed
+* Fixed T1 mexes and other per-unit upgraded units gaining their upgrades for free
+* Colliders of Commanders and Super experimental units fixed
+* Fixed animation scripting bugs for corsktl, armsnipe and armmark
+* Fixed minor error in unit_capture_blocker.lua
+* Redback (Bow's missile spider) missile start velocity now 100 (was 80), weapon acceleration now 200 (was 160)
+* Unit icons distance default now set to 85 (was 160)
+* Ore Extractor icons now fixed (properly use a box background now)
+* All air factories are now set to "Fly" mode by default
+* Drones (Bow Banshee and Kern Bladewing) now take advantage of the "Throttle" global upgrade, improving their max speed by ~40%
+* Bow Poker now fires volley of three gauss missiles (was single missile), DPS maintained
+* Fixed Arm Stumpy per-unit Hover upgrade
+* Bladewings (laser/EMP drone) aiming is now independent of the main body direction, making them more effective
+* Air units are now set to LandAt-0%
+* Wind Generators now require a Tech Center
+* Air transports now reduce their speed by 40% when their total transport weight is above 60% of their capacity.
+* Bullet damage type multiplier vs lightbot armor now 1.5 (was 1.24)
+* Laser damage type multiplier vs lightbot armor now 1.72 (was 1.44)
+* Set-target lock should now be less prone to be lost during battles
+* Bow Builder base build speed now 100 (was 125), metal cost now 75 (was 80)
+* Kern Builder base build speed now 80 (was 160)
+* Disabled gfx_snow.lua
+* Increased Bow & Kern commander models size by 25% across the board
+* Doubled construction units 'build stripe' size
+* Regular and Advanced construction ships and submarines can now take the capture upgrade
+* Fixed GUI counter for enemy commanders (WIP)
+
+v1.03 changelog:
 * Improved auto-assist logic for just-built builders & FARKs
 * Added "P" shortcut to build Air Pads and Adv. Air Pads
 * Core Leveler weapon damage now 72 (was 100)

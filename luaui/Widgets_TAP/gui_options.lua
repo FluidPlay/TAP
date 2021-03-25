@@ -711,8 +711,10 @@ function widget:ViewResize()
     bgpadding = Spring.FlowUI.elementPadding
     elementCorner = Spring.FlowUI.elementCorner
 
-    font = WG['fonts'].getFont(fontfile)
-    font2 = WG['fonts'].getFont(fontfile2)
+    --font = WG['fonts'].getFont(fontfile)
+    --font2 = WG['fonts'].getFont(fontfile2)
+    font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
+    font2 = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
     local newFontfileScale = (0.5 + (vsx * vsy / 5700000))
     if fontfileScale ~= newFontfileScale then
         fontfileScale = newFontfileScale
