@@ -2615,7 +2615,7 @@ function init()
           end,
         },
 
-        { id = "disticon", group = "gfx", basic = true, name = texts.option.disticon, type = "slider", min = 100, max = 700, step = 10, value = tonumber(Spring.GetConfigInt("UnitIconDist", 1) or 160), description = texts.option.disticon_descr,
+        { id = "disticon", group = "gfx", basic = true, name = texts.option.disticon, type = "slider", min = 60, max = 700, step = 10, value = tonumber(Spring.GetConfigInt("UnitIconDist", 1) or 160), description = texts.option.disticon_descr,
           onload = function(i)
           end,
           onchange = function(i, value)

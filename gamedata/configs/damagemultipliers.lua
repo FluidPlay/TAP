@@ -50,7 +50,7 @@ local damageMultipliers = {
 --    }
 --,
 	thermo={ 	lightbot = 1,    supportbot = 1.9, 	heavybot = 1.1, lightveh = 0.22,    supportveh = 1,        heavyveh = 1.3,
-                lightair = 1.3,  supportair = 2.5,	heavyair = 1,   lightship = 1.5,    supportship = 0.5,     heavyship = 1.75,
+                lightair = 1.3,  supportair = 2.5,	heavyair = 1,   lightship = 1.5,    supportship = 0.5,     heavyship = 1.25,
                 structure = 0.5, resource = 0.25, 	defense = 0.2,  defenseaa = 0.3,    commander = 0.15,
 	}
 ,

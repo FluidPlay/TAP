@@ -1,7 +1,7 @@
 function widget:GetInfo()
 	return {
 		name = "Camera & Lighting Setup",
-		desc = "Sets camera to Spring after load, centers on commander on start, buffs ambient lighting",
+		desc = "Sets camera to Spring after load, centers on commander on start", --, buffs ambient lighting",
 		author = "MaDDoX",
 		date = "12/03/2017",
 		license = "LGPL",
@@ -36,20 +36,20 @@ function widget:Initialize()
 end
 
 -- Let's average the current map unit lighting color with white, to light up darker areas in models
-local function SetSunLighting()
-    local r,g,b = gl.GetSun("ambient" ,"unit")
-    r = r and (r + 1) / 2 or 1
-    g = g and (g + 1) / 2 or 1
-    b = b and (b + 1) / 2 or 1
-    Spring.SetSunLighting({unitAmbientColor = {r, g, b} })--, unitDiffuseColor = {1, 1, 1} })
-    Spring.Echo("Sun lighting set")
-end
+--local function SetSunLighting()
+--    local r,g,b = gl.GetSun("ambient" ,"unit")
+--    r = r and (r + 1) / 2 or 1
+--    g = g and (g + 1) / 2 or 1
+--    b = b and (b + 1) / 2 or 1
+--    Spring.SetSunLighting({unitAmbientColor = {r, g, b} })--, unitDiffuseColor = {1, 1, 1} })
+--    Spring.Echo("Sun lighting set")
+--end
 
 function widget:GameFrame(n)
 	if spec then
         -- Only enable MMB-hold scroll-lock if it's in spec mode
-        Spring.SendCommands("/set MouseDragScrollThreshold 0.3")
-		SetSunLighting()
+        --Spring.SendCommands("/set MouseDragScrollThreshold 0.3")
+		--SetSunLighting()
 		widgetHandler:RemoveWidget()
 		--postinit = n + 1
 	end
@@ -60,7 +60,7 @@ function widget:GameFrame(n)
 	--	widgetHandler:RemoveWidget()
 		--return end
 
-    SetSunLighting()
+    --SetSunLighting()
 
     Spring.SendCommands("/set MouseDragScrollThreshold -1")
     Spring.SendCommands("/set CamTimeExponent 100") -- Instant zoom-in / zoom-out with TAB

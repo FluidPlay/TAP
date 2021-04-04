@@ -132,6 +132,12 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
+    --Called when a unit is transferred between teams. This is called before UnitGiven and in that moment unit is still assigned to the oldTeam.
+    function gadget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
+        gadget:UnitDestroyed(unitID, unitDefID, oldTeam)
+    end
+
+    --Called when a unit is transferred between teams. This is called after UnitTaken and in that moment unit is assigned to the newTeam.
     function gadget:UnitGiven(unitID, unitDefID, teamID)
         gadget:UnitFinished(unitID, unitDefID, teamID)
     end
