@@ -103,7 +103,7 @@ function gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOpt
         end
         if cmdID == CMD_MOVE then
             planeDestinations[unitID] = { x = cmdParams[1], y = cmdParams[2], z = cmdParams[3] }
-        elseif cmdID == CMD_STOP and not cmdOptions.shift then --TODO: And flyState == fly
+        elseif cmdID == CMD_STOP and not cmdOptions.shift then
             if isSetToFly(unitID) and not pausedPlanes[unitID] then
                 local x, y, z = Spring.GetUnitPosition(unitID)
                 local velx, vely, velz= Spring.GetUnitVelocity(unitID)

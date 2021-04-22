@@ -3,9 +3,9 @@ local armorDefs = {
               "coramph","corch","corck","cornecro","corspy","corsub","corvoyr","armfast", "corsktl", "corpyro",},
     supportbot={"armaak","armaser","armah","armjeth","armsptk","armmh","armrock","coraak","corhrk","corah","corcrash",
 				"cormort","corstorm","cortermite", "cordefiler","armsnipe", },
-    heavybot={"corkrog","armmark", "armzeus", "corsumo","armbanth", "armfboy",
-              "armham","armorco","armraz","armvader","armwar","corcan","corkarg","corroach","corthud","corthovr","krogtaar",
-              "meteor","tawf009","cormando","armmav","armspid",},
+    heavybot={"armmark", "armzeus", "corsumo","armfboy","armham","armvader","armwar","corcan","corroach","corthud",
+              "cormando","armmav","armspid",},
+    superunit={"corkrog","armbanth", "armorco","armraz","corkarg","corthovr","krogtaar","meteor",},
 
     --++++==== Vehicles
 	lightveh = {

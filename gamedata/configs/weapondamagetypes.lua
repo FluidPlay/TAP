@@ -231,7 +231,7 @@ local weaponDamageTypes = {
 	--armclaw = { ["LightningGun"] = "rocket", },
 	cordl = { ["DepthCharge"] = "cannon", },
 	corseap = { ["TorpedoLauncher"] = "homing", },
-	corveng = { ["Machinegun"] = "bullet", ["MachinegunA2G"] = "bullet", },
+	corveng = { ["Machinegun"] = "laser", ["MachinegunA2G"] = "laser", },
 	armmanni = { ["ATAM"] = "neutron", },
 	armdfly = { ["Paralyzer"] = "emp", },
 	corvroc = { ["Rocket"] = "siege", },
