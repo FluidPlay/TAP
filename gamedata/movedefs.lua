@@ -245,9 +245,9 @@ local moveDatas = {
 			maxValue = 0.7,
 		}
 	},
-	HKBOT4 = {
+	HKBOT4 = {      --Razorback, Catapult
         allowRawMovement = true,
-		crushstrength = 1400,
+		crushstrength = 1900, --1400
 		footprintx = 4,
 		footprintz = 4,
 		maxslope = 36,
@@ -259,9 +259,9 @@ local moveDatas = {
             maxScale = 1.1,
 		}
 	},
-	HKBOT5 = {
+	HKBOT5 = {      -- Juggernaut
         allowRawMovement = true,
-		crushstrength = 1400,
+		crushstrength = 10000, --1400
 		footprintx = 5,
 		footprintz = 5,
 		maxslope = 36,
@@ -272,6 +272,20 @@ local moveDatas = {
 			maxValue = 0.7,
 		}
 	},
+    HTKBOT4 = { -- Karganeth (all-terrain)
+        allowRawMovement = true,
+        crushstrength = 1800, --252,
+        footprintx = 4,
+        footprintz = 4,
+        maxslope = 80,
+        maxwaterdepth = 128, --22,
+        depthModParams = {
+            minHeight = -4,
+            linearCoeff = 0.03,
+            --maxValue = 0.7,
+            maxScale=1.25,
+        }
+    },
 	HOVER3 = {
         allowRawMovement = true,
 		badslope = 22,
@@ -301,20 +315,6 @@ local moveDatas = {
 		footprintz = 4,
 		maxslope = 22,
 		maxwaterslope = 255,
-	},
-	HTKBOT4 = {
-        allowRawMovement = true,
-		crushstrength = 252,
-		footprintx = 4,
-		footprintz = 4,
-		maxslope = 80,
-		maxwaterdepth = 128, --22,
-		depthModParams = {
-			minHeight = -4,
-			linearCoeff = 0.03,
-			--maxValue = 0.7,
-            maxScale=1.25,
-		}
 	},
 	KBOT1 = {
         allowRawMovement = true,
@@ -380,9 +380,9 @@ local moveDatas = {
 			maxValue = 0.7,
 		}
 	},
-	VKBOT3 = {
+	VKBOT3 = {  -- Bantha
         allowRawMovement = true,
-		crushstrength = 1400,
+		crushstrength = 12000,
 		depthmod = 0,
 		footprintx = 3,
 		footprintz = 3,
@@ -390,9 +390,9 @@ local moveDatas = {
 		maxwaterdepth = 5000,
 		maxwaterslope = 30,
 	},
-	VKBOT5 = {
+	VKBOT5 = {  -- Krogoth
         allowRawMovement = true,
-		crushstrength = 1400,
+		crushstrength = 20000, --1400,
 		depthmod = 0,
 		footprintx = 5,
 		footprintz = 5,

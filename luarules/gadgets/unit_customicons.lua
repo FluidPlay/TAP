@@ -67,6 +67,7 @@ local unitIconTable = {
       bot_generic=0.8,
       bot_missile=1,
       bot_flak=1,
+      bot_rezz=1,
       bot_neutron=1.15,
       bot_antinuke=1.25,
       bot_plasma=1.1,

@@ -3,8 +3,8 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  flare1, flare2, base, turret, missile, sleeve1, sleeve2, wake1,
-       wake2, barrel1, barrel2, ground;
+piece  flare1, flare2, base, turret, sleeve1, sleeve2, wake1, //missile
+       sleeves, wake2, barrel1, barrel2, ground;
 
 static-var  gun_1, restore_delay, oldHead;
 
@@ -129,56 +129,61 @@ StopMoving()
 	move base to y-axis [0.0] speed [0.23];
 }
 
-FireSecondary()
-{
-	return (1);
-}
-
-AimFromSecondary(piecenum)
-{
-	piecenum = missile;
-}
-
-QuerySecondary(piecenum)
-{
-	piecenum = missile;
-}
-
 AimSecondary(heading, pitch)
 {
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
 	turn turret to y-axis heading speed <300.000000>;
-	turn sleeve1 to x-axis <0.000000> - pitch speed <300.000000>;
-	turn sleeve2 to x-axis <0.000000> - pitch speed <300.000000>;
+	turn sleeves to x-axis <0.000000> - pitch speed <300.000000>;
 	wait-for-turn turret around y-axis;
-	wait-for-turn sleeve1 around x-axis;
-	wait-for-turn sleeve2 around x-axis;
+	wait-for-turn sleeves around x-axis;
 	start-script RestoreAfterDelay();
 	return (1);
 }
 
-FirePrimary()
+AimFromSecondary(piecenum)
+{
+	piecenum = turret;
+	//piecenum = missile;
+}
+
+QuerySecondary(piecenum)
+{
+	piecenum = gun_1;
+	//piecenum = missile;
+}
+
+FireSecondary()
 {
 	if( gun_1 )
 	{
 		move barrel2 to z-axis [-2.000000] speed [500.000000];
 		wait-for-move barrel2 along z-axis;
 		move barrel2 to z-axis [0.000000] speed [3.000000];
-		show flare2;
 		sleep 150;
-		hide flare2;
 	}
 	else
 	{
 		move barrel1 to z-axis [-2.000000] speed [500.000000];
 		wait-for-move barrel1 along z-axis;
 		move barrel1 to z-axis [0.000000] speed [3.000000];
-		show flare1;
 		sleep 150;
-		hide flare1;
 	}
 	gun_1 = !gun_1;
+}
+
+//================
+
+AimPrimary(heading, pitch)
+{
+	signal SIG_AIM;
+	set-signal-mask SIG_AIM;
+	turn turret to y-axis heading speed <300.000000>;
+	turn sleeves to x-axis <0.000000> - pitch speed <300.000000>;
+	wait-for-turn turret around y-axis;
+	wait-for-turn sleeves around x-axis;
+	start-script RestoreAfterDelay();
+	return (1);
 }
 
 AimFromPrimary(piecenum)
@@ -189,6 +194,29 @@ AimFromPrimary(piecenum)
 QueryPrimary(piecenum)
 {
 	piecenum = gun_1;
+}
+
+FirePrimary()
+{
+	if( gun_1 )
+	{
+		move barrel2 to z-axis [-2.000000] speed [500.000000];
+		wait-for-move barrel2 along z-axis;
+		move barrel2 to z-axis [0.000000] speed [3.000000];
+		//show flare2;
+		sleep 150;
+		//hide flare2;
+	}
+	else
+	{
+		move barrel1 to z-axis [-2.000000] speed [500.000000];
+		wait-for-move barrel1 along z-axis;
+		move barrel1 to z-axis [0.000000] speed [3.000000];
+		//show flare1;
+		sleep 150;
+		//hide flare1;
+	}
+	gun_1 = !gun_1;
 }
 
 SweetSpot(piecenum)

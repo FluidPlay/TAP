@@ -6,7 +6,7 @@ function gadget:GetInfo()
     date      = "Sept 19th 2017",
     license   = "GNU GPL, v2 or later",
     layer     = 0,
-    enabled   = false --true  --  loaded by default?
+    enabled   = true  --  loaded by default?
   }
 end
 
@@ -19,8 +19,8 @@ isBomb = {}
 isBomber = {}
 Bombers = {}
 fighters = {
-	[UnitDefNames["armsfig"].id] = true,
-	[UnitDefNames["corsfig"].id] = true,
+	--[UnitDefNames["armsfig"].id] = true,
+	--[UnitDefNames["corsfig"].id] = true,
 	[UnitDefNames["armfig"].id] = true,
 	[UnitDefNames["corveng"].id] = true,
 	[UnitDefNames["armhawk"].id] = true,
@@ -60,9 +60,19 @@ function gadget:UnitDestroyed(unitID)
 	end
 end
 
+-- Called when a unit is transferred between teams. This is called before UnitGiven and in that moment unit is still assigned to the oldTeam.
+function gadget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
+    gadget:UnitDestroyed(unitID)
+end
+
+-- Called when a unit is transferred between teams. This is called after UnitTaken and in that moment unit is assigned to the newTeam.
+function gadget:UnitGiven(unitID, unitDefID, newTeam, oldTeam)
+    gadget:UnitCreated(unitID, unitDefID, newTeam)
+end
+
 function gadget:GameFrame(n)
 	if n % 5 == 1 then
-		for unitID, isbomber in pairs (Bombers) do
+		for unitID in pairs (Bombers) do
 			local cQueue = Spring.GetCommandQueue(unitID,1)
 			if (cQueue[1] and cQueue[1].id == CMD.ATTACK) or (not cQueue[1]) then
 				Spring.MoveCtrl.SetAirMoveTypeData(unitID, "turnRadius", 500)
