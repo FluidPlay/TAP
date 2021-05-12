@@ -83,7 +83,7 @@ local unitIconTable = {
       structure_radar=1.1,
       structure_shield=1.1,
       structure_tech=1.5,
-      structure_pad=1.25,
+      structure_pad=2, --1.25
       veh_antibot=1.5,
       veh_artillery=1.4,
       veh_assault=1.5,
@@ -117,15 +117,33 @@ local tierSizeMult = {
     [4]=2,
 }
 
---------------------------------------------------------------------------------
+local iconTypes = {}
+function addUnitIcon(name, path, size)
+    Spring.AddUnitIcon(name, path, size)
+    iconTypes[name] = path
+end
 
-function gadget:Initialize()
+function loadUnitIcons()
+    --local root = 'icons/'
+    --for id, unit in ipairs(UnitDefs) do
+    --    local name = unit.name
+    --    local icon = units[name]
+    --    if icon then
+    --        local path = root..icon[1]
+    --        local size = icon[2]
+    --        spFreeUnitIcon(name) --Free the icon so it can be used
+    --        addUnitIcon(name, path, size * iconScale) -- Create the icon in the engine
+    --        spSetUnitDefIcon(id, name)  -- Set the unit icon
+    --    else
+    --        Spring.Echo("No icon for: " ..name)
+    --    end
+    --end
 
     local function tryLoad(fileName, iconName, size)
         if VFS.LoadFile(fileName) then
-            Spring.AddUnitIcon(iconName, fileName, size)
+            addUnitIcon(iconName, fileName, size)
         else
-            Spring.Echo("Icon file not found: "..fileName)
+            addUnitIcon("Icon file not found: "..fileName)
         end
     end
     for iconid, baseSize in pairs(unitIconTable) do
@@ -133,11 +151,11 @@ function gadget:Initialize()
             local calcSize = baseSize * tierSizeMult[tier]
             local fileName = "LuaUI/Icons/"..iconid..".png"
             tryLoad(fileName, iconid.."_"..tier, calcSize )
-          --if VFS.LoadFile(fileName) then
-          --  Spring.AddUnitIcon(iconid.."_"..tier, fileName, calcSize)
-          --else
-          --  Spring.Echo("Icon file not found: "..fileName)
-          --end
+            --if VFS.LoadFile(fileName) then
+            --  Spring.AddUnitIcon(iconid.."_"..tier, fileName, calcSize)
+            --else
+            --  Spring.Echo("Icon file not found: "..fileName)
+            --end
         end
     end
     -- Tech Centers
@@ -154,57 +172,73 @@ function gadget:Initialize()
     tryLoad(fileName.."4.png", "structure_outpost4", 1.9 )
 
     -- Commanders et al
-    Spring.AddUnitIcon("armcom.user", "LuaUI/Icons/armcom.png",2)
-    Spring.AddUnitIcon("corcom.user", "LuaUI/Icons/corcom.png",2)
-    Spring.AddUnitIcon("krogoth.user", "LuaUI/Icons/krogoth.png",3.3)
-    Spring.AddUnitIcon("bantha.user", "LuaUI/Icons/bantha.png",2.6)
-    Spring.AddUnitIcon("corjugg.user", "LuaUI/Icons/juggernaut.png",3.5)
-    Spring.AddUnitIcon("star.user", "LuaUI/Icons/star.png")
-    Spring.AddUnitIcon("blank.user", "LuaUI/Icons/blank.png")
+    addUnitIcon("armcom.user", "LuaUI/Icons/armcom.png",2)
+    addUnitIcon("corcom.user", "LuaUI/Icons/corcom.png",2)
+    addUnitIcon("krogoth.user", "LuaUI/Icons/krogoth.png",3.3)
+    addUnitIcon("bantha.user", "LuaUI/Icons/bantha.png",2.6)
+    addUnitIcon("corjugg.user", "LuaUI/Icons/juggernaut.png",3.5)
+    addUnitIcon("star.user", "LuaUI/Icons/star.png")
+    addUnitIcon("blank.user", "LuaUI/Icons/blank.png")
 
     -- Setup the unitdef icons
     for udid,ud in pairs(UnitDefs) do
-      if ud then
-        local tier = ud.customParams.tier or 0
-        local iconTag = ud.customParams.icontag
-      --Spring.Echo(" udid | name: "..udid.." | "..ud.name.." subs: "..ud.name:sub(0,6))
-          --      -- Icontag defined
-          --      --Spring.Echo("Unit name for icon: "..ud.name)
-        if iconTag then
-          Spring.SetUnitDefIcon(udid, iconTag.."_"..tier)
-          --Spring.Echo("Set icon: "..iconTag.."_"..tier)
+        if ud then
+            local tier = ud.customParams.tier or 0
+            local iconTag = ud.customParams.icontag
+            --Spring.Echo(" udid | name: "..udid.." | "..ud.name.." subs: "..ud.name:sub(0,6))
+            --      -- Icontag defined
+            --      --Spring.Echo("Unit name for icon: "..ud.name)
+            if iconTag then
+                Spring.SetUnitDefIcon(udid, iconTag.."_"..tier)
+                --Spring.Echo("Set icon: "..iconTag.."_"..tier)
 
-        -- #################
-        -- Exceptional Cases
-        -- #################
-        elseif (ud.name=="roost") or (ud.name=="meteor") then
-          Spring.SetUnitDefIcon(udid, "star.user")
-        elseif string.sub(ud.name, 0, 7) == "critter" then
-          Spring.SetUnitDefIcon(udid, "blank.user")
-        elseif ud.name == "armcom" or ud.name:sub(0,6)=="armcom" then    -- Tiers 1 through 4
-          --Spring.Echo("Commander found")
-          Spring.SetUnitDefIcon(udid, "armcom.user")
-        elseif ud.name == "corcom" or ud.name:sub(0,6)=="corcom" then    -- Tiers 1 through 4
-          --Spring.Echo("Commander found")
-          Spring.SetUnitDefIcon(udid, "corcom.user")
-        elseif ud.name == "armtech" or ud.name:sub(0,7)=="armtech" or    -- Tiers 1 through 4
-               ud.name == "cortech" or ud.name:sub(0,7)=="cortech" then
-          Spring.SetUnitDefIcon(udid, "structure_techcenter"..tier)
-        elseif ud.name == "armoutpost" or ud.name == "coroutpost" then    -- Tiers 0 (no Tier 1)
-          Spring.SetUnitDefIcon(udid, "structure_outpost")
-        elseif ud.name:sub(0,10)=="armoutpost" or ud.name:sub(0,10)=="coroutpost" then -- Tiers 2 ~ 4
-            Spring.SetUnitDefIcon(udid, "structure_outpost"..tier)
-        elseif ud.name=="armbanth" then
-            Spring.SetUnitDefIcon(udid, "bantha.user")
-        elseif ud.name=="corkrog" then
-            Spring.SetUnitDefIcon(udid, "krogoth.user")
-        elseif ud.name=="corjugg" then
-            Spring.SetUnitDefIcon(udid, "corjugg.user")
-        --else
-        --  Spring.SetUnitDefIcon(udid, "generic_unit_"..tier)
-        --  Spring.Echo("Icontag for "..ud.name.." not found, setting it to generic_unit_"..tier)
+                -- #################
+                -- Exceptional Cases
+                -- #################
+            elseif (ud.name=="roost") or (ud.name=="meteor") then
+                Spring.SetUnitDefIcon(udid, "star.user")
+            elseif string.sub(ud.name, 0, 7) == "critter" then
+                Spring.SetUnitDefIcon(udid, "blank.user")
+            elseif ud.name == "armcom" or ud.name:sub(0,6)=="armcom" then    -- Tiers 1 through 4
+                --Spring.Echo("Commander found")
+                Spring.SetUnitDefIcon(udid, "armcom.user")
+            elseif ud.name == "corcom" or ud.name:sub(0,6)=="corcom" then    -- Tiers 1 through 4
+                --Spring.Echo("Commander found")
+                Spring.SetUnitDefIcon(udid, "corcom.user")
+            elseif ud.name == "armtech" or ud.name:sub(0,7)=="armtech" or    -- Tiers 1 through 4
+                    ud.name == "cortech" or ud.name:sub(0,7)=="cortech" then
+                Spring.SetUnitDefIcon(udid, "structure_techcenter"..tier)
+            elseif ud.name == "armoutpost" or ud.name == "coroutpost" then    -- Tiers 0 (no Tier 1)
+                Spring.SetUnitDefIcon(udid, "structure_outpost")
+            elseif ud.name:sub(0,10)=="armoutpost" or ud.name:sub(0,10)=="coroutpost" then -- Tiers 2 ~ 4
+                Spring.SetUnitDefIcon(udid, "structure_outpost"..tier)
+            elseif ud.name=="armbanth" then
+                Spring.SetUnitDefIcon(udid, "bantha.user")
+            elseif ud.name=="corkrog" then
+                Spring.SetUnitDefIcon(udid, "krogoth.user")
+            elseif ud.name=="corjugg" then
+                Spring.SetUnitDefIcon(udid, "corjugg.user")
+                --else
+                --  Spring.SetUnitDefIcon(udid, "generic_unit_"..tier)
+                --  Spring.Echo("Icontag for "..ud.name.." not found, setting it to generic_unit_"..tier)
+            end
         end
-      end
+    end
+end
+
+--------------------------------------------------------------------------------
+
+function GetIconTypes()
+    return iconTypes
+end
+
+function gadget:Initialize()
+
+    --LoadUnitIcons()
+
+    gadgetHandler:RegisterGlobal('GetIconTypes', GetIconTypes)
+    if Spring.GetGameFrame() == 0 then
+        loadUnitIcons()
     end
 
     --

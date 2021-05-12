@@ -689,7 +689,7 @@ local function setEngineFont()
     Spring.SetConfigInt("FontOutlineWidth", fontfileOutlineSize * fontfileScale * relativesize * 0.85)
     Spring.SetConfigInt("FontOutlineWeight", 2)
 
-    Spring.SendCommands("font " .. Spring.GetConfigString("bar_font2", "Exo2-SemiBold.otf"))
+    Spring.SendCommands("font " .. Spring.GetConfigString("bar_font2", "WatchtowerMiddle-LM6Z.otf"))
 
     -- set spring engine default font cause it cant thee game archive fonts on launch
     Spring.SetConfigString("SmallFontFile", "FreeSansBold.otf")

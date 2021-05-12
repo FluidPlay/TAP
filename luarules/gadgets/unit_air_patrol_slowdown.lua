@@ -58,7 +58,7 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
         --Spring.Echo("cmdID: "..cmdID)
         local unitDef = UnitDefs[unitDefID]
-        if not unitDef or not unitDef.isAirUnit or unitDef.hoverAttack or isBomber[unitDefID] then
+        if not unitDef or not isBomber[unitDefID] then --not unitDef.isAirUnit or unitDef.hoverAttack or
             return true end
         --local defMaxSpeed = spGetUnitRulesParam(unitID, "maxSpeed")
         local defMaxSpeed = unitDef.speed or 6

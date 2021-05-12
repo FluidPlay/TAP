@@ -1662,6 +1662,9 @@ function widget:Initialize()
     WG['topbar'].showingRejoining = function()
         return showRejoinUI
     end
+    WG['topbar'].showingQuit = function()
+        return (showQuitscreen ~= nil)
+    end
     WG['topbar'].getResourceBgTint = function()
         return resourcebarBgTint
     end

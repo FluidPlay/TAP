@@ -168,7 +168,7 @@ FireSecondary()
 {
 	gun_1 = !gun_1;
 	Aiming = 0;
-	call-script lua_BombsAway();
+	//call-script lua_BombsAway();
 }
 
 // ------------------------
