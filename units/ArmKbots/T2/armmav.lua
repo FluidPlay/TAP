@@ -1,7 +1,7 @@
 return {
 	armmav = {
 		acceleration = 0.12,
-		autoheal = 50,
+		autoheal = 0, --50,
 		brakerate = 0.375,
 		buildcostenergy = 13000,
 		buildcostmetal = 700,
@@ -19,7 +19,7 @@ return {
 		explodeas = "mediumExplosionGeneric",
 		footprintx = 2,
 		footprintz = 2,
-		idleautoheal = 5,
+		idleautoheal = 0, --5,
 		idletime = 1800,
 		maxdamage = 1400,
 		maxslope = 14,

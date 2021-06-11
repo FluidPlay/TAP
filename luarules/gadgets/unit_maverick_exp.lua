@@ -6,7 +6,7 @@ function gadget:GetInfo()
 		date		= "-",
 		license		= "WTFPL",
 		layer		= 0,
-		enabled		= true -- loaded by default?
+		enabled		= false, --true -- loaded by default?
 	}
 end
 

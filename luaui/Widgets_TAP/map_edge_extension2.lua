@@ -8,7 +8,7 @@ function widget:GetInfo()
     date      = "2020",
     license   = "GPL",
     layer     = 0,
-    enabled   = true,
+    enabled   = false, --true, ||only works in BAR engine due to GET_VAO
   }
 end
 

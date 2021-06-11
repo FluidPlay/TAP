@@ -21,6 +21,10 @@ function istable(x)  return (type(x) == 'table')   end
 function isnumber(x) return (type(x) == 'number')  end
 function isstring(x) return (type(x) == 'string')  end
 
+function getFontPath()
+    return FontPath
+end
+
 function sqrDistance(x1,z1,x2,z2)
 	local dx,dz = x1-x2,z1-z2
 	return (dx*dx)+(dz*dz)

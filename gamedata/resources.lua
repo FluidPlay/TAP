@@ -11,6 +11,7 @@ local resources = {
          },
          projectiletextures = {
             circularthingy		= 'default/circularthingy.tga',
+            gfxtexture		    = 'default/circularthingy.tga', -- Used by the nano beam
             laserend			= 'default/laserend.tga',
             laserfalloff		= 'default/laserfalloff.tga',
             randdots			= 'default/randdots.tga',

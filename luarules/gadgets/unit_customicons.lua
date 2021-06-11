@@ -44,6 +44,7 @@ local wasLuaModUIEnabled = 0
 --- iconID, baseIconSize
 local unitIconTable = {
       air_generic=1.25,
+      air_radar=1.1,
       air_bomber=1.75,
       air_empbomber=2,
       air_nukebomber=2,
@@ -100,6 +101,7 @@ local unitIconTable = {
       sea_builder = 1,
       sea_assault = 0.9,
       sea_missile = 1,
+      sea_flak = 1.05,
       sea_plasma = 1.1,
       sub_generic = 0.9,
       sea_cannon = 1.15,

@@ -154,7 +154,7 @@ AimWeapon3()
 
 FireWeapon3()
 {
-	call-script lua_BombsAway();
+	//call-script lua_BombsAway();
 }
 
 

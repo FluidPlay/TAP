@@ -188,8 +188,8 @@ function widget:ViewResize(n_vsx,n_vsy)
 
     --font = WG['fonts'].getFont(fontfile)
     --font2 = WG['fonts'].getFont(fontfile2)
-    font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
-    font2 = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
+    font = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
+    font2 = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
 
     for n,_ in pairs(dlistWindText) do
         glDeleteList(dlistWindText[n])
@@ -811,6 +811,9 @@ end
 
 
 function init()
+
+    font = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
+    font2 = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
 
     r['metal'] = {spGetTeamResources(myTeamID,'metal') }
     r['energy'] = {spGetTeamResources(myTeamID,'energy') }

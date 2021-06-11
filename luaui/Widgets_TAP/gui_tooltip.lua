@@ -92,6 +92,8 @@ end
 function init()
 	vsx, vsy = gl.GetViewSizes()
 	widgetScale = (0.60 + (vsx*vsy / 5000000))
+    font = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
+    font2 = gl.LoadFont(getFontPath(), loadedFontSize, 24, 1.25)
 
     if WG['tooltip'] == nil then
         WG['tooltip'] = {}

@@ -209,7 +209,7 @@ QueryTertiary(piecenum)
 
 FireTertiary()
 {
-	call-script lua_BombsAway();
+	//call-script lua_BombsAway();
 }
 
 AimWeapon4(heading, pitch)
