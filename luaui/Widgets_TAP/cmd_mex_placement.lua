@@ -9,7 +9,7 @@ function widget:GetInfo()
 		license   = "GNU GPL, v2 or later",
 		layer     = 0,
 		enabled   = true,
-		handler   = true
+		handler   = true,
 	}
 end
 
@@ -662,7 +662,7 @@ local function getSpotColor(x,y,z,id, specatate, t)
 end
 
 function calcMainMexDrawList(valuesonly)
-	local specatate = spGetSpectatingState()
+	local spectate = spGetSpectatingState()
 
 	if WG.metalSpots then
 		if not valuesonly and circleOptions.enabled then
@@ -675,7 +675,7 @@ function calcMainMexDrawList(valuesonly)
 			local spot = WG.metalSpots[i]
 			local x,z,y = spot.x, spot.z, spot.y
 			if y < 0 then y = 0 end
-			local mexColor = getSpotColor(x,y+45,z,i,specatate,1)
+			local mexColor = getSpotColor(x,y+45,z,i, spectate,1)
 			local metal = spot.metal or 0 --nil fix by MaDDoX
 
 			glPushMatrix()
