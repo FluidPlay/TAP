@@ -55,7 +55,7 @@ local weaponDamageTypes = {
 	corsub = { ["Torpedo"] = "cannon", },
     armbeamer = { ["BeamLaser"] = "thermo", },
 	armamex = { ["BeamLaser"] = "thermo", },
-	corhllt = { ["LightLaser"] = "hflaser", },
+	corhllt = { ["FlameThrower"] = "thermo", },
 	armyork = { ["FlakCannon"] = "flak", ["FlakAACannon"] = "flak", },
 	armdeva = { ["FlakCannon"] = "flak", ["FlakAACannon"] = "flak", },
 	corshred = { ["FlakCannon"] = "flak", ["FlakAACannon"] = "flak", },

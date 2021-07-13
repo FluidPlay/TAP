@@ -59,6 +59,7 @@ local unitsToEdit = { [UnitDefNames.armllt.id] = {x=0,y=13,z=0},
                       [UnitDefNames.coroutpost.id] = {x=0,y=13,z=0}, [UnitDefNames.coroutpost2.id] = {x=0,y=13,z=0}, [UnitDefNames.coroutpost3.id] = {x=0,y=15,z=0}, [UnitDefNames.coroutpost4.id] = {x=0,y=15,z=0},
                       [UnitDefNames.armtech.id] = {x=0,y=13,z=0}, [UnitDefNames.armtech1.id] = {x=0,y=13,z=0}, [UnitDefNames.armtech2.id] = {x=0,y=13,z=0}, [UnitDefNames.armtech3.id] = {x=0,y=15,z=0}, [UnitDefNames.armtech4.id] = {x=0,y=15,z=0},
                       [UnitDefNames.cortech.id] = {x=0,y=13,z=0}, [UnitDefNames.armtech1.id] = {x=0,y=13,z=0}, [UnitDefNames.cortech2.id] = {x=0,y=13,z=0}, [UnitDefNames.cortech3.id] = {x=0,y=15,z=0}, [UnitDefNames.cortech4.id] = {x=0,y=15,z=0},
+                      [UnitDefNames.armgmm.id] = {x=0,y=20,z=0}, --Prude
 }
 
 --SYNCED

@@ -64,6 +64,7 @@ local unitIconTable = {
       bot_artillery=1.1,
       bot_assault=1,
       bot_builder=1.1,
+      bot_explosive=1.1,
       bot_farc=1.1,
       bot_generic=0.8,
       bot_missile=1,
