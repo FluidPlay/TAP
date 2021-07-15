@@ -270,6 +270,15 @@ local function applyHighlightHandler(button, cmd)
                 tooltip = stringgsub(cmd.tooltip, "Metal cost %d*\nEnergy cost %d*\n", "")
             end
         --- Using cmd.showUnique for per-unit upgrade buttons
+        elseif cmd.showUnique then
+            if button.state.hovered then
+                tooltip = stringgsub(cmd.tooltip, "Metal cost %d*\nEnergy cost %d*\n", "")
+            end
+            local selectedUnit = selectedUnits[1]
+            if selectedUnit and isUpgrading(selectedUnit) then
+                tryApplyColor(upgrading)
+            else
+                tryApplyColor(out) end
         elseif isUpgradeCmd(cmd) and allUpgrading(selectedUnits) then
             -- TODO: Add upgrade cost ~ here
             if button.state.hovered then
