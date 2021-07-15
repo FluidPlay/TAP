@@ -143,7 +143,7 @@ UnitUpgrades = {
         type = "perunit",
         buttonToUnlock = CMD_MANUALFIRE,
         buttonToUnlockTooltip = "",
-        upgradableDefIDs = { [UnitDefNames["armpw"].id] = true }
+        upgradableDefIDs = {}
     },
     smokebomb = {     -- >> Peewee's Laser Grenade (Per Unit)
         id = "smokebomb",
