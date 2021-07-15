@@ -7,4 +7,3 @@
 *.iml
 .DS_Store
 .idea/*
-modinfo.lua
