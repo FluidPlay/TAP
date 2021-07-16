@@ -45,11 +45,11 @@ if (gadgetHandler:IsSyncedCode()) then
             if gf >= frameToDestroy then
                 --Spring.Echo("Game Frame: "..gf)
                 Spring.DestroyUnit(unitID, false, true)
+                --TODO: If it's not cloaked, blow it up instead
                 unitsToDestroy[unitID] = nil
             end
         end
     end
 
     --else -- UNSYNCED
-
 end
