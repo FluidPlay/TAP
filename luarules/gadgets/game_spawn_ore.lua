@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 0,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -37,6 +37,13 @@ if gadgetHandler:IsSyncedCode() then
     --local geosToRespawn = {}
 
     local math_random = math.random
+    local math_sqrt = math.sqrt
+    local math_cos = math.cos
+    local math_sin = math.sin
+    local math_PI = math.pi
+    local spawnRadius = 80 --starting spawn radius from ore spot center
+    local deadZone = 0.125 -- percentage of the radius where ore spots won't be spawned at, must be < 1
+
 
     local function sqr (x)
         return math.pow(x, 2)
@@ -56,7 +63,22 @@ if gadgetHandler:IsSyncedCode() then
     --    return false
     --end
 
-    local function SpawnChunk(x, y, z)
+    local function SpawnChunk(cx, cy, cz, R, deadZone)
+        --local r = R * math.sqrt(math_random())
+        --local theta = math_random() * 2 * math.pi -- (Assuming random() gives a value between 0 and 1 uniformly)
+        --local x = cx + r * math.cos(theta)
+        --local z = cz + r * math.sin(theta)
+
+        local ang = math_random() * 2 * math.pi
+        local hyp = math.sqrt(math_random(deadZone,1)) * R
+        local x = cx + math.cos(ang) * hyp
+        local z = cz + math.sin(ang) * hyp
+        if x == cx then
+            x = cx + R end
+        if z == cz then
+            z = cz + R end
+
+        Spring.CreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01) )--number heading [, number AllyTeamID [, number featureID ]]] )
         --if not GeoNearby(x,y,z) then
         --    -- Spring.GetGroundHeight(x, z)
         --    local gaiaTeamID = Spring.GetGaiaTeamID()
@@ -75,9 +97,15 @@ if gadgetHandler:IsSyncedCode() then
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
         Spring.Echo("Number of ore spots found: "..#oreSpots)
-        for i, data in ipairs(oreSpots) do
+        for _, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
-            Spring.CreateFeature ( "ore_moho", x, y, z, math_random(0,6.2) )--number heading [, number AllyTeamID [, number featureID ]]] )
+            --SpawnChunk (x, y, z, R)
+            --SpawnChunk (x, y, z, R)
+            --SpawnChunk (x, y, z, R)
+            --SpawnChunk (x, y, z, R)
+            for i = 1, 20 do
+                SpawnChunk (x, y, z, spawnRadius, deadZone)
+            end
         --    --local featureDefID = spGetFeatureDefID(featureID)
         --    --Spring.Echo(FeatureDefs[featureDefID].name)
         --    if FeatureDefs[featureDefID].name == "geovent" then
