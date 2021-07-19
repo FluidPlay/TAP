@@ -29,10 +29,13 @@ if gadgetHandler:IsSyncedCode() then
     --
     --		spots[#spots + 1] = g
 
+    local updateRate = 10
     local oreSpots, metalSpotsByPos
     local spCreateUnit = Spring.CreateUnit
-    local spSetUnitNeutral = Spring.SetUnitNeutral
-    local minSpawnDistance = 50    -- This prevents duplicated geothermals in faulty maps
+    local startFrame
+    local gaiaTeamID
+    local sprawlChance = 0.2
+    local spawnDelay = { ["moho"]=600 } --TODO: Add other ore chunk types here
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
 
@@ -40,56 +43,73 @@ if gadgetHandler:IsSyncedCode() then
     local math_sqrt = math.sqrt
     local math_cos = math.cos
     local math_sin = math.sin
-    local math_PI = math.pi
-    local spawnRadius = 80 --starting spawn radius from ore spot center
-    local deadZone = 0.125 -- percentage of the radius where ore spots won't be spawned at, must be < 1
+    local math_pi = math.pi
+    local minSpawnDistance = 12    -- This prevents stacked ore chunks when spawning
+    local startingChunkCount = 10
+    local spawnRadius = 50 --starting spawn radius from ore spot center
+    local deadZone = 20    -- radius where ore spots won't be spawned at
+    local spawnedChunks = {} --{ pos = {x=x, z=z}, type="sml | lrg | moho | uber",
+                             --  spawnR = radiusWhenItWasSpawned, spotID = idx (oreSpots[idx]) }
+    local chunksToSprawl = {} --just like spawnedChunks, those are the one to 'self replicate'
+
+    local spGetGameFrame = Spring.GetGameFrame
+    local spCreateFeature = Spring.CreateFeature
 
 
     local function sqr (x)
         return math.pow(x, 2)
     end
-    local function distance (x1, y1, z1, x2, y2, z2 )
-        return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
+    --local function distance (x1, y1, z1, x2, y2, z2 )
+    --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
+    --end
+    local function distance (pos1, pos2 )
+        if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
+            return 999
+        end
+        return math.sqrt(sqr(pos2.x-pos1.x) + sqr(pos2.z-pos1.z))
     end
 
-    --local function GeoNearby(x,y,z)
-    --    if x == nil or y == nil or z == nil then
-    --        return false end
-    --    for _, pos in pairs(geoThermals) do
-    --        if distance(pos.x, pos.y, pos.z, x, y, z) < minSpawnDistance then
-    --            return true
-    --        end
-    --    end
-    --    return false
-    --end
+    local function ChunkNearby(x,y,z)
+        if x == nil or z == nil then
+            return false end
+        for _, data in pairs(spawnedChunks) do
+            if distance(data.pos, {x, z}) < minSpawnDistance then
+                return true
+            end
+        end
+        return false
+    end
 
-    local function SpawnChunk(cx, cy, cz, R, deadZone)
-        --local r = R * math.sqrt(math_random())
-        --local theta = math_random() * 2 * math.pi -- (Assuming random() gives a value between 0 and 1 uniformly)
-        --local x = cx + r * math.cos(theta)
-        --local z = cz + r * math.sin(theta)
+    --- Returns: Spawned featureID
+    local function SpawnChunk(cx, cy, cz, R, deadZone, spotID)
 
-        local ang = math_random() * 2 * math.pi
-        local hyp = math.sqrt(math_random(deadZone,1)) * R
-        local x = cx + math.cos(ang) * hyp
-        local z = cz + math.sin(ang) * hyp
-        if x == cx then
-            x = cx + R end
-        if z == cz then
-            z = cz + R end
+        --https://dev.to/seanpgallivan/solution-generate-random-point-in-a-circle-ldh
 
-        Spring.CreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01) )--number heading [, number AllyTeamID [, number featureID ]]] )
-        --if not GeoNearby(x,y,z) then
-        --    -- Spring.GetGroundHeight(x, z)
-        --    local gaiaTeamID = Spring.GetGaiaTeamID()
-        --    local unitID = spCreateUnit(geoThermal, x, y, z, 0, gaiaTeamID)
-        --    geoThermals[unitID]={x=x, y=y, z=z}
-        --    spSetUnitNeutral(unitID, true)
-        --    --Spring.SetUnitNoSelect( unitID, true )
-        --end
+        local ang = math_random() * 2 * math_pi
+        local hyp = math_sqrt(math_random()) * R --(deadZone,1)
+        local cos = math_cos(ang)
+        local sin = math_sin(ang)
+        local x = cx + cos * hyp
+        local z = cz + sin * hyp
+        --recurses when result is invalid (close to center or to existing chunk)
+        --TODO: Fix - dist is always 999
+        Spring.Echo("dist: "..distance({x, z}, {cx, cz}))
+        if distance({x, z}, {cx, cz}) < deadZone or ChunkNearby(x,cy,z) then
+            SpawnChunk(cx, cy, cz, R, deadZone, spotID)
+        else
+            local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
+            local sprawlTime = spGetGameFrame() + (spawnDelay["moho"] or 240) + math_random(0,60)
+            spawnedChunks[featureID] = { pos = {x=x, y=cy, z=z}, type="moho", spotID = spotID, spawnR = R, time = sprawlTime }
+            if math_random() < sprawlChance then
+                chunksToSprawl[featureID] = spawnedChunks[featureID]
+            end
+            return featureID
+        end
     end
 
     function gadget:Initialize()
+        startFrame = Spring.GetGameFrame()
+        gaiaTeamID = Spring.GetGaiaTeamID()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         --metalSpotsByPos = GG.metalSpotsByPos
     end
@@ -97,23 +117,22 @@ if gadgetHandler:IsSyncedCode() then
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
         Spring.Echo("Number of ore spots found: "..#oreSpots)
-        for _, data in ipairs(oreSpots) do
+        for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
-            --SpawnChunk (x, y, z, R)
-            --SpawnChunk (x, y, z, R)
-            --SpawnChunk (x, y, z, R)
-            --SpawnChunk (x, y, z, R)
-            for i = 1, 20 do
-                SpawnChunk (x, y, z, spawnRadius, deadZone)
+            for j = 1, startingChunkCount do
+                local spawnedFeatureID = SpawnChunk (x, y, z, spawnRadius, deadZone, i)
+                -- We also store the spawned chunks from each oreSpot, in oreSpots data
+                if (oreSpots[i].chunks == nil) then
+                    oreSpots[i].chunks = {} end
+                oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = spawnedFeatureID
             end
-        --    --local featureDefID = spGetFeatureDefID(featureID)
-        --    --Spring.Echo(FeatureDefs[featureDefID].name)
-        --    if FeatureDefs[featureDefID].name == "geovent" then
-        --        -- Spawn Geothermal at feature position
-        --        local x,y,z = spGetFeaturePosition(featureID)
-        --        SpawnChunk(x,y,z)
-        --    end
+
         end
+    end
+
+    function gadget:FeatureDestroyed(featureID)
+        spawnedChunks[featureID] = nil
+        chunksToSprawl[featureID] = nil
     end
 
     --function gadget:FeaturePreDamaged(featureID, featureDefID, featureTeam, damage, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
@@ -124,27 +143,24 @@ if gadgetHandler:IsSyncedCode() then
     --    end
     --end
 
-    --function gadget:UnitDestroyed(unitID, unitDefID, unitTeamID)
-    --    local geo = geoThermals[unitID]
-    --    if geo then
-    --        geosToRespawn[unitID] = { x=geo.x, y=geo.y, z = geo.z, time = Spring.spGetGameFrame() + respawnTime }
-    --    end
-    --    --local featureDef   = FeatureDefs[featureDefID or -1] or {height=0,name=''}
-    --end
-    --
-    --function gadget:GameFrame(n)
-    --    for unitID, data in pairs(geosToRespawn) do
-    --        if data.time >= n then
-    --            Spring.CreateFeature("armgeo_heap", data.x, data.y, data.z)
-    --        --    ( string "defName" | number featureDefID,
-    --        --number x, number y, number z
-    --        --[, number heading
-    --        --[, number AllyTeamID
-    --        --[, number featureID ]]] ) -> number featureID
-    --
-    --        end
-    --    end
-    --end
+    function gadget:GameFrame(f)
+        if f < startFrame + 100
+            then return end
+        if f % updateRate > 0.0001 then
+            return end
+
+        for featureID, data in pairs(chunksToSprawl) do
+            if data.time >= f then
+                local oreSpot = oreSpots[data.spotID]
+                if oreSpot ~= nil then
+                    SpawnChunk(oreSpot.x, oreSpot.y, oreSpot.z, data.spawnR + 40, deadZone, data.spotID)
+                    chunksToSprawl[featureID] = nil
+                    Spring.Echo("Found ore spot "..data.spotID)
+                    --break
+                end
+            end
+        end
+    end
 
 else
     -----------------
