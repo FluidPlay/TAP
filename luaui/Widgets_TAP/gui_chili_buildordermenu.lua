@@ -12,6 +12,10 @@ function widget:GetInfo()
     }
 end
 --------------------------------------------------------------------------------
+GreenStr = ""
+CyanStr = ""
+YellowStr = ""
+VFS.Include("luarules/configs/upgradedata_perunit.lua", bla)
 VFS.Include("gamedata/taptools.lua")
 
 -- Localize
@@ -249,6 +253,17 @@ local function applyHighlightHandler(button, cmd)
             upgPerc = tonumber(upgPerc)
             return upgPerc > 0 and upgPerc < 1
         end
+        local function isUpgradeCmd(cmd)
+            return UnitUpgradeCommands[cmd.id] 
+        end
+        local function allUpgrading(unitIDs)
+            if #unitIDs == 0 then return false end
+            for i = 1, #unitIDs do
+                if not isUpgrading(unitIDs[i]) then return false end
+            end
+            return true
+        end
+        local selectedUnits = spGetSelectedUnits()
         if cmd.disabled then
             tryApplyColor(disabled)
             if button.state.hovered then
@@ -256,16 +271,20 @@ local function applyHighlightHandler(button, cmd)
             end
         --- Using cmd.showUnique for per-unit upgrade buttons
         elseif cmd.showUnique then
-            --Spring.Echo("Show Unique found!")
-            -- TODO: Add upgrade cost ~ here
             if button.state.hovered then
                 tooltip = stringgsub(cmd.tooltip, "Metal cost %d*\nEnergy cost %d*\n", "")
             end
-            local selectedUnit = spGetSelectedUnits()[1]
+            local selectedUnit = selectedUnits[1]
             if selectedUnit and isUpgrading(selectedUnit) then
                 tryApplyColor(upgrading)
             else
                 tryApplyColor(out) end
+        elseif isUpgradeCmd(cmd) and allUpgrading(selectedUnits) then
+            -- TODO: Add upgrade cost ~ here
+            if button.state.hovered then
+                tooltip = stringgsub(cmd.tooltip, "Metal cost %d*\nEnergy cost %d*\n", "")
+            end
+            tryApplyColor(upgrading)
         elseif button.cmdID == cmdID then
             tryApplyColor(selected)
         elseif button.state.hovered then
