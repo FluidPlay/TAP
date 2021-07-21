@@ -60,6 +60,16 @@ CMD_UPG_SMOKEBOMB = CMD.UPG_SMOKEBOMB
 CMD.UPG_HOVER = 41992
 CMD_UPG_HOVER = CMD.UPG_HOVER
 
+UnitUpgradeCommands = {
+    [41992] = true, 
+    [41993] = true, 
+    [41994] = true, 
+    [41995] = true, 
+    [41996] = true, 
+    [41997] = true, 
+    [41998] = true, 
+    [41999] = true
+}
 -- Unit Upgrades (as shown in a certain unit's command list)
 UnitUpgrades = {
     --dgun = {
@@ -99,7 +109,7 @@ UnitUpgrades = {
                     GreenStr..'time:9\n'..CyanStr..'metal: 150\n'..YellowStr..'energy: 1000',
             texture = 'luaui/images/upgrades/techunlockweapon.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
             --params = { '1', ' Fly ', 'Land'}
         },
         prereq = "Tech1",
@@ -124,7 +134,7 @@ UnitUpgrades = {
                     GreenStr..'time:5\n'..CyanStr..'metal: 50\n'..YellowStr..'energy: 480',
             texture = 'luaui/images/upgrades/techempbomb.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech",
         metalCost = 50,
@@ -133,7 +143,7 @@ UnitUpgrades = {
         type = "perunit",
         buttonToUnlock = CMD_MANUALFIRE,
         buttonToUnlockTooltip = "",
-        upgradableDefIDs = {},
+        upgradableDefIDs = { [UnitDefNames["armpw"].id] = true }
     },
     smokebomb = {     -- >> Peewee's Laser Grenade (Per Unit)
         id = "smokebomb",
@@ -147,7 +157,7 @@ UnitUpgrades = {
                     GreenStr..'time:5\n'..CyanStr..'metal: 80\n'..YellowStr..'energy: 480',
             texture = 'luaui/images/upgrades/techsmokebomb.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech1",
         metalCost = 80,
@@ -170,7 +180,7 @@ UnitUpgrades = {
                     GreenStr..'time:10\n'..CyanStr..'metal: 250\n'..YellowStr..'energy: 1500',
             texture = 'luaui/images/upgrades/techfirerain.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech1",
         metalCost = 250,
@@ -193,7 +203,7 @@ UnitUpgrades = {
                     GreenStr..'time:10\n'..CyanStr..'metal: 150\n'..YellowStr..'energy: 960',
             texture = 'luaui/images/upgrades/techfirerain.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech1",
         metalCost = 150,
@@ -216,7 +226,7 @@ UnitUpgrades = {
                     GreenStr..'time:10\n'..CyanStr..'metal: 160\n'..YellowStr..'energy: 960',
             texture = 'luaui/images/upgrades/techresurrect.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech1",
         metalCost = 160,
@@ -239,7 +249,7 @@ UnitUpgrades = {
                     GreenStr..'time:4\n'..CyanStr..'metal: 80\n'..YellowStr..'energy: 450',
             texture = 'luaui/images/upgrades/techhover.dds',
             onlyTexture = true,
-            showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
         prereq = "Tech1",
         metalCost = 80,
