@@ -51,5 +51,24 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
+    --- Below code is probably unneeded. 
+    --function gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+    --    unitsToDestroy[unitID] = nil
+    --end
+    --
+    --function gadget:UnitGiven(unitID, unitDefID, newTeamID, teamID)
+    --    mexBuilder[unitID] = mexBuilderDefs[unitDefID]
+    --    if mexDefID[unitDefID] then
+    --        local done = select(5, spGetUnitHealth(unitID))
+    --        if done == 1 then
+    --            widget:UnitFinished(unitID, unitDefID,unitDefID)
+    --        end
+    --    end
+    --end
+    --
+    --function gadget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
+    --    gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+    --end
+
     --else -- UNSYNCED
 end
