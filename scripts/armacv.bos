@@ -5,7 +5,7 @@
 
 #define SIG_BUILD		4	
 
-piece  base, beam, door1, door2, plate, arm, nano, turret;
+piece  base, beam, door1, door2, arm, nano, turret;
 
 static-var  statechg_DesiredState, statechg_StateChanging, notBuilding;
 
@@ -13,42 +13,42 @@ static-var  statechg_DesiredState, statechg_StateChanging, notBuilding;
 activatescr()
 {
 	turn door1 to z-axis <0.000000> now;
-	turn door1 to z-axis <-65.714286> speed <154.258242>;
+	turn door1 to z-axis <-125.714286> speed <154.258242>;
 	turn door2 to z-axis <0.000000> now;
-	turn door2 to z-axis <65.258242> speed <153.203297>;
+	turn door2 to z-axis <125.258242> speed <153.203297>;
 	sleep 40;
 
-	move door1 to y-axis [-3.099994] speed [7.242981];
-	move door2 to y-axis [-3.050000] speed [7.126172];
+	//move door1 to y-axis [-3.099994] speed [7.242981];
+	//move door2 to y-axis [-3.050000] speed [7.126172];
+	//sleep 40;
+
+	move turret to y-axis [1.500000] speed [8.878510];
 	sleep 40;
 
-	move plate to y-axis [3.800000] speed [8.878510];
-	sleep 40;
-
-	turn arm to x-axis <85.967033> speed <200.390110>;
-	turn nano to x-axis <-69.758242> speed <162.626374>;
+	turn arm to x-axis <50.967> speed <200.390110>;
+	turn nano to x-axis <-45.7582> speed <162.626374>;
 	sleep 40;
 }
 
 deactivatescr()
 {
-	move plate to y-axis [3.800000] now;
-	move door1 to y-axis [-3.099994] now;
-	move door2 to y-axis [-3.050000] now;
-	turn door1 to z-axis <-65.714286> now;
-	turn door2 to z-axis <65.258242> now;
-	turn arm to x-axis <85.967033> now;
+	//move turret to y-axis [3.800000] now;
+	//move door1 to y-axis [-3.099994] now;
+	//move door2 to y-axis [-3.050000] now;
+	turn door1 to z-axis <-125.714286> now;
+	turn door2 to z-axis <125.258242> now;
+	turn arm to x-axis <50.967> now;
 	turn arm to x-axis <0.000000> speed <221.571429>;
-	turn nano to x-axis <-69.758242> now;
+	turn nano to x-axis <-45.7582> now;
 	turn nano to x-axis <0.000000> speed <179.802198>;
 	sleep 40;
 
-	move plate to y-axis [0.000000] speed [9.768640];
+	move turret to y-axis [0.000000] speed [9.768640];
 	sleep 40;
 
-	move door1 to y-axis [0.000000] speed [7.969147];
-	move door2 to y-axis [0.000000] speed [7.840619];
-	sleep 40;
+	//move door1 to y-axis [0.000000] speed [7.969147];
+	//move door2 to y-axis [0.000000] speed [7.840619];
+	//sleep 40;
 
 	turn door1 to z-axis <0.000000> speed <168.500000>;
 	turn door2 to z-axis <0.000000> speed <167.346154>;
@@ -202,7 +202,6 @@ Killed(severity, corpsetype)
 		explode door1 type BITMAPONLY | BITMAP5;
 		explode door2 type BITMAPONLY | BITMAP1;
 		explode turret type BITMAPONLY | BITMAP2;
-		explode plate type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
 	if( severity <= 50 )
@@ -215,7 +214,6 @@ Killed(severity, corpsetype)
 		explode door1 type BITMAPONLY | BITMAP5;
 		explode door2 type BITMAPONLY | BITMAP1;
 		explode turret type SHATTER | BITMAP2;
-		explode plate type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
 	if( severity <= 99 )
@@ -228,7 +226,6 @@ Killed(severity, corpsetype)
 		explode door1 type BITMAPONLY | BITMAP5;
 		explode door2 type BITMAPONLY | BITMAP1;
 		explode turret type SHATTER | BITMAP2;
-		explode plate type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
 	corpsetype = 3;
@@ -239,6 +236,5 @@ Killed(severity, corpsetype)
 	explode door1 type BITMAPONLY | BITMAP5;
 	explode door2 type BITMAPONLY | BITMAP1;
 	explode turret type SHATTER | EXPLODE_ON_HIT | BITMAP2;
-	explode plate type BITMAPONLY | BITMAP3;
 	return corpsetype;
 }
