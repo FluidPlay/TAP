@@ -20,18 +20,8 @@ imobile()
 	stop-spin RRwheel around x-axis;
 	if( TRUE )
 	{
-		move LFwheel to x-axis [0.00000] now;
-		move LFwheel to x-axis [5.00000] speed [17.50000];
-		move RFwheel to x-axis [0.00000] now;
-		move RFwheel to x-axis [-5.00000] speed [17.50000];
-		sleep 256;
-	}
-	if( TRUE )
-	{
 		move Guard1 to x-axis [-7.62500] speed [27.50000];
 		move Guard3 to x-axis [7.62500] speed [27.50000];
-		move LRwheel to x-axis [5.00000] speed [17.50000];
-		move RRwheel to x-axis [-4.97499] speed [17.50000];
 		sleep 266;
 	}
 	if( TRUE )
@@ -67,10 +57,6 @@ mobile()
 		move Guard4 to x-axis [7.62500] now;
 		move Guard4 to y-axis [-8.37500] now;
 		move Guard4 to y-axis [0.00000] speed [30.00000];
-		move LFwheel to x-axis [5.00000] now;
-		move LRwheel to x-axis [5.00000] now;
-		move RFwheel to x-axis [-5.00000] now;
-		move RRwheel to x-axis [-4.97499] now;
 		sleep 260;
 	}
 	if( TRUE )
@@ -85,8 +71,6 @@ mobile()
 	{
 		move Guard1 to x-axis [0.00000] speed [27.50000];
 		move Guard3 to x-axis [0.00000] speed [27.50000];
-		move LRwheel to x-axis [0.00000] speed [17.50000];
-		move RRwheel to x-axis [0.00000] speed [17.50000];
 		sleep 265;
 	}
 	if( TRUE )

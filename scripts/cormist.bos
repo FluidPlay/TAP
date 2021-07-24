@@ -15,11 +15,9 @@ activatescr()
 {
 	if( TRUE )
 	{
-		move arms to y-axis [0.000000] now;
-		move arms to y-axis [3.199994] speed [2.415088];
-		move gun to y-axis [0.000000] now;
-		move gun to y-axis [2.400000] speed [1.811316];
-		sleep 1325;
+		//move gun to y-axis [0.000000] now;
+		//move gun to y-axis [2.400000] speed [1.811316];
+		//sleep 1325;
 	}
 	sleep 22;
 }
@@ -28,11 +26,9 @@ deactivatescr()
 {
 	if( TRUE )
 	{
-		move arms to y-axis [3.199994] now;
-		move arms to y-axis [0.000000] speed [2.415088];
-		move gun to y-axis [2.400000] now;
-		move gun to y-axis [0.000000] speed [1.811316];
-		sleep 1325;
+		//move gun to y-axis [2.400000] now;
+		//move gun to y-axis [0.000000] speed [1.811316];
+		//sleep 1325;
 	}
 	sleep 20;
 }

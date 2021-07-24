@@ -13,18 +13,18 @@ static-var  notBuilding, statechg_DesiredState, statechg_StateChanging;
 activatescr()
 {
 	turn door1 to z-axis <0.000000> now;
-	turn door1 to z-axis <103.912088> speed <101.978022>;
+	turn door1 to z-axis <-90.912088> speed <101.978022>;
+	
 	turn door2 to z-axis <0.000000> now;
-	turn door2 to z-axis <-103.758242> speed <101.824176>;
+	turn door2 to z-axis <90.758242> speed <101.824176>;
+	sleep 50;
+	
+	turn stand to x-axis <0.000000> now;
+	turn stand to x-axis <60.912088> speed <101.978022>;
+	
+	turn gun to x-axis <0.000000> now;
+	turn gun to x-axis <-40.912088> speed <101.978022>;
 	sleep 90;
-
-	turn door1 to z-axis <206.593407> speed <308.346154>;
-	turn door2 to z-axis <-207.500000> speed <311.516484>;
-	sleep 40;
-
-	move stand to y-axis [4.099994] speed [12.312305];
-	move gun to y-axis [0.700000] speed [2.102100];
-	sleep 40;
 }
 
 deactivatescr()
@@ -32,21 +32,19 @@ deactivatescr()
 	set INBUILDSTANCE to 0;
 	turn turret to y-axis <0.000000> speed <160.038462>;
 	wait-for-turn turret around y-axis;
-
-	move stand to y-axis [4.099994] now;
-	move stand to y-axis [0.000000] speed [5.710303];
-	move gun to y-axis [0.700000] now;
-	move gun to y-axis [0.000000] speed [0.974927];
-	turn door1 to z-axis <206.593407> now;
-	turn door2 to z-axis <-207.500000> now;
-	sleep 40;
-
-	turn door1 to x-axis <0.000000> speed <0.000000>;
-	turn door1 to z-axis <103.912088> speed <210.412088>;
-	turn door2 to z-axis <-103.758242> speed <212.571429>;
+	
+	turn gun to x-axis <-40.912088> speed <210.412088>;
+	turn stand to x-axis <60.758242> speed <212.571429>;
+	sleep 70;
+	
+	turn gun to x-axis <0.000000> speed <210.412088>;
+	turn stand to x-axis <0.000000> speed <212.571429>;
 	sleep 70;
 
-	turn door1 to x-axis <0.000000> speed <0.000000>;
+	turn door1 to z-axis <-90.912088> speed <210.412088>;
+	turn door2 to z-axis <90.758242> speed <212.571429>;
+	sleep 70;
+
 	turn door1 to z-axis <0.000000> speed <212.945055>;
 	turn door2 to z-axis <0.000000> speed <212.626374>;
 	sleep 70;

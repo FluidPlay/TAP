@@ -52,12 +52,12 @@ Activate()
 		set ACTIVATION to 0;
 		return (0);
 	}
-	spin fork around z-axis speed <100.021978>;
+	spin fork around y-axis speed <100.021978>;
 }
 
 Deactivate()
 {
-	spin fork around z-axis speed <0.000000>;
+	spin fork around y-axis speed <0.000000>;
 }
 
 HitByWeapon(anglex, anglez)
