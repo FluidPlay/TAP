@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, flare, turret, barrel;
+piece  base, flare, turret, sleeve, barrel;
 
 static-var  restore_delay;
 
@@ -82,9 +82,9 @@ AimPrimary(heading, pitch)
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
 	turn turret to y-axis heading speed <90.0>;
-	turn barrel to x-axis <0.000000> - pitch speed <50.0>;
+	turn sleeve to x-axis <0.000000> - pitch speed <50.0>; //barrel
 	wait-for-turn turret around y-axis;
-	wait-for-turn barrel around x-axis;
+	wait-for-turn sleeve around x-axis; //barrel
 	start-script RestoreAfterDelay();
 	return (1);
 }
