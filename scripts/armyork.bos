@@ -3,10 +3,11 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  flare1, flare2, flare3, flare4, turret, base, wheel1, wheel2,
-       wheel3, wheel4, wheel5, wheel6, gun1, gun4, gun2, gun3;
+piece  flare1, flare2, flare3, flare4, turret, base, aimpiece,
+       wheel4, gun1, gun4, gun2, gun3, turretbase;
+       //wheel1, wheel2, wheel3, wheel5, wheel6
 
-static-var  restore_delay, gun_3;
+static-var  restore_delay, currentgun, gunid;
 
 // Signal definitions
 #define SIG_AIM_3			2
@@ -53,22 +54,22 @@ HitByWeapon(anglex, anglez)
 
 StartMoving()
 {
-	spin wheel1 around x-axis speed <150.032967>;
-	spin wheel2 around x-axis speed <150.032967>;
-	spin wheel3 around x-axis speed <150.032967>;
+	//spin wheel1 around x-axis speed <150.032967>;
+	//spin wheel2 around x-axis speed <150.032967>;
+	//spin wheel3 around x-axis speed <150.032967>;
 	spin wheel4 around x-axis speed <150.032967>;
-	spin wheel5 around x-axis speed <150.032967>;
-	spin wheel6 around x-axis speed <150.032967>;
+	//spin wheel5 around x-axis speed <150.032967>;
+	//spin wheel6 around x-axis speed <150.032967>;
 }
 
 StopMoving()
 {
-	stop-spin wheel1 around x-axis;
-	stop-spin wheel2 around x-axis;
-	stop-spin wheel3 around x-axis;
+	//stop-spin wheel1 around x-axis;
+	//stop-spin wheel2 around x-axis;
+	//stop-spin wheel3 around x-axis;
 	stop-spin wheel4 around x-axis;
-	stop-spin wheel5 around x-axis;
-	stop-spin wheel6 around x-axis;
+	//stop-spin wheel5 around x-axis;
+	//stop-spin wheel6 around x-axis;
 }
 
 Create()
@@ -77,7 +78,9 @@ Create()
 	hide flare2;
 	hide flare3;
 	hide flare4;
-	gun_3 = flare1;
+	hide aimpiece; //new
+	currentgun = gun1; //flare1
+	gunid = 0;
 	restore_delay = 5000;
 	start-script SmokeUnit();
 }
@@ -102,9 +105,9 @@ AimPrimary(heading, pitch)
 {
 	signal SIG_AIM_3;
 	set-signal-mask SIG_AIM_3;
-	turn turret to y-axis heading speed <650.000000>;
+	turn turretbase to y-axis heading speed <650.000000>; //turret
 	turn turret to x-axis <0.000000> - pitch speed <600.000000>;
-	wait-for-turn turret around y-axis;
+	wait-for-turn turretbase around y-axis;
 	wait-for-turn turret around x-axis;
 	start-script RestoreAfterDelay();
 	return (1);
@@ -112,43 +115,60 @@ AimPrimary(heading, pitch)
 
 FirePrimary()
 {
-	if( gun_3 == 0 )
+//	if( currentgun == 0 )
+//	{
+//		move gun1 to z-axis [-4.000000] now;
+//		show flare1;
+//		sleep 150;
+//		hide flare1;
+//		move gun1 to z-axis [0.000000] speed [15.000000];
+//	}
+//	if( currentgun == 1 )
+//	{
+//		move gun4 to z-axis [-4.000000] now;
+//		show flare4;
+//		sleep 150;
+//		hide flare4;
+//		move gun4 to z-axis [0.000000] speed [15.000000];
+//	}
+//	if( currentgun == 2 )
+//	{
+//		move gun2 to z-axis [-4.000000] now;
+//		show flare2;
+//		sleep 150;
+//		hide flare2;
+//		move gun2 to z-axis [0.000000] speed [15.000000];
+//	}
+//	if( currentgun == 3 )
+//	{
+//		move gun3 to z-axis [-4.000000] now;
+//		show flare3;
+//		sleep 150;
+//		hide flare3;
+//		move gun3 to z-axis [0.000000] speed [15.000000];
+//	}
+	if( gunid == 0 )
 	{
 		move gun1 to z-axis [-4.000000] now;
-		show flare1;
+		move gun2 to z-axis [-4.000000] now;		
 		sleep 150;
-		hide flare1;
 		move gun1 to z-axis [0.000000] speed [15.000000];
-	}
-	if( gun_3 == 1 )
-	{
-		move gun4 to z-axis [-4.000000] now;
-		show flare4;
-		sleep 150;
-		hide flare4;
-		move gun4 to z-axis [0.000000] speed [15.000000];
-	}
-	if( gun_3 == 2 )
-	{
-		move gun2 to z-axis [-4.000000] now;
-		show flare2;
-		sleep 150;
-		hide flare2;
 		move gun2 to z-axis [0.000000] speed [15.000000];
 	}
-	if( gun_3 == 3 )
+	if( gunid == 1 )
 	{
 		move gun3 to z-axis [-4.000000] now;
-		show flare3;
+		move gun4 to z-axis [-4.000000] now;
 		sleep 150;
-		hide flare3;
 		move gun3 to z-axis [0.000000] speed [15.000000];
+		move gun4 to z-axis [0.000000] speed [15.000000];				
 	}
+
 	sleep 50;
-	++gun_3;
-	if( gun_3 == 4 )
+	++gunid;
+	if( gunid == 2 )
 	{
-		gun_3 = flare1;
+		gunid = 0;
 	}
 }
 
@@ -156,9 +176,9 @@ AimSecondary(heading, pitch)
 {
 	signal SIG_AIM_3;
 	set-signal-mask SIG_AIM_3;
-	turn turret to y-axis heading speed <650.000000>;
+	turn turretbase to y-axis heading speed <650.000000>; //turret
 	turn turret to x-axis <0.000000> - pitch speed <600.000000>;
-	wait-for-turn turret around y-axis;
+	wait-for-turn turretbase around y-axis;
 	wait-for-turn turret around x-axis;
 	start-script RestoreAfterDelay();
 	return (1);
@@ -166,64 +186,83 @@ AimSecondary(heading, pitch)
 
 FireSecondary()
 {
-	if( gun_3 == 0 )
+	if( gunid == 0 )
 	{
 		move gun1 to z-axis [-4.000000] now;
-		show flare1;
+		move gun2 to z-axis [-4.000000] now;		
 		sleep 150;
-		hide flare1;
 		move gun1 to z-axis [0.000000] speed [15.000000];
-	}
-	if( gun_3 == 1 )
-	{
-		move gun4 to z-axis [-4.000000] now;
-		show flare4;
-		sleep 150;
-		hide flare4;
-		move gun4 to z-axis [0.000000] speed [15.000000];
-	}
-	if( gun_3 == 2 )
-	{
-		move gun2 to z-axis [-4.000000] now;
-		show flare2;
-		sleep 150;
-		hide flare2;
 		move gun2 to z-axis [0.000000] speed [15.000000];
 	}
-	if( gun_3 == 3 )
+	if( gunid == 1 )
 	{
 		move gun3 to z-axis [-4.000000] now;
-		show flare3;
+		move gun4 to z-axis [-4.000000] now;
 		sleep 150;
-		hide flare3;
 		move gun3 to z-axis [0.000000] speed [15.000000];
+		move gun4 to z-axis [0.000000] speed [15.000000];				
 	}
+
 	sleep 50;
-	++gun_3;
-	if( gun_3 == 4 )
+	++gunid;
+	if( gunid == 2 )
 	{
-		gun_3 = flare1;
+		gunid = 0;
+	}
+}
+
+
+//eg: barrel for QueryWeapon (end) and the turret for AimFromWeapon (base)
+
+AimFromWeapon1(piecenum)
+{
+	if( gunid == 0 )
+	{
+		piecenum = gun2;
+	}
+	if( gunid == 1 )
+	{
+		piecenum = gun3;
 	}
 }
 
 QueryWeapon1(piecenum)
 {
-	piecenum = turret;
+	//piecenum = currentgun; //turret
+	if( gunid == 0 )
+	{
+		piecenum = flare2;
+	}
+	if( gunid == 1 )
+	{
+		piecenum = flare3;
+	}
 }
 
-AimFromWeapon1(piecenum)
-{
-	piecenum = gun_3;
-}
+//===
 
 AimFromSecondary(piecenum)
 {
-	piecenum = turret;
+	if( gunid == 0 )
+	{
+		piecenum = gun2;
+	}
+	if( gunid == 1 )
+	{
+		piecenum = gun3;
+	}
 }
 
 QuerySecondary(piecenum)
 {
-	piecenum = gun_3;
+	if( gunid == 0 )
+	{
+		piecenum = flare2;
+	}
+	if( gunid == 1 )
+	{
+		piecenum = flare3;
+	}
 }
 
 //AimFromTertiary(piecenum)
@@ -233,7 +272,7 @@ QuerySecondary(piecenum)
 
 //QueryTertiary(piecenum)
 //{
-//	piecenum = gun_3;
+//	piecenum = currentgun;
 //}
 
 SweetSpot(piecenum)
@@ -262,6 +301,8 @@ Killed(severity, corpsetype)
 		corpsetype = 3;
 		explode base type BITMAPONLY | BITMAP1;
 		explode turret type SHATTER | BITMAP4;
+		explode turretbase type SHATTER | BITMAP4;
+		explode wheel4 type SHATTER | BITMAP4;
 		return (corpsetype);
 	}
 	corpsetype = 3;
