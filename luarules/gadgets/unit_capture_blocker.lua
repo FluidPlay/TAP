@@ -1,9 +1,9 @@
 function gadget:GetInfo()
     return {
-        name      = "Capture blocker",
-        desc      = "Blocks capture under certain circumstances",
+        name      = "D-gun blocker",
+        desc      = "Blocks D-gun command for starting commanders",
         author    = "MaDDoX",
-        date      = "Dec 16, 2020",
+        date      = "27 Jul, 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 0,
         enabled   = true  --  Enabled by default?
@@ -16,41 +16,33 @@ if gadgetHandler:IsSyncedCode() then
     VFS.Include("gamedata/taptools.lua")
 
     local trackedUnits = {}             -- unitID = true, ... }
-    local heightDiffPercentage = 0.2    -- Percentage of build range which validates vertical captures
 
-    local math_abs = math.abs
-    local CMD_CAPTURE = CMD.CAPTURE -- icon unit or area
+    local CMD_MANUALFIRE = CMD.MANUALFIRE
     local spGetUnitDefID = Spring.GetUnitDefID
-    local spGetUnitPosition = Spring.GetUnitPosition
 
-    --local function iscommander(uDefID)
-    --    local cParms = UnitDefs[uDefID].customParams
-    --    if cParms and cParms.iscommander then
-    --        return true
-    --    endz
-    --    return false
-    --end
+    local function ist0commander(uDefID)
+        local uDef = UnitDefs[uDefID]
+        --local cParms = uDef.customParams
+        --if cParms and cParms.iscommander and uDef.canManualFire == false then
+        if uDefID == UnitDefNames.armcom.id or uDefID == UnitDefNames.corcom.id then
+            return true
+        end
+        return false
+    end
 
     function gadget:AllowCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOptions, cmdTag, synced)
         if not IsValidUnit(unitID) then
             return end
-        if trackedUnits[unitID] and cmdID and cmdID == CMD_CAPTURE then
-            local unitPosY = select(2, spGetUnitPosition(unitID)) or 0
-            local targetUID = cmdParams[1]
-            local targetPosY = select(2, spGetUnitPosition(targetUID)) or 0
-            local heightDiff = math_abs(targetPosY - unitPosY)
-            local buildDistance = UnitDefs[unitDefID].buildDistance or 100  -- fallback build distance in case of stats error
-            if heightDiff > (heightDiffPercentage * buildDistance) then
-                SendToUnsynced("CaptureBlockedEvent", unitTeam)
-                return false
-            end
+        if trackedUnits[unitID] and cmdID and cmdID == CMD_MANUALFIRE then
+            --SendToUnsynced("CaptureBlockedEvent", unitTeam)
+            return false
         end
         return true
     end
 
     function gadget:UnitCreated(unitID, unitDefID)
-        local uDef = UnitDefs[unitDefID]
-        if uDef.canCapture and not uDef.canFly then
+        if ist0commander(unitDefID) then
+            Spring.Echo("Found t0 commander")
             trackedUnits[unitID] = true
         end
     end
@@ -63,16 +55,16 @@ if gadgetHandler:IsSyncedCode() then
     end
 
 else
-    function HandleCaptureBlockedEvent(cmd, unitTeam)
-        if Script.LuaUI("CaptureBlockedUIEvent") then
-            Script.LuaUI.CaptureBlockedUIEvent(unitTeam)
-        end
-    end
-
-    function gadget:Initialize()
-        gadgetHandler:AddSyncAction("CaptureBlockedEvent", HandleCaptureBlockedEvent)
-    end
-    function gadget:Shutdown()
-        gadgetHandler:RemoveSyncAction("CaptureBlockedEvent")
-    end
+    --function HandleCaptureBlockedEvent(cmd, unitTeam)
+    --    if Script.LuaUI("CaptureBlockedUIEvent") then
+    --        Script.LuaUI.CaptureBlockedUIEvent(unitTeam)
+    --    end
+    --end
+    --
+    --function gadget:Initialize()
+    --    gadgetHandler:AddSyncAction("CaptureBlockedEvent", HandleCaptureBlockedEvent)
+    --end
+    --function gadget:Shutdown()
+    --    gadgetHandler:RemoveSyncAction("CaptureBlockedEvent")
+    --end
 end
