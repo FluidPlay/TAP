@@ -42,7 +42,7 @@ if gadgetHandler:IsSyncedCode() then
 
     function gadget:UnitCreated(unitID, unitDefID)
         if ist0commander(unitDefID) then
-            Spring.Echo("Found t0 commander")
+            --Spring.Echo("Found t0 commander")
             trackedUnits[unitID] = true
         end
     end

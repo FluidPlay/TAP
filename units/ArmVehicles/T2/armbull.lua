@@ -28,7 +28,7 @@ return {
 		movementclass = "HTANK3",
 		name = "Bulldog",
 		nochasecategory = "VTOL",
-		objectname = "ARMBULL",
+		objectname = "ARMBULL.s3o",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 494,

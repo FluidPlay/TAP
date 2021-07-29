@@ -303,7 +303,7 @@ local shaderTemplate = {
 
 			if (BITMASK_FIELD(bitOptions, OPTION_VERTEX_AO)) {
 				//aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), shadowDensity, 1.0);
-				aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), 0.1, 1.0);
+				aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), 0.01, 1.0); //shadowDensity = 0.1
 			} else {
 				aoTerm = 1.0;
 			}
