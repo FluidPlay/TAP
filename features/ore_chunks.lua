@@ -104,7 +104,7 @@ return {
         hitdensity = 999999,
         indestructible = false,
         metal = 1,
-        object = "ore_uber.s3o",
+        object = "ore_mantle.s3o",
         reclaimable = 1,
         reclaimTime = 15000,
         mass = 120,

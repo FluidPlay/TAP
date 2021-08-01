@@ -1,0 +1,24 @@
+#define TA			// This is a TA script
+
+#include "sfxtype.h"
+#include "exptype.h"
+
+piece  base;
+
+Create()
+{
+	//start-script SmokeUnit();
+	return (0);
+}
+
+SweetSpot(piecenum)
+{
+	piecenum = base;
+	return (0);
+}
+
+Killed( severity, corpsetype )
+{
+	//corpsetype = 1;
+	//return(corpsetype);
+}

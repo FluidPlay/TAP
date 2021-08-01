@@ -479,6 +479,11 @@ function IsValidUnit(unitID)
 	return false
 end
 
+-- Heading is in radians, 2 * PI or ~6.28
+function HeadingToFacing(heading)
+    return math.floor((heading + 8192) / 16384) % 4
+end
+
 function LocalAlert(unitID, msg)
     --local x, y, z = spGetUnitPosition(unitID)  --x and z on map floor, y is height
     --spMarkerAddPoint(x,y,z,msg) --,true) defaults to local
