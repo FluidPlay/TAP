@@ -32,12 +32,20 @@ if gadgetHandler:IsSyncedCode() then
     --		spots[#spots + 1] = g
 
     local updateRate = 10
-    local oreSpots --, metalSpotsByPos
+    local oreSpots -- { 1 = { ring = {
+                   --                   1 = { chunk = { 1 = { unitID = n, type = "sml" }, ...},
+                   --         sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
+                   --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
+                   --       }, ...
+                   -- }
+    -- eg: (oreSpots[12][1]).#chunk  <==> OreSpot #12, Ring #1, chunk count
+
     local startFrame
     local gaiaTeamID
     local sprawlChance = 0.2
     local deadZone = 30
-    local spawnDelay = { ["moho"]=600 } --TODO: Add other ore chunk types here
+    local startKind = "lrg"
+    local spawnDelay = { ["sml"]=300, ["lrg"]=400, ["moho"]=550, ["mantle"]=750 }
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
 
@@ -49,14 +57,16 @@ if gadgetHandler:IsSyncedCode() then
     local minSpawnDistance = 12    -- This prevents stacked ore chunks when spawning
     local startingChunkCount = 10
     local spawnRadius = 50 --starting spawn radius from ore spot center
-    local spawnedChunks = {} --{ pos = {x=x, z=z}, type="sml | lrg | moho | uber",
-                             --  spawnR = radiusWhenItWasSpawned, spotID = idx (oreSpots[idx]) }
+    local spawnedChunks = {} --{ pos = {x=x, z=z}, kind="sml | lrg | moho | mantle",
+                             --  spotID = idx (oreSpots[idx]) }
     local chunksToSprawl = {} --just like spawnedChunks, those are the one to 'self replicate'
+
+    local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
 
     local spGetGameFrame = Spring.GetGameFrame
     local spCreateUnit = Spring.CreateUnit
     local spSetUnitNeutral = Spring.SetUnitNeutral
-    --local spCreateFeature = Spring.CreateFeature
+    local spSetUnitHarvestStorage = Spring.SetUnitHarvestStorage
 
     local ore = {} --{ sm = UnitDefNames["oresm"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
@@ -90,7 +100,9 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     --- Returns: Spawned unitID
-    local function SpawnChunk(cx, cy, cz, R, deadZone, spotID)
+    local function SpawnChunk(cx, cy, cz, R, deadZone, spotID, kind)
+
+        kind = kind or "sml"
 
         --https://dev.to/seanpgallivan/solution-generate-random-point-in-a-circle-ldh
 
@@ -104,13 +116,14 @@ if gadgetHandler:IsSyncedCode() then
 
         --recurses when result is invalid (close to center or to existing chunk)
         if TooCloseToSpot(x,z,cx,cz) or ChunkNearby(x,cy,z) then
-            SpawnChunk(cx, cy, cz, R, deadZone, spotID)
+            SpawnChunk(cx, cy, cz, R, deadZone, spotID, kind)
         else    -- otherwise, actually spawn the unit and make it neutral
-            local unitID = spCreateUnit(ore.moho, x, cy, z, math_random(0, 3), gaiaTeamID)
+            --Spring.Echo("Name: "..(ore[kind] or "invalid"))
+            spCreateUnit(UnitDefs[ore[kind]], x, cy, z, math_random(0, 3), gaiaTeamID)
             spSetUnitNeutral(unitID, true)
             --local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
-            local sprawlTime = spGetGameFrame() + (spawnDelay["moho"] or 240) + math_random(0,60)
-            spawnedChunks[unitID] = { pos = {x=x, y=cy, z=z}, type="moho", spotID = spotID, spawnR = R, time = sprawlTime }
+            local sprawlTime = spGetGameFrame() + (spawnDelay[kind] or 240) + math_random(0,60)
+            spawnedChunks[unitID] = { pos = {x=x, y=cy, z=z}, kind = kind, spotID = spotID, spawnR = R, time = sprawlTime }
             if math_random() < sprawlChance then
                 chunksToSprawl[unitID] = spawnedChunks[unitID]
             end
@@ -119,7 +132,7 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:Initialize()
-        ore = { sm = UnitDefNames["oresm"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
+        ore = { sml = UnitDefNames["oresm"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         startFrame = Spring.GetGameFrame()
         gaiaTeamID = Spring.GetGaiaTeamID()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
@@ -132,20 +145,36 @@ if gadgetHandler:IsSyncedCode() then
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             for j = 1, startingChunkCount do
-                local spawnedFeatureID = SpawnChunk (x, y, z, spawnRadius, deadZone, i)
+                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, startKind)
                 -- We also store the spawned chunks from each oreSpot, in oreSpots data
                 if (oreSpots[i].chunks == nil) then
                     oreSpots[i].chunks = {} end
-                oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = spawnedFeatureID
+                oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = spawnedUnitID
             end
 
         end
     end
 
-    function gadget:UnitDestroyed(unitID)
-        spawnedChunks[unitID] = nil
+    function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
         chunksToSprawl[unitID] = nil
+        local chunk = spawnedChunks[unitID]
+        if not spawnedChunks[unitID] then
+            return end
+        ---if 'destroyer' is a builder, sets its harvestStorage
+        ---TODO: Sent it to closest drop point
+        local attackerDef = UnitDefs[attackerDefID]
+        if attackerDef and attackerDef.canCapture then
+            spSetUnitHarvestStorage ( attackerID, oreValue[chunk.type])
+        end
+        spawnedChunks[unitID] = nil
     end
+
+    function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
+
+        Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
+    end
+    --function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
+    --end
 
     --function gadget:FeaturePreDamaged(featureID, featureDefID, featureTeam, damage, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
     --    --if featureID:find("geothermal") then
@@ -161,17 +190,19 @@ if gadgetHandler:IsSyncedCode() then
         if f % updateRate > 0.0001 then
             return end
 
-        for unitID, data in pairs(chunksToSprawl) do
-            if data.time >= f then
-                local oreSpot = oreSpots[data.spotID]
-                if oreSpot ~= nil then
-                    SpawnChunk(oreSpot.x, oreSpot.y, oreSpot.z, data.spawnR + 40, deadZone, data.spotID)
-                    chunksToSprawl[unitID] = nil
-                    --Spring.Echo("Found ore spot "..data.spotID)
-                    --break
-                end
-            end
-        end
+        -- TODO: Turn this into a loop through spots, to figure out if it should Sprawl or not
+        --- (use minor randomness to prevent too many spots sprawling at once)
+        --for unitID, data in pairs(chunksToSprawl) do
+        --    if data.time >= f then
+        --        local oreSpot = oreSpots[data.spotID]
+        --        if oreSpot ~= nil then
+        --            SpawnChunk(oreSpot.x, oreSpot.y, oreSpot.z, data.spawnR + 40, deadZone, data.spotID)
+        --            chunksToSprawl[unitID] = nil
+        --            --Spring.Echo("Found ore spot "..data.spotID)
+        --            --break
+        --        end
+        --    end
+        --end
     end
 
 else
@@ -182,62 +213,63 @@ else
     ---- Here we'll make the 'capture' cursor the default action on top of ore chunks
     ---- for commanders and capture-enabled builders
 
-    --local spGetMouseState = Spring.GetMouseState
-    --local spTraceScreenRay = Spring.TraceScreenRay
-    ----local spAreTeamsAllied = Spring.AreTeamsAllied
-    ----local spGetUnitTeam = Spring.GetUnitTeam
-    --local spGetUnitDefID = Spring.GetUnitDefID
-    --local spGetSelectedUnits = Spring.GetSelectedUnits
-    ----local spGetLocalTeamID = Spring.GetLocalTeamID
-    --local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
-    --local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
-    --local CMD_CAPTURE = CMD.CAPTURE
-    --
-    --local strUnit = "unit"
-    --
-    --local geothermalsDefIDs = {
-    --    [UnitDefNames["armgeo"].id] = true,
-    --    [UnitDefNames["armageo"].id] = true,
-    --    [UnitDefNames["armgmm"].id] = true,
-    --}
-    --
-    --function gadget:DefaultCommand()
-    --    local function isGeothermal(unitDefID)
-    --        return geothermalsDefIDs[unitDefID]
-    --    end
-    --    local mx, my = spGetMouseState()
-    --    local s, targetID = spTraceScreenRay(mx, my)
-    --    if s ~= strUnit then
-    --        return false end
-    --
-    --    --if not spAreTeamsAllied(myTeamID, spGetUnitTeam(targetID)) then
-    --    --    return false
-    --    --end
-    --
-    --    -- Only proceed if target is one of the geothermal variations
-    --    local targetDefID = spGetUnitDefID(targetID)
-    --    if not isGeothermal(targetDefID) then
-    --        return false end
-    --
-    --    -- If any of the selected units is a capturer, default to 'capture'
-    --    local sUnits = spGetSelectedUnits()
-    --    --local teamID = spGetLocalTeamID()
-    --
-    --    for i=1,#sUnits do
-    --        local unitID = sUnits[i]
-    --        local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-    --        if unitDef.customParams.iscommander then
-    --            return CMD_CAPTURE
-    --        end
-    --        if unitDef.canCapture then
-    --            -- Check if the units has capture enabled already
-    --            local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
-    --            local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
-    --            if not cmdDesc.disabled then
-    --                return CMD_CAPTURE end
-    --        end
-    --    end
-    --    return false
-    --end
+    local spGetMouseState = Spring.GetMouseState
+    local spTraceScreenRay = Spring.TraceScreenRay
+    --local spAreTeamsAllied = Spring.AreTeamsAllied
+    --local spGetUnitTeam = Spring.GetUnitTeam
+    local spGetUnitDefID = Spring.GetUnitDefID
+    local spGetSelectedUnits = Spring.GetSelectedUnits
+    --local spGetLocalTeamID = Spring.GetLocalTeamID
+    local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
+    local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+    local CMD_CAPTURE = CMD.CAPTURE
+
+    local strUnit = "unit"
+
+    local oreDefIDs = {
+        [UnitDefNames["oresm"].id] = true,
+        [UnitDefNames["orelrg"].id] = true,
+        [UnitDefNames["oremoho"].id] = true,
+        [UnitDefNames["oremantle"].id] = true,
+    }
+
+    function gadget:DefaultCommand()
+        local function isOre(unitDefID)
+            return oreDefIDs[unitDefID]
+        end
+        local mx, my = spGetMouseState()
+        local s, targetID = spTraceScreenRay(mx, my)
+        if s ~= strUnit then
+            return false end
+
+        --if not spAreTeamsAllied(myTeamID, spGetUnitTeam(targetID)) then
+        --    return false
+        --end
+
+        -- Only proceed if target is one of the ore chunk variations
+        local targetDefID = spGetUnitDefID(targetID)
+        if not isOre(targetDefID) then
+            return false end
+
+        -- If any of the selected units is a capturer, default to 'capture'
+        local sUnits = spGetSelectedUnits()
+        --local teamID = spGetLocalTeamID()
+
+        for i=1,#sUnits do
+            local unitID = sUnits[i]
+            local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+            --if unitDef.customParams.iscommander then
+            --    return CMD_CAPTURE
+            --end
+            if unitDef.canCapture then
+                -- Check if the units has capture enabled already
+                local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
+                local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
+                if not cmdDesc.disabled then
+                    return CMD_CAPTURE end
+            end
+        end
+        return false
+    end
 
 end

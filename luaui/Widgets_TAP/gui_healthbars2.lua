@@ -101,6 +101,7 @@ local messages = {
     teleport_pw = "teleport",
     water_tank = "water tank",
     upgrade = "upgrade",
+    ore_load = "ore load"
 }
 
 --local function languageChanged ()
@@ -635,6 +636,7 @@ do
     local GetUnitViewPosition  = Spring.GetUnitViewPosition
     local GetUnitStockpile     = Spring.GetUnitStockpile
     local GetUnitRulesParam    = Spring.GetUnitRulesParam
+    local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 
     local fullText
     local ux, uy, uz
@@ -712,6 +714,7 @@ do
                 dyanmicComm   = ud.customParams.dynamic_comm,
                 maxWaterTank  = ud.customParams.maxwatertank,
                 freeStockpile = (ud.customParams.freestockpile and true) or nil,
+                maxOreStorage = ud.harvestStorage,
             }
         end
         ci = customInfo[unitDefID]
@@ -763,6 +766,8 @@ do
             onFireUnits[#onFireUnits+1]=unitID
         end
 
+        local oreLoad = spGetUnitHarvestStorage(unitID)
+
         --//=====================================================================================
         --// BARS //-----------------------------------------------------------------------------
         --//=====================================================================================
@@ -784,6 +789,19 @@ do
                     AddBar(messages.shield,shieldPower,"shield",(fullText and floor(shieldPower*100)..'%') or '')
                 end
             end
+        end
+
+        --// ORE LOAD
+        if (oreLoad and oreLoad>0) then
+            local oreLoadPct = oreLoad / ci.maxOreStorage
+            local oreLoad100 = oreLoad*100;
+            oreLoad100 = oreLoad100 - oreLoad100%1; --//same as floor(oreLoad*100), but 10% faster
+
+            if (oreLoadPct<0) then oreLoadPct=0 elseif (oreLoadPct>100) then
+                oreLoadPct = 100
+            end
+            --AddBar(title,progress,color_index,text,color)
+            AddBar(messages.ore_load, oreLoadPct, nil, (oreLoad100..'%'))
         end
 
         --// HEALTH
@@ -867,7 +885,7 @@ do
         end
 
         --// CAPTURE (set by capture gadget)
-        if ((capture or -1)>0) then
+        if (capture or -1) > 0 then
             AddBar(messages.capture,capture,"capture",(fullText and floor(capture*100)..'%') or '')
         end
 
