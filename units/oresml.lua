@@ -1,5 +1,5 @@
 return {
-	oresm = {
+	oresml = {
 		acceleration = 0,
 		activatewhenbuilt = true,
 		brakerate = 0,
@@ -31,7 +31,7 @@ return {
 		maxslope = 20,
 		maxwaterdepth = 99999,
 		name = "Small Pandore Chunk",
-		objectname = "ARMGEO",
+		objectname = "ore_sml.s3o",
         reclaimable = true,
 		seismicsignature = 0,
 		selfdestructas = "geo",

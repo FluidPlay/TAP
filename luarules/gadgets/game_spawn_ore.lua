@@ -68,7 +68,7 @@ if gadgetHandler:IsSyncedCode() then
     local spSetUnitNeutral = Spring.SetUnitNeutral
     local spSetUnitHarvestStorage = Spring.SetUnitHarvestStorage
 
-    local ore = {} --{ sm = UnitDefNames["oresm"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
+    local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
     local function sqr (x)
         return math.pow(x, 2)
@@ -119,7 +119,9 @@ if gadgetHandler:IsSyncedCode() then
             SpawnChunk(cx, cy, cz, R, deadZone, spotID, kind)
         else    -- otherwise, actually spawn the unit and make it neutral
             --Spring.Echo("Name: "..(ore[kind] or "invalid"))
-            spCreateUnit(UnitDefs[ore[kind]], x, cy, z, math_random(0, 3), gaiaTeamID)
+            --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
+            local unitID = spCreateUnit((UnitDefs[ore.moho]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
+
             spSetUnitNeutral(unitID, true)
             --local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
             local sprawlTime = spGetGameFrame() + (spawnDelay[kind] or 240) + math_random(0,60)
@@ -132,7 +134,7 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:Initialize()
-        ore = { sml = UnitDefNames["oresm"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
+        ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         startFrame = Spring.GetGameFrame()
         gaiaTeamID = Spring.GetGaiaTeamID()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
@@ -227,7 +229,7 @@ else
     local strUnit = "unit"
 
     local oreDefIDs = {
-        [UnitDefNames["oresm"].id] = true,
+        [UnitDefNames["oresml"].id] = true,
         [UnitDefNames["orelrg"].id] = true,
         [UnitDefNames["oremoho"].id] = true,
         [UnitDefNames["oremantle"].id] = true,
