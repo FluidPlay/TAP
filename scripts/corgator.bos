@@ -50,7 +50,7 @@ HitByWeapon(Func_Var_1, Func_Var_2)
 
 Create()
 {
-	hide flare;
+	//hide flare;
 	turn turret to x-axis <-15.000000> speed <175>;
 	restore_delay = 3000;
 	start-script SmokeUnit();
@@ -89,7 +89,7 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = sleeve2; //turret
+	piecenum = turret; //sleeve2
 }
 
 QueryPrimary(piecenum)
@@ -130,7 +130,7 @@ QuerySecondary(piecenum)
 
 SweetSpot(piecenum)
 {
-	piecenum = turret;
+	piecenum = turretbase;
 }
 
 Killed(severity, corpsetype)
