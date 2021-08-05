@@ -244,7 +244,8 @@ local shaderTemplate = {
 				float texOffset = floatOptions[3] * mod(float(simFrame), gfMod) * (texSpeed / atlasSize);
 
 				// note, invert we invert Y axis
-				const vec4 treadBoundaries = vec4(2572.0, 3070.0, atlasSize - 1761.0, atlasSize - 1548.0) / atlasSize;
+				//const vec4 treadBoundaries = vec4(2572.0, 3070.0, atlasSize - 1761.0, atlasSize - 1548.0) / atlasSize;
+				const vec4 treadBoundaries = vec4(2051.0, 1026.0, 4093, 1791) / atlasSize;
 				if (all(bvec4(
 						gl_TexCoord[0].x >= treadBoundaries.x, gl_TexCoord[0].x <= treadBoundaries.y,
 						gl_TexCoord[0].y >= treadBoundaries.z, gl_TexCoord[0].y <= treadBoundaries.w))) {
@@ -253,7 +254,7 @@ local shaderTemplate = {
 			}
 
 			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_CORE)) {
-				const float atlasSize = 2048.0;
+				const float atlasSize = 4096.0; //2048.0;
 				const float gfMod = 6.0;
 				const float texSpeed = -6.0;
 
@@ -303,7 +304,7 @@ local shaderTemplate = {
 
 			if (BITMASK_FIELD(bitOptions, OPTION_VERTEX_AO)) {
 				//aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), shadowDensity, 1.0);
-				aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), 0.01, 1.0); //shadowDensity = 0.1
+				aoTerm = clamp(1.0 * fract(gl_TexCoord[0].x * 16384.0), 0, 1.25); //shadowDensity = 0.1 ~ 1
 			} else {
 				aoTerm = 1.0;
 			}
@@ -1399,7 +1400,7 @@ local shaderTemplate = {
 				iblDiffuse = sunAmbient;
             #endif
 
-            vec3 diffuse = iblDiffuse * albedoColor * aoTerm;
+            vec3 diffuse = iblDiffuse * albedoColor * aoTerm; // * aoTerm;
 
             // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
             vec3 reflectionColor = SampleEnvironmentWithRoughness(Rv, roughness);
@@ -1455,7 +1456,8 @@ local shaderTemplate = {
 			//outColor = dirContrib + ambientContrib;
 			//outColor = vec3( NdotV );
 			//outColor = LINEARtoSRGB(FresnelSchlick(F0, F90, NdotV));
-			outColor = vec3(normalTexVal.aaa); //normal debug!! outColor = vec3(N);
+			outColor = vec3(aoTerm); //AO debug
+			//outColor = vec3(normalTexVal.aaa); //normal debug!! outColor = vec3(N);
 		#endif
 
 		#if (RENDERING_MODE == 0)

@@ -425,7 +425,8 @@ for id = 1, #UnitDefs do
 
         local wreckAtlas = wreckAtlases[facName]
 
-        if udef.modCategories["tank"] then
+        --        if udef.modCategories["tank"] then
+        if udefCM.hastreads then
             if facName == "arm" then
                 unitMaterials[id] = {"unitsNormalMapArmTanks", NORMALTEX = normalTex, TEXW1 = wreckAtlas[1], TEXW2 = wreckAtlas[2], NORMALTEX2 = wreckAtlas[3]}
             elseif facName == "cor" then
