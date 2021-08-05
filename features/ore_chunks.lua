@@ -1,5 +1,5 @@
 return {
-    ore_sm =
+    ore_sml =
     {
         description = "Small Ore Chunk",
         blocking = 1,
@@ -14,7 +14,7 @@ return {
         hitdensity = 999999,
         indestructible     = false,
         metal = 1,
-        object = "ore_sm.s3o",
+        object = "ore_sml.s3o",
         reclaimable = 1,
         reclaimTime = 5000,
         mass = 20,
