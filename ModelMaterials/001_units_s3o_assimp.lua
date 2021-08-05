@@ -188,7 +188,7 @@ local function SendTracksOffset(unitID, hasStd, hasDef, hasShad)
 
     local usx, usy, usz, speed = spGetUnitVelocity(unitID)
     if speed > 0.05 then
-        speed = floor(4 * speed + 0.5) / 4 --quantize speed by 0.25
+        speed = floor(4 * (speed * 1.5)) / 4 --quantize speed by 0.25 => floor(4 * speed + 0.5) / 4
     else
         speed = 0
     end
@@ -417,6 +417,7 @@ for id = 1, #UnitDefs do
         local udefCM = udef.customParams
         local lm = tonumber(udefCM.lumamult) or 1
         local scvd = tonumber(udefCM.scavvertdisp) or 0
+        local hasTreads = udefCM.hastreads or true --TODO: Temp, for tests
 
         local udefName = udef.name or ""
         local facName = string.sub(udefName, 1, 3)
@@ -426,7 +427,7 @@ for id = 1, #UnitDefs do
         local wreckAtlas = wreckAtlases[facName]
 
         --        if udef.modCategories["tank"] then
-        if udefCM.hastreads then
+        if hasTreads then
             if facName == "arm" then
                 unitMaterials[id] = {"unitsNormalMapArmTanks", NORMALTEX = normalTex, TEXW1 = wreckAtlas[1], TEXW2 = wreckAtlas[2], NORMALTEX2 = wreckAtlas[3]}
             elseif facName == "cor" then
@@ -443,6 +444,8 @@ for id = 1, #UnitDefs do
                 end
             end
         end
+        --if unitMaterials[id] then
+        --    Spring.Echo("unit: "..udef.name.." | material: "..tostring(unitMaterials[id][1])) end
     end
 end
 

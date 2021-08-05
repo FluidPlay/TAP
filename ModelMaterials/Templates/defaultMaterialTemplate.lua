@@ -243,9 +243,9 @@ local shaderTemplate = {
 
 				float texOffset = floatOptions[3] * mod(float(simFrame), gfMod) * (texSpeed / atlasSize);
 
-				// note, invert we invert Y axis
+				// note, invert we invert Y axis; vec4 (leftX, rightX, topY, bottomY)
 				//const vec4 treadBoundaries = vec4(2572.0, 3070.0, atlasSize - 1761.0, atlasSize - 1548.0) / atlasSize;
-				const vec4 treadBoundaries = vec4(2051.0, 1026.0, 4093, 1791) / atlasSize;
+				const vec4 treadBoundaries = vec4(2054.0, 4096.0, 1025.0, 2047.0) / atlasSize;
 				if (all(bvec4(
 						gl_TexCoord[0].x >= treadBoundaries.x, gl_TexCoord[0].x <= treadBoundaries.y,
 						gl_TexCoord[0].y >= treadBoundaries.z, gl_TexCoord[0].y <= treadBoundaries.w))) {
@@ -254,7 +254,7 @@ local shaderTemplate = {
 			}
 
 			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_CORE)) {
-				const float atlasSize = 4096.0; //2048.0;
+				const float atlasSize = 2048.0;
 				const float gfMod = 6.0;
 				const float texSpeed = -6.0;
 
