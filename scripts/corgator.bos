@@ -83,13 +83,16 @@ AimPrimary(heading, pitch)
 FirePrimary()
 {
 	//show flare;
-	sleep 150;
+	turn sleeve to z-axis <120> speed <675.000000>;
+	wait-for-turn sleeve around z-axis;
+	turn sleeve to z-axis <0.000000> now;
+	//sleep 150;
 	//hide flare;
 }
 
 AimFromPrimary(piecenum)
 {
-	piecenum = turret; //sleeve2
+	piecenum = sleeve2;
 }
 
 QueryPrimary(piecenum)
