@@ -5,12 +5,12 @@
 function gadget:GetInfo()
     return {
         name      = "Spawn Ore",
-        desc      = "Spawn Ore Chunks around of metal spots at game start then repeatedly",
+        desc      = "Spawn Ore Chunks around metal spots at game start then repeatedly",
         author    = "MaDDoX",
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 0,
-        enabled   = true,
+        enabled   = false,
     }
 end
 
