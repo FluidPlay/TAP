@@ -18,8 +18,13 @@ function gadget:GetInfo()
     }
 end
 
-local unitsToDestroy = {} -- { [unitID]=frameToDestroy, ... }
-local delayInFrames = 25 * 30
+local updateRate = 2
+local trackedUnits = {} -- { [unitID]=frameToDestroy, ... }
+local fuelPerDrone = 25 * 30 --25s
+
+local spGetUnitVelocity = Spring.GetUnitVelocity
+local spDestroyUnit = Spring.DestroyUnit
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
 
 --SYNCED
 
@@ -32,30 +37,37 @@ if (gadgetHandler:IsSyncedCode()) then
 
     -- When a unit is completed
     function gadget:UnitFinished(unitID, unitDefID, teamID)
-        if type(unitsToEdit[unitDefID]) == nil or unitsToEdit[unitDefID] == nil then
+        if unitsToEdit[unitDefID] == nil or type(unitsToEdit[unitDefID]) == nil then
             return end
 
-        unitsToDestroy[unitID] = Spring.GetGameFrame()+delayInFrames
-        --Spring.Echo("Unit to Destroy: "..unitID.." in frame: "..Spring.GetGameFrame()+delayInFrames)
+        trackedUnits[unitID] = fuelPerDrone --Spring.GetGameFrame() + delayInFrames
+        spSetUnitRulesParam(unitID, "fuelperc", 1)  -- 100% at time of creation
+        --Spring.Echo("Unit to Destroy: "..unitID.." with fuel: "..fuelPerDrone.." fuelPerc: "..1)
     end
 
     function gadget:GameFrame(gf)
-        for unitID, frameToDestroy in pairs(unitsToDestroy) do
-            --Spring.Echo("unit: "..unitID.." frame: "..frameToDestroy.." gf: "..gf)
-            if gf >= frameToDestroy then
-                --Spring.Echo("Game Frame: "..gf)
-                Spring.DestroyUnit(unitID, false, true)
-                --TODO: If it's not cloaked, blow it up instead
-                unitsToDestroy[unitID] = nil
+        if gf % updateRate > 0.0001 then
+            return end
+        for unitID, fuel in pairs(trackedUnits) do
+            local _,_,_,unitMoveSpeed = spGetUnitVelocity(unitID)
+            if unitMoveSpeed > 0.1 then
+                local newFuel = fuel-1
+                trackedUnits[unitID] = newFuel
+                if newFuel <= 0 then
+                    --TODO: If it's not cloaked, blow it up instead
+                    spDestroyUnit(unitID, false, true)
+                else
+                    spSetUnitRulesParam(unitID, "fuelperc", newFuel/fuelPerDrone)
+                end
             end
         end
     end
 
-    --- Below code is probably unneeded. 
-    --function gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
-    --    unitsToDestroy[unitID] = nil
-    --end
-    --
+    function gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+        trackedUnits[unitID] = nil
+    end
+
+    --- Below code is probably unneeded.
     --function gadget:UnitGiven(unitID, unitDefID, newTeamID, teamID)
     --    mexBuilder[unitID] = mexBuilderDefs[unitDefID]
     --    if mexDefID[unitDefID] then

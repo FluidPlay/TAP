@@ -51,6 +51,7 @@ local lastvsx = vsx
 local lastvsy = vsy
 local panelwidthx = 0.175 --0.14
 local panelheightx = 0.16 --0.14
+local lateUpdate = nil
 
 local Config = {
     ordermenu = {
@@ -691,13 +692,35 @@ function widget:CommandsChanged()
     updateRequired = true
 end --CommandsChanged
 
-function widget:Update()
-    if updateRequired then
-        processAllCommands()
-        updateRequired = false
+function widget:GameFrame(f)
+    if lateUpdate and f > lateUpdate then
+        --Spring.Echo("Updating")
+        lateUpdate = nil
+        chiliCache = {}
+        --btWidth = processRelativeCoord(max(vsx*0.14, minSideMenuWidth), vsx/Config.ordermenu.columns)
+
+        btWidth = processRelativeCoord(Config.ordermenu.width, vsx/Config.ordermenu.columns)
+
+        InitializeControls()
+
+        --[Original]
+        --:SetPos(pos.x, pos.y, pos.width, pos.height)
+        orderWindow:SetPosRelative(0, vsy*0.25, max(vsx*panelwidthx, minSideMenuWidth), vsy*panelheightx) --0.14
+
+        buildWindow:SetPosRelative(0, vsy*0.41, max(vsx*panelwidthx,minSideMenuWidth), vsy*panelheightx)
+
+        buildWindowAdv:SetPosRelative(0, vsy*0.57, max(vsx*panelwidthx,minSideMenuWidth), vsy*panelheightx)
+
+        spForceLayoutUpdate()
+    else
+        --Spring.Echo("f: "..f.." lateUpdate: "..(lateUpdate or "nil"))
+        if updateRequired then
+            processAllCommands()
+            updateRequired = false
+        end
+        updateSelection()
     end
-    updateSelection()
-end --Update
+end
 
 function widget:WorldTooltip(ttType,data1,data2,data3)
     return tooltip
@@ -706,6 +729,8 @@ end --WorldTooltip
 function widget:ViewResize(newX,newY)
     --vsx, vsy = spGetWindowGeometry() --newX, newY
     --Spring.Echo("Resized to "..vsx.." x "..vsy)
+
+    --Spring.SendCommands("/Deselect")    --deselect all units, prevents resize issues
     vsx, vsy = gl.GetViewSizes()
     if lastvsx == vsx and lastvsy == vsy then
         return
@@ -713,36 +738,8 @@ function widget:ViewResize(newX,newY)
         lastvsx = vsx
         lastvsy = vsy
     end
-
-    chiliCache = {}
-    btWidth = processRelativeCoord(max(vsx*0.14, minSideMenuWidth), vsx/Config.ordermenu.columns)
-
-    --end
-    --if orderWindow then
-    --    orderWindow:Dispose()
-    --end
-    --if buildWindow then
-    --    buildWindow:Dispose()
-    --end
-    --if buildWindowAdv then
-    --    buildWindowAdv:Dispose()
-    --end
-    --
-    --btWidth = processRelativeCoord(Config.ordermenu.width, vsx/Config.ordermenu.columns)
-    --
-    --
-    --InitializeControls()
-
---[Original]
-    --:SetPos(pos.x, pos.y, pos.width, pos.height)
-    orderWindow:SetPosRelative(0, vsy*0.25, max(vsx*panelwidthx, minSideMenuWidth), vsy*panelheightx) --0.14
-
-    buildWindow:SetPosRelative(0, vsy*0.41, max(vsx*panelwidthx,minSideMenuWidth), vsy*panelheightx)
-
-    buildWindowAdv:SetPosRelative(0, vsy*0.57, max(vsx*panelwidthx,minSideMenuWidth), vsy*panelheightx)
-
     Spring.SelectUnitArray({}) -- Deselect all units, to prevent infinite loop in line below
-    spForceLayoutUpdate()
+    lateUpdate = Spring.GetGameFrame()+45
 end
 
 function widget:Shutdown()

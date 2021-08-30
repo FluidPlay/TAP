@@ -16,7 +16,7 @@ end
 ------------------------------------------------------------------------------------
 --[[
 
--- Availible API functions:
+-- Available API functions:
 WG['tooltip'].AddTooltip(name, area, value, delay, x, y)  -- area: {x1,y1,x2,y2}   value: 'text'   delay(optional): #seconds   x/y(optional): display coordinates
 WG['tooltip'].RemoveTooltip(name)
 
@@ -28,6 +28,9 @@ Use 'ShowTooltip' to directly show a tooltip, the name you give should be unique
 (the name will be deleted after use)
 
 ]]--
+
+VFS.Include("gamedata/taptools.lua")
+
 ------------------------------------------------------------------------------------
 -- Config
 ------------------------------------------------------------------------------------

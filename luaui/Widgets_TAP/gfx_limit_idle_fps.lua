@@ -7,7 +7,7 @@ function widget:GetInfo()
 		date = "2020",
 		license = "",
 		layer = 0,
-		enabled = true
+		enabled = false, --true
 	}
 end
 
@@ -26,20 +26,19 @@ local drawAtFullspeed = true
 local enabled = true
 
 function widget:Initialize()
-	if WG.Chobby and WG.Chobby.Configuration then
-		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
-	end
-    -- MaDD: Trying to move in-game "Menu" button to the left
-    local interfaceRoot = WG.Chobby.interfaceRoot
-    local interfaceHolder = interfaceRoot.GetIngameInterfaceHolder()
-    --interfaceHolder.switchToMenuButton:SetPos(100, nil, nil, nil)
-    interfaceHolder.switchToMenuButton:Dispose()
+    --if WG.Chobby and WG.Chobby.Configuration then
+		--drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
+    --end
+    --local interfaceRoot = WG.Chobby.interfaceRoot
+    --local interfaceHolder = interfaceRoot.GetIngameInterfaceHolder()
+    ----interfaceHolder.switchToMenuButton:SetPos(100, nil, nil, nil)
+    --interfaceHolder.switchToMenuButton:Dispose()
 end
 
 function widget:Shutdown()
-	if WG.Chobby and WG.Chobby.Configuration then
-		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
-	end
+	--if WG.Chobby and WG.Chobby.Configuration then
+	--	WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
+	--end
 	if enabled then
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
@@ -54,9 +53,9 @@ function widget:Update()
 	end
 
 	local prevEnabled = enabled
-	if WG.Chobby and WG.Chobby.interfaceRoot then
-		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
-	end
+	--if WG.Chobby and WG.Chobby.interfaceRoot then
+	--	enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
+	--end
 	if prevEnabled ~= enabled and not enabled then
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
@@ -77,10 +76,10 @@ function widget:Update()
 			isIdle = false
 		end
 		if isIdle ~= prevIsIdle then
-			if WG.Chobby and WG.Chobby.Configuration then
-				-- when we set vsync to 6 while drawAtFullSpeed=false -> cpu usage goes up instead of down, enabling drawAtFullSpeed prevents this
-				WG.Chobby.Configuration.drawAtFullSpeed = isIdle and isIdle or drawAtFullspeed
-			end
+			--if WG.Chobby and WG.Chobby.Configuration then
+			--	-- when we set vsync to 6 while drawAtFullSpeed=false -> cpu usage goes up instead of down, enabling drawAtFullSpeed prevents this
+			--	WG.Chobby.Configuration.drawAtFullSpeed = isIdle and isIdle or drawAtFullspeed
+			--end
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
 		end
 	end

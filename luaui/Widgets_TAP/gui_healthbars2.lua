@@ -101,6 +101,7 @@ local messages = {
     teleport_pw = "teleport",
     water_tank = "water tank",
     upgrade = "upgrade",
+    fuel_amount = "fuel",
     ore_load = "ore load"
 }
 
@@ -905,10 +906,16 @@ do
             end
         end
 
-        --// UPGRADE (TAP by MaDDoX)
+        --// UPGRADE (TAP-specific, by MaDDoX)
         local upgradeProgress = GetUnitRulesParam(unitID,"upgrade")
         if (upgradeProgress) then
             AddBar(messages.upgrade, upgradeProgress, "upgrade", (fullText and floor(upgradeProgress*100)..'%') or '')
+        end
+
+        --// FUEL (TAP-specific, by MaDDoX)
+        local fuelperc = GetUnitRulesParam(unitID,"fuelperc")   --it's set as a percentage in unit_kameyes.lua
+        if (fuelperc and tonumber(fuelperc) < 1) then
+            AddBar(messages.fuel_amount, fuelperc, "fuel", (fullText and floor(fuelperc*100)..'%') or '')
         end
 
         --// Teleport progress
