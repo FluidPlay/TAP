@@ -36,8 +36,8 @@ local buttons = {}
 local previousTrack = ''
 local curTrack	= "no name"
 
-local peaceTracks = VFS.DirList('luaui/Widgets_TAP/music/peace', '*.ogg')
-local warTracks = VFS.DirList('luaui/Widgets_TAP/music/war', '*.ogg')
+local peaceTracks = VFS.DirList('luaui/Widgets/music/peace', '*.ogg')
+local warTracks = VFS.DirList('luaui/Widgets/music/war', '*.ogg')
 
 local tracks = peaceTracks
 

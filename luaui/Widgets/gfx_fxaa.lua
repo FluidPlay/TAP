@@ -35,7 +35,7 @@ local glCopyToTexture   = gl.CopyToTexture
 -- File path Constants
 -----------------------------------------------------------------
 
-local luaShaderDir = "LuaUI/Widgets_TAP/Include/"
+local luaShaderDir = "LuaUI/Widgets/Include/"
 
 -----------------------------------------------------------------
 -- Shader Sources

@@ -1,8 +1,8 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
---  file:    widget_autosetup.lua
---  brief:   Auto-widget initializer. Enables/disables widgets according to MaddPack
+--  file:    gfx_voidmapedges.lua
+--  brief:   Voids Map Edges
 --  author:  Breno 'MaDDoX' Azevedo
 --
 --  Copyright (C) 2017.
@@ -11,7 +11,7 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- changes:
---   First Release (28/8/2017) - added to BA's MaddPack
+--   First Release (28/8/2017)
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -29,10 +29,10 @@ function widget:GetInfo()
 end
 
 function widget:Initialize()
-    Spring.Echo("Setting map edge as void (TAPrime)")
-    Spring.SendCommands("luaui disablewidget Map Edge Extension")
-    Spring.SendCommands("luaui disablewidget Map External VR Grid")
-    Spring.SendCommands("mapborder 0")  -- gets rid of the map border downwards gradient
+    Spring.Echo("Setting map edge as void")
+    --Spring.SendCommands("luaui disablewidget Map Edge Extension")
+    --Spring.SendCommands("luaui disablewidget Map External VR Grid")
+    --Spring.SendCommands("mapborder 0")  -- gets rid of the map border downwards gradient
 
 
     --Spring.SetDrawSky(false)
@@ -42,5 +42,5 @@ function widget:Initialize()
     Spring.SetMapRenderingParams({voidWater = false, voidGround = true})
     Spring.SetSkyBoxTexture("LuaUI/Images/vr_grid.png")
         ---fog{Start,End}, {sun,sky,cloud}Color
-    Spring.SetAtmosphere({ skyColor = { 0.0, 0.0, 0.0 }, sunColor = { 0.0, 0.0, 0.0 }})
+    Spring.SetAtmosphere({ skyColor = { 0.0, 0.0, 0.0 }, sunColor = { 0.0, 0.0, 0.0 }, fogColor = { 0.0, 0.0, 0.0, 1 }}) --fogStart = 0, fogEnd = 0.5,
 end

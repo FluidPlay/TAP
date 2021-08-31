@@ -79,8 +79,8 @@ local presets = {
 -- File path Constants
 -----------------------------------------------------------------
 
-local shadersDir = "LuaUI/Widgets_TAP/Shaders/"
-local luaShaderDir = "LuaUI/Widgets_TAP/Include/"
+local shadersDir = "LuaUI/Widgets/Shaders/"
+local luaShaderDir = "LuaUI/Widgets/Include/"
 
 -----------------------------------------------------------------
 -- Global Variables

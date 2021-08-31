@@ -31,7 +31,7 @@ VFS.Include("LuaUI/flowui.lua")
 local gl = gl
 
 local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/' .. Game.modShortName .. '.lua'
-local WIDGET_DIRNAME     = LUAUI_DIRNAME .. 'Widgets_TAP/'
+local WIDGET_DIRNAME     = LUAUI_DIRNAME .. 'Widgets/'
 local WIDGET_DIRNAME_MAP = LUAUI_DIRNAME .. 'Widgets/'
 
 local SELECTOR_BASENAME = 'selector.lua'

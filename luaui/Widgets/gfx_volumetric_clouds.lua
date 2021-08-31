@@ -240,7 +240,7 @@ local vertSrc = [[
   }
 ]]
 
-local fragSrc = VFS.LoadFile("LuaUI/Widgets_TAP/Shaders/fog_frag.glsl")
+local fragSrc = VFS.LoadFile("LuaUI/Widgets/Shaders/fog_frag.glsl")
 
 fragSrc = fragSrc:format(
   cloudsScale, cloudsHeight, cloudsBottom,
