@@ -63,6 +63,7 @@ function MakeBindsTable (swapYZ)
         "bind Ctrl+b  select AllMap+_Builder_Idle+_ClearSelection_SelectOne+",
         "bind Ctrl+shift+c  select AllMap+_ManualFireUnit+_ClearSelection_SelectOne+",
         "bind Ctrl+c select AllMap+_NameContain_Commander+_ClearSelection_SelectOne+",
+        "bind Ctrl+alt+v select AllMap+_NameContain_Outpost+_ClearSelection_SelectOne+", --for Outposts
         "bind Ctrl+r  select AllMap+_Radar+_ClearSelection_SelectAll+",
         "bind Ctrl+v  select AllMap+_Not_Builder_Not_Commander_InPrevSel_Not_InHotkeyGroup+_SelectAll+",
         "bind Ctrl+w  select AllMap+_Not_Aircraft_Weapons+_ClearSelection_SelectAll+",
