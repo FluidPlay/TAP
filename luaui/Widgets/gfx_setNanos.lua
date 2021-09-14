@@ -16,7 +16,8 @@ end
 function widget:Initialize()
     if Spring.SetNanoProjectileParams then --checking if it has support for the command
         Spring.Echo("Setting Nano Projectile rotation Params")
-        Spring.SetNanoProjectileParams(180, 180, 180)  -- speed, accel, startRot |deg/s, deg/s2, deg|
+        Spring.SetNanoProjectileParams(0, 180, 60)  -- speed, accel, startRot |deg/s, deg/s2, deg|
+        --rotVal0, rotVel0, rotAcc
     end
 end
 
