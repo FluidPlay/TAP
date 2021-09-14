@@ -52,6 +52,9 @@ local unitIconTable = {
       air_fighter=1.4,
       air_gunshiplaser=1.2,
       air_gunshipmissile=1.2,
+      drone_radar=1.1,
+      drone_antibot=1.2,
+      drone_missile=1.25,
       def_artillery=1.8,
       def_builder=1.4,
       def_cannon=1.5,
@@ -60,6 +63,7 @@ local unitIconTable = {
       def_laser=1.3,
       def_missile=1.4,
       def_plasma=1.5,
+      def_nuke=1.6,
       generic_unit=1,
       bot_artillery=1.1,
       bot_assault=1,
@@ -122,7 +126,8 @@ local tierSizeMult = {
 
 local iconTypes = {}
 function addUnitIcon(name, path, size)
-    Spring.AddUnitIcon(name, path, size)
+    if (path) then
+        Spring.AddUnitIcon(name, path, size) end
     iconTypes[name] = path
 end
 

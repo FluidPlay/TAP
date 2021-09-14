@@ -16,7 +16,7 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local brightness = 0.3
+local brightness = 0.8 --0.3
 local curvature = true
 local fogEffect = true
 local drawForIslands = true
