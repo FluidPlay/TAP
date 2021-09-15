@@ -123,7 +123,6 @@ return {
 			[1] = {
 				badtargetcategory = "NOTSHIP",
 				def = "ARMSEAP_WEAPON1",
-				onlytargetcategory = "NOTHOVER",
 			},
 		},
 	},

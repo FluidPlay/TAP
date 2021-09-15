@@ -113,7 +113,6 @@ return {
 			[1] = {
 				badtargetcategory = "NOTSHIP",
 				def = "ARMAIR_TORPEDO",
-				onlytargetcategory = "NOTHOVER",
 			},
 		},
 	},

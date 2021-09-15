@@ -160,7 +160,6 @@ return {
 				def = "ARMSERP_WEAPON",
 				maindir = "0 0 1",
 				maxangledif = 75,
-				onlytargetcategory = "NOTHOVER",
 			},
 		},
 	},

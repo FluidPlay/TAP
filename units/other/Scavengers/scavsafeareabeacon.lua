@@ -9,7 +9,7 @@ return {
 		buildpic = "ARMEYES.DDS",
 		buildtime = 750,
 		canrepeat = false,
-		category = "ALL NOTLAND NOTSUB NOWEAPON NOTSHIP NOTAIR SURFACE EMPABLE",
+		category = "ALL NOTLAND NOTSUB NOWEAPON NOTSHIP NOTAIR SURFACE",
 		cloakcost = 10,
 		description = "Toxic cloud generator",
 		energyuse = 3,

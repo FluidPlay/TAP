@@ -15,6 +15,8 @@ local weaponDamageTypes = {
 	
 --	armflash = { emgx = "bullet" },
 --	armroy = { arm_roy = "cannon", depthcharge = "omni"},
+
+    armck = { ["Harvester"] = "omni", },
 	
 	corsnap = { ["MediumPlasmaCannon"] = "cannon", },
 	corsktl = { ["RailWeapon"]="thermo"}, --{ ["Mine Detonator"] = "omni", ["Crawlingbomb Dummy Weapon"] = "omni", ["RailWeapon"] = "rail" },

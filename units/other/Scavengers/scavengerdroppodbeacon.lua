@@ -12,7 +12,7 @@ return {
 		--builder = true,
 		--buildpic = "chickens/roost.PNG",
 		buildtime = 10500,
-		category = "BUILDING",
+		category = "ALL PLANT SURFACE",
 		canmove = false,
 		canSelfDestruct = false,
 		capturable = false,

@@ -148,7 +148,6 @@ return {
 				weaponvelocity = 320,
 				damage = {
 					default = 395,
-					nothover = 290,
 					notship = 290,
 					notsub = 290,
 				},

@@ -170,7 +170,6 @@ return {
 		weapons = {
 			[1] = {
 				def = "CORAMPH_WEAPON1",
-				onlytargetcategory = "NOTHOVER",
 			},
 			[2] = {
 				badtargetcategory = "VTOL",

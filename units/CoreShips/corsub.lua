@@ -160,7 +160,6 @@ return {
 				def = "TORPEDO",
 				maindir = "0 0 1",
 				maxangledif = 90,
-				onlytargetcategory = "NOTHOVER",
 			},
 		},
 	},

@@ -195,7 +195,6 @@ return {
 			-- [2] = {
 				-- badtargetcategory = "VTOL",
 				-- def = "ARM_PINCER_UWGAUSS",
-				-- onlytargetcategory = "NOTHOVER",
 			-- },
 		},
 	},

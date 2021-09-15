@@ -407,6 +407,23 @@ TargetHeading(Func_Var_1)
 }
 */
 
+FirePrimary()
+{
+	sleep 150;
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = turret;
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = flare;
+}
+
+/* */
+
 SweetSpot(piecenum)
 {
 	piecenum = torso;

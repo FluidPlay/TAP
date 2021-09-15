@@ -217,7 +217,6 @@ return {
 			-- [2] = {
 				-- badtargetcategory = "VTOL",
 				-- def = "CORE_UWPARROW",
-				-- onlytargetcategory = "NOTHOVER",
 			-- },
 		},
 	},
