@@ -15,7 +15,7 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local brightness = 0.3
+local brightness = 0.6 --0.3
 local curvature = true
 local fogEffect = true
 
@@ -265,7 +265,7 @@ void main() {
 		yCbCr.x = clamp(yCbCr.x * brightness, 0.0, 1.0);
 		fragColor.rgb = YCBCR2RGB * yCbCr;
 	#else
-		fragColor.rgb *= brightness * 0.5; //0.5
+		fragColor.rgb *= brightness * 0.75; //0.5
 	#endif
 
 	fragColor.rgb = mix(fogColor.rgb, fragColor.rgb, alphaFog.y);
