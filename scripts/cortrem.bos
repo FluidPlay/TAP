@@ -11,6 +11,7 @@ static-var  gun_1;
 
 // Signal definitions
 #define SIG_AIM				2
+#define SIG_SHOT 			4
 
 
 SmokeUnit(healthpercent, sleeptime, smoketype)
@@ -116,94 +117,15 @@ AimPrimary(heading, pitch)
 	return (1);
 }
 
-FirePrimary()
+FirePrimary() {
+	return(1);
+}
+
+Shot1(zero)
 {
-//	if( gun_1 == 0 )
-//	{
-//		move barrel1 to z-axis [-4.50000] now;
-//		sleep 50;
-//		move barrel1 to z-axis [0.00000] speed [5.00000];
-//	}
-//	if( gun_1 == 1 )
-//	{
-//		move barrel2 to y-axis [-3.75000] now;
-//		move barrel2 to z-axis [-2.25000] now;
-//		sleep 50;
-//		move barrel2 to y-axis [0.00000] speed [5.00000];
-//		move barrel2 to z-axis [0.00000] speed [5.00000];
-//	}
-//	if( gun_1 == 2 )
-//	{
-//		move barrel3 to y-axis [-3.75000] now;
-//		move barrel3 to z-axis [2.25000] now;
-//		sleep 50;
-//		move barrel3 to y-axis [0.00000] speed [5.00000];
-//		move barrel3 to z-axis [0.00000] speed [5.00000];
-//	}
-//	if( gun_1 == 3 )
-//	{
-//		move barrel4 to z-axis [4.50000] now;
-//		sleep 50;
-//		move barrel4 to z-axis [0.00000] speed [5.00000];
-//	}
-//	if( gun_1 == 4 )
-//	{
-//		move barrel5 to y-axis [3.75000] now;
-//		move barrel5 to z-axis [2.25000] now;
-//		sleep 50;
-//		move barrel5 to y-axis [0.00000] speed [5.00000];
-//		move barrel5 to z-axis [0.00000] speed [5.00000];
-//	}
-//	if( gun_1 == 5 )
-//	{
-//		move barrel6 to y-axis [3.75000] now;
-//		move barrel6 to z-axis [-2.25000] now;
-//		sleep 50;
-//		move barrel6 to y-axis [0.00000] speed [5.00000];
-//		move barrel6 to z-axis [0.00000] speed [5.00000];
-//	}
-//	++gun_1;
-//	if( gun_1 == 6 )
-//	{
-//		gun_1 = flare1;
-//	}
-		//move barrel3 to y-axis [-3.75000] now;
-		//move barrel3 to z-axis [2.25000] now;
-		//sleep 10;
-		//move barrel3 to y-axis [0.00000] speed [5.00000];
-		//move barrel3 to z-axis [0.00000] speed [5.00000];
-	turn spindle to x-axis <60.00000> speed <400.0>;
-	wait-for-turn spindle around x-axis;
-		//move barrel4 to z-axis [4.50000] now;
-		//sleep 10;
-		//move barrel4 to z-axis [0.00000] speed [5.00000];
-	turn spindle to x-axis <120.00000> speed <400.0>;
-	wait-for-turn spindle around x-axis;
-		//move barrel5 to y-axis [3.75000] now;
-		//move barrel5 to z-axis [2.25000] now;
-		//sleep 10;
-		//move barrel5 to y-axis [0.00000] speed [5.00000];
-		//move barrel5 to z-axis [0.00000] speed [5.00000];		
-	turn spindle to x-axis <180.00000> speed <400.0>;
-	wait-for-turn spindle around x-axis;
-		//move barrel6 to y-axis [3.75000] now;
-		//move barrel6 to z-axis [-2.25000] now;
-		//sleep 10;
-		//move barrel6 to y-axis [0.00000] speed [5.00000];
-		//move barrel6 to z-axis [0.00000] speed [5.00000];
-	turn spindle to x-axis <240.00000> speed <400.0>;
-	wait-for-turn spindle around x-axis;
-		//move barrel1 to z-axis [-4.50000] now;
-		//sleep 10;
-		//move barrel1 to z-axis [0.00000] speed [5.00000];		
-	turn spindle to x-axis <300.00000> speed <400.0>;
-	wait-for-turn spindle around x-axis;
-		//move barrel2 to y-axis [-3.75000] now;
-		//move barrel2 to z-axis [-2.25000] now;
-		//sleep 10;
-		//move barrel2 to y-axis [0.00000] speed [5.00000];
-		//move barrel2 to z-axis [0.00000] speed [5.00000];
-	turn spindle to x-axis <359.99999> speed <400.0>;
+	signal SIG_SHOT;
+	set-signal-mask SIG_SHOT;
+	turn spindle to x-axis <60.00000> speed <450.0>;
 	wait-for-turn spindle around x-axis;
 	turn spindle to x-axis <0.00000> now;
 
