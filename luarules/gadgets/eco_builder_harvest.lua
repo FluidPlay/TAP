@@ -55,6 +55,14 @@ if gadgetHandler:IsSyncedCode() then
         local curStorage = spGetUnitHarvestStorage(attackerID)
         Spring.Echo("cur Storage: "..curStorage.." damage: "..damage)
         --TODO: Block further usage of the unit's harvest weapon while storage is full
+        if curStorage > maxStorage then
+            --TODO: Set maxStorage
+            Spring.CallCOBScript(unitID, "BlockWeapon")
+            --TODO: Set customParams 'weaponBlocked'
+        else
+            --TODO: if 'weaponBlocked' then unblock it
+            --Spring.CallCOBScript(unitID, "UnblockWeapon")
+        end
         spSetUnitHarvestStorage (attackerID, curStorage + damage)
     end
 

@@ -16,10 +16,13 @@ end
 local math_random = math.random
 
 function widget:Initialize()
-    if not Spring.SetNanoProjectileParams then --checking if it has support for the command
-        widgetHandler:RemoveWidget(self)
-    end
-    Spring.SetNanoProjectileParams(math_random(0,359), 0, 0.5)  -- startRot, accel, speed |deg, deg/s2, deg/s|
+    --if not Spring.SetNanoProjectileParams then --checking if it has support for the command
+    --    widgetHandler:RemoveWidget(self)
+    --end
+    -- 1st ver - Spring.SetNanoProjectileParams(math_random(0,359), 0, 0.5)  -- startRot, accel, speed |deg, deg/s2, deg/s|
+
+    --SetNanoProjectileParams(startRotation, rotationSpeed, rotationAcceleration, startRotationRng, rotationSpeedRng, rotationAccelerationRng)
+    Spring.SetNanoProjectileParams(6000, 12000, 1000, 36000, 12000, 10000)
 end
 
 --function widget:Update()
