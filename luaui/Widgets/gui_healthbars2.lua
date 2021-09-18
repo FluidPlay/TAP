@@ -227,6 +227,7 @@ local barColors = {
     tele           = { 0.00,0.60,0.60,barAlpha },
     tele_pw        = { 0.00,0.60,0.60,barAlpha },
     upgrade        = { 0.80,0.60,0.00,barAlpha },
+    ore_load       = { 0.80,0.70,0.60,barAlpha },
 
     -- Features
     resurrect = { 1.00,0.50,0.00,featureBarAlpha },
@@ -715,7 +716,7 @@ do
                 dyanmicComm   = ud.customParams.dynamic_comm,
                 maxWaterTank  = ud.customParams.maxwatertank,
                 freeStockpile = (ud.customParams.freestockpile and true) or nil,
-                maxOreStorage = ud.harvestStorage,
+                maxorestorage = ud.harvestStorage,
             }
         end
         ci = customInfo[unitDefID]
@@ -794,15 +795,17 @@ do
 
         --// ORE LOAD
         if (oreLoad and oreLoad>0) then
-            local oreLoadPct = oreLoad / ci.maxOreStorage
-            local oreLoad100 = oreLoad*100;
+            local oreLoadPct = oreLoad / (ci.maxorestorage or 100)
+            local oreLoad100 = oreLoadPct*100;
             oreLoad100 = oreLoad100 - oreLoad100%1; --//same as floor(oreLoad*100), but 10% faster
+            --Spring.Echo("oreLoadPct: "..oreLoadPct.." oreLoad100: "..oreLoad100)
 
-            if (oreLoadPct<0) then oreLoadPct=0 elseif (oreLoadPct>100) then
+            if (oreLoadPct<0) then oreLoadPct=0
+            elseif (oreLoadPct>100) then
                 oreLoadPct = 100
             end
             --AddBar(title,progress,color_index,text,color)
-            AddBar(messages.ore_load, oreLoadPct, nil, (oreLoad100..'%'))
+            AddBar(messages.ore_load, oreLoadPct, "ore_load", (oreLoad100..'%'))
         end
 
         --// HEALTH

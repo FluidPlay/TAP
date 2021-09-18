@@ -4,13 +4,13 @@
 ---
 function gadget:GetInfo()
     return {
-        name      = "Spawn Ore",
+        name      = "Eco - Ore Spawner",
         desc      = "Spawn Ore Chunks around metal spots at game start then repeatedly",
         author    = "MaDDoX",
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 0,
-        enabled   = false,
+        enabled   = true,
     }
 end
 
@@ -170,21 +170,6 @@ if gadgetHandler:IsSyncedCode() then
         end
         spawnedChunks[unitID] = nil
     end
-
-    function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-
-        Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
-    end
-    --function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    --end
-
-    --function gadget:FeaturePreDamaged(featureID, featureDefID, featureTeam, damage, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    --    --if featureID:find("geothermal") then
-    --    --Spring.Echo("Dmg feature name: "..FeatureDefs[featureDefID].name)
-    --    if FeatureDefs[featureDefID].name:lower():find("armgeo") then
-    --        return 0, 0 -- newDamage, impulseMult
-    --    end
-    --end
 
     function gadget:GameFrame(f)
         if f < startFrame + 100
