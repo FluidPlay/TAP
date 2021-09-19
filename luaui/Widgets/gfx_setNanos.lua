@@ -21,7 +21,7 @@ function widget:Initialize()
     end
     -- 1st ver - Spring.SetNanoProjectileParams(math_random(0,359), 0, 0.5)  -- startRot, accel, speed |deg, deg/s2, deg/s|
     --SetNanoProjectileParams(startRotation, rotationSpeed, rotationAcceleration, startRotationRng, rotationSpeedRng, rotationAccelerationRng)
-    Spring.SetNanoProjectileParams(0, 60, 0, 120, 30, 15)
+    Spring.SetNanoProjectileParams(1, 60, 5, 120, 300, 550)
 end
 
 --function widget:Update()
