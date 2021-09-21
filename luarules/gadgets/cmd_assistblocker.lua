@@ -25,16 +25,17 @@
 
 -- (RecvLuaMsg) https://github.com/ZeroK-RTS/Zero-K/blob/master/LuaRules/Gadgets/start_unit_setup.lua
 
+---TODO: Investigate (https://springrts.com/wiki/Lua:Callins#Units)
+--addon.AllowBuilderHoldFire(unitID, unitDefID, action)
 --return: bool actionAllowed
---
---Called when a construction unit wants to "use his nano beams".
---action is one of following:
--- -1 = Build
--- CMD.REPAIR = Repair
--- CMD.RECLAIM = Reclaim
--- CMD.RESTORE = Restore
--- CMD.RESURRECT = Resurrect
--- CMD.CAPTURE = Capture
+--New in version 98.0 5a82d750 Called when a construction unit wants to "use his nano beams".
+    --action is one of following:
+    -- -1 Build
+    -- CMD.REPAIR Repair
+    -- CMD.RECLAIM Reclaim
+    -- CMD.RESTORE Restore
+    -- CMD.RESURRECT Resurrect
+    -- CMD.CAPTURE Capture
 
 function gadget:GetInfo()
     return {
