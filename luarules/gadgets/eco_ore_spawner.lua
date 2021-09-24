@@ -162,12 +162,11 @@ if gadgetHandler:IsSyncedCode() then
         local chunk = spawnedChunks[unitID]
         if not spawnedChunks[unitID] then
             return end
-        ---if 'destroyer' is a builder, sets its harvestStorage
-        ---TODO: Sent it to closest drop point
-        local attackerDef = UnitDefs[attackerDefID]
-        if attackerDef and attackerDef.canCapture then
-            spSetUnitHarvestStorage ( attackerID, oreValue[chunk.type])
-        end
+        --local attackerDef = UnitDefs[attackerDefID]
+        --if attackerDef and attackerDef.canCapture then
+        --    spSetUnitHarvestStorage ( attackerID, oreValue[chunk.type])
+        --end
+        -----TODO: if 'destroyer' is a builder, send it to closest ore chunk in a radius similar to outpost (330)
         spawnedChunks[unitID] = nil
     end
 
