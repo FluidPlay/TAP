@@ -56,18 +56,22 @@ if gadgetHandler:IsSyncedCode() then
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
         local ud = UnitDefs[unitDefID]
-        if ud == nil or unitTeam ~= Spring.GetMyTeamID() then
+        if ud == nil then
             return end
         if not oreTowerDefNames[ud.name] then
             return end
 
         oreTowers[unitID] = ud.buildDistance -- 330 is lvl1 outpost build range
-
     end
 
-
-
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
+        local ud = UnitDefs[unitDefID]
+        if ud == nil then
+            return end
+        if not oreTowerDefNames[ud.name] then
+            return end
+
+        oreTowers[unitID] = nil
         --chunksToSprawl[unitID] = nil
         --local chunk = spawnedChunks[unitID]
         --if not spawnedChunks[unitID] then
@@ -112,13 +116,11 @@ if gadgetHandler:IsSyncedCode() then
             end
         else
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
-            --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running
-            --spGiveOrderToUnit(attackerID, CMD_STOP, {}, {} )
-
+            --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running?
             loadedHarvesters[harvesterID] = true
             Spring.Echo("unit ".. harvesterID .." is loaded!!")
             --TODO: Move to be in range of closest ore tower, once there it'll only return to previous
-            --harvest spot when it's totally unloaded
+            ---harvest spot when it's totally unloaded
         end
     end
 
