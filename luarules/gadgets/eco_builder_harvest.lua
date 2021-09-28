@@ -105,11 +105,10 @@ if gadgetHandler:IsSyncedCode() then
         -- Block further usage of the unit's harvest weapon while storage is full
         local attackerDef = UnitDefs[harvesterDefID]
         local maxStorage = attackerDef and attackerDef.harveststorage or defaultMaxStorage
-        Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
+        --Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
         --- Can it harvest?
         if curStorage < maxStorage then
             if inTowerRange(harvesterID) then
-                --TODO: If in range of an ore tower
                 spAddTeamResource (spGetUnitTeam(harvesterID), "metal", damage )
             else
                 spSetUnitHarvestStorage (harvesterID, math.min(maxStorage, curStorage + damage))
@@ -120,6 +119,7 @@ if gadgetHandler:IsSyncedCode() then
             loadedHarvesters[harvesterID] = true
             Spring.Echo("unit ".. harvesterID .." is loaded!!")
             --TODO: Move to be in range of closest ore tower, once there it'll only return to previous
+            --TODO: Fix! WG.SetAutomateState(unitID, "loaded", "ecobuilderharvest")
             ---harvest spot when it's totally unloaded
         end
     end

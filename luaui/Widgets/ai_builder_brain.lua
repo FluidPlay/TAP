@@ -6,7 +6,7 @@
 
 function widget:GetInfo()
     return {
-        name = "Auto Assist v2",
+        name = "AI Builder Brain",
         desc = "Makes idle construction units and structures reclaim, repair nearby units and assist building",
         author = "MaDDoX, based on Johan Hanssen Seferidis' unit_auto_reclaim_heal_assist",
         date = "Oct 14, 2020",
@@ -18,7 +18,7 @@ end
 
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = false --true --|| Enables text and UI state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -144,8 +144,8 @@ local canresurrect = {
 -----
 
 local function spEcho(string)
-    --if localDebug and isCom(unitID) and state ~= "deautomated" then
-    --if localDebug then Spring.Echo(string) end
+    if localDebug then --and isCom(unitID) and state ~= "deautomated"
+        Spring.Echo(string) end
 end
 
 local function isCom(unitID,unitDefID)
@@ -235,7 +235,6 @@ local function customUnitIdle(unitID, delay)
     if not automatableUnits[unitID] then
         return end
     spEcho("Unit ".. unitID.." is idle.") --UnitDefs[unitDefID].name)
-    --Spring.Echo("Unit ".. unitID.." is idle.") --UnitDefs[unitDefID].name)
     --if myTeamID == spGetUnitTeam(unitID) then --check if unit is mine
     ---If unit is on "assist" state and its guarded unit has no buildqueue, remove its guard command.
     if assistingUnits[unitID] then
@@ -245,13 +244,7 @@ local function customUnitIdle(unitID, delay)
             stopAssisting(unitID) --- We need to remove Guard commands, otherwise the unit will keep guarding
         end
     end
-
     setAutomateState(unitID, "deautomated", "customUnitIdle")
-    --automatedState[unitID] = "idle"
-    --automatedUnits[unitID] = nil
-    --unitsToAutomate[unitID] = spGetGameFrame() + delay
-    --spEcho("To automate in: "..spGetGameFrame() + delay)
-    --end
 end
 
 local function DeautomateUnit(unitID)
@@ -262,6 +255,7 @@ local function DeautomateUnit(unitID)
     setAutomateState(unitID, "deautomated", "DeautomateUnit")
 end
 
+--- If you left the game this widget has no raison d'etré
 function widget:PlayerChanged()
     if Spring.GetSpectatingState() and Spring.GetGameFrame() > 0 then
         widgetHandler:RemoveWidget(self)
@@ -270,6 +264,9 @@ end
 
 ---- Disable widget if I'm spec
 function widget:Initialize()
+    WG.automatedStates = automatedState  -- This will allow the state to be read and set by other widgets
+    --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
+    ---
     if Spring.IsReplay() or Spring.GetGameFrame() > 0 then
         widget:PlayerChanged()
     end
@@ -423,30 +420,59 @@ end
 --- 4. If can repair, repair nearest allied unit with less than 90% maxhealth.
 --- 5. Reclaim nearest feature (prioritize metal)
 
+local automatedFunctions = { enemyreclaim = { condition = function(ud)
+                                                                --local hasWeapon = ud.unitDef.weapons[1]
+                                                                --Spring.Echo("Not has weapon: "..tostring(not hasWeapon))
+                                                                return automatedState[ud.unitID] ~= "enemy reclaim" --not hasWeapon and 
+                                                          end,
+                                              action = function(ud) --unitData
+                                                          Spring.Echo("[1] Enemy-reclaim check")
+                                                          local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
+                                                          if nearestEnemy and automatedState[ud.unitID] ~= "enemy reclaim" then
+                                                              --spGiveOrderToUnit(unitID, CMD_RECLAIM, nearestEnemy, {"meta"} ) --shift
+                                                              --local x,y,z = Spring.GetUnitPosition(nearestEnemy)
+                                                              --spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,40}, {"alt"})
+                                                              spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
+                                                              --SetAutomateState(unitID, "enemy reclaim", caller.."> automateCheck")
+                                                              -- _orderIssued = true
+                                                              return "enemy reclaim"
+                                                          end
+                                                          return nil
+                                                       end
+                                            },
+                           }
+
 local function automateCheck(unitID, unitDef, caller)
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
-    local _orderIssued = false
+    local _orderIssued = nil    --TODO: Update with issued order, as string (from automatedFunctions)
     local radius = unitDef.buildDistance * 1.8
     if unitDef.canFly then               -- Air units need that extra oomph
         radius = radius * 1.3
     end
 
+    local unitData = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius }
+
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
-    local hasWeapon = unitDef.weapons[1]
-    if not hasWeapon
-        and automatedState[unitID] ~= "enemy reclaim" then
-        --spEcho("[1] Enemy-reclaim check")
-        local nearestEnemy = spGetUnitNearestEnemy(unitID, radius, false) -- useLOS = false ; => nil | unitID
-        if nearestEnemy and automatedState[unitID] ~= "enemy reclaim" then
-            --spGiveOrderToUnit(unitID, CMD_RECLAIM, nearestEnemy, {"meta"} ) --shift
-            local x,y,z = Spring.GetUnitPosition(nearestEnemy)
-            spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,40}, {"alt"})
-            setAutomateState(unitID, "enemy reclaim", caller.."> automateCheck")
-            _orderIssued = true
-        end
+    --TODO: Update logic, builders now have the harvest weapon
+    if automatedFunctions["enemyreclaim"].condition(unitData) then
+        _orderIssued = automatedFunctions["enemyreclaim"].action(unitData)
+        if _orderIssued then    --TODO: Move to bottom
+            setAutomateState(unitID, "enemy reclaim", caller.."> automateCheck") end
     end
+    --local hasWeapon = unitDef.weapons[1]
+    --if not hasWeapon and automatedState[unitID] ~= "enemy reclaim" then
+    --    --spEcho("[1] Enemy-reclaim check")
+    --    local nearestEnemy = spGetUnitNearestEnemy(unitID, radius, false) -- useLOS = false ; => nil | unitID
+    --    if nearestEnemy and automatedState[unitID] ~= "enemy reclaim" then
+    --        --spGiveOrderToUnit(unitID, CMD_RECLAIM, nearestEnemy, {"meta"} ) --shift
+    --        local x,y,z = Spring.GetUnitPosition(nearestEnemy)
+    --        spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,40}, {"alt"})
+    --        SetAutomateState(unitID, "enemy reclaim", caller.."> automateCheck")
+    --        _orderIssued = true
+    --    end
+    --end
     --- 2. If can resurrect, resurrect nearest feature
     if canresurrect[unitDef.name] and not _orderIssued
         and automatedState[unitID] ~= "enemy reclaim" and automatedState[unitID] ~= "ressurect"
@@ -631,8 +657,9 @@ function widget:GameFrame(f)
     for unitID, recheckFrame in pairs(automatedUnits) do
         spEcho("2")
         --Spring.Echo("2")
+        local unitState = automatedState[unitID]
         if IsValidUnit(unitID) and f >= recheckFrame then
-            --- Checking for Idle (let's dodge spring's default idle, its event fires in unwanted situations)
+            --- Checking for Idle (let's dodge Spring's default idle, its event fires in unwanted situations)
             spEcho("[automated] Checking "..unitID.." for idle; automatedState: "..(automatedState[unitID] or "nil"))
             if isReallyIdle(unitID) then
                 customUnitIdle(unitID, automationLatency)
@@ -658,35 +685,28 @@ function widget:ViewResize(n_vsx,n_vsy)
     widgetScale = (0.50 + (vsx*vsy / 5000000))
 end
 
-local loadedFontSize = 32
-local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
-local gl_Color			= gl.Color
 
-local function SetColor(r,g,b,a)
-    gl_Color(r,g,b,a)
-    font:SetTextColor(r,g,b,a)
-end
-
-function widget:DrawScreen()
-    if not localDebug then
-        return end
-    local textSize = 22
-
-    gl.PushMatrix()
-    gl.Translate(50, 50, 0)
-    gl.BeginText()
-    for unitID, state in pairs(automatedState) do
-        if spIsUnitInView(unitID) then
-            --local sx, sy = 1000, 500
-            local x, y, z = spGetUnitViewPosition(unitID)
-            --            local x, y, z = spGetUnitPosition(unitID)
-            local sx, sy, sz = Spring.WorldToScreenCoords(x, y, z)
-            gl.Text(state, sx, sy, textSize, "ocd")
-        end
-    end
-    gl.EndText()
-    gl.PopMatrix()
-end
+--
+--function widget:DrawScreen()
+--    if not localDebug then
+--        return end
+--    local textSize = 22
+--
+--    gl.PushMatrix()
+--    gl.Translate(50, 50, 0)
+--    gl.BeginText()
+--    for unitID, state in pairs(automatedState) do
+--        if spIsUnitInView(unitID) then
+--            --local sx, sy = 1000, 500
+--            local x, y, z = spGetUnitViewPosition(unitID)
+--            --            local x, y, z = spGetUnitPosition(unitID)
+--            local sx, sy, sz = Spring.WorldToScreenCoords(x, y, z)
+--            gl.Text(state, sx, sy, textSize, "ocd")
+--        end
+--    end
+--    gl.EndText()
+--    gl.PopMatrix()
+--end
 
 --function widget:DrawScreen()
 --    if not glDebugStates or Spring.IsGUIHidden() then
