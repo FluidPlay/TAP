@@ -384,7 +384,7 @@ end
 
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
-local function nearestItemAround(unitID, pos, unitDef, radius, typeCheck, idCheck, isFeature)
+local function nearestItemAround(unitID, pos, unitDef, radius, typeCheck, idFilter, isFeature)
     local itemsAround = isFeature
             and spGetFeaturesInCylinder(pos.x, pos.z, radius)
             or spGetUnitsInCylinder(pos.x, pos.z, radius, myTeamID)
@@ -398,14 +398,14 @@ local function nearestItemAround(unitID, pos, unitDef, radius, typeCheck, idChec
             local targetDef = (targetDefID ~= nil) and FeatureDefs[targetDefID] or nil
             --if targetDef and targetDef.isFactory then ==> eg.: function(x) return x.isFactory end
             if targetDef and (typeCheck == nil or typeCheck(targetDef))
-                and (idCheck == nil or idCheck(targetID)) then
+                and (idFilter == nil or idFilter(targetID)) then
                 targets[targetID] = true
             end
         elseif IsValidUnit(targetID) and targetID ~= unitID then
             local targetDefID = spGetUnitDefID(targetID)
             local targetDef = (targetDefID ~= nil) and UnitDefs[targetDefID] or nil
             if targetDef and (typeCheck == nil or typeCheck(targetDef))
-                and (idCheck == nil or idCheck(targetID)) then
+                and (idFilter == nil or idFilter(targetID)) then
                 targets[targetID] = true
             end
         end
@@ -415,157 +415,168 @@ end
 
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
 --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
---- 2. If can ressurect, ressurect nearest feature (check for economy? might want to reclaim instead)
+--- 2. If can resurrect, resurrect nearest feature (check for economy? might want to reclaim instead)
 --- 3. If can assist, guard nearest factory
 --- 4. If can repair, repair nearest allied unit with less than 90% maxhealth.
 --- 5. Reclaim nearest feature (prioritize metal)
 
 local automatedFunctions = { enemyreclaim = { condition = function(ud)
-                                                                --local hasWeapon = ud.unitDef.weapons[1]
-                                                                --Spring.Echo("Not has weapon: "..tostring(not hasWeapon))
-                                                                return automatedState[ud.unitID] ~= "enemy reclaim" --not hasWeapon and 
+                                                                -- Commanders shouldn't prioritize enemy-reclaiming
+                                                                return automatedState[ud.unitID] ~= "enemyreclaim" and not ud.unitDef.customParams.iscommander
                                                           end,
                                               action = function(ud) --unitData
                                                           Spring.Echo("[1] Enemy-reclaim check")
                                                           local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
-                                                          if nearestEnemy and automatedState[ud.unitID] ~= "enemy reclaim" then
-                                                              --spGiveOrderToUnit(unitID, CMD_RECLAIM, nearestEnemy, {"meta"} ) --shift
-                                                              --local x,y,z = Spring.GetUnitPosition(nearestEnemy)
-                                                              --spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,40}, {"alt"})
+                                                          if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
                                                               spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
-                                                              --SetAutomateState(unitID, "enemy reclaim", caller.."> automateCheck")
-                                                              -- _orderIssued = true
-                                                              return "enemy reclaim"
+                                                              return "enemyreclaim"
                                                           end
                                                           return nil
                                                        end
                                             },
+                             resurrect = { condition =  function(ud)
+                                                            return canresurrect[ud.unitDef.name] and not ud.orderIssued
+                                                                    and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
+                                                                    and ud.hasEnergy -- must have enough "E" to resurrect stuff
+                                                        end,
+                                           action = function(ud) --unitData
+                                               Spring.Echo("[2] Ressurect check")
+                                               if ud.nearestFeatureID and automatedState[ud.unitID] ~= "resurrect" then
+                                                   local x,y,z = spGetFeaturePosition(ud.nearestFeatureID)
+                                                   spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
+                                                   return "resurrect"
+                                               end
+                                               return nil
+                                           end
+                             },
+                             assist = { condition =  function(ud) --unitData
+                                                         return canassist[ud.unitDef.name] and not ud.orderIssued
+                                                                 and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
+                                                                 and automatedState[ud.unitID] ~= "assist" and ud.hasResources
+                                                     end,
+                                        action = function(ud)
+                                                     Spring.Echo("[3] Factory-assist check")
+                                                     --TODO: If during 'automation' it's guarding a factory but factory stopped production, remove it
+                                                     --Spring.Echo ("Autoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
+                                                     if ud.nearestFactoryID then
+                                                         spGiveOrderToUnit(ud.unitID, CMD_GUARD, { ud.nearestFactoryID }, {} )
+                                                         assistingUnits[ud.unitID] = ud.nearestFactoryID    -- guardedUnit
+                                                         return "assist"
+                                                     end
+                                                     return nil
+                                                 end
+                             },
+                             repair = { condition = function(ud) --unitData
+                                                         return canrepair[ud.unitDef.name] and not ud.orderIssued
+                                                                 and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
+                                                                 and automatedState[ud.unitID] ~= "assist" and automatedState[ud.unitID] ~= "repair"
+                                                                 and ud.hasEnergy
+                                                    end,
+                                        action = function(ud)
+                                            Spring.Echo("[3] Repair check")
+                                            local nearestTargetID
+                                            if canassist[ud.unitID] then
+                                                nearestTargetID = ud.nearestUID
+                                            else
+                                                nearestTargetID = ud.nearestDoneUID -- only finished units can be targetted then
+                                            end
+                                            if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
+                                                --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
+                                                spGiveOrderToUnit(ud.unitID, CMD_REPAIR, { nearestTargetID }, {} )
+                                                return "repair"
+                                            end
+                                            return nil
+                                        end
+                             },
+                             reclaim = { condition = function(ud) --unitData
+                                                        return canreclaim[ud.unitDef.name] and not ud.orderIssued
+                                                            and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
+                                                            and automatedState[ud.unitID] ~= "assist" and automatedState[ud.unitID] ~= "repair"
+                                                            and automatedState[ud.unitID] ~= "reclaim"
+                                                     end,
+                                        action = function(ud)
+                                            Spring.Echo("[3] Reclaim check")
+                                            if ud.nearestMetalID and not ud.hasMetal then
+                                                local x,y,z = spGetFeaturePosition(ud.nearestMetalID)
+                                                spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
+                                                return "reclaim"
+                                            elseif ud.nearestEnergyID and not ud.hasEnergy then
+                                                -- If not, we'll check if there's an energy resource nearby and if we're not flooding energy, reclaim it
+                                                local x,y,z = spGetFeaturePosition(ud.nearestEnergyID)
+                                                spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
+                                                return "reclaim"
+                                            end
+                                            return nil
+                                        end
+                             },
+
                            }
+
 
 local function automateCheck(unitID, unitDef, caller)
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
-    local _orderIssued = nil    --TODO: Update with issued order, as string (from automatedFunctions)
     local radius = unitDef.buildDistance * 1.8
     if unitDef.canFly then               -- Air units need that extra oomph
         radius = radius * 1.3
     end
 
-    local unitData = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius }
+    local nearestUID = nearestItemAround(unitID, pos, unitDef, radius, nil,
+                                 function(x)
+                                            --local isAllied = spGetUnitAllyTeam(unitID) == myAllyTeamID
+                                            local health,maxHealth = spGetUnitHealth(x)
+                                            return (health < (maxHealth * 0.99)) end)
+    local nearestDoneUID = nearestItemAround(unitID, pos, unitDef, radius, nil,
+                                    function(x)
+                                                local health,maxHealth,_,_,done = spGetUnitHealth(x)
+                                                return (done and health < (maxHealth * 0.99)) end )
+    local nearestFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
+
+    local nearestFactoryID = nearestItemAround(unitID, pos, unitDef, radius,
+                                                    function(x) return x.isFactory end,     --We're only interested in factories currently producing
+                                                    function(x) return hasBuildQueue(x) end)
+    local nearestMetalID = nearestItemAround(unitID, pos, unitDef, radius, nil,
+                                                    function(x)
+                                                        local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
+                                                        return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
+                                             true)
+    local nearestEnergyID = nearestItemAround(unitID, pos, unitDef, radius, nil, nil,true)
+
+    local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
+                 hasEnergy = resourcesCheck("e"), hasResources = resourcesCheck(), hasMetal = resourcesCheck("m",true),
+                 nearestUID = nearestUID, nearestDoneUID = nearestDoneUID,
+                 nearestFeatureID = nearestFeatureID, nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
+                 nearestFactoryID = nearestFactoryID }
 
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
-    --TODO: Update logic, builders now have the harvest weapon
-    if automatedFunctions["enemyreclaim"].condition(unitData) then
-        _orderIssued = automatedFunctions["enemyreclaim"].action(unitData)
-        if _orderIssued then    --TODO: Move to bottom
-            setAutomateState(unitID, "enemy reclaim", caller.."> automateCheck") end
+    if automatedFunctions["enemyreclaim"].condition(ud) then
+        ud.orderIssued = automatedFunctions["enemyreclaim"].action(ud)
     end
-    --local hasWeapon = unitDef.weapons[1]
-    --if not hasWeapon and automatedState[unitID] ~= "enemy reclaim" then
-    --    --spEcho("[1] Enemy-reclaim check")
-    --    local nearestEnemy = spGetUnitNearestEnemy(unitID, radius, false) -- useLOS = false ; => nil | unitID
-    --    if nearestEnemy and automatedState[unitID] ~= "enemy reclaim" then
-    --        --spGiveOrderToUnit(unitID, CMD_RECLAIM, nearestEnemy, {"meta"} ) --shift
-    --        local x,y,z = Spring.GetUnitPosition(nearestEnemy)
-    --        spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,40}, {"alt"})
-    --        SetAutomateState(unitID, "enemy reclaim", caller.."> automateCheck")
-    --        _orderIssued = true
-    --    end
-    --end
     --- 2. If can resurrect, resurrect nearest feature
-    if canresurrect[unitDef.name] and not _orderIssued
-        and automatedState[unitID] ~= "enemy reclaim" and automatedState[unitID] ~= "ressurect"
-            and resourcesCheck("e") then   -- must have enough "E" to ressurect stuff
-        --spEcho("[2] Resurrect check")
-        local nearestFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
-        if nearestFeatureID and automatedState[unitID] ~= "ressurect" then
-            local x,y,z = spGetFeaturePosition(nearestFeatureID)
-            spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
-            setAutomateState(unitID, "resurrect", caller.."> automateCheck")
-            _orderIssued = true
-        end
+    if automatedFunctions["resurrect"].condition(ud) then
+        ud.orderIssued = automatedFunctions["resurrect"].action(ud)
     end
     --- 3. If can assist (and has enough resources), guard nearest factory
-    if canassist[unitDef.name] and not _orderIssued
-        and automatedState[unitID] ~= "enemy reclaim" and automatedState[unitID] ~= "ressurect"
-            and automatedState[unitID] ~= "assist" and resourcesCheck() then
-        --spEcho("[3] Factory-assist check")
-        --TODO: If during 'automation' it's guarding a factory but factory stopped production, remove it
-        local nearestFactoryUnitID = nearestItemAround(unitID, pos, unitDef, radius,
-                function(x) return x.isFactory end,     --We're only interested in factories currently producing
-                function(x) return hasBuildQueue(x) end)
-        --Spring.Echo ("Autoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
-        if nearestFactoryUnitID then
-            spGiveOrderToUnit(unitID, CMD_GUARD, { nearestFactoryUnitID }, {} )
-            assistingUnits[unitID] = nearestFactoryUnitID    -- guardedUnit
-            setAutomateState(unitID, "assist", caller.."> automateCheck")
-            _orderIssued = true
-        end
+    if automatedFunctions["assist"].condition(ud) then
+        ud.orderIssued = automatedFunctions["assist"].action(ud)
     end
     --- 4. If can repair, repair nearest allied unit with less than 90% maxhealth.
-    if canrepair[unitDef.name] and not _orderIssued
-        and automatedState[unitID] ~= "enemy reclaim" and automatedState[unitID] ~= "ressurect"
-            and automatedState[unitID] ~= "assist" and automatedState[unitID] ~= "repair"
-            and resourcesCheck("e") then   -- must have enough "E" to repair stuff
-        --spEcho("[4] Repair check")
-        local nearestUnitID
-        if canassist[unitID] then
-            nearestUnitID = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                    function(x)
-                        --local isAllied = spGetUnitAllyTeam(unitID) == myAllyTeamID
-                        local health,maxHealth = spGetUnitHealth(x)
-                        return health < (maxHealth * 0.99) end)
-        else
-            nearestUnitID = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                    function(x)
-                        local health,maxHealth,_,_,done = spGetUnitHealth(x)
-                        return done and health < (maxHealth * 0.99) end )
-        end
-        if nearestUnitID and automatedState[unitID] ~= "repair" then
-            --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
-            spGiveOrderToUnit(unitID, CMD_REPAIR, { nearestUnitID }, {} )
-            setAutomateState(unitID, "repair", caller.."> automateCheck")
-            _orderIssued = true
-        end
+    if automatedFunctions["repair"].condition(ud) then
+        ud.orderIssued = automatedFunctions["repair"].action(ud)
     end
-    --- 5. Reclaim nearest feature (TODO: prioritize metal)
-    ------ TODO: A metal feature has metal amount > energy, similar logic for an "energy" feature
-    if canreclaim[unitDef.name] and not _orderIssued
-        and automatedState[unitID] ~= "enemy reclaim" and automatedState[unitID] ~= "ressurect"
-            and automatedState[unitID] ~= "assist" and automatedState[unitID] ~= "repair" and automatedState[unitID] ~= "reclaim"
-            then
-        --spEcho("[5] Reclaim check")
-        if automatedState[unitID] ~= "reclaim" then
-            -- First we'll check if there's a metal resource nearby and if we're not flooding metal, reclaim it
-            local nearestMetalFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                    function(x)
-                        local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
-                        return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
-                    true)
-            if nearestMetalFeatureID and not resourcesCheck("m",true) then
-                local x,y,z = spGetFeaturePosition(nearestMetalFeatureID)
-                spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
-                setAutomateState(unitID, "reclaim", caller.."> automateCheck")
-                _orderIssued = true
-            else
-                -- If not, we'll check if there's an energy resource nearby and if we're not flooding energy, reclaim it
-                local nearestEnergyFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                        nil,true)
-                if nearestEnergyFeatureID and not resourcesCheck("e",true) then
-                    local x,y,z = spGetFeaturePosition(nearestEnergyFeatureID)
-                    spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
-                    setAutomateState(unitID, "reclaim", caller.."> automateCheck")
-                    _orderIssued = true
-                end
-            end
-        end
+    --- 5. Reclaim nearest feature
+    ---(TODO: prioritize metal) A metal feature has metal amount > energy, similar logic for an "energy" feature
+    if automatedFunctions["reclaim"].condition(ud) then
+        ud.orderIssued = automatedFunctions["reclaim"].action(ud)
     end
-    if _orderIssued then
+
+    if ud.orderIssued then
         spEcho ("New order Issued")
         unitsToAutomate[unitID] = nil
+        setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
     end
-    return _orderIssued
+    return ud.orderIssued
 end
 
 function widget:CommandNotify(cmdID, params, options)
@@ -667,7 +678,7 @@ function widget:GameFrame(f)
                 automatedUnits[unitID] = spGetGameFrame() + automationLatency
             end
 
-            ----- Rechecking if a repairing/building unit has better things to do (like assist or ressurect)
+            ----- Rechecking if a repairing/building unit has better things to do (like assist or resurrect)
             if unitState ~= "deautomated" then
                 local unitDef = UnitDefs[spGetUnitDefID(unitID)]    --TODO: Optimization - cache this within automatableUnits
                 spEcho("[automated] Rechecking automation of unitID: "..unitID)
