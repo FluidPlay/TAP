@@ -78,7 +78,7 @@ local moveDatas = {
 			maxValue = 0.7,
 		}
 	},
-    TANK2HOVER = {	--HOVER version of TANK2
+    TANK2HOVER = {	--HOVER version of TANK2 (eg.: Corcv)
         allowRawMovement = true,
         crushstrength = 275,	-- plasma kbots crushresistance = 400
         footprintx = 3,
@@ -123,7 +123,7 @@ local moveDatas = {
 			maxValue = 0.7,
 		}
 	},
-    HTANK3HOVER = {	--HOVER version of HTANK3 above
+    HTANK3HOVER = {	-- ArmLatnk, HOVER version of HTANK3 above
         allowRawMovement = true,
         crushstrength = 900,
         footprintx = 4,

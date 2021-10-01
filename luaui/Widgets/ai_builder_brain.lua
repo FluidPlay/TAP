@@ -425,7 +425,7 @@ local automatedFunctions = { enemyreclaim = { condition = function(ud)
                                                                 return automatedState[ud.unitID] ~= "enemyreclaim" and not ud.unitDef.customParams.iscommander
                                                           end,
                                               action = function(ud) --unitData
-                                                          Spring.Echo("[1] Enemy-reclaim check")
+                                                  --Spring.Echo("[1] Enemy-reclaim check")
                                                           local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
                                                           if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
                                                               spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
@@ -440,7 +440,7 @@ local automatedFunctions = { enemyreclaim = { condition = function(ud)
                                                                     and ud.hasEnergy -- must have enough "E" to resurrect stuff
                                                         end,
                                            action = function(ud) --unitData
-                                               Spring.Echo("[2] Ressurect check")
+                                               --Spring.Echo("[2] Ressurect check")
                                                if ud.nearestFeatureID and automatedState[ud.unitID] ~= "resurrect" then
                                                    local x,y,z = spGetFeaturePosition(ud.nearestFeatureID)
                                                    spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
@@ -455,7 +455,7 @@ local automatedFunctions = { enemyreclaim = { condition = function(ud)
                                                                  and automatedState[ud.unitID] ~= "assist" and ud.hasResources
                                                      end,
                                         action = function(ud)
-                                                     Spring.Echo("[3] Factory-assist check")
+                                                     --Spring.Echo("[3] Factory-assist check")
                                                      --TODO: If during 'automation' it's guarding a factory but factory stopped production, remove it
                                                      --Spring.Echo ("Autoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
                                                      if ud.nearestFactoryID then
@@ -473,7 +473,7 @@ local automatedFunctions = { enemyreclaim = { condition = function(ud)
                                                                  and ud.hasEnergy
                                                     end,
                                         action = function(ud)
-                                            Spring.Echo("[3] Repair check")
+                                            --Spring.Echo("[3] Repair check")
                                             local nearestTargetID
                                             if canassist[ud.unitID] then
                                                 nearestTargetID = ud.nearestUID
@@ -495,7 +495,7 @@ local automatedFunctions = { enemyreclaim = { condition = function(ud)
                                                             and automatedState[ud.unitID] ~= "reclaim"
                                                      end,
                                         action = function(ud)
-                                            Spring.Echo("[3] Reclaim check")
+                                            --Spring.Echo("[3] Reclaim check")
                                             if ud.nearestMetalID and not ud.hasMetal then
                                                 local x,y,z = spGetFeaturePosition(ud.nearestMetalID)
                                                 spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
@@ -548,6 +548,10 @@ local function automateCheck(unitID, unitDef, caller)
                  nearestUID = nearestUID, nearestDoneUID = nearestDoneUID,
                  nearestFeatureID = nearestFeatureID, nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
                  nearestFactoryID = nearestFactoryID }
+
+    --TODO: 0. If it's fully loaded, go to the nearest ore tower (get it from a WG.oretowers list, set it up in eco_builder_harvest)
+        --- Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
+        --- If none found, do nothing (Should get back to idle automatically)
 
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
     if automatedFunctions["enemyreclaim"].condition(ud) then

@@ -171,10 +171,10 @@ function widget:DrawWorld()
 		local tsx, tsy, tsz = spGetTeamStartPosition(teamID)
 		if tsx and tsx > 0 then
 			if spGetTeamRulesParam(teamID, 'startUnit') == armcomDefID then
-				glTexture('LuaUI/Images/arm.png')
+				glTexture('LuaUI/Images/bow.png') --arm.png
 				glBeginEnd(GL_QUADS, QuadVerts, tsx, spGetGroundHeight(tsx, tsz), tsz, 80)
 			else
-				glTexture('LuaUI/Images/core.png')
+				glTexture('LuaUI/Images/kern.png') --kern.png
 				glBeginEnd(GL_QUADS, QuadVerts, tsx, spGetGroundHeight(tsx, tsz), tsz, 64)
 			end
 		end
@@ -230,17 +230,17 @@ function GenerateFactionChangeList()
 	end
 		-- Icons
 	glColor(1, 1, 1, 1)
-	glTexture('LuaUI/Images/ARM.png')
+	glTexture('LuaUI/Images/BOW.png') --ARM
 	glTexRect(12*widgetScale, 17*widgetScale, 52*widgetScale, 59*widgetScale)
-	glTexture('LuaUI/Images/CORE.png')
+	glTexture('LuaUI/Images/KERN.png') --CORE
 	glTexRect(76*widgetScale, 20*widgetScale, 116*widgetScale, 60*widgetScale)
 	glTexture(false)
 	
 		-- Text
 	glBeginText()
 		glText('Choose Your Faction', 64*widgetScale, 64*widgetScale, 11.5*widgetScale, 'ocd')
-		glText('ARM', 32*widgetScale, 4*widgetScale, 12*widgetScale, 'ocd')
-		glText('CORE', 96*widgetScale, 4*widgetScale, 12*widgetScale, 'ocd')
+		glText('BOW', 32*widgetScale, 4*widgetScale, 12*widgetScale, 'ocd') --Arm
+		glText('KERN', 96*widgetScale, 4*widgetScale, 12*widgetScale, 'ocd') --Core
 	glEndText()
 end
 

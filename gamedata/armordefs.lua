@@ -11,13 +11,13 @@ local armorDefs = {
 	lightveh = {
 		"armflash", "armyork", "corsent", "cormuskrat", "cormls", "armacv", "armcv", "armmls", "coracv", "corfast",
 		"critter_ant", "critter_duck", "critter_goldfish", "critter_gull", "critter_penguin", "corcv", "corgator",
-        "armlatnk","armfav","armjanus","armmlv","armsh","armspy","coresupp","corfav",
+        "armlatnk","armfav","armjanus","armmlv","armsh","armspy","coresupp","corfav","armst",
         "corlevlr","corsh","decade","marauder","nsaclash",
 	},
 	supportveh = {"armfido","armmart","armsam", "cormist", "armmerl","corcat","armshock","cormart","cormh","corvroc",
 				  "corwolv","corjugg","shiva","tawf013","cortrem", "corban","corvrad",},
 
-	heavyveh={"armanac","armbull","armcroc","armlun","armpincer","armscab","armseer","armst","armstump","armthovr","cordl",
+	heavyveh={"armanac","armbull","armcroc","armlun","armpincer","armscab","armseer","armstump","armthovr","cordl",
               "coreter","corgarp","corgol","cormabm","cormlv","corparrow","corraid","correap","corseal","corsilo","corsnap",
               "corsok","armintr","armmanni", "armjam",},
 

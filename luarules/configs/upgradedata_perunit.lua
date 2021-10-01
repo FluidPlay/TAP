@@ -27,6 +27,14 @@ UnitResearchers = {
     [UnitDefNames["cormist"].id] = "hover",
     [UnitDefNames["armmerl"].id] = "hover",
     [UnitDefNames["corban"].id] = "hover",
+    [UnitDefNames["armlab"].id] = "nanobooster",
+    [UnitDefNames["armvp"].id] = "nanobooster",
+    [UnitDefNames["armap"].id] = "nanobooster",
+    [UnitDefNames["armsy"].id] = "nanobooster",
+    [UnitDefNames["armalab"].id] = "nanobooster",
+    [UnitDefNames["armavp"].id] = "nanobooster",
+    [UnitDefNames["armaap"].id] = "nanobooster",
+    [UnitDefNames["armasy"].id] = "nanobooster",
 }
 
 local CMD_CAPTURE = CMD.CAPTURE
@@ -59,6 +67,9 @@ CMD_UPG_SMOKEBOMB = CMD.UPG_SMOKEBOMB
 
 CMD.UPG_HOVER = 41992
 CMD_UPG_HOVER = CMD.UPG_HOVER
+
+CMD.UPG_NANOBOOSTER = 41991
+CMD_UPG_NANOBOOSTER = CMD.UPG_NANOBOOSTER
 
 UnitUpgradeCommands = {
     [41992] = true, 
@@ -266,6 +277,45 @@ UnitUpgrades = {
                              [UnitDefNames["cormist"].id] = true,
                              [UnitDefNames["armmerl"].id] = true,
                              [UnitDefNames["corban"].id] = true,
+        },
+    },
+    nanobooster = {     -- >> Core Informer Resurrect (Per Unit)
+        id = "nanobooster",
+        UpgradeCmdDesc = {
+            id      = CMD_UPG_NANOBOOSTER,
+            name    = 'Upg Nanobooster',
+            action  = 'nanoboosterupgrade',
+            cursor  = 'Morph',
+            type    = CMDTYPE.ICON,
+            tooltip = 'Nanobooster upgrade: build speed increased by 140% [per unit]\n'..
+                    GreenStr..'time:6\n'..CyanStr..'metal: 300\n'..YellowStr..'energy: 1880',
+            texture = 'luaui/images/upgrades/technanobooster.dds',
+            onlyTexture = true,
+            showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
+        },
+        prereq = "Tech",
+        metalCost = 300,
+        energyCost = 1880,
+        upgradeTime = 6 * 15,--4 * 30, --10 seconds, in frames
+        type = "perunit",
+        buttonToUnlock = nil,
+        buttonToUnlockTooltip = "",
+        upgradableDefIDs = { [UnitDefNames["armlab"].id] = true,
+                             [UnitDefNames["armvp"].id] = true,
+                             [UnitDefNames["armap"].id] = true,
+                             [UnitDefNames["armsy"].id] = true,
+                             [UnitDefNames["armalab"].id] = true,
+                             [UnitDefNames["armavp"].id] = true,
+                             [UnitDefNames["armaap"].id] = true,
+                             [UnitDefNames["armasy"].id] = true,
+                             [UnitDefNames["corlab"].id] = true,
+                             [UnitDefNames["corvp"].id] = true,
+                             [UnitDefNames["corap"].id] = true,
+                             [UnitDefNames["corsy"].id] = true,
+                             [UnitDefNames["coralab"].id] = true,
+                             [UnitDefNames["coravp"].id] = true,
+                             [UnitDefNames["coraap"].id] = true,
+                             [UnitDefNames["corasy"].id] = true,
         },
     },
 }
