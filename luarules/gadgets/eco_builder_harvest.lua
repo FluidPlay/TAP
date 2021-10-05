@@ -52,6 +52,8 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:Initialize()
         --startFrame = Spring.GetGameFrame()
         --gaiaTeamID = Spring.GetGaiaTeamID()
+        WG.LoadedHarvesters = loadedHarvesters
+        WG.OreTowers = oreTowers
     end
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
