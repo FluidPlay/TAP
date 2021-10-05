@@ -1,10 +1,10 @@
 return {
-	armst = {
+	corst = {
 		acceleration = 0.04,
 		brakerate = 0.165,
 		buildcostenergy = 3700,
 		buildcostmetal = 230,
-		buildpic = "ARMST.DDS",
+		buildpic = "CORST.DDS",
 		buildtime = 6704,
 		canmove = true,
 		category = "ALL TANK MOBILE WEAPON NOTSUB NOTSHIP NOTAIR SURFACE",
@@ -31,7 +31,7 @@ return {
 		movementclass = "TANK2",
 		name = "Gremlin",
 		nochasecategory = "VTOL",
-		objectname = "ARMST",
+		objectname = "CORST",
 		script = "BASICTANKSCRIPT.LUA",
 		seismicsignature = 4,
 		selfdestructas = "smallExplosionGenericSelfd",

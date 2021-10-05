@@ -80,7 +80,7 @@ T2ReinforcementLandUnits = {
 	"cormando",
 	--vechicles
 	"armjam",
-	"armst",
+	"corst",
 	"armmart",
 	"armlatnk",
 	"armyork",

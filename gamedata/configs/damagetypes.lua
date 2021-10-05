@@ -9,7 +9,7 @@
 --
 local damageTypes = {
 
-	cannon={"armcrus","armfflak","armflak","armblade","armmav","armroy","corcrus","corraid","corroy","corenaa","corflak","armst","armanac","armcroc","armlun","armpincer","corparrow","corseal","corsnap","corsok","armbull","armstump","corgol","correap","corgarp"},
+	cannon={"armcrus","armfflak","armflak","armblade","armmav","armroy","corcrus","corraid","corroy","corenaa","corflak","corst","armanac","armcroc","armlun","armpincer","corparrow","corseal","corsnap","corsok","armbull","armstump","corgol","correap","corgarp"},
 
 	bullet={"armkam","armsaber","corcut","corfink","corveng","armpw","armpt","corpt","corsub","armflash","armemp","armspid",},
 

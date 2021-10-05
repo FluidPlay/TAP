@@ -7,7 +7,7 @@ scoutslist = {
 	"armfast",  --  Zipper          /   Fast Raider Kbot
 	"armspy",   --  Infiltrator     /   Radar-Invisibility Spy Kbot
 	"armfav",	--	Jeffy			/	Scout
-	"armst",	--	Gremlin			/	Stealth Tank
+	"corst",	--	Gremlin			/	Stealth Tank
 	"armpeep",	--	Peeper			/	Scout
 	"armawac",	--	Eagle			/	Radar/Sonar Plane
 	"armsh",	--	Skimmer			/	Fast Attack Hovercraft

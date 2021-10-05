@@ -67,7 +67,7 @@ local aoeTag = "damageAreaOfEffect"
 
 local corMando = UnitDefNames["cormando"] --UnitDefNames["corspy"]
 local armSpy = UnitDefNames["armspy"]
-local armGremlin = UnitDefNames["armst"]
+local armGremlin = UnitDefNames["corst"]
 
 local coreMandoId = corMando.id
 local armSpyId = armSpy.id

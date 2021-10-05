@@ -11,7 +11,7 @@ local armorDefs = {
 	lightveh = {
 		"armflash", "armyork", "corsent", "cormuskrat", "cormls", "armacv", "armcv", "armmls", "coracv", "corfast",
 		"critter_ant", "critter_duck", "critter_goldfish", "critter_gull", "critter_penguin", "corcv", "corgator",
-        "armlatnk","armfav","armjanus","armmlv","armsh","armspy","coresupp","corfav","armst",
+        "armlatnk","armfav","armjanus","armmlv","armsh","armspy","coresupp","corfav","corst",
         "corlevlr","corsh","decade","marauder","nsaclash",
 	},
 	supportveh = {"armfido","armmart","armsam", "cormist", "armmerl","corcat","armshock","cormart","cormh","corvroc",

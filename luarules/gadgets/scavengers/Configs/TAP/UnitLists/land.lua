@@ -51,7 +51,7 @@ T2LandUnits = {
     --"corspy",
 
     --## Vehicles
-    "armst", --Gremlin
+    "corst", --Gremlin
     "armmart",
     "armlatnk",
     "armyork",
