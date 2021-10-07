@@ -127,7 +127,7 @@ GlobalUpgrades = {
             onlyTexture = true,
             showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech2",
+        prereq = "AdvancedTech",
         metalCost = 1800,
         energyCost = 30600,
         upgradeTime = 30 * 30,
@@ -150,7 +150,7 @@ GlobalUpgrades = {
             onlyTexture = true,
             showUnique = true, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech3",
+        prereq = "MohoTech",
         metalCost = 3600,
         energyCost = 58320,
         upgradeTime = 40 * 30,

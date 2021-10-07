@@ -403,10 +403,10 @@ local function BuildMorphDef(udSrc, morphData)
         -- Team 0 is used just as a filler here, the important is that the return ~= nil
         requireDefined = GG.TechCheck(requires[i], 0) ~= nil
         if (requireDefined) then
-          if (requires[i]=="Tech4") then reqTier = 4
-            elseif (requires[i]=="Tech3") then reqTier = 3
-            elseif (requires[i]=="Tech2") then reqTier = 2
-            elseif (requires[i]=="Tech1") then reqTier = 1
+          if (requires[i]=="UberTech") then reqTier = 4
+            elseif (requires[i]=="MohoTech") then reqTier = 3
+            elseif (requires[i]=="AdvancedTech") then reqTier = 2
+            elseif (requires[i]=="EnhancedTech") then reqTier = 1
             elseif (requires[i]=="Tech")  then reqTier = 0
           end
           reqTechs[requires[i]]=true              -- echo('Morph gadget: Requirement defined: ' .. requires[i])

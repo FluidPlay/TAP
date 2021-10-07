@@ -67,8 +67,8 @@ if not gadgetHandler:IsSyncedCode() then
 
 VFS.Include("gamedata/taptools.lua")
 
-local techCenters = {armtech1 = 1, armtech2 = 2, armtech3 = 3, armtech4 = 4,
-                     cortech1 = 1, cortech2 = 2, cortech3 = 3, cortech4 = 4}
+local techCenters = {armtech = 2, armtech1 = 3, armtech2 = 4, armtech3 = 5, armtech4 = 6,
+                     cortech = 2, cortech1 = 3, cortech2 = 4, cortech3 = 5, cortech4 = 6}
 
 function gadget:UnitFinished(unitID, unitDefID, teamID)
     local unitDef = UnitDefs[unitDefID]
@@ -80,9 +80,10 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
     --TODO: Check if tech was already unlocked, only play sound if it wasn't
     if IsValidUnit(unitID) then
         Spring.SendMessageToTeam(teamID, txtcolor .."------------------------------------------------")
-        Spring.SendMessageToTeam(teamID, txtcolor .."You've reached Tech Level "..newTier)
+        Spring.SendMessageToTeam(teamID, txtcolor .."  You've reached Tech Level "..newTier)
         Spring.SendMessageToTeam(teamID, txtcolor .."------------------------------------------------")
-        Spring.PlaySoundFile("sounds/ui/achievement.wav",0.5) --,_,_,_,_,_,_,"userinterface")
+        --Spring.PlaySoundFile("sounds/ui/achievement.wav",0.5) --,_,_,_,_,_,_,"userinterface")
+        Spring.PlaySoundFile("sounds/ui/t"..newTier..".wav",0.5, 'sfx')
     end
 end
 	

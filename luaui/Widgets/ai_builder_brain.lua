@@ -589,7 +589,7 @@ local function automateCheck(unitID, unitDef, caller)
                                             function(x) return
                                                                 (x.customParams and x.customParams.isOreChunk) end)   --unitDef check
     local nearestSpirePos = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                                        function(x) return WG.OreTowers[x] end)
+                                        function(x) return (WG.OreTowers and WG.OreTowers[x] or nil) end)
     --TODO: account for spire Range. local nearestDeliveryPos = nearestSpirePos - (spireRange + offset)
     local nearestFactoryID = nearestItemAround(unitID, pos, unitDef, radius,
                                                     function(x) return x.isFactory end,     --We're only interested in factories currently producing
