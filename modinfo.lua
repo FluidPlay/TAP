@@ -2,7 +2,7 @@ return {
   name='Total Atomization Prime',
   description='Retro Sci-fi RTS with advanced tech trees and a modern rock-paper-scissors countering system',
   shortname='TAP',
-  version='2.7RC$VERSION',
+  version='2.7RC3',
   mutator='Official',
   game='Total Atomization Prime',
   shortgame='TAP',

@@ -66,11 +66,11 @@ function BombsAway(unitID, unitDefID, unitTeam)
     local newAmmo = ammo and math.max(0, ammo-1) or 1
     spSetUnitRulesParam(unitID, "ammo", newAmmo)
     if newAmmo == 0 then
-    newPlanesToRearm[#newPlanesToRearm + 1] = unitID
-    newRequestLanding[#newRequestLanding + 1] = { id = unitID, frame = spGetGameFrame() + 30 }
-    --if Script.LuaRules('RequestRearm') then
-    --  Script.LuaRules.RequestRearm(unitID)
-    --end
+        newPlanesToRearm[#newPlanesToRearm + 1] = unitID
+        newRequestLanding[#newRequestLanding + 1] = { id = unitID, frame = spGetGameFrame() + 30 }
+        --if Script.LuaRules('RequestRearm') then
+        --  Script.LuaRules.RequestRearm(unitID)
+        --end
     end
     --Spring.Echo("Bombs released from: "..unitID.." ammo was: ".. Spring.GetUnitRulesParam(unitID, "ammo")) -- || Bombers to Rearm: "..#GG.PlanesToRearm)
 end
