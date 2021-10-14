@@ -28,7 +28,7 @@ local myTeamID = Spring.GetMyTeamID()
 
 local gl_Color = gl.Color
 local spGetUnitTeam    = Spring.GetUnitTeam
---local vsx, vsy					= gl.GetViewSizes()
+local vsx, vsy	= gl.GetViewSizes()
 
 local outOfAmmoPlanes = {} -- { [unitID] = true, ... }
 
@@ -48,7 +48,7 @@ function widget:Initialize()
             widget:UnitFinished(unitID, unitDefID, unitTeam)
         end
     end
-    --vsx, vsy = gl.GetViewSizes()
+    vsx, vsy = gl.GetViewSizes()
 --    if not WG.automatedStates then
 --        Spring.Echo("<AI Builder Brain> This widget requires the 'AI Builder Brain' widget to run.")
 --        widgetHandler:RemoveWidget(self)
@@ -66,7 +66,8 @@ function widget:UnitDestroyed(unitID, unitDefID, teamID)
     outOfAmmoPlanes[unitID] = nil
 end
 
-function widget:DrawScreen()
+--function widget:DrawScreen()
+function widget:DrawWorld()
     if spIsGUIHidden() then --not localDebug or
         return end
     --local textSize = 22
@@ -79,10 +80,10 @@ function widget:DrawScreen()
         local sx, sy, sz = spWorldToScreenCoords(x, y, z)
         --Spring.Echo("x,y,z: ",x,y,z)
         --gl.Translate(x, y, z)
-        gl.Translate(sx, sy+10, sz)
-        --gl.Billboard()
-        --gl.Rotate( 90, 1, 0, 0 )
+        gl.Translate(x, y, z)
+        gl.Billboard()
         gl.TexRect( -12, -12, 12, 12 )
+        --gl.TexRect(-1-0.25/vsx,1+0.25/vsy,1+0.25/vsx,-1-0.25/vsy)
         gl.PopMatrix()
     end
 
