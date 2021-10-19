@@ -87,7 +87,6 @@ local spGetUnitRadius       = Spring.GetUnitRadius
 
 local glTexture     = gl.Texture 
 local glBlending    = gl.Blending
-local glMultiTexCoord = gl.MultiTexCoord
 local glCreateList  = gl.CreateList
 local glCallList    = gl.CallList
 local glColor       = gl.Color
