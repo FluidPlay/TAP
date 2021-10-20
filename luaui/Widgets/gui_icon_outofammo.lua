@@ -88,7 +88,7 @@ function widget:DrawScreen()
         --local cx,cy,cz = Spring.GetCameraPosition()
 
         gl.Texture(0,"luaui/icons/outofammo.png")
-        -- [[ for DrawScreen only, disable Billboard them]] local sx, sy, sz = spWorldToScreenCoords(x, y, z)
+        -- [[ for DrawScreen only, disable Billboard then: ]] local sx, sy, sz = spWorldToScreenCoords(x, y, z)
         local x,y,z = Spring.GetUnitViewPosition(unitID)
         --gl.Translate(x, y, z)
         local sx, sy, sz = spWorldToScreenCoords(x, y, z)

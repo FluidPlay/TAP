@@ -387,7 +387,7 @@ function lerp(a, b, t)
 	return a + (b - a) * t
 end
 
-function minmax(n, min, max)
+function clamp(n, min, max)
 	if n > max then
 		n = max end
 	if n < min then

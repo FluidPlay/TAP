@@ -221,7 +221,7 @@ function WeaponDef_Post(name, wDef, udName)
 	damageType = "thermo" --none
 	if (udName == nil) then									-- It's a standalone weapon, check customparams
 		damageType = (wDef.customParams and wDef.customParams.damagetype)
-				and wDef.customParams.damagetype or "thermo"
+				and wDef.customParams.damagetype or "omni"
 		--TODO: Fix this report
 		if damageType ~= "none" then
 			Spring.Echo("Standalone Weapon: "..(name or "name N/A").." "..(wDef.name or "wDef N/A").." type: "..damageType)
