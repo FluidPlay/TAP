@@ -47,7 +47,7 @@ local circleList
 
 local vlowDmgColor  = { 1, 0, 0, 0.35}
 local lowDmgColor   = { 1, 0.5, 0, 0.35}
-local avgDmgColor   = { 0.25, 0.25, 0.25, 0.5}
+local neutralDmgColor   = { 0, 0, 0, 0 }
 local goodDmgColor  = { 0, 0.75, 0, 0.4}
 local vgoodDmgColor = { 0, 1, 0, 0.5}
 
@@ -147,13 +147,13 @@ function widget:DrawWorld()
         end
 
         local color = vlowDmgColor
-        if (damage > 0.3 and damage <= 0.5) then
+        if (damage > 0.35 and damage <= 0.5) then
             color = lowDmgColor
-        elseif (damage > 0.51 and damage <= 1.1) then
-            color = avgDmgColor
-        elseif (damage > 1.1 and damage <= 2) then
+        elseif (damage > 0.51 and damage <= 0.9) then
+            color = neutralDmgColor
+        elseif (damage > 1.05 and damage <= 1.2) then
             color = goodDmgColor
-        elseif (damage > 2) then
+        elseif (damage > 1.75) then
             color = vgoodDmgColor
         end
 

@@ -8,6 +8,7 @@
 -- Value is used as key of PUU (Per-unit upgrade table)
 ---TODO: Refactor so that this table is auto-generated from the upgradableDefIDs
 ---      entry in each upgrade.
+---      currently this is required for the buttons to show up on the upgradable units
 UnitResearchers = {
     --[UnitDefNames["corcom"].id] = "dgun",
     --[UnitDefNames["armcom"].id] = "dgun",
@@ -35,6 +36,14 @@ UnitResearchers = {
     [UnitDefNames["armavp"].id] = "nanobooster",
     [UnitDefNames["armaap"].id] = "nanobooster",
     [UnitDefNames["armasy"].id] = "nanobooster",
+    [UnitDefNames["corlab"].id] = "nanobooster",
+    [UnitDefNames["corvp"].id] = "nanobooster",
+    [UnitDefNames["corap"].id] = "nanobooster",
+    [UnitDefNames["corsy"].id] = "nanobooster",
+    [UnitDefNames["coralab"].id] = "nanobooster",
+    [UnitDefNames["coravp"].id] = "nanobooster",
+    [UnitDefNames["coraap"].id] = "nanobooster",
+    [UnitDefNames["corasy"].id] = "nanobooster",
 }
 
 local CMD_CAPTURE = CMD.CAPTURE

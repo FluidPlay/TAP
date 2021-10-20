@@ -27,7 +27,7 @@ VFS.Include("gamedata/taptools.lua")
 
 local maxTime = 20 -- in seconds
 
--- mobile units that are excluded from the DRC formula
+-- mobile units that, when *attacking*, are excluded from the DRC formula
 local excluded = {
     --TODO: Exclude bombers, check for defenses
     [UnitDefNames.armcom.id] = true,
@@ -40,6 +40,14 @@ local excluded = {
     [UnitDefNames.corcom2.id] = true,
     [UnitDefNames.corcom3.id] = true,
     [UnitDefNames.corcom4.id] = true,
+    -- Bombers
+    [UnitDefNames.armthund.id] = true,
+    [UnitDefNames.corshad.id] = true,
+    [UnitDefNames.armpnix.id] = true,
+    [UnitDefNames.corhurc.id] = true,
+    [UnitDefNames.cortitan.id] = true,
+    [UnitDefNames.corstil.id] = true,
+    [UnitDefNames.armliche.id] = true,
 }
 
 local minDRCmult = 0.1
@@ -52,8 +60,7 @@ local minWeaponRange = 50 -- minimum attack weapon range to be used in DRC calcu
 
 --TODO: Below might be replaced by the customDef 'maxWeaponRange', but it's not properly set right now
 
-local function GetFastestWeapRange(unitDefID)
-    local unitDef = UnitDefs[unitDefID]
+local function GetFastestWeapRange(unitDef)
     --local unitShieldRange,fastWeaponRange =-1, -1 --assume unit has no shield and no weapon
 
     local fastestWeapRange = minWeaponRange -- minimum range we want for calculations
@@ -80,24 +87,20 @@ end
 
 function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID,
                                attackerID, attackerDefID, attackerTeam)
-    -- If damage was not caused by another unit, do nothing
-    if weaponDefID < 0 or excluded[attackerDefID] then  -- excluded units always deal full damage
-        return damage, 1 end
-    --and not UnitDefs[unitDefID].isBuilding and not excluded[unitDefID] then
+    local unitDef = UnitDefs[unitDefID]
+    local attackerDef = UnitDefs[attackerDefID]
     if not unitID or not attackerID or not unitDefID or not attackerDefID or not weaponDefID then
+        return damage, 1 end
+    -- If damage was not caused by another unit, do nothing; defenses are also buildings, will be bypassed too
+    if weaponDefID < 0 or excluded[attackerDefID] or attackerDef.isBuilding or unitDef.isBuilding then  -- excluded units always deal full damage
         return damage, 1 end
 
     local attackerWeaponRange = WeaponDefs[weaponDefID].range
-    local victimWeapRange = GetFastestWeapRange(unitDefID)
+    local victimWeapRange = GetFastestWeapRange(unitDef)
 
     local DRCmult = clamp((victimWeapRange / attackerWeaponRange), minDRCmult, maxDRCmult) --eg: 200/50 = 4; 50/200 = 0.25
-    Spring.Echo("Atk range: "..attackerWeaponRange.." Victim range: ".. victimWeapRange .." DRC mult: "..DRCmult.." original: "..damage.." final: "..(DRCmult * damage))
+    --Spring.Echo("Atk range: "..attackerWeaponRange.." Victim range: ".. victimWeapRange .." DRC mult: "..DRCmult.." original: "..damage.." final: "..(DRCmult * damage))
     damage = DRCmult * damage
-
-    --local max_para_time = WeaponDefs[weaponDefID].damages and WeaponDefs[weaponDefID].damages.paralyzeDamageTime or maxParalysisTime
-    --local h,mh,ph = Spring.GetUnitHealth(unitID)
-    --local max_para_damage = mh + ((max_para_time<maxTime) and mh or mh*maxTime/max_para_time)
-    --damage = math.min(damage, math.max(0,max_para_damage-ph) )
 
     return damage, 1
 end

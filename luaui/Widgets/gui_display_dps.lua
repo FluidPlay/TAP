@@ -101,7 +101,7 @@ local function displayDamage(unitID, unitDefID, damage, paralyze)
     lifeSpan = 1,
     paralyze = paralyze,
     fadeTime = math.max((0.03 - (damage / 333333)), 0.015),
-    riseTime = (math.min((damage / 2500), 2) + 1)/4, -- /2 (MaDD)
+    riseTime = (math.min((damage / 2500), 2) + 1)/5, -- /2 (MaDD)
   }
 end
 
@@ -246,8 +246,10 @@ function widget:DrawWorld()
   
   if (theTime ~= lastTime) then
   
-    if next(unitDamage) then calcDPS(unitDamage, false, theTime) end
-    if next(unitParalyze) then calcDPS(unitParalyze, true, theTime) end
+    if next(unitDamage) then
+        calcDPS(unitDamage, false, theTime) end
+    if next(unitParalyze) then
+        calcDPS(unitParalyze, true, theTime) end
     
     if changed then
       table.sort(damageTable, function(m1,m2) return m1.damage < m2.damage; end)

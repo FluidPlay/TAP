@@ -65,7 +65,7 @@ end
 local function Update()
     for unitID, unitDefID in pairs(trackedUnits) do
         if spGetUnitRulesParam(unitID, unitRulesCompletedParamName) == "1" then
-            Spring.Echo("Nanobooster upgrade detected")
+            --Spring.Echo("Nanobooster upgrade detected")
             ApplyUpgrade(unitID, unitDefID, false)
             trackedUnits[unitID] = nil
         end

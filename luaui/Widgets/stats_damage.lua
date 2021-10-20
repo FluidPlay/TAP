@@ -6,7 +6,7 @@ function widget:GetInfo()
 	date      = "", 
 	license   = "GNU GPL, v3 or later",
 	layer     = 0,
-	enabled   = true,
+	enabled   = false, --true,
 	}
 end
 
@@ -21,7 +21,7 @@ All statistics are mean averages, except for 'n', which is the number of samples
 ]]
 
 local info
-local STATS_FILE = 'LuaUI/Config/BA_damageStats.lua'
+local STATS_FILE = 'luaui/configs/TAP_damageStats.lua'
 local INTERNAL_VERSION = 1 -- bump to reset stats file (user can delete file with same effect)
 
 local game = Game.gameName 
