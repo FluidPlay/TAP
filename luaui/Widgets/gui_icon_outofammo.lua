@@ -37,6 +37,15 @@ local outOfAmmoPlanes = {} -- { [unitID] = true, ... }
 --    font:SetTextColor(r,g,b,a)
 --end
 
+local function clamp(min,max,num)
+    if (num<min) then
+        return min
+    elseif (num>max) then
+        return max
+    end
+    return num
+end
+
 function widget:Initialize()
     myTeamID = Spring.GetMyTeamID()
     local units = spGetAllUnits()
@@ -66,32 +75,47 @@ function widget:UnitDestroyed(unitID, unitDefID, teamID)
     outOfAmmoPlanes[unitID] = nil
 end
 
---function widget:DrawScreen()
-function widget:DrawWorld()
+function widget:DrawScreen()
+--function widget:DrawWorld()
     if spIsGUIHidden() then --not localDebug or
         return end
     --local textSize = 22
 
     gl_Color( 1.0, 1.0, 1.0, 1.0)
+
     for unitID in pairs(outOfAmmoPlanes) do
         gl.PushMatrix()
+        --local cx,cy,cz = Spring.GetCameraPosition()
+
         gl.Texture(0,"luaui/icons/outofammo.png")
+        -- [[ for DrawScreen only, disable Billboard them]] local sx, sy, sz = spWorldToScreenCoords(x, y, z)
         local x,y,z = Spring.GetUnitViewPosition(unitID)
-        local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-        --Spring.Echo("x,y,z: ",x,y,z)
         --gl.Translate(x, y, z)
-        gl.Translate(x, y, z)
-        gl.Billboard()
-        gl.TexRect( -12, -12, 12, 12 )
+        local sx, sy, sz = spWorldToScreenCoords(x, y, z)
+        gl.Translate(sx, sy, sz)
+
+        --gl.Billboard()
+
+        gl.TexRect( -12, -12, 12, 12)
         --gl.TexRect(-1-0.25/vsx,1+0.25/vsy,1+0.25/vsx,-1-0.25/vsy)
+
         gl.PopMatrix()
     end
 
+    --gl.MatrixMode(GL.MODELVIEW)
     --gl.PushMatrix()
-    --gl.Texture(read what you need here)
-    --gl.Translate(x,y,z)
-    --gl.Billboard()
-    --gl.TexRect(x1,y1,x2,y2) --B L, T R
+    --gl.LoadIdentity()
+    --
+    --gl.MatrixMode(GL.PROJECTION)
+    --gl.PushMatrix()
+    --gl.LoadIdentity()
+    --
+    --DoDrawSSAO(false)
+    --
+    --gl.MatrixMode(GL.PROJECTION)
+    --gl.PopMatrix()
+    --
+    --gl.MatrixMode(GL.MODELVIEW)
     --gl.PopMatrix()
 end
 
