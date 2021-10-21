@@ -10,7 +10,7 @@ function widget:GetInfo()
         date = "Oct 11, 2021",
         license = "GPLv3",
         layer = 0,
-        enabled = true,
+        enabled = false, --true,
     }
 end
 
@@ -21,6 +21,7 @@ local spGetUnitViewPosition = Spring.GetUnitViewPosition
 local spIsGUIHidden = Spring.IsGUIHidden
 local spGetAllUnits = Spring.GetAllUnits
 local spWorldToScreenCoords = Spring.WorldToScreenCoords
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 local localDebug = false --|| Enables text and UI state debug messages
 
@@ -30,7 +31,10 @@ local gl_Color = gl.Color
 local spGetUnitTeam    = Spring.GetUnitTeam
 local vsx, vsy	= gl.GetViewSizes()
 
+local trackedUnits = {} -- { [unitID] = true, ... }
 local outOfAmmoPlanes = {} -- { [unitID] = true, ... }
+
+local updateRate = 40;
 
 --local function SetColor(r,g,b,a)
 --    gl_Color(r,g,b,a)
@@ -58,20 +62,29 @@ function widget:Initialize()
         end
     end
     vsx, vsy = gl.GetViewSizes()
---    if not WG.automatedStates then
---        Spring.Echo("<AI Builder Brain> This widget requires the 'AI Builder Brain' widget to run.")
---        widgetHandler:RemoveWidget(self)
---    end
+end
+
+local function outOfAmmo(unitID)
+    local ammo = 1
+    local urammo = spGetUnitRulesParam(unitID, "ammo")
+    if urammo then
+        urammo = tonumber(urammo) end
+    return ammo < 1
 end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local ud = UnitDefs[unitDefID]
     if ud.customParams and ud.customParams.maxammo then
-        outOfAmmoPlanes[unitID] = true
+        trackedUnits[unitID] = true
     end
 end
 
+function widget:UnitTaken(unitID, unitDefID, unitTeam, newTeam)
+    widget:UnitDestroyed(unitID, unitDefID, unitTeam)
+end
+
 function widget:UnitDestroyed(unitID, unitDefID, teamID)
+    trackedUnits[unitID] = nil
     outOfAmmoPlanes[unitID] = nil
 end
 
@@ -117,6 +130,23 @@ function widget:DrawScreen()
     --
     --gl.MatrixMode(GL.MODELVIEW)
     --gl.PopMatrix()
+end
+
+function widget:GameFrame(f)
+    if f % updateRate > 0.001 then
+        return end
+
+    for unitID in pairs(trackedUnits) do
+        if IsValidUnit(unitID) then
+            local outOfAmmo = outOfAmmo(unitID)
+            if outOfAmmoPlanes[unitID] and not outOfAmmo then
+                outOfAmmoPlanes[unitID] = nil
+            elseif outOfAmmo then
+                outOfAmmoPlanes[unitID] = true
+                trackedUnits[unitID] = nil
+            end
+        end
+    end
 end
 
 --function widget:TextCommand(command)
