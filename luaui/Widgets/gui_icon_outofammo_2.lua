@@ -99,7 +99,7 @@ void main() {
 
 	// Move the vertex in directly screen space.
 	//gl_Position.xy += ndcVert.xy;
-	gl_Position.xy += vec2(ndcVert.x * viewGeometry.y * 0.25 / viewGeometry.x, ndcVert.y * 0.25); //0.25=scale Factor
+	gl_Position.xy += vec2(ndcVert.x * viewGeometry.y / viewGeometry.x, ndcVert.y); //* 0.25 on both for scale Factor
 
 	vuv = uv;
 }
