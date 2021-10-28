@@ -49,6 +49,8 @@ local excluded = {
     [UnitDefNames.corstil.id] = true,
     [UnitDefNames.armliche.id] = true,
     -- Long range stuff
+    --TODO: Review a proper list of excluded units here
+    [UnitDefNames.armsnipe.id] = true,
 }
 
 local minDRCmult = 0.1
@@ -92,13 +94,13 @@ function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, w
     local attackerDef = UnitDefs[attackerDefID]
     if not unitID or not attackerID or not unitDefID or not attackerDefID or not weaponDefID then
         return damage, 1 end
-    local attackerWeaponRange = WeaponDefs[weaponDefID].range
-    if attackerWeaponRange > 745 then --really long range units are immune to DRC
-        return damage, 1 end
     -- If damage was not caused by another unit, do nothing; defenses are also buildings, will be bypassed too
-    if weaponDefID < 0 or excluded[attackerDefID] or attackerDef.isBuilding or unitDef.isBuilding then  -- excluded units always deal full damage
+    if weaponDefID < 0 or excluded[attackerDefID] or attackerDef.isBuilding or unitDef.isBuilding then  -- excluded units always deal & take full damage
         return damage, 1 end
 
+    --local attackerWeaponRange = WeaponDefs[weaponDefID] and WeaponDefs[weaponDefID].range or 150
+    --if attackerWeaponRange > 745 then --really long range units are immune to DRC
+    --    return damage, 1 end
 
     local victimWeapRange = GetFastestWeapRange(unitDef)
 
