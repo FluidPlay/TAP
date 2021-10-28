@@ -7,124 +7,124 @@
 -- Shader Sources
 -----------------------------------------------------------------
 
-local vsSrc = [[
-#version 430 core
-
-#line 1011
-
-layout (location = 0) in vec2 ndcVert;
-layout (location = 1) in vec2 uv;
-
-layout(std140, binding = 0) uniform UniformMatrixBuffer {
-	mat4 screenView;
-	mat4 screenProj;
-	mat4 screenViewProj;
-
-	mat4 cameraView;
-	mat4 cameraProj;
-	mat4 cameraViewProj;
-	mat4 cameraBillboardView;
-
-	mat4 cameraViewInv;
-	mat4 cameraProjInv;
-	mat4 cameraViewProjInv;
-
-	mat4 shadowView;
-	mat4 shadowProj;
-	mat4 shadowViewProj;
-
-	mat4 reflectionView;
-	mat4 reflectionProj;
-	mat4 reflectionViewProj;
-
-	mat4 orthoProj01;
-
-	// transforms for [0] := Draw, [1] := DrawInMiniMap, [2] := Lua DrawInMiniMap
-	mat4 mmDrawView; //world to MM
-	mat4 mmDrawProj; //world to MM
-	mat4 mmDrawViewProj; //world to MM
-
-	mat4 mmDrawIMMView; //heightmap to MM
-	mat4 mmDrawIMMProj; //heightmap to MM
-	mat4 mmDrawIMMViewProj; //heightmap to MM
-
-	mat4 mmDrawDimView; //mm dims
-	mat4 mmDrawDimProj; //mm dims
-	mat4 mmDrawDimViewProj; //mm dims
-};
-
-layout(std140, binding = 1) uniform UniformParamsBuffer {
-	vec3 rndVec3; //new every draw frame.
-	uint renderCaps; //various render booleans
-
-	vec4 timeInfo;     //gameFrame, gameSeconds, drawFrame, frameTimeOffset
-	vec4 viewGeometry; //vsx, vsy, vpx, vpy
-	vec4 mapSize;      //xz, xzPO2
-	vec4 mapHeight;    //height minCur, maxCur, minInit, maxInit
-
-	vec4 fogColor;  //fog color
-	vec4 fogParams; //fog {start, end, 0.0, scale}
-
-	vec4 sunDir;
-
-	vec4 sunAmbientModel;
-	vec4 sunAmbientMap;
-	vec4 sunDiffuseModel;
-	vec4 sunDiffuseMap;
-	vec4 sunSpecularModel;
-	vec4 sunSpecularMap;
-
-	vec4 shadowDensity; // {ground, units, 0.0, 0.0}
-
-	vec4 windInfo; // windx, windy, windz, windStrength
-	vec2 mouseScreenPos; //x, y. Screen space.
-	uint mouseStatus; // bits 0th to 32th: LMB, MMB, RMB, offscreen, mmbScroll, locked
-	uint mouseUnused;
-	vec4 mouseWorldPos; //x,y,z; w=0 -- offmap. Ignores water, doesn't ignore units/features under the mouse cursor
-
-	vec4 teamColor[255]; //all team colors
-};
-
-layout(location = 0) uniform vec3 worldPos;
-
-out Data {
-	vec2 vuv;
-};
-
-void main() {
-	gl_Position = cameraViewProj * vec4(       worldPos.xyz, 1.0);
-	//gl_Position = cameraViewProj * vec4(mouseWorldPos.xyz, 1.0);
-
-	gl_Position /= gl_Position.w; //NDC space [xyz coords span from -1 to 1]
-
-	// Move the vertex in directly screen space.
-	//gl_Position.xy += ndcVert.xy;
-	gl_Position.xy += vec2(ndcVert.x * viewGeometry.y / viewGeometry.x, ndcVert.y); //* 0.25 on both for scale Factor
-
-	vuv = uv;
-}
-
-]]
-
-local fsSrc = [[
-#version 430 core
-
-layout(binding = 0) uniform sampler2D tex;
-
-#line 2100
-
-in Data {
-	vec2 vuv;
-};
-
-out vec4 fragColor;
-
-void main() {
-    //fragColor = vec4(vuv.x, vuv.y, 0.0, 1.0);
-	//fragColor = vec4(texture(tex, vuv).xyz, 1.0);
-	fragColor = texture(tex, vuv);
-}
-]]
+--local vsSrc = [[
+--#version 430 core
+--
+--#line 1011
+--
+--layout (location = 0) in vec2 ndcVert;
+--layout (location = 1) in vec2 uv;
+--
+--layout(std140, binding = 0) uniform UniformMatrixBuffer {
+--	mat4 screenView;
+--	mat4 screenProj;
+--	mat4 screenViewProj;
+--
+--	mat4 cameraView;
+--	mat4 cameraProj;
+--	mat4 cameraViewProj;
+--	mat4 cameraBillboardView;
+--
+--	mat4 cameraViewInv;
+--	mat4 cameraProjInv;
+--	mat4 cameraViewProjInv;
+--
+--	mat4 shadowView;
+--	mat4 shadowProj;
+--	mat4 shadowViewProj;
+--
+--	mat4 reflectionView;
+--	mat4 reflectionProj;
+--	mat4 reflectionViewProj;
+--
+--	mat4 orthoProj01;
+--
+--	// transforms for [0] := Draw, [1] := DrawInMiniMap, [2] := Lua DrawInMiniMap
+--	mat4 mmDrawView; //world to MM
+--	mat4 mmDrawProj; //world to MM
+--	mat4 mmDrawViewProj; //world to MM
+--
+--	mat4 mmDrawIMMView; //heightmap to MM
+--	mat4 mmDrawIMMProj; //heightmap to MM
+--	mat4 mmDrawIMMViewProj; //heightmap to MM
+--
+--	mat4 mmDrawDimView; //mm dims
+--	mat4 mmDrawDimProj; //mm dims
+--	mat4 mmDrawDimViewProj; //mm dims
+--};
+--
+--layout(std140, binding = 1) uniform UniformParamsBuffer {
+--	vec3 rndVec3; //new every draw frame.
+--	uint renderCaps; //various render booleans
+--
+--	vec4 timeInfo;     //gameFrame, gameSeconds, drawFrame, frameTimeOffset
+--	vec4 viewGeometry; //vsx, vsy, vpx, vpy
+--	vec4 mapSize;      //xz, xzPO2
+--	vec4 mapHeight;    //height minCur, maxCur, minInit, maxInit
+--
+--	vec4 fogColor;  //fog color
+--	vec4 fogParams; //fog {start, end, 0.0, scale}
+--
+--	vec4 sunDir;
+--
+--	vec4 sunAmbientModel;
+--	vec4 sunAmbientMap;
+--	vec4 sunDiffuseModel;
+--	vec4 sunDiffuseMap;
+--	vec4 sunSpecularModel;
+--	vec4 sunSpecularMap;
+--
+--	vec4 shadowDensity; // {ground, units, 0.0, 0.0}
+--
+--	vec4 windInfo; // windx, windy, windz, windStrength
+--	vec2 mouseScreenPos; //x, y. Screen space.
+--	uint mouseStatus; // bits 0th to 32th: LMB, MMB, RMB, offscreen, mmbScroll, locked
+--	uint mouseUnused;
+--	vec4 mouseWorldPos; //x,y,z; w=0 -- offmap. Ignores water, doesn't ignore units/features under the mouse cursor
+--
+--	vec4 teamColor[255]; //all team colors
+--};
+--
+--layout(location = 0) uniform vec3 worldPos;
+--
+--out Data {
+--	vec2 vuv;
+--};
+--
+--void main() {
+--	gl_Position = cameraViewProj * vec4(       worldPos.xyz, 1.0);
+--	//gl_Position = cameraViewProj * vec4(mouseWorldPos.xyz, 1.0);
+--
+--	gl_Position /= gl_Position.w; //NDC space [xyz coords span from -1 to 1]
+--
+--	// Move the vertex in directly screen space.
+--	//gl_Position.xy += ndcVert.xy;
+--	gl_Position.xy += vec2(ndcVert.x * viewGeometry.y / viewGeometry.x, ndcVert.y); //* 0.25 on both for scale Factor
+--
+--	vuv = uv;
+--}
+--
+--]]
+--
+--local fsSrc = [[
+--#version 430 core
+--
+--layout(binding = 0) uniform sampler2D tex;
+--
+--#line 2100
+--
+--in Data {
+--	vec2 vuv;
+--};
+--
+--out vec4 fragColor;
+--
+--void main() {
+--    //fragColor = vec4(vuv.x, vuv.y, 0.0, 1.0);
+--	//fragColor = vec4(texture(tex, vuv).xyz, 1.0);
+--	fragColor = texture(tex, vuv);
+--}
+--]]
 
 
 -----------------------------------------------------------------
