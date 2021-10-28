@@ -541,7 +541,7 @@ function widget:GetConfigData()
 	--return {wl / wWidth, wt / wHeight}
 	local _, _, _, _, mySide = Spring.GetTeamInfo(Spring.GetMyTeamID())
 	if Spring.GetGameSeconds() <= 0 and  mySide ~= "" then
-		local startUnitName = Spring.GetSideData(mySide)
+		local startUnitName = Spring.GetSideData(mySide) or "armcom"
 		local sDefID = UnitDefNames[startUnitName].id
 		local sBuilds = UnitDefs[sDefID].buildOptions
 		local numCols = math.min(#sBuilds, maxCols)

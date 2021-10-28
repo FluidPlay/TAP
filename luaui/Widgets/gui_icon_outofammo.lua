@@ -10,7 +10,7 @@ function widget:GetInfo()
         date = "Oct 11, 2021",
         license = "GPLv3",
         layer = 0,
-        enabled = false, --true,
+        enabled = true,
     }
 end
 
@@ -35,11 +35,17 @@ local trackedUnits = {} -- { [unitID] = true, ... }
 local outOfAmmoPlanes = {} -- { [unitID] = true, ... }
 
 local updateRate = 40;
+local DebugMsgs = true;
 
 --local function SetColor(r,g,b,a)
 --    gl_Color(r,g,b,a)
 --    font:SetTextColor(r,g,b,a)
 --end
+
+local function SpringEcho(msg)
+    if DebugMsgs then
+        Spring.Echo(msg) end
+end
 
 local function clamp(min,max,num)
     if (num<min) then
@@ -66,16 +72,20 @@ end
 
 local function outOfAmmo(unitID)
     local ammo = 1
-    local urammo = spGetUnitRulesParam(unitID, "ammo")
-    if urammo then
-        urammo = tonumber(urammo) end
-    return ammo < 1
+    local unitammo = spGetUnitRulesParam(unitID, "ammo")
+    SpringEcho("ammo: "..unitammo)
+    if unitammo then
+        unitammo = tonumber(unitammo) end
+    return unitammo < 1
 end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local ud = UnitDefs[unitDefID]
     if ud.customParams and ud.customParams.maxammo then
         trackedUnits[unitID] = true
+    --    SpringEcho("Added unit: "..unitID)
+    --else
+    --    SpringEcho("Not found: "..unitID)
     end
 end
 
@@ -133,17 +143,20 @@ function widget:DrawScreen()
 end
 
 function widget:GameFrame(f)
-    if f % updateRate > 0.001 then
-        return end
-
+    --if f % updateRate > 0.001 then
+    --    return end
     for unitID in pairs(trackedUnits) do
         if IsValidUnit(unitID) then
             local outOfAmmo = outOfAmmo(unitID)
-            if outOfAmmoPlanes[unitID] and not outOfAmmo then
-                outOfAmmoPlanes[unitID] = nil
-            elseif outOfAmmo then
-                outOfAmmoPlanes[unitID] = true
-                trackedUnits[unitID] = nil
+            SpringEcho("Is Valid: "..unitID.." Out Of Ammo: "..(tostring(outOfAmmo) or "nil"))
+            if outOfAmmo then
+                if not outOfAmmoPlanes[unitID] then
+                    outOfAmmoPlanes[unitID] = true
+                end
+            else
+                if outOfAmmoPlanes[unitID] then
+                    outOfAmmoPlanes[unitID] = nil
+                end
             end
         end
     end

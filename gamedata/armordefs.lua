@@ -44,14 +44,7 @@ local armorDefs = {
 	--heavyair={"armliche","armlance","armpnix","armsb","armthund","corstil","corhurc","corsb","corshad","cortitan","corcrw",},
 
     --++++==== Structures & Defenses
-	structure = {"armvulc","armamb","armamd","armclaw","armdl","armdrag","armemp","armfhlt","armguard","armhlt","armllt",
-				 "armpb","corbhmth","corbuzz","corexp","corfgate","corfhlt","cormaw","corfmd","corgate",
-				 "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",
-				 "armrl","armatl","armcir","armdeva","armfflak","armflak","armfrt","coratl","corenaa","corerad","corflak",
-				 "corfrt","corrl","madsam","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
-				 "armrl","armatl","armcir","armdeva","armfflak","armflak","armfrt","coratl","corenaa","corerad","corflak",
-				 "corfrt","corrl","madsam","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
-				 "armsolar", "corsolar", "armmex", "cormex", "armmoho", "cormoho","armfus","corfus","armafus","corafus",
+	structure = {"armsolar", "corsolar", "armmex", "cormex", "armmoho", "cormoho","armfus","corfus","armafus","corafus",
 				 "armuber","coruber","armgeo","armgmm","armageo","armuwmex","armuwmme","armtide","coruwmex","coruwmme","cortide",
 				 "armoutpost","armoutpost2","armoutpost3","armoutpost4","coroutpost","coroutpost2","coroutpost3","coroutpost4","armtech","armtech2", "armtech3","armtech4",
 				 "cortech","cortech2", "cortech3","cortech4","armawin","corawin","armjuno","armaap","armadvsol","armalab","armap","armarad","armason",
@@ -64,7 +57,14 @@ local armorDefs = {
 				 "corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav",
 	},
 
-	--defense={"armvulc","armamb","armamd","armclaw","armdl","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfgate","corfhlt","cormaw","corfmd","corgate","corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
+    defense = {"armvulc","armamb","armamd","armclaw","armdl","armdrag","armemp","armfhlt","armguard","armhlt","armllt",
+               "armpb","corbhmth","corbuzz","corexp","corfgate","corfhlt","cormaw","corfmd","corgate",
+               "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",
+               "armrl","armatl","armcir","armdeva","armfflak","armflak","armfrt","coratl","corenaa","corerad","corflak",
+               "corfrt","corrl","madsam","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
+    },
+
+    --defense={"armvulc","armamb","armamd","armclaw","armdl","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfgate","corfhlt","cormaw","corfmd","corgate","corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
 	--
 	--defenseaa={"armrl","armatl","armcir","armdeva","armfflak","armflak","armfrt","coratl","corenaa","corerad","corflak","corfrt","corrl","madsam","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",},
     --
