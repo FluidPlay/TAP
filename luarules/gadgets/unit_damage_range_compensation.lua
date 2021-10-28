@@ -98,7 +98,7 @@ function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, w
     if weaponDefID < 0 or excluded[attackerDefID] or attackerDef.isBuilding or unitDef.isBuilding then  -- excluded units always deal & take full damage
         return damage, 1 end
 
-    --local attackerWeaponRange = WeaponDefs[weaponDefID] and WeaponDefs[weaponDefID].range or 150
+    local attackerWeaponRange = WeaponDefs[weaponDefID] and WeaponDefs[weaponDefID].range or 200
     --if attackerWeaponRange > 745 then --really long range units are immune to DRC
     --    return damage, 1 end
 
