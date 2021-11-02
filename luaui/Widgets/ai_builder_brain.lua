@@ -35,6 +35,7 @@ local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
 local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spGetUnitsInSphere = Spring.GetUnitsInSphere
 local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
@@ -443,7 +444,7 @@ end
 local automatedFunctions = {
                             harvest = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
                                                             return automatedState[ud.unitID] ~= "harvest" and not ud.unitDef.customParams.iscommander
-                                                                    and not WG.LoadedHarvesters[ud.unitID]
+                                                                    and not spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
                                                             end,
                                            action = function(ud) --unitData
                                                Spring.Echo("[1] Harvest check")
@@ -458,7 +459,7 @@ local automatedFunctions = {
                             --TODO: delivering (to nearest Ore Tower owned by my team)
                             deliver = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
                                                         return automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "deliver"
-                                                            and WG.LoadedHarvesters[ud.unitID]
+                                                            and spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
                                                         end,
                                             action = function(ud) --unitData
                                                 Spring.Echo("[2] Delivery check")

@@ -268,8 +268,8 @@ local numberOfSpecs = 0
 local sideOneDefID = UnitDefNames.armcom.id
 local sideTwoDefID = UnitDefNames.corcom.id
 
-local teamSideOne = "arm"
-local teamSideTwo = "core"
+local teamSideOne = "bow"
+local teamSideTwo = "kern"
 
 --Name for absent/resigned players
 local absentName = " --- "

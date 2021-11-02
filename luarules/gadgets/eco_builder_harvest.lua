@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "Sep 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -35,11 +35,14 @@ if gadgetHandler:IsSyncedCode() then
     local spSetUnitWeaponState = Spring.SetUnitWeaponState
     local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spSetUnitRulesParam = Spring.SetUnitRulesParam
+    local spGetUnitPosition = Spring.GetUnitPosition
     local spGetUnitSeparation = Spring.GetUnitSeparation
 
     local defaultMaxStorage = 620
     local loadedHarvesters = {}
     local oreTowers = {}
+
+    local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
 
     local oreTowerDefNames = {
         armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
@@ -52,8 +55,9 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:Initialize()
         --startFrame = Spring.GetGameFrame()
         --gaiaTeamID = Spring.GetGaiaTeamID()
-        WG.LoadedHarvesters = loadedHarvesters
-        WG.OreTowers = oreTowers
+        ---TODO: Refactor, this can't be read by widgets/unsynced, gotta set Spring.SetUnitRulesParam for loaded Harvesters
+        GG.LoadedHarvesters = loadedHarvesters
+        GG.OreTowers = oreTowers
     end
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
@@ -63,7 +67,7 @@ if gadgetHandler:IsSyncedCode() then
         if not oreTowerDefNames[ud.name] then
             return end
 
-        oreTowers[unitID] = ud.buildDistance -- 330 is lvl1 outpost build range
+        oreTowers[unitID] = ud.buildDistance or 330 -- 330 is lvl1 outpost build range
     end
 
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
@@ -86,6 +90,34 @@ if gadgetHandler:IsSyncedCode() then
         --end
         --spawnedChunks[unitID] = nil
     end
+
+    ---Returns nearestTowerID (or nil if none found within 999 range) & nearestDeployPos
+    local function getNearestTowerID(harvesterID)
+        local nearestDist = 999
+        local nearestTowerID = nil
+        local nearestTowerRange = 999
+        for oreTowerID, range in pairs(oreTowers) do
+            local thisTowerDist = spGetUnitSeparation ( harvesterID, oreTowerID, true) -- [, bool surfaceDist ]] )
+            if (thisTowerDist - range + distBuffer) <= nearestDist then  -- Eg: ttD = 600 - range = 200 => 600-200+40) => 440
+                nearestTowerRange = range
+                nearestTowerID = oreTowerID
+            end
+        end
+        if nearestTowerRange == 999 then
+            return nil
+        end
+        -- Get nearest point in deliver range of the Ore Tower
+        --L = sqrt ((x2-x1)^2 + (y2-y1)^2) --that's already nearestDist
+        local p = (nearestTowerRange - distBuffer) / nearestDist	--percentage (radius to discount / length of p1~p2)
+        local x1, y1 = spGetUnitPosition(harvesterID)
+        local x2, y2 = spGetUnitPosition(nearestTowerID)
+        if x1==x2 and y1==y2 then
+            return nil
+        end
+        local nearestDeployPos = { x = x2+p*(x1-x2), y = y2+p*(y1-y2) }
+        return nearestTowerID, nearestDeployPos
+    end
+
 
     local function inTowerRange(harvesterID)
         for oreTowerID, range in pairs(oreTowers) do
@@ -118,10 +150,12 @@ if gadgetHandler:IsSyncedCode() then
         else
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
             --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running?
-            loadedHarvesters[harvesterID] = true
             Spring.Echo("unit ".. harvesterID .." is loaded!!")
+            local nearestTowerID = getNearestTowerID(harvesterID)
+            loadedHarvesters[harvesterID] = nearestTowerID or true -- if there's no nearby tower, set it to true!
+            spSetUnitRulesParam(unitID, "loadedHarvester", 1)
             --TODO: Move to be in range of closest ore tower, once there it'll only return to previous
-            --TODO: Fix! WG.SetAutomateState(unitID, "loaded", "ecobuilderharvest")
+            --TODO: Cant-do, work out: WG.SetAutomateState(unitID, "loaded", "ecobuilderharvest")
             ---harvest spot when it's totally unloaded
         end
     end

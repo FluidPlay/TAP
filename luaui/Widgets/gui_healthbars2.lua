@@ -69,6 +69,8 @@ local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color			= gl.Color
 
+local harvestEcoEnabled = true
+
 local function SetColor(r,g,b,a)
     gl_Color(r,g,b,a)
     font:SetTextColor(r,g,b,a)
@@ -768,7 +770,7 @@ do
             onFireUnits[#onFireUnits+1]=unitID
         end
 
-        local oreLoad = spGetUnitHarvestStorage(unitID)
+        local oreLoad = harvestEcoEnabled and spGetUnitHarvestStorage(unitID) or false
 
         --//=====================================================================================
         --// BARS //-----------------------------------------------------------------------------

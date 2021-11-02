@@ -132,7 +132,7 @@ UnitUpgrades = {
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
             --params = { '1', ' Fly ', 'Land'}
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 150,
         energyCost = 1000,
         upgradeTime = 9 * 15, --9 seconds, in frames
@@ -179,7 +179,7 @@ UnitUpgrades = {
             onlyTexture = true,
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 80,
         energyCost = 480,     --6x metalCost
         upgradeTime = 5 * 15, --5 seconds, in frames
@@ -202,7 +202,7 @@ UnitUpgrades = {
             onlyTexture = true,
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 250,
         energyCost = 1500, --960
         upgradeTime = 6 * 15, --6 seconds
@@ -225,7 +225,7 @@ UnitUpgrades = {
             onlyTexture = true,
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 150,
         energyCost = 960, --960
         upgradeTime = 8 * 15, --10 seconds, in frames
@@ -248,7 +248,7 @@ UnitUpgrades = {
             onlyTexture = true,
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 160,
         energyCost = 960,
         upgradeTime = 6 * 15, --10 seconds, in frames
@@ -271,7 +271,7 @@ UnitUpgrades = {
             onlyTexture = true,
             showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
         },
-        prereq = "Tech1",
+        prereq = "EnhancedTech",
         metalCost = 80,
         energyCost = 450,
         upgradeTime = 2 * 15,--4 * 30, --10 seconds, in frames

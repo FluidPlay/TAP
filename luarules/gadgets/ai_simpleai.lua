@@ -257,7 +257,7 @@ function gadget:GameFrame(n)
 
 
 
-				--if faction == "arm" then
+				--if faction == "bow" then
 
 
 					-- builders

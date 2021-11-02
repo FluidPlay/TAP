@@ -1110,9 +1110,9 @@ function setTeamTable(teamID)
 	if Spring.GetTeamRulesParam(teamID, 'startUnit') then
 		local startunit = Spring.GetTeamRulesParam(teamID, 'startUnit')
 		if startunit == armcomDefID then 
-			teamside = "arm"
+			teamside = "bow"
 		else
-			teamside = "core"
+			teamside = "kern"
 		end
 	else
 		_,_,_,_,teamside = Spring.GetTeamInfo(teamID)

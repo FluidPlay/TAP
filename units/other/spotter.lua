@@ -31,7 +31,7 @@ return {
 		radardistance = 600,
 		seismicsignature = 4,
 		selfdestructas = "",
-		side = "ARM",
+		side = "BOW",
 		sightdistance = 400,
 		turninplaceanglelimit = 140,
 		turninplacespeedlimit = 0,

@@ -39,7 +39,7 @@ return {
 		seismicsignature = 4,
 		selfdestructcountdown = 1,
 		--selfdestructas = "ROOST_DEATH",
-		side = "ARM",
+		side = "BOW",
 		sightdistance = 0,
 		smoothanim = true,
 		tedclass = "ENERGY",

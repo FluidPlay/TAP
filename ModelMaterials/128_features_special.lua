@@ -33,9 +33,9 @@ local function SendHealthInfo(featureID, featureDefID, hasStd, hasDef, hasShad)
 
         if not featureDefSide[featureDefID] then
             local facName = string.sub(FeatureDefs[featureDefID].name, 1, 3)
-            if facName == "arm" then
+            if facName == "bow" then
                 featureDefSide[featureDefID] = 1
-            elseif facname == "cor" then
+            elseif facname == "kern" then
                 featureDefSide[featureDefID] = 2
             else
                 featureDefSide[featureDefID] = 0

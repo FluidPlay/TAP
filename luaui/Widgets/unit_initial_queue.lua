@@ -67,6 +67,11 @@ local GL_SRC_ALPHA             = GL.SRC_ALPHA
 local glBlending               = gl.Blending
 
 -- Building ids
+local COMMANDER = {
+    [UnitDefNames["armcom"].id] = "Bow",
+    [UnitDefNames["corcom"].id] = "Kern",
+}
+
 local ARMCOM = UnitDefNames["armcom"].id
 local CORCOM = UnitDefNames["corcom"].id
 
@@ -176,6 +181,25 @@ armToCore[ARMUWES] = CORUWES
 armToCore[ARMFMKR] = CORFMKR
 armToCore[ARMFDRAG] = CORFDRAG
 armToCore[ARMPTL] = CORPTL
+
+local CONVERT_TABLE = {
+    [1] =  {[UnitDefNames["armsolar"].id] = "Bow", 		[UnitDefNames["corsolar"].id] = "Kern",	},
+    [2] =  {[UnitDefNames["armwin"].id] = "Bow", 		[UnitDefNames["corwin"].id] = "Kern", },
+    [4] =  {[UnitDefNames["armmstor"].id] = "Bow", 		[UnitDefNames["cormstor"].id] = "Kern", },
+    [5] =  {[UnitDefNames["armestor"].id] = "Bow", 		[UnitDefNames["corestor"].id] = "Kern", },
+    [6] =  {[UnitDefNames["armmex"].id] = "Bow", 		[UnitDefNames["cormex"].id] = "Kern", },
+    [7] =  {[UnitDefNames["armmakr"].id] = "Bow", 		[UnitDefNames["cormakr"].id] = "Kern", },
+    [8] =  {[UnitDefNames["armrad"].id] = "Bow", 		[UnitDefNames["corrad"].id] = "Kern",},
+    [9] =  {[UnitDefNames["armdrag"].id] = "Bow", 		[UnitDefNames["cordrag"].id] = "Kern", },
+    [10] = {[UnitDefNames["armllt"].id] = "Bow", 		[UnitDefNames["corllt"].id] = "Kern", },
+    [11] = {[UnitDefNames["armrl"].id] = "Bow", 		[UnitDefNames["corrl"].id] = "Kern", },
+    [12] = {[UnitDefNames["armtide"].id] = "Bow", 		[UnitDefNames["cortide"].id] = "Kern", },
+    [13] = {[UnitDefNames["armfmkr"].id] = "Bow", 		[UnitDefNames["corfmkr"].id] = "Kern", },
+    [14] = {[UnitDefNames["armsonar"].id] = "Bow", 		[UnitDefNames["corsonar"].id] = "Kern" },
+    [15] = {[UnitDefNames["armfdrag"].id] = "Bow", 		[UnitDefNames["corfdrag"].id] = "Kern", },
+    [16] = {[UnitDefNames["armtl"].id] = "Bow", 		[UnitDefNames["cortl"].id] = "Kern", },
+    [17] = {[UnitDefNames["armfrt"].id] = "Bow", 		[UnitDefNames["corfrt"].id] = "Kern", },
+}
 
 function table_invert(t)
     local s={}
@@ -395,11 +419,13 @@ function widget:Initialize()
 	end
 	-- Get our starting unit
 	local _, _, _, _, mySide = Spring.GetTeamInfo(myTeamID)
-	if mySide == "" then -- Don't run unless we know what faction the player is
-		widgetHandler:RemoveWidget(self)
-		return
-	end
-    local startUnitName = Spring.GetSideData(mySide)
+    if mySide == "" or mySide == nil then -- Don't run unless we know what faction the player is
+        Spring.Echo("unit_initial_queue: couldn't find player's faction, auto-disabling.")
+        widgetHandler:RemoveWidget(self)
+        return
+    end
+    local _,startUnitName = Spring.GetSideData(mySide+1) -- 0 => 1, 1 => 2
+    --Spring.Echo("Start Unit Name: "..(startUnitName or "nil"))
     sDefID = UnitDefNames[startUnitName].id
     InitializeFaction(sDefID)
     WG["faction_change"] = InitializeFaction
@@ -653,9 +679,12 @@ function widget:DrawScreen()
 	gl.PopMatrix()
 end
 
+local previousCommander
+
 function widget:DrawWorld()
 	--don't draw anything once the game has started; after that engine can draw queues itself
-	if gameStarted then return end
+	if gameStarted then
+        return end
 
 	-- Set up gl
 	gl.LineWidth(1.49)
@@ -675,11 +704,13 @@ function widget:DrawWorld()
 	local myTeamID = Spring.GetMyTeamID()
 	local sx, sy, sz = Spring.GetTeamStartPosition(myTeamID) -- Returns -100, -100, -100 when none chosen
 	local startChosen = (sx ~= -100)
+
 	if startChosen then
 		-- Correction for start positions in the air
 		sy = Spring.GetGroundHeight(sx, sz)
 
 		-- Draw the starting unit at start position
+        sDefID = sDef.id
 		DrawUnitDef(sDefID, myTeamID, sx, sy, sz)
 
 		-- Draw start units build radius
@@ -687,22 +718,41 @@ function widget:DrawWorld()
 		gl.DrawGroundCircle(sx, sy, sz, sDef.buildDistance, 40)
     end
 
-    -- Check for faction change
-    for b = 1, #buildQueue do
-        local buildData = buildQueue[b]
-        local buildDataId = buildData[1]
-        if sDef.id == ARMCOM then
-            if coreToArm[buildDataId] ~= nil then
-                buildData[1] = coreToArm[buildDataId]
-                buildQueue[b] = buildData
-            end
-        elseif sDef.id == CORCOM then
-            if armToCore[buildDataId] ~= nil then
-                buildData[1] = armToCore[buildDataId]
-                buildQueue[b] = buildData
+    ---- Check for faction change
+    --for b = 1, #buildQueue do
+    --    local buildData = buildQueue[b]
+    --    local buildDataId = buildData[1]
+    --    if sDef.id == ARMCOM then
+    --        if coreToArm[buildDataId] ~= nil then
+    --            buildData[1] = coreToArm[buildDataId]
+    --            buildQueue[b] = buildData
+    --        end
+    --    elseif sDef.id == CORCOM then
+    --        if armToCore[buildDataId] ~= nil then
+    --            buildData[1] = armToCore[buildDataId]
+    --            buildQueue[b] = buildData
+    --        end
+    --    end
+    --end
+    --- (New) Check for faction change
+    if previousCommander ~= COMMANDER[sDef.id] then
+        for b = 1, #buildQueue do
+            --Spring.Echo(math.random())
+            local buildData = buildQueue[b]
+            local buildDataId = buildData[1]
+            for _, v in ipairs(CONVERT_TABLE) do
+                if v[buildDataId] then
+                    for j, faction in pairs(v) do
+                        if faction == COMMANDER[sDef.id] then
+                            buildData[1] = j
+                            buildQueue[b] = buildData
+                        end
+                    end
+                end
             end
         end
     end
+    previousCommander = COMMANDER[sDef.id]
 
 	-- Draw all the buildings
 	local queueLineVerts = startChosen and {{v={sx, sy, sz}}} or {}
@@ -1063,7 +1113,7 @@ function widget:TextCommand(cmd)
 		end
 
 		Spring.SetBuildFacing(newFacing)
-		Spring.Echo("Buildings set to face " .. ({"South", "East", "North", "West"})[1 + newFacing])
+		--Spring.Echo("Buildings set to face " .. ({"South", "East", "North", "West"})[1 + newFacing])
 		return true
 	end
 
