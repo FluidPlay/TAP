@@ -27,6 +27,8 @@ end
 
 VFS.Include("gamedata/taptools.lua")
 
+harvest_eco = (tonumber(Spring.GetModOptions().harvest_eco)) or 1
+
 local barHeight = 3
 local barWidth  = 14  --// (barWidth)x2 total width!!!
 local barAlpha  = 0.9
@@ -40,6 +42,7 @@ local drawBarPercentages = true
 local titlesAlpha   = 0.3*barAlpha
 
 local drawFullHealthBars = false
+local drawOreLoadBars = true
 
 local drawFeatureHealth  = false
 local featureTitlesAlpha = featureBarAlpha * titlesAlpha/barAlpha
@@ -292,7 +295,9 @@ function flicker()
 end
 
 function widget:Initialize()
-
+    if not harvest_eco == 1 then
+        widgetHandler:RemoveGadget(self)
+    end
     --WG.InitializeTranslation (languageChanged, GetInfo().name)
 
     --// catch f9
@@ -796,7 +801,7 @@ do
         end
 
         --// ORE LOAD
-        if (oreLoad and oreLoad>0) then
+        if (drawOreLoadBars and oreLoad and oreLoad>0) then
             local oreLoadPct = oreLoad / (ci.maxorestorage or 620)
             local oreLoad100 = oreLoadPct*100;
             oreLoad100 = oreLoad100 - oreLoad100%1; --//same as floor(oreLoad*100), but 10% faster

@@ -9,7 +9,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
-        layer     = 0,
+        layer     = 100,
         enabled   = true,
     }
 end
@@ -21,15 +21,7 @@ if gadgetHandler:IsSyncedCode() then
 
     VFS.Include("gamedata/taptools.lua")
 
-    --local MetalSpots = GetSpots()   -- [n] = minX, maxX, x, z, y
-    --		g.minX = gMinX
-    --		g.maxX = gMaxX
-    --
-    --		g.x = (gMinX + gMaxX) * 0.5
-    --		g.z = (g.minZ + g.maxZ) * 0.5
-    --		g.y = spGetGroundHeight(g.x, g.z)
-    --
-    --		spots[#spots + 1] = g
+    harvest_eco = (tonumber(Spring.GetModOptions().harvest_eco)) or 1
 
     local updateRate = 10
     local oreSpots -- { 1 = { ring = {
@@ -134,6 +126,9 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:Initialize()
+        if not harvest_eco == 1 then
+            gadgetHandler:RemoveGadget(self)
+        end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         startFrame = Spring.GetGameFrame()
         gaiaTeamID = Spring.GetGaiaTeamID()
@@ -153,7 +148,6 @@ if gadgetHandler:IsSyncedCode() then
                     oreSpots[i].chunks = {} end
                 oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = spawnedUnitID
             end
-
         end
     end
 

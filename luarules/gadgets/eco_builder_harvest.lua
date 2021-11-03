@@ -55,6 +55,9 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:Initialize()
         --startFrame = Spring.GetGameFrame()
         --gaiaTeamID = Spring.GetGaiaTeamID()
+        if Spring.GetModOptions().harvest_eco == 0 then
+            gadgetHandler:RemoveGadget(self)
+        end
         ---TODO: Refactor, this can't be read by widgets/unsynced, gotta set Spring.SetUnitRulesParam for loaded Harvesters
         GG.LoadedHarvesters = loadedHarvesters
         GG.OreTowers = oreTowers

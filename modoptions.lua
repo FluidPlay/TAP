@@ -62,7 +62,6 @@ local options={
 		def    = false,
 		section= "tap_modes",
     },
-
 	{
 		key="map_terraintype",
 		name="Map TerrainTypes",
@@ -189,46 +188,55 @@ local options={
         max    = 2,
         step   = 0.2,
     },
-	
+
+--###############################
+
     {
-       key="tap_enhancements_misc",
-       name="TA Prime - Gameplay Enhancements: Miscellaneous",
-       desc="TA Prime - Gameplay Enhancements: Miscellaneous",
+       key="tap_gameplay_options",
+       name="TA Prime - Gameplay Options",
+       desc="TA Prime - Gameplay Options",
        type="section",
     },
-
+    {
+        key    = "harvest_eco",
+        name   = "Harvest Economy Mode",
+        desc   = "Spawn ore chunks and enables harvesting from builders / ore towers\nBuild spires on top of ore spots to speed up respawn of chunks.",
+        type   = "number",
+        def    = 0,
+        section= "tap_gameplay_options",
+    },
 	{
 		key    = 'comm_wreck_metal',
 		name   = 'Commander Wreck Metal',
 		desc   = 'Sets the amount of metal left by a destroyed Commander.',
 		type   = 'number',
-		section= 'tap_enhancements_misc',
+		section= 'tap_gameplay_options',
 		def    = 2500,
 		min    = 0,
 		max    = 5000,
 		step   = 1,
 	},
-
-	{	-- temporary modoption
-		key = 'xmasballmax',
-		name = 'Max spawned xmas balls',
-		desc = 'At xmas time, this limits the amount of balls spawn. (so you can turn it off) default: 150',
-		type = 'bool',
-		section = 'tap_enhancements_misc',
-		def    = 150,
-		min    = 0,
-		max    = 500,
-		step   = 1,
-	},
+    --
+	--{	-- temporary modoption
+	--	key = 'xmasballmax',
+	--	name = 'Max spawned xmas balls',
+	--	desc = 'At xmas time, this limits the amount of balls spawn. (so you can turn it off) default: 150',
+	--	type = 'bool',
+	--	section = 'tap_gameplay_options',
+	--	def    = 150,
+	--	min    = 0,
+	--	max    = 500,
+	--	step   = 1,
+	--},
 	{
 		key = 'globallos',
 		name = 'Full visibility',
 		desc = 'No fog of war, everyone can see the entire map.',
 		type = 'bool',
-		section = 'tap_enhancements_misc',
+		section = 'tap_gameplay_options',
 		def = false,
 	},
--- Chicken Defense Options
+    -- Chicken Defense Options
 	{
 		key    = 'chicken_defense_options',
 		name   = 'Chicken Defense Options',
