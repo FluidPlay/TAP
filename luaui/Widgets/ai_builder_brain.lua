@@ -140,6 +140,11 @@ local canassist = {
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
 }
 
+local canharvest = {
+    armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
+}
+
 local canresurrect = {
     armrectr = true, corvrad = true, cornecro = true,
 }
@@ -232,11 +237,11 @@ local function hasBuildQueue(unitID)
     end
 end
 
-local function isOreChunk(unitDef)
-    if unitDef.customParams and unitDef.customParams.isOreChunk then
-        return true end
-    return false
-end
+--local function isOreChunk(unitDef)
+--    if unitDef.customParams and unitDef.customParams.isOreChunk then
+--        return true end
+--    return false
+--end
 
 --- Spring's UnitIdle is just too weird, it fires up when units are transitioning between commands..
 --function widget:UnitIdle(unitID, unitDefID, unitTeam)
@@ -393,7 +398,11 @@ end
 
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
-local function nearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature)
+local function nearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID)
+    if teamID == nil then
+        teamID = myTeamID end
+
+    --TODO: Add "ally", "enemy", "neutral"
     local itemsAround = isFeature
             and spGetFeaturesInCylinder(pos.x, pos.z, radius)
             or spGetUnitsInCylinder(pos.x, pos.z, radius, myTeamID)
@@ -443,15 +452,15 @@ end
 
 local automatedFunctions = {
                             harvest = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
-                                                            return automatedState[ud.unitID] ~= "harvest" and not ud.unitDef.customParams.iscommander
-                                                                    and not spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
+                                                            return automatedState[ud.unitID] ~= "harvest" and (not ud.unitDef.customParams.iscommander)
+                                                                    and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
                                                             end,
                                            action = function(ud) --unitData
-                                               Spring.Echo("[1] Harvest check")
+                                               Spring.Echo("[1] Harvest check: "..(ud.nearestChunkID or "nil"))
                                                --TODO: area-attack is most probably a better option here, so it doesn't stutter to reclaim other chunks
                                                if ud.nearestOreChunk and automatedState[ud.unitID] ~= "harvest" then
-                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, { ud.nearestOreChunk }, {} )
-                                                   return "harvesting"
+                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, { ud.nearestChunkID }, {} )
+                                                   return "harvest"
                                                end
                                                return nil
                                            end
@@ -531,7 +540,7 @@ local automatedFunctions = {
                                             if canassist[ud.unitID] then
                                                 nearestTargetID = ud.nearestUID
                                             else
-                                                nearestTargetID = ud.nearestDoneUID -- only finished units can be targetted then
+                                                nearestTargetID = ud.nearestRepairableID -- only finished units can be targetted then
                                             end
                                             if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
                                                 --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
@@ -581,17 +590,18 @@ local function automateCheck(unitID, unitDef, caller)
                                             --local isAllied = spGetUnitAllyTeam(unitID) == myAllyTeamID
                                             local health,maxHealth = spGetUnitHealth(x)
                                             return (health < (maxHealth * 0.99)) end)
-    local nearestDoneUID = nearestItemAround(unitID, pos, unitDef, radius, nil,
+    local nearestRepairableID = nearestItemAround(unitID, pos, unitDef, radius, nil,
                                     function(x)
                                                 local health,maxHealth,_,_,done = spGetUnitHealth(x)
                                                 return (done and health < (maxHealth * 0.99)) end )
     local nearestFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
     local nearestChunkID = nearestItemAround(unitID, pos, unitDef, radius,
-                                            function(x) return
-                                                                (x.customParams and x.customParams.isOreChunk) end)   --unitDef check
-    local nearestSpirePos = nearestItemAround(unitID, pos, unitDef, radius, nil,
-                                        function(x) return (WG.OreTowers and WG.OreTowers[x] or nil) end)
+                                            function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
+                                            nil, false)
+    local nearestOreTowerID = nearestItemAround(unitID, pos, unitDef, radius, nil,
+                                        function(x) return (WG.OreTowers and WG.OreTowers[x] or nil) end) --TODO: Fix. No WG.OreTowers yet
     --TODO: account for spire Range. local nearestDeliveryPos = nearestSpirePos - (spireRange + offset)
+
     local nearestFactoryID = nearestItemAround(unitID, pos, unitDef, radius,
                                                     function(x) return x.isFactory end,     --We're only interested in factories currently producing
                                                     function(x) return hasBuildQueue(x) end)
@@ -604,8 +614,8 @@ local function automateCheck(unitID, unitDef, caller)
 
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
                  hasEnergy = resourcesCheck("e"), hasResources = resourcesCheck(), hasMetal = resourcesCheck("m",true),
-                 nearestUID = nearestUID, nearestDoneUID = nearestDoneUID, nearestFactoryID = nearestFactoryID,
-                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestDeliveryPos = nearestSpirePos,
+                 nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
+                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestDeliveryPos = nearestOreTowerID,
                  nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
                }
 
@@ -613,6 +623,12 @@ local function automateCheck(unitID, unitDef, caller)
         --- Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
         --- If none found, do nothing (Should search for other automated states)
 
+    --- 0. If it's a harvester, harvest nearby ore chunk;
+    if automatedFunctions["harvest"].condition(ud) then
+        ud.orderIssued = automatedFunctions["harvest"].action(ud)
+    else
+        Spring.Echo("Harvest condition not met")
+    end
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
     if automatedFunctions["enemyreclaim"].condition(ud) then
         ud.orderIssued = automatedFunctions["enemyreclaim"].action(ud)

@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 100,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -114,7 +114,7 @@ if gadgetHandler:IsSyncedCode() then
             --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
             local unitID = spCreateUnit((UnitDefs[ore.moho]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
 
-            spSetUnitNeutral(unitID, true)
+            --spSetUnitNeutral(unitID, true) --Nope
             --local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
             local sprawlTime = spGetGameFrame() + (spawnDelay[kind] or 240) + math_random(0,60)
             spawnedChunks[unitID] = { pos = {x=x, y=cy, z=z}, kind = kind, spotID = spotID, spawnR = R, time = sprawlTime }
