@@ -423,8 +423,10 @@ function widget:Initialize()
         Spring.Echo("unit_initial_queue: couldn't find player's faction, auto-disabling.")
         widgetHandler:RemoveWidget(self)
         return
+    else
+        Spring.Echo(tostring(mySide))
     end
-    local _,startUnitName = Spring.GetSideData(mySide+1) -- 0 => 1, 1 => 2
+    local _,startUnitName = Spring.GetSideData(tonumber(mySide) + 1) -- 0 => 1, 1 => 2
     --Spring.Echo("Start Unit Name: "..(startUnitName or "nil"))
     sDefID = UnitDefNames[startUnitName].id
     InitializeFaction(sDefID)

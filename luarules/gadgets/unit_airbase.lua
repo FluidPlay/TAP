@@ -412,7 +412,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         -- If command == return to airbase (any) and the unit is at full health & armed, ignore
         -- This way, if you select a bunch of planes and tell them to return, only the right ones will
-        if cmdID == CMD_LAND_AT_AIRBASE and not cmdOptions.shift then
+        if cmdID == CMD_LAND_AT_AIRBASE then --and not cmdOptions.shift then
             local health, maxHealth = Spring.GetUnitHealth(unitID)
             health = tonumber(health)
             maxHealth = tonumber(maxHealth)
@@ -424,7 +424,7 @@ if (gadgetHandler:IsSyncedCode()) then
             if not ammo or not maxAmmo then
                 return health < maxHealth end
             -- Combat planes:
-            return health < maxHealth or ammo < maxAmmo
+            return ammo < maxAmmo or health < maxHealth
             ----if cmdIgnoreSelf then  --don't re-read rewritten bomber's command
             ----   return true
             ----end
