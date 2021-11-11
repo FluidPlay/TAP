@@ -35,7 +35,7 @@ local trackedUnits = {} -- { [unitID] = true, ... }
 local outOfAmmoPlanes = {} -- { [unitID] = true, ... }
 
 local updateRate = 40;
-local DebugMsgs = true;
+local DebugMsgs = false; --true;
 
 --local function SetColor(r,g,b,a)
 --    gl_Color(r,g,b,a)
