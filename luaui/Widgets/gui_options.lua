@@ -2639,7 +2639,7 @@ function init()
           end,
         },
 
-        { id = "featuredrawdist", group = "gfx", name = texts.option.featuredrawdist, type = "slider", min = 2500, max = 15000, step = 500, value = tonumber(Spring.GetConfigInt("FeatureDrawDistance", 10000)), description = texts.option.featuredrawdist_descr,
+        { id = "featuredrawdist", group = "gfx", name = texts.option.featuredrawdist, type = "slider", min = 2500, max = 15000, step = 500, value = tonumber(Spring.GetConfigInt("FeatureDrawDistance", 999999)), description = texts.option.featuredrawdist_descr,
           onload = function(i)
           end,
           onchange = function(i, value)

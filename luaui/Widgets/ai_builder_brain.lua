@@ -447,7 +447,7 @@ local automatedFunctions = {
                                                                     and not spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
                                                             end,
                                            action = function(ud) --unitData
-                                               Spring.Echo("[1] Harvest check")
+                                               --Spring.Echo("[1] Harvest check")
                                                --TODO: area-attack is most probably a better option here, so it doesn't stutter to reclaim other chunks
                                                if ud.nearestOreChunk and automatedState[ud.unitID] ~= "harvest" then
                                                    spGiveOrderToUnit(ud.unitID, CMD_ATTACK, { ud.nearestOreChunk }, {} )
@@ -462,7 +462,7 @@ local automatedFunctions = {
                                                             and spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
                                                         end,
                                             action = function(ud) --unitData
-                                                Spring.Echo("[2] Delivery check")
+                                                --Spring.Echo("[2] Delivery check")
                                                 if ud.nearestDeliveryPos and automatedState[ud.unitID] ~= "deliver" then
                                                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { ud.nearestDeliveryPos.x, ud.nearestDeliveryPos.y,
                                                                                              ud.nearestDeliveryPos.z }, { "" })
