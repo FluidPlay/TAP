@@ -35,7 +35,6 @@ local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
 local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
-local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spGetUnitsInSphere = Spring.GetUnitsInSphere
 local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
@@ -45,6 +44,8 @@ local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
 local spIsUnitInView = Spring.IsUnitInView
 local spGetUnitViewPosition = Spring.GetUnitViewPosition
 
@@ -197,6 +198,7 @@ local function setAutomateState(unitID, state, caller)
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
+    spSetUnitRulesParam(unitID, "state", state)
     spEcho("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 

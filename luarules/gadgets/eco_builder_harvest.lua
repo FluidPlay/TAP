@@ -136,6 +136,10 @@ if gadgetHandler:IsSyncedCode() then
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", amount )
     end
 
+---can't issue attack if the builder is loaded
+---must set states on the builder_brain (use spSetUnitRuleParams)
+---must continuously check if an oretower is available, if is loaded
+
         -- attackerID => harvesterID, for legibility purposes
     function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, harvesterID, harvesterDefID, attackerTeam)
         --Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
