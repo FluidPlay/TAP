@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "Sep 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -43,6 +43,7 @@ if gadgetHandler:IsSyncedCode() then
     local oreTowers = {}
 
     local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
+    local deployPerTickAmount = 10 --TODO: Read from unitDefs
 
     local oreTowerDefNames = {
         armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
@@ -58,9 +59,9 @@ if gadgetHandler:IsSyncedCode() then
         if Spring.GetModOptions().harvest_eco == 0 then
             gadgetHandler:RemoveGadget(self)
         end
-        ---TODO: Refactor, this can't be read by widgets/unsynced, gotta set Spring.SetUnitRulesParam for loaded Harvesters
-        GG.LoadedHarvesters = loadedHarvesters
-        GG.OreTowers = oreTowers
+        ---TODO: Refactor, this can't be read by widgets/unsynced. Obsolete / to remove
+        --GG.LoadedHarvesters = loadedHarvesters
+        --GG.OreTowers = oreTowers
     end
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
@@ -131,7 +132,11 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
-    -- attackerID => harvesterID, for legibility purposes
+    local function DeliverResources(harvesterID, amount)
+        spAddTeamResource (spGetUnitTeam(harvesterID), "metal", amount )
+    end
+
+        -- attackerID => harvesterID, for legibility purposes
     function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, harvesterID, harvesterDefID, attackerTeam)
         --Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
         if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
@@ -144,9 +149,10 @@ if gadgetHandler:IsSyncedCode() then
         local maxStorage = attackerDef and attackerDef.harveststorage or defaultMaxStorage
         --Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
         --- Can it harvest?
+        --TODO: Run DeliverResources on update, if under tower range
         if curStorage < maxStorage then
             if inTowerRange(harvesterID) then
-                spAddTeamResource (spGetUnitTeam(harvesterID), "metal", damage )
+                DeliverResources(harvesterID, damage)
             else
                 spSetUnitHarvestStorage (harvesterID, math.min(maxStorage, curStorage + damage))
             end
@@ -167,8 +173,12 @@ if gadgetHandler:IsSyncedCode() then
         if gf % CHECK_FREQ > 0.001 then
             return
         end
+
         for unitID in pairs(loadedHarvesters) do
             if IsValidUnit(unitID) then
+                if inTowerRange(unitID) then --TODO: And not attacking!
+                    DeliverResources(unitID, deployPerTickAmount)
+                end
                 local unitDefID = spGetUnitDefID(unitID)
                 local uDef = UnitDefs[unitDefID]
                 local maxStorage = uDef and (uDef.harvestStorage or defaultMaxStorage)

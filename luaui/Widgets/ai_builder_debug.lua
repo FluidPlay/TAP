@@ -21,7 +21,7 @@ local spGetUnitViewPosition = Spring.GetUnitViewPosition
 local spIsGUIHidden = Spring.IsGUIHidden
 local spWorldToScreenCoords = Spring.WorldToScreenCoords
 
-local localDebug = false --|| Enables text and UI state debug messages
+local localDebug = true --false --|| Enables text and UI state debug messages
 
 local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
