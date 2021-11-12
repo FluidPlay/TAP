@@ -9,7 +9,7 @@
 --
 local damageMultipliers = {
 
-    laser = { 	robot = 1.5, vehicle = 0.75, air = 0.75, ship = 1, structure = 0.6, defense = 0.2, commander = 0.4, superunit = 1, },
+    laser = { 	robot = 1.75, vehicle = 0.75, air = 0.75, ship = 1, structure = 0.6, defense = 0.2, commander = 0.4, superunit = 1, },
     --    laser={     lightbot = 1.72, supportbot = 1.4,  heavybot = 0.6, lightveh = 0.61,    supportveh = 0.28,  heavyveh = 0.16,
     --                lightair = 1.395,supportair = 0.5,  heavyair = 1,   lightship = 1.25,   supportship = 2,    heavyship = 0.5,
     --                structure = 1.1, resource = 0.5,    defense = 0.5,  defenseaa = 0.15,   commander = 0.21,   superunit = 0.6,
