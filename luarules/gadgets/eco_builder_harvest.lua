@@ -48,6 +48,10 @@ if gadgetHandler:IsSyncedCode() then
     local oreTowerDefNames = {
         armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
     }
+    local canharvest = {
+        armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+        armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
+    }
 
     local CMD_STOP = CMD.STOP
 
@@ -144,6 +148,9 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, harvesterID, harvesterDefID, attackerTeam)
         --Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
         if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
+            return end
+        local uDef = UnitDefs[harvesterDefID]
+        if not uDef or not canharvest[uDef.name] then
             return end
         local curStorage = spGetUnitHarvestStorage(harvesterID)
         --Spring.Echo("cur Storage: "..curStorage.." damage: "..damage)

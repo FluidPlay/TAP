@@ -1,6 +1,6 @@
 ---
 --- DateTime: 27-Sep-21 4:23 PM
---- You can turn UI debug on/off by '/aidebugon' and '/aidebugoff' console commands
+--- You can turn UI debug on/off by '/aidebug' toggle console command
 ---
 function widget:GetInfo()
     return {
@@ -10,7 +10,7 @@ function widget:GetInfo()
         date = "Sep 27, 2021",
         license = "GPLv3",
         layer = 0,
-        enabled = false, --true,
+        enabled = true,
     }
 end
 

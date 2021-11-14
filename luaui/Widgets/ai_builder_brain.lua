@@ -18,7 +18,7 @@ end
 
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = false --true --|| Enables text state debug messages
+local localDebug = true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -280,6 +280,7 @@ end
 
 ---- Disable widget if I'm spec
 function widget:Initialize()
+    Spring.Echo("Testing")
     WG.automatedStates = automatedState  -- This will allow the state to be read and set by other widgets
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
@@ -454,14 +455,15 @@ end
 
 local automatedFunctions = {
                             harvest = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
-                                                            return automatedState[ud.unitID] ~= "harvest" and (not ud.unitDef.customParams.iscommander)
-                                                                    and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
+                                                            return automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
+                                                                and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
                                                             end,
                                            action = function(ud) --unitData
                                                Spring.Echo("[1] Harvest check: "..(ud.nearestChunkID or "nil"))
                                                --TODO: area-attack is most probably a better option here, so it doesn't stutter to reclaim other chunks
                                                if ud.nearestOreChunk and automatedState[ud.unitID] ~= "harvest" then
-                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, { ud.nearestChunkID }, {} )
+                                                   local x, y, z = spGetUnitPosition(ud.nearestChunkID)
+                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, x,y,z,50, { "alt" } ) --{ ud.nearestChunkID }
                                                    return "harvest"
                                                end
                                                return nil
@@ -495,8 +497,8 @@ local automatedFunctions = {
                                                           end
                                                           return nil
                                                        end
-                                            },
-                             resurrect = { condition =  function(ud)
+                            },
+                            resurrect = { condition =  function(ud)
                                                             return canresurrect[ud.unitDef.name] and not ud.orderIssued
                                                                     and automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "enemyreclaim"
                                                                     and automatedState[ud.unitID] ~= "deliver" and automatedState[ud.unitID] ~= "resurrect"
@@ -511,8 +513,8 @@ local automatedFunctions = {
                                                end
                                                return nil
                                            end
-                             },
-                             assist = { condition =  function(ud) --unitData
+                            },
+                            assist = { condition =  function(ud) --unitData
                                                          return canassist[ud.unitDef.name] and not ud.orderIssued
                                                                  and automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "deliver"
                                                                  and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
@@ -529,8 +531,8 @@ local automatedFunctions = {
                                                      end
                                                      return nil
                                                  end
-                             },
-                             repair = { condition = function(ud) --unitData
+                            },
+                            repair = { condition = function(ud) --unitData
                                                          return canrepair[ud.unitDef.name] and not ud.orderIssued
                                                                  and automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "deliver"
                                                                  and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
@@ -539,7 +541,7 @@ local automatedFunctions = {
                                         action = function(ud)
                                             --Spring.Echo("[3] Repair check")
                                             local nearestTargetID
-                                            if canassist[ud.unitID] then
+                                            if canassist[ud.unitDef.name] then
                                                 nearestTargetID = ud.nearestUID
                                             else
                                                 nearestTargetID = ud.nearestRepairableID -- only finished units can be targetted then
@@ -551,8 +553,8 @@ local automatedFunctions = {
                                             end
                                             return nil
                                         end
-                             },
-                             reclaim = { condition = function(ud) --unitData
+                            },
+                            reclaim = { condition = function(ud) --unitData
                                                         return canreclaim[ud.unitDef.name] and not ud.orderIssued
                                                             and automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "deliver"
                                                             and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
@@ -573,9 +575,9 @@ local automatedFunctions = {
                                             end
                                             return nil
                                         end
-                             },
+                            },
 
-                           }
+}
 
 
 local function automateCheck(unitID, unitDef, caller)
@@ -628,6 +630,7 @@ local function automateCheck(unitID, unitDef, caller)
     --- 0. If it's a harvester, harvest nearby ore chunk;
     if automatedFunctions["harvest"].condition(ud) then
         ud.orderIssued = automatedFunctions["harvest"].action(ud)
+        Spring.Echo("Trying Harvest")
     else
         Spring.Echo("Harvest condition not met")
     end
