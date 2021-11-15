@@ -1,12 +1,12 @@
 function widget:GetInfo()
   return {
-    name      = "BA cmdcolors",
-    desc      = "Sets custom BA cmdcolors, disable to load engine defaults again",
+    name      = "TAP cmdcolors",
+    desc      = "Sets custom TAP cmdcolors, disable to load engine defaults again",
     author    = "Floris",
     date      = "2016",
     license   = "parrot",
     layer     = -100,
-    enabled   = true,
+    enabled   = false, --true,
 	}
 end
 

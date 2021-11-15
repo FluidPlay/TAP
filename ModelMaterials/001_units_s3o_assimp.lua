@@ -417,7 +417,7 @@ for id = 1, #UnitDefs do
         local udefCM = udef.customParams
         local lm = tonumber(udefCM.lumamult) or 1
         local scvd = tonumber(udefCM.scavvertdisp) or 0
-        local hasTreads = udefCM.hastreads or true --TODO: Temp, for tests
+        local hasTreads = udefCM.hastreads -- or true --TODO: Temp, for tests
 
         local udefName = udef.name or ""
         local facName = string.sub(udefName, 1, 3)

@@ -236,38 +236,39 @@ local shaderTemplate = {
 
 			%%VERTEX_UV_TRANSFORM%%
 
-			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_ARM)) {
+//			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_ARM)) {
 				const float atlasSize = 4096.0;
 				const float gfMod = 8.0;
 				const float texSpeed = 4.0;
 
 				float texOffset = floatOptions[3] * mod(float(simFrame), gfMod) * (texSpeed / atlasSize);
 
-				// note, invert we invert Y axis; vec4 (leftX, rightX, topY, bottomY)
+				// note, we invert Y axis; vec4 (leftX, rightX, topY, bottomY)
 				//const vec4 treadBoundaries = vec4(2572.0, 3070.0, atlasSize - 1761.0, atlasSize - 1548.0) / atlasSize;
-				const vec4 treadBoundaries = vec4(2054.0, 4096.0, 1025.0, 2047.0) / atlasSize;
+				const vec4 treadBoundaries = vec4(2049.0, 3067.0, 1017, 1036) / atlasSize;
 				if (all(bvec4(
 						gl_TexCoord[0].x >= treadBoundaries.x, gl_TexCoord[0].x <= treadBoundaries.y,
 						gl_TexCoord[0].y >= treadBoundaries.z, gl_TexCoord[0].y <= treadBoundaries.w))) {
 					gl_TexCoord[0].x += texOffset;
 				}
-			}
+//			}
 
-			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_CORE)) {
-				const float atlasSize = 2048.0;
-				const float gfMod = 6.0;
-				const float texSpeed = -6.0;
-
-				float texOffset = floatOptions[3] * mod(float(simFrame), gfMod) * (texSpeed / atlasSize);
-
-				// note, invert we invert Y axis
-				const vec4 treadBoundaries = vec4(1536.0, 2048.0, atlasSize - 2048.0, atlasSize - 1792.0) / atlasSize;
-				if (all(bvec4(
-						gl_TexCoord[0].x >= treadBoundaries.x, gl_TexCoord[0].x <= treadBoundaries.y,
-						gl_TexCoord[0].y >= treadBoundaries.z, gl_TexCoord[0].y <= treadBoundaries.w))) {
-					gl_TexCoord[0].x += texOffset;
-				}
-			}
+//			if (BITMASK_FIELD(bitOptions, OPTION_THREADS_CORE)) {
+//				const float atlasSize = 2048.0;
+//				const float gfMod = 8.0; //6.0;
+//				const float texSpeed = 4.0; //-6.0;
+//
+//				float texOffset = floatOptions[3] * mod(float(simFrame), gfMod) * (texSpeed / atlasSize);
+//
+//				// note, invert we invert Y axis
+//				//const vec4 treadBoundaries = vec4(1536.0, 2048.0, atlasSize - 2048.0, atlasSize - 1792.0) / atlasSize;
+//				const vec4 treadBoundaries = vec4(2049.0, 3067.0, 1017, 1036) / atlasSize;
+//				if (all(bvec4(
+//						gl_TexCoord[0].x >= treadBoundaries.x, gl_TexCoord[0].x <= treadBoundaries.y,
+//						gl_TexCoord[0].y >= treadBoundaries.z, gl_TexCoord[0].y <= treadBoundaries.w))) {
+//					gl_TexCoord[0].x += texOffset;
+//				}
+//			}
 
 			worldVertexPos = modelMatrix * modelVertexPos;
 			/***********************************************************************/
