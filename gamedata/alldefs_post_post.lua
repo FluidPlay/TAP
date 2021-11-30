@@ -39,6 +39,41 @@ local function UnitDefsToData()
 	Spring.Echo(udtstring)
 end
 
+local function WeaponDef_Post(name, wDef, udName)
+	local baseDamage = tonumber(wDef.damage.default)
+	if not baseDamage or baseDamage <= 0 then
+		return end
+	-- Now let's clear out all previous values (deprecate armor classes) and reassign default damage
+	wDef.damage = {}
+	wDef.damage.default = baseDamage
+	--local allUnits = {}
+	--local templateFields = unitDefsData.fields	-- This will be copied for each new unit data
+	--for udefID, udef in pairs(unitDefs) do
+		if (istable(wDef)) then
+			local newUdef = {} --table.deepcopy(templateFields)
+			for key,val in pairs(wDef) do
+				local keyLower = string.lower(key)
+				newUdef[keyLower] = val
+			end
+			table.insert(allWeapons, {wDefID, newUdef})
+		end
+	--end
+	Spring.Echo("##All UnitDefs\n")
+	local udtstring = table.tosortedstring(allUnits)
+	Spring.Echo(udtstring)
+end
+
+-- Function to generate a table with all existing weapondefs, outputs to infolog.txt
+local function WeaponDefsToData()
+	for name,ud in pairs(UnitDefs) do
+		if ud.weapondefs then
+			for wname,wd in pairs(ud.weapondefs) do
+				WeaponDef_Post(wname,wd,name)
+			end
+		end
+	end
+end
+
 -- Function to generate a template with default values for all unitdefs_data fields (one-shot usually)
 local function PrintUnitDefsTemplate()
 	local unitDefTmpt = {}
@@ -93,4 +128,5 @@ end
 
 --PrintUnitDefsTemplate()
 --UnitDefsToData() --<-- Uncomment to create unitdefs_data header
+WeaponDefsToData() --<-- Uncomment to create weapondefs_data header
 --OutputUnitDefs() --<-- Uncomment to output unitdefs to csv format (at infolog.txt)
