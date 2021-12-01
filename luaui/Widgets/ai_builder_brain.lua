@@ -198,7 +198,7 @@ local function setAutomateState(unitID, state, caller)
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    spSetUnitRulesParam(unitID, "state", state)
+    Spring.SetUnitRulesParam(unitID, "state", state)
     spEcho("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
