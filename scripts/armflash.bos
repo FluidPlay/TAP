@@ -195,6 +195,28 @@ if (shooting_num==1)
 
 //============
 
+AimFromTertiary(piecenum)
+{
+	piecenum = base;
+}
+
+QueryTertiary(piecenum)
+{
+	piecenum = base;
+}
+
+AimTertiary(heading, pitch)
+{
+	return 1;
+}
+
+FireTertiary()
+{
+	return 1;
+}
+
+//================
+
 SweetSpot(piecenum)
 {
 	piecenum = turret;

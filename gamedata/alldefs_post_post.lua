@@ -15,6 +15,7 @@ local weaponDefsData = VFS.Include("gamedata/configs/weapondefs_data.lua")
 
 --Spring.Echo("Saving PostProcessed Table: "..tablelength(unitDefs))
 
+--TODO: Fix
 local function sort_table(tbl)
 	local array = {}
 	for key, value in pairs(tbl) do
@@ -195,6 +196,6 @@ end
 --PrintUnitDefsTemplate()
 --UnitDefsTemplateGenerator() --<-- Uncomment to create unitdefs_data header
 
-PrintWeaponDefsTemplate()
+--PrintWeaponDefsTemplate()
 --OutputWeaponDefs() --<-- Uncomment to create weapondefs_data header
 --OutputUnitDefs() --<-- Uncomment to output unitdefs to csv format (at infolog.txt)

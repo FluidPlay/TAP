@@ -210,6 +210,10 @@ function WeaponDef_Post(name, wDef, udName)
 		return
 	end
 
+    if (not wDef.damage or not wDef.damage.default) then
+        Spring.Echo("error: damage/default damage not found for "..(udName or "N/A").." weapon name "..(name or "N/A") )
+        return
+    end
 	local baseDamage = tonumber(wDef.damage.default)
 	if not baseDamage or baseDamage <= 0 then
 		return end
