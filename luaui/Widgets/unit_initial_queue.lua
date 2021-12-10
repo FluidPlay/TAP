@@ -426,7 +426,7 @@ function widget:Initialize()
     else
         Spring.Echo(tostring(mySide))
     end
-    local _,startUnitName = Spring.GetSideData(tonumber(mySide) + 1) -- 0 => 1, 1 => 2
+    local _,startUnitName = Spring.GetSideData(mySide and (tonumber(mySide) + 1) or 1) -- 0 => 1, 1 => 2
     --Spring.Echo("Start Unit Name: "..(startUnitName or "nil"))
     sDefID = UnitDefNames[startUnitName].id
     InitializeFaction(sDefID)

@@ -198,7 +198,8 @@ local function setAutomateState(unitID, state, caller)
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    Spring.SetUnitRulesParam(unitID, "state", state)
+    --TODO: Fix, can't use UnitRulesParam in a widget
+    --Spring.SetUnitRulesParam(unitID, "state", state)
     spEcho("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
@@ -280,7 +281,6 @@ end
 
 ---- Disable widget if I'm spec
 function widget:Initialize()
-    Spring.Echo("Testing")
     WG.automatedStates = automatedState  -- This will allow the state to be read and set by other widgets
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
@@ -459,7 +459,7 @@ local automatedFunctions = {
                                                                 and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
                                                             end,
                                            action = function(ud) --unitData
-                                               Spring.Echo("[1] Harvest check: "..(ud.nearestChunkID or "nil"))
+                                               spEcho("[1] Harvest check: "..(ud.nearestChunkID or "nil"))
                                                --TODO: area-attack is most probably a better option here, so it doesn't stutter to reclaim other chunks
                                                if ud.nearestOreChunk and automatedState[ud.unitID] ~= "harvest" then
                                                    local x, y, z = spGetUnitPosition(ud.nearestChunkID)
@@ -475,7 +475,7 @@ local automatedFunctions = {
                                                             and spGetUnitRulesParam(ud.unitID, "loadedHarvester") == 1
                                                         end,
                                             action = function(ud) --unitData
-                                                Spring.Echo("[2] Delivery check")
+                                                spEcho("[2] Delivery check")
                                                 if ud.nearestDeliveryPos and automatedState[ud.unitID] ~= "deliver" then
                                                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { ud.nearestDeliveryPos.x, ud.nearestDeliveryPos.y,
                                                                                              ud.nearestDeliveryPos.z }, { "" })
@@ -630,9 +630,9 @@ local function automateCheck(unitID, unitDef, caller)
     --- 0. If it's a harvester, harvest nearby ore chunk;
     if automatedFunctions["harvest"].condition(ud) then
         ud.orderIssued = automatedFunctions["harvest"].action(ud)
-        Spring.Echo("Trying Harvest")
+        spEcho("Trying Harvest")
     else
-        Spring.Echo("Harvest condition not met")
+        spEcho("Harvest condition not met")
     end
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
     if automatedFunctions["enemyreclaim"].condition(ud) then
@@ -716,7 +716,6 @@ function widget:GameFrame(f)
     for unitID, recheckFrame in pairs(deautomatedUnits) do
         if IsValidUnit(unitID) and f >= recheckFrame then --and not unitsToAutomate[unitID] then
             spEcho("0")
-            --Spring.Echo("0")
             if isReallyIdle(unitID) then
                 stopAssisting(unitID)
                 if automatedState[unitID] ~= "deautomated" then
@@ -752,7 +751,6 @@ function widget:GameFrame(f)
 
     for unitID, recheckFrame in pairs(automatedUnits) do
         spEcho("2")
-        --Spring.Echo("2")
         local unitState = automatedState[unitID]
         if IsValidUnit(unitID) and f >= recheckFrame then
             --- Checking for Idle (let's dodge Spring's default idle, its event fires in unwanted situations)
