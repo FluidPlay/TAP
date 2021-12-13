@@ -13,15 +13,17 @@ end
 
 -- table of stuff that we unbind on load
 local unbinds={
+    "bind b",
+    "bind any+h",
     "bind any+k cloak",
     "bind any+q",
     "bind q",
     "bind any+c controlunit",
     "bind c controlunit",
     "bind Ctrl+c select",
-    "bind any+x  buildspacing dec",
-    "bind x  buildspacing dec",
-    "bind x  onoff",
+    "bind any+x buildspacing dec",
+    "bind x buildspacing dec",
+    "bind x onoff",
     "bind Shift+x  onoff",
     "bindaction buildspacing dec",
     "bind any+z buildspacing inc",
@@ -78,6 +80,9 @@ function MakeBindsTable (swapYZ)
         -- building hotkeys
 
         --- Metal extractors
+        ---TEST
+        ---"bind b,h buildunit_armmex",
+        ---"unbind h",
         "bind "..Z.." buildunit_armmex",
         "bind shift+"..Z.." buildunit_armmex",
         "bind "..Z.." buildunit_cormex",
@@ -313,19 +318,19 @@ function MakeBindsTable (swapYZ)
         --"bind shift+b buildunit_corhlt",
 
         -- Ambusher, annihilator, bigbertha (Arm)
-        "bind b buildunit_armguard",
-        "bind shift+b buildunit_armguard",
-        "bind b buildunit_armamb",
-        "bind shift+b buildunit_armamb",
+        --"bind b buildunit_armguard",
+        --"bind shift+b buildunit_armguard",
+        --"bind b buildunit_armamb",
+        --"bind shift+b buildunit_armamb",
         "bind alt+b buildunit_armanni",
         "bind alt+shift+b buildunit_armanni",
         "bind alt+b buildunit_armbrtha",
         "bind alt+shift+b buildunit_armbrtha",
         -- Toaster, Doomsday Machine, Intimidator (Core)
-        "bind b buildunit_corpun",
-        "bind shift+b buildunit_corpun",
-        "bind b buildunit_cortoast",
-        "bind shift+b buildunit_cortoast",
+        --"bind b buildunit_corpun",
+        --"bind shift+b buildunit_corpun",
+        --"bind b buildunit_cortoast",
+        --"bind shift+b buildunit_cortoast",
         "bind alt+b buildunit_cordoom",
         "bind alt+shift+b buildunit_cordoom",
         "bind alt+b buildunit_corint",

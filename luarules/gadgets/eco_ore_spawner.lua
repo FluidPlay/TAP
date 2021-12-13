@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "July 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 100,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -33,7 +33,7 @@ if gadgetHandler:IsSyncedCode() then
     -- eg: (oreSpots[12][1]).#chunk  <==> OreSpot #12, Ring #1, chunk count
 
     local startFrame
-    local gaiaTeamID
+    local gaiaTeamID = Spring.GetGaiaTeamID()
     local sprawlChance = 0.2
     local deadZone = 30
     local startKind = "lrg"
@@ -113,8 +113,7 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.Echo("Name: "..(ore[kind] or "invalid"))
             --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
             local unitID = spCreateUnit((UnitDefs[ore.moho]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
-
-            spSetUnitNeutral(unitID, true) --Nope
+            spSetUnitNeutral(unitID, true)
             --local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
             local sprawlTime = spGetGameFrame() + (spawnDelay[kind] or 240) + math_random(0,60)
             spawnedChunks[unitID] = { pos = {x=x, y=cy, z=z}, kind = kind, spotID = spotID, spawnR = R, time = sprawlTime }
@@ -131,7 +130,6 @@ if gadgetHandler:IsSyncedCode() then
         end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         startFrame = Spring.GetGameFrame()
-        gaiaTeamID = Spring.GetGaiaTeamID()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         --metalSpotsByPos = GG.metalSpotsByPos
     end
@@ -154,7 +152,7 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
         chunksToSprawl[unitID] = nil
         local chunk = spawnedChunks[unitID]
-        if not spawnedChunks[unitID] then
+        if not chunk then
             return end
         --local attackerDef = UnitDefs[attackerDefID]
         --if attackerDef and attackerDef.canCapture then

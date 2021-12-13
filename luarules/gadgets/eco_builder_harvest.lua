@@ -10,9 +10,11 @@ function gadget:GetInfo()
         date      = "Sep 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
+
+VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 
 if gadgetHandler:IsSyncedCode() then
     -----------------
@@ -63,9 +65,6 @@ if gadgetHandler:IsSyncedCode() then
         if Spring.GetModOptions().harvest_eco == 0 then
             gadgetHandler:RemoveGadget(self)
         end
-        ---TODO: Refactor, this can't be read by widgets/unsynced. Obsolete / to remove
-        --GG.LoadedHarvesters = loadedHarvesters
-        --GG.OreTowers = oreTowers
     end
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
@@ -74,8 +73,9 @@ if gadgetHandler:IsSyncedCode() then
             return end
         if not oreTowerDefNames[ud.name] then
             return end
-
+        Spring.Echo("Ore Tower added: "..unitID)
         oreTowers[unitID] = ud.buildDistance or 330 -- 330 is lvl1 outpost build range
+        --TODO: Send setOreTower Event to unsynced
     end
 
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
@@ -90,8 +90,6 @@ if gadgetHandler:IsSyncedCode() then
         --local chunk = spawnedChunks[unitID]
         --if not spawnedChunks[unitID] then
         --    return end
-        -----if 'destroyer' is a builder, sets its harvestStorage
-        -----TODO: Sent it to closest drop point
         --local attackerDef = UnitDefs[attackerDefID]
         --if attackerDef and attackerDef.canCapture then
         --    spSetUnitHarvestStorage ( attackerID, oreValue[chunk.type])
@@ -140,11 +138,11 @@ if gadgetHandler:IsSyncedCode() then
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", amount )
     end
 
----can't issue attack if the builder is loaded
----must set states on the builder_brain (use spSetUnitRuleParams)
----must continuously check if an oretower is available, if is loaded
+    ---can't issue attack if the builder is loaded
+    ---must set states on the builder_brain (use spSetUnitRuleParams)
+    ---must continuously check if an oretower is available, if is loaded
 
-        -- attackerID => harvesterID, for legibility purposes
+    -- attackerID => harvesterID, for legibility purposes
     function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, harvesterID, harvesterDefID, attackerTeam)
         --Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
         if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
@@ -152,7 +150,7 @@ if gadgetHandler:IsSyncedCode() then
         local uDef = UnitDefs[harvesterDefID]
         if not uDef or not canharvest[uDef.name] then
             return end
-        local curStorage = spGetUnitHarvestStorage(harvesterID)
+        local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
         --Spring.Echo("cur Storage: "..curStorage.." damage: "..damage)
 
         -- Block further usage of the unit's harvest weapon while storage is full
@@ -168,15 +166,18 @@ if gadgetHandler:IsSyncedCode() then
                 spSetUnitHarvestStorage (harvesterID, math.min(maxStorage, curStorage + damage))
             end
         else
-            spCallCOBScript(harvesterID, "BlockWeapon", 0)
             --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running?
-            Spring.Echo("unit ".. harvesterID .." is loaded!!")
+            --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id ) --TODO: Do it right. Just a sample.
+            spCallCOBScript(harvesterID, "BlockWeapon", 0)
+
+            Spring.Echo("gadget:: unit ".. harvesterID .." is loaded!!")
             local nearestTowerID = getNearestTowerID(harvesterID)
             loadedHarvesters[harvesterID] = nearestTowerID or true -- if there's no nearby tower, set it to true!
-            spSetUnitRulesParam(unitID, "loadedHarvester", 1)
-            --TODO: Move to be in range of closest ore tower, once there it'll only return to previous
-            --TODO: Cant-do, work out: WG.SetAutomateState(unitID, "loaded", "ecobuilderharvest")
-            ---harvest spot when it's totally unloaded
+            --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
+            Spring.Echo("Gadget: Loaded Harvester Event: "..LoadedHarvesterEvent)
+            SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, true)
+            --TODO: In ai_builder_brain, it'll move to be in range of closest ore tower
+            --- once there it'll only return to previous harvest spot when it's totally unloaded
         end
     end
 
@@ -215,4 +216,22 @@ if gadgetHandler:IsSyncedCode() then
     --end
     --function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
     --end
+else
+    ----- UNSYNCED
+    ---
+
+    local function handleLoadedHarvesterEvent(cmd, harvesterTeam, unitID, value)
+        if not Script.LuaUI(LoadedHarvesterEvent) then
+            return end
+        --- LuaUI event consumed by ai_builder_brain (to set loadedHarvesters[unitID])
+        Script.LuaUI.LoadedHarvesterEvent(harvesterTeam, unitID, value)
+    end
+
+    function gadget:Initialize()
+        gadgetHandler:AddSyncAction(LoadedHarvesterEvent, handleLoadedHarvesterEvent)
+    end
+
+    function gadget:Shutdown()
+        gadgetHandler:RemoveSyncAction(LoadedHarvesterEvent)
+    end
 end

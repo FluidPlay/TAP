@@ -55,6 +55,7 @@ local armorDefs = {
 				 "corjamt","corlab","cormakr","cormexp","cormine1","cormine2","cormine3","cormine4","cormmkr","cormstor","cornanotc","corrad","corsd",
 				 "corshroud","corsonar","corsy","cortarg","cortron","coruwadves","coruwadvms","coruwes","coruwfus","coruwmmm","coruwms",
 				 "corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav",
+                 "orelrg", "oremantle", "oremoho", "oresml",
 	},
 
     defense = {"armvulc","armamb","armamd","armclaw","armdl","armdrag","armemp","armfhlt","armguard","armhlt","armllt",

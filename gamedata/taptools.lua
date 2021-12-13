@@ -30,6 +30,10 @@ function sqrDistance(x1,z1,x2,z2)
 	return (dx*dx)+(dz*dz)
 end
 
+function sign(number)
+    return number > 0 and 1 or (number == 0 and 0 or -1)
+end
+
 function tobool(val)
 	local t = type(val)
 	if (t == 'nil') then
