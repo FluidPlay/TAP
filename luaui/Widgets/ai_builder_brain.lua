@@ -45,8 +45,7 @@ local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
-local spIsUnitInView = Spring.IsUnitInView
-local spGetUnitViewPosition = Spring.GetUnitViewPosition
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 local glGetViewSizes = gl.GetViewSizes
 local glPushMatrix	= gl.PushMatrix
@@ -420,11 +419,11 @@ end
 
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
-local function nearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID)
+local function nearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID, allyTeamID)
     if teamID == nil then
         teamID = myTeamID end
 
-    --TODO: Add "ally", "enemy", "neutral"
+    --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID
     local itemsAround = isFeature
             and spGetFeaturesInCylinder(pos.x, pos.z, radius)
             or spGetUnitsInCylinder(pos.x, pos.z, radius, teamID)
@@ -499,11 +498,11 @@ local automatedFunctions = {
                                                 if ud.nearestDeliveryPos and automatedState[ud.unitID] ~= "deliver" then
                                                     --local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
                                                     local p = ud.nearestDeliveryPos
-                                                    Spring.Echo("2; x: "..(p.x or "nil"))
-                                                    spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
-                                                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, {p.x,p.y,p.z }, { "" })
-                                                    --Spring.SetUnitMoveGoal(ud.unitID, x,y,z, 300) --Nope, that's synced only
-                                                    return "deliver"
+                                                    if (p and p.x) then
+                                                        spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
+                                                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, {p.x,p.y,p.z }, { "" })
+                                                        return "deliver"
+                                                    end
                                                 end
                                                 return nil
                                             end
@@ -626,13 +625,18 @@ local function automateCheck(unitID, unitDef, caller)
     local nearestChunkID = nearestItemAround(unitID, pos, unitDef, radius,
                                             function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
                                             nil, false, gaiaTeamID)
-    local nearestOreTowerID = nearestItemAround(unitID, pos, unitDef, 900, nil, --TODO: De-hardcode search range
-                                        function(x) return (oreTowers and oreTowers[x] or nil) end)
 
-    local nearestDeliveryPos = nil
+    --TODO (WIP): 0. If it's fully loaded, go to the nearest ore tower
+        --- Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
+        --- If none found, do nothing (Should search for other automated states)
+    local nearestOreTowerID = nearestItemAround(unitID, pos, unitDef, 900, nil, --TODO: De-hardcode search range
+                                        function(x) return (oreTowers and oreTowers[x] or nil) end) --,
+                                        --nil, false, nil, spGetUnitAllyTeam(unitID))
+
+    local nearestDeliveryPos
     if (nearestOreTowerID) then
         local oreTowerx, _, oreTowerz = spGetUnitPosition(nearestOreTowerID)
-        local offset = 200 --TODO: account for Spire range
+        local offset = tonumber(spGetUnitRulesParam(nearestOreTowerID, "oretowerrange"))-25 or 200
         local xsign = sign(oreTowerx - x)
         local zsign = sign(oreTowerz - z)
         nearestDeliveryPos = { x = oreTowerx-(xsign*offset), y = y, z = oreTowerz-(zsign*offset) }
@@ -654,10 +658,6 @@ local function automateCheck(unitID, unitDef, caller)
                  nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestDeliveryPos = nearestDeliveryPos,
                  nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
                }
-
-    --TODO: 0. If it's fully loaded, go to the nearest ore tower (get it from a WG.oretowers list, set it up in eco_builder_harvest)
-        --- Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
-        --- If none found, do nothing (Should search for other automated states)
 
     --- 0. If it's a harvester, harvest nearby ore chunk;
     if automatedFunctions["harvest"].condition(ud) then
