@@ -10,11 +10,11 @@ function gadget:GetInfo()
         date      = "Sep 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
-        enabled   = true,
+        enabled   = false, --true,
     }
 end
 
-VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
+VFS.Include("gamedata/tapevents.lua") --"LoadedHarvesterEvent"
 
 if gadgetHandler:IsSyncedCode() then
     -----------------
@@ -202,8 +202,7 @@ if gadgetHandler:IsSyncedCode() then
             local nearestTowerID = getNearestTowerID(harvesterID)
             loadedHarvesters[harvesterID] = nearestTowerID or true -- if there's no nearby tower, set it to true!
             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
-            Spring.Echo("Gadget: Loaded Harvester Event: "..LoadedHarvesterEvent)
-            SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, true)
+            SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, nearestTowerID or true)
             --TODO: In ai_builder_brain, it'll move to be in range of closest ore tower
             --- once there it'll only return to previous harvest spot when it's totally unloaded
         end
@@ -215,7 +214,7 @@ if gadgetHandler:IsSyncedCode() then
         end
 
         for unitID, nearestTowerID in pairs(loadedHarvesters) do
-            Spring.Echo("loadharv id "..(unitID or "nil"))
+            Spring.Echo("load harv id "..(unitID or "nil"))
             if IsValidUnit(unitID) then
                 --Spring.Echo("intowerrange: "..tostring(inTowerRange(unitID)))
                 if not isHarvesting(unitID) and inTowerRange(unitID) then

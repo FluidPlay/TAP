@@ -42,7 +42,7 @@ local drawBarPercentages = true
 local titlesAlpha   = 0.3*barAlpha
 
 local drawFullHealthBars = false
-local drawOreLoadBars = true
+local drawOreLoadBars = false --true
 
 local drawFeatureHealth  = false
 local featureTitlesAlpha = featureBarAlpha * titlesAlpha/barAlpha

@@ -34,6 +34,7 @@ local spGetFeatureResources = Spring.GetFeatureResources
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
+local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
 local spGetUnitsInSphere = Spring.GetUnitsInSphere
@@ -42,6 +43,7 @@ local spGetGameFrame = Spring.GetGameFrame
 local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetFeaturesInCylinder = Spring.GetFeaturesInCylinder
 local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
+local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
@@ -92,7 +94,8 @@ local widgetScale = (0.50 + (vsx*vsy / 5000000))
 
 ---Harvest-system related
 local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
-local loadedHarvesters = {}  -- { unitID = true, ... }
+local loadedHarvesters = {}  -- { unitID = { x, y, z [[targetTowerPos]]}, ... }
+local unloadingHarvesters = {}
 local oreTowers = {}
 
 -- We use this to identify units that can't be build-assisted by basic builders
@@ -202,7 +205,7 @@ local function setAutomateState(unitID, state, caller)
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 local function hasCommandQueue(unitID)
@@ -282,7 +285,7 @@ function widget:PlayerChanged()
 end
 
 local function setLoadedHarvester(harvesterTeam, unitID, value)
-    Spring.Echo("Harvester team: "..(harvesterTeam or "nil").." my team: "..myTeamID.." unitID: "..unitID.." value: "..tostring(value))
+    --Spring.Echo("Harvester team: "..(harvesterTeam or "nil").." my team: "..myTeamID.." unitID: "..unitID.." value: "..tostring(value))
     if (harvesterTeam ~= myTeamID) then
         return end
     loadedHarvesters[unitID] = value
@@ -333,7 +336,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     if myTeamID==unitTeam then					--check if unit is mine
         local unitDef = UnitDefs[unitDefID]
         if oreTowerDefNames[unitDef.name] then
-            Spring.Echo("Widget: Ore Tower added: "..unitID)
+            --Spring.Echo("Widget: Ore Tower added: "..unitID)
             oreTowers[unitID] = unitDef.buildDistance or 330 -- 330 is lvl1 outpost build range
         end
         if not unitDef.isBuilding then
@@ -357,6 +360,7 @@ function widget:UnitDestroyed(unitID)
 
     oreTowers[unitID] = nil
     loadedHarvesters[unitID] = nil
+    unloadingHarvesters[unitID] = nil
 end
 
 ---- Initialize the unit when received (shared)
@@ -487,7 +491,6 @@ local automatedFunctions = {
                                                return nil
                                            end
                             },
-                            --TODO: delivering (to nearest Ore Tower owned by my team)
                             deliver = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
                                                         return automatedState[ud.unitID] == "harvest" and automatedState[ud.unitID] ~= "deliver"
                                                             and loadedHarvesters[ud.unitID]
@@ -495,14 +498,11 @@ local automatedFunctions = {
                                             action = function(ud) --unitData
                                                 spEcho("**2** Delivery check")
                                                 --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
-                                                if ud.nearestDeliveryPos and automatedState[ud.unitID] ~= "deliver" then
-                                                    --local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
-                                                    local p = ud.nearestDeliveryPos
-                                                    if (p and p.x) then
-                                                        spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
-                                                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, {p.x,p.y,p.z }, { "" })
-                                                        return "deliver"
-                                                    end
+                                                if ud.nearestOreTowerID and automatedState[ud.unitID] ~= "deliver" then
+                                                    local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
+                                                    spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
+                                                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z }, { "" })
+                                                    return "deliver"
                                                 end
                                                 return nil
                                             end
@@ -633,14 +633,14 @@ local function automateCheck(unitID, unitDef, caller)
                                         function(x) return (oreTowers and oreTowers[x] or nil) end) --,
                                         --nil, false, nil, spGetUnitAllyTeam(unitID))
 
-    local nearestDeliveryPos
-    if (nearestOreTowerID) then
-        local oreTowerx, _, oreTowerz = spGetUnitPosition(nearestOreTowerID)
-        local offset = tonumber(spGetUnitRulesParam(nearestOreTowerID, "oretowerrange"))-25 or 200
-        local xsign = sign(oreTowerx - x)
-        local zsign = sign(oreTowerz - z)
-        nearestDeliveryPos = { x = oreTowerx-(xsign*offset), y = y, z = oreTowerz-(zsign*offset) }
-    end
+    --local nearestDeliveryPos
+    --if (nearestOreTowerID) then
+    --    local oreTowerx, _, oreTowerz = spGetUnitPosition(nearestOreTowerID)
+    --    local offset = tonumber(spGetUnitRulesParam(nearestOreTowerID, "oretowerrange"))-25 or 200
+    --    local xsign = sign(oreTowerx - x)
+    --    local zsign = sign(oreTowerz - z)
+    --    nearestDeliveryPos = { x = oreTowerx-(xsign*offset), y = y, z = oreTowerz-(zsign*offset) }
+    --end
 
     local nearestFactoryID = nearestItemAround(unitID, pos, unitDef, radius,
                                                     function(x) return x.isFactory end,     --We're only interested in factories currently producing
@@ -655,7 +655,7 @@ local function automateCheck(unitID, unitDef, caller)
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
                  hasEnergy = resourcesCheck("e"), hasResources = resourcesCheck(), hasMetal = resourcesCheck("m",true),
                  nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
-                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestDeliveryPos = nearestDeliveryPos,
+                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID, --nearestDeliveryPos = nearestDeliveryPos,
                  nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
                }
 
@@ -669,6 +669,13 @@ local function automateCheck(unitID, unitDef, caller)
     if automatedFunctions["deliver"].condition(ud) then
         ud.orderIssued = automatedFunctions["deliver"].action(ud)
         automatedState[unitID] = "deliver"
+        local pos
+        if (nearestOreTowerID) then
+            x,y,z = spGetUnitPosition(nearestOreTowerID)
+            loadedHarvesters[unitID] = { x = x, y = y, z = z } --loadedHarvesters is set to true first, then tower pos
+        else
+            loadedHarvesters[unitID] = true
+        end
     --else
     --    Spring.Echo("Deliver condition not met ... State: "..automatedState[unitID].." loadedHarvester: "..(tostring(loadedHarvesters[unitID]) or "nil"))
     end
@@ -749,6 +756,23 @@ function widget:GameFrame(f)
     end
 
     spEcho("This frame: "..f.." deauto'ed unit #: "..(pairs_len(deautomatedUnits) or "nil").." toAutomate #: "..(pairs_len(unitsToAutomate) or "nil"))
+
+    for unitID, nearestOreTowerID in pairs(loadedHarvesters) do
+        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < 250 then
+            loadedHarvesters[unitID] = nil
+            spGiveOrderToUnit(unitID, CMD_STOP)
+            unloadingHarvesters[unitID] = nearestOreTowerID
+            setAutomateState(unitID, "waitforunload", "GameFrame")
+        end
+    end
+
+    for unitID, nearestOreTowerID in pairs(unloadingHarvesters) do
+        --If harvestLoad == 0, set it to idle again
+        if spGetUnitHarvestStorage(unitID) <= 0 then
+            setAutomateState(unitID, "deautomated", "GameFrame")
+            unloadingHarvesters[unitID] = nil
+        end
+    end
 
     ----- Deautomated units check || Done by unitsToAutomate / idle above
     for unitID, recheckFrame in pairs(deautomatedUnits) do
