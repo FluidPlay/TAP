@@ -76,6 +76,7 @@ local automationLatency = 60        -- Delay before automation kicks in, or the 
 --local repurposeLatency = 160        -- Delay before checking if an automated unit should be doing something else
 local deautomatedRecheckLatency = 30 -- Delay until a de-automated unit checks for automation again
 local reclaimRadius = 20            -- Reclaim commands issued by code apparently only work with a radius (area-reclaim)
+local defaultOreTowerRange = 330
 
 local automatableUnits = {} -- All units which can be automated // { [unitID] = true|false, ... }
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
@@ -288,7 +289,8 @@ local function setLoadedHarvester(harvesterTeam, unitID, value)
     --Spring.Echo("Harvester team: "..(harvesterTeam or "nil").." my team: "..myTeamID.." unitID: "..unitID.." value: "..tostring(value))
     if (harvesterTeam ~= myTeamID) then
         return end
-    loadedHarvesters[unitID] = value
+    local phx, phy, phz = spGetUnitPosition(unitID) -- "previous harvest"
+    loadedHarvesters[unitID] = { nearestOreTowerID = nil, previousHarvestPos = { x = phx, y = phy, z = phz } }
 end
 
 ---- Disable widget if I'm spec
@@ -626,8 +628,8 @@ local function automateCheck(unitID, unitDef, caller)
                                             function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
                                             nil, false, gaiaTeamID)
 
-    --TODO (WIP): 0. If it's fully loaded, go to the nearest ore tower
-        --- Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
+    --0. If it's fully loaded, go to the nearest ore tower
+        --TODO: Else, if it's harvesting and the harvested unit got destroyed (get from eco_builder_harvest), search a nearby done
         --- If none found, do nothing (Should search for other automated states)
     local nearestOreTowerID = nearestItemAround(unitID, pos, unitDef, 900, nil, --TODO: De-hardcode search range
                                         function(x) return (oreTowers and oreTowers[x] or nil) end) --,
@@ -669,12 +671,12 @@ local function automateCheck(unitID, unitDef, caller)
     if automatedFunctions["deliver"].condition(ud) then
         ud.orderIssued = automatedFunctions["deliver"].action(ud)
         automatedState[unitID] = "deliver"
-        local pos
+        local phx, phy, phz = spGetUnitPosition(unitID) -- "previous harvest"
         if (nearestOreTowerID) then
-            x,y,z = spGetUnitPosition(nearestOreTowerID)
-            loadedHarvesters[unitID] = { x = x, y = y, z = z } --loadedHarvesters is set to true first, then tower pos
+            --local otx, oty, otz = spGetUnitPosition(nearestOreTowerID)  -- "ore tower"
+            loadedHarvesters[unitID] = { nearestOreTowerID = nearestOreTowerID, previousHarvestPos = { x = phx, y = phy, z = phz } }
         else
-            loadedHarvesters[unitID] = true
+            loadedHarvesters[unitID] = { nearestOreTowerID = nil, previousHarvestPos = { x = phx, y = phy, z = phz } }
         end
     --else
     --    Spring.Echo("Deliver condition not met ... State: "..automatedState[unitID].." loadedHarvester: "..(tostring(loadedHarvesters[unitID]) or "nil"))
@@ -757,11 +759,13 @@ function widget:GameFrame(f)
 
     spEcho("This frame: "..f.." deauto'ed unit #: "..(pairs_len(deautomatedUnits) or "nil").." toAutomate #: "..(pairs_len(unitsToAutomate) or "nil"))
 
-    for unitID, nearestOreTowerID in pairs(loadedHarvesters) do
-        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < 250 then
+    for unitID, data in pairs(loadedHarvesters) do
+        local nearestOreTowerID = data.nearestOreTowerID
+        --TODO: get defaultOreTowerRange from eco_builder_harvest (buildDistance)
+        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (defaultOreTowerRange - 20) then
             loadedHarvesters[unitID] = nil
             spGiveOrderToUnit(unitID, CMD_STOP)
-            unloadingHarvesters[unitID] = nearestOreTowerID
+            unloadingHarvesters[unitID] = nearestOreTowerID --TODO: Finish
             setAutomateState(unitID, "waitforunload", "GameFrame")
         end
     end

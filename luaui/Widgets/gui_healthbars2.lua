@@ -295,9 +295,9 @@ function flicker()
 end
 
 function widget:Initialize()
-    if not harvest_eco == 1 then
-        widgetHandler:RemoveGadget(self)
-    end
+    --if not harvest_eco == 1 then
+    --    widgetHandler:RemoveGadget(self)
+    --end
     --WG.InitializeTranslation (languageChanged, GetInfo().name)
 
     --// catch f9
