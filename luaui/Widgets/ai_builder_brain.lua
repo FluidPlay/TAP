@@ -116,6 +116,7 @@ local CMD_ATTACK = CMD.ATTACK
 local CMD_MOVE = CMD.MOVE
 local CMD_STOP = CMD.STOP
 local CMD_INSERT = CMD.INSERT
+local CMD_OPT_RIGHT = CMD.OPT_RIGHT
 
 local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
@@ -764,15 +765,19 @@ function widget:GameFrame(f)
         --TODO: get defaultOreTowerRange from eco_builder_harvest (buildDistance)
         if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (defaultOreTowerRange - 20) then
             loadedHarvesters[unitID] = nil
-            spGiveOrderToUnit(unitID, CMD_STOP)
-            unloadingHarvesters[unitID] = nearestOreTowerID --TODO: Finish
+            spGiveOrderToUnit(unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
+            unloadingHarvesters[unitID] = data
             setAutomateState(unitID, "waitforunload", "GameFrame")
         end
     end
 
-    for unitID, nearestOreTowerID in pairs(unloadingHarvesters) do
+    for unitID, data in pairs(unloadingHarvesters) do
         --If harvestLoad == 0, set it to idle again
         if spGetUnitHarvestStorage(unitID) <= 0 then
+            spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
+            local php = data.previousHarvestPos
+            Spring.Echo("ai_builder_brain: trying return")
+            spGiveOrderToUnit(unitID, CMD_MOVE, {php.x, php.y, php.z }, { "" })
             setAutomateState(unitID, "deautomated", "GameFrame")
             unloadingHarvesters[unitID] = nil
         end
@@ -781,7 +786,7 @@ function widget:GameFrame(f)
     ----- Deautomated units check || Done by unitsToAutomate / idle above
     for unitID, recheckFrame in pairs(deautomatedUnits) do
         if IsValidUnit(unitID) and f >= recheckFrame then --and not unitsToAutomate[unitID] then
-            spEcho("0")
+            spEcho("ai_builder_brain: Deautomated units check")
             if isReallyIdle(unitID) then
                 stopAssisting(unitID)
                 if automatedState[unitID] ~= "deautomated" then
@@ -844,51 +849,3 @@ function widget:ViewResize(n_vsx,n_vsy)
     vsx, vsy = glGetViewSizes()
     widgetScale = (0.50 + (vsx*vsy / 5000000))
 end
-
-
---
---function widget:DrawScreen()
---    if not localDebug then
---        return end
---    local textSize = 22
---
---    gl.PushMatrix()
---    gl.Translate(50, 50, 0)
---    gl.BeginText()
---    for unitID, state in pairs(automatedState) do
---        if spIsUnitInView(unitID) then
---            --local sx, sy = 1000, 500
---            local x, y, z = spGetUnitViewPosition(unitID)
---            --            local x, y, z = spGetUnitPosition(unitID)
---            local sx, sy, sz = Spring.WorldToScreenCoords(x, y, z)
---            gl.Text(state, sx, sy, textSize, "ocd")
---        end
---    end
---    gl.EndText()
---    gl.PopMatrix()
---end
-
---function widget:DrawScreen()
---    if not glDebugStates or Spring.IsGUIHidden() then
---        return end
---    local textSize = 14
---    gl.PushMatrix()
---    for unitID, state in pairs(automatedUnits) do
---        if spIsUnitInView(unitID) then
---            spEcho("unitid/state: "..unitID..", "..state)
---
---            --local x, y, z = spGetUnitViewPosition(unitID)
---            local x, y, z = spGetUnitPosition(unitID)
---            local sx, sy, sz = Spring.WorldToScreenCoords(x, y, z)
---            --glTranslate(50, 50, 0)
---            --glBillboard()
---            --font:SetOutlineColor(outlineColor)
---            --font:Print(state, sx, sy, loadedFontSize, "con")
---            --glText(state, 0, 0, 28, 'ocd')
---
---            SetColor(1.0, 1.0, 0.7, 1.0)
---            glText(""..(state or "nil"), sx, sy, textSize, "ocd")
---        end
---    end
---    gl.PopMatrix()
---end
