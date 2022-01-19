@@ -10,7 +10,7 @@ function gadget:GetInfo()
         date      = "Sep 2021",
         license   = "GNU GPL, v2 or later",
         layer     = 1,
-        enabled   = false, --true,
+        enabled   = true,
     }
 end
 
@@ -42,6 +42,7 @@ if gadgetHandler:IsSyncedCode() then
     local spGetUnitAllyTeam = Spring.GetUnitAllyTeam
 
     local defaultMaxStorage = 620
+    local defaultOreTowerRange = 330
     local loadedHarvesters = {}
     local oreTowers = {}
     local doingHarvest = {} -- Harvesters "in action"
@@ -78,7 +79,7 @@ if gadgetHandler:IsSyncedCode() then
             return end
         Spring.Echo("Ore Tower added: "..unitID)
         oreTowers[unitID] = { range = (ud.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) } -- 330 is lvl1 outpost build range
-        spSetUnitRulesParam(unitID, "oretowerrange", (ud.buildDistance or 330))
+        spSetUnitRulesParam(unitID, "oretowerrange", (ud.buildDistance or defaultOreTowerRange)) --330
     end
 
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
