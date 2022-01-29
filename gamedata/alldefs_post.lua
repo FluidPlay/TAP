@@ -14,7 +14,6 @@
 -- weapondefs_post.lua fetches the standlaone weapondefs, calls the _post functions for them, writes them to customparams (if wanted)
 -- strictly speaking, alldefs_post is a misnomer since this file does not handle armordefs, featuredefs or movedefs
 
-VFS.Include("gamedata/taptools.lua")
 local unitDefsData = VFS.Include("gamedata/configs/unitdefs_data.lua")
 VFS.Include("gamedata/taptools.lua")
 --local function istable(x)  return (type(x) == 'table') end

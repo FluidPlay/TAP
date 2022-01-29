@@ -19,7 +19,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = false --|| Enables text state debug messages
+local localDebug = true --false --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -77,6 +77,7 @@ local automationLatency = 60        -- Delay before automation kicks in, or the 
 local deautomatedRecheckLatency = 30 -- Delay until a de-automated unit checks for automation again
 local reclaimRadius = 20            -- Reclaim commands issued by code apparently only work with a radius (area-reclaim)
 local defaultOreTowerRange = 330
+local harvestLeashMult = 6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
 
 local automatableUnits = {} -- All units which can be automated // { [unitID] = true|false, ... }
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
@@ -481,14 +482,15 @@ end
 local automatedFunctions = {
                             harvest = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
                                                             return automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
-                                                                and not loadedHarvesters[ud.unitID]
+                                                                and not loadedHarvesters[ud.unitID] and ud.nearestChunkID
                                                             end,
                                            action = function(ud) --unitData
                                                spEcho("**1** Harvest - nearest chunk: "..(ud.nearestChunkID or "nil"))
                                                if ud.nearestChunkID and automatedState[ud.unitID] ~= "harvest" then
                                                    local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                                                    --spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, {} ) --{ x, y, z, 50 } <= requires attack ground
-                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, {}) --"alt" favors reclaiming --Spring.Echo("Farking")
+                                                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                                                   --spGiveOrderToUnit(ud.unitID, CMD_FIGHT, { x, y, z }, { "alt" })
                                                    return "harvest"
                                                end
                                                return nil
@@ -496,7 +498,7 @@ local automatedFunctions = {
                             },
                             deliver = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
                                                         return automatedState[ud.unitID] == "harvest" and automatedState[ud.unitID] ~= "deliver"
-                                                            and loadedHarvesters[ud.unitID]
+                                                            and loadedHarvesters[ud.unitID] and ud.nearestOreTowerID
                                                         end,
                                             action = function(ud) --unitData
                                                 spEcho("**2** Delivery check")
@@ -611,6 +613,10 @@ local function automateCheck(unitID, unitDef, caller)
     local pos = { x = x, y = y, z = z }
 
     local radius = unitDef.buildDistance * 1.8
+
+    local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
+
+    local harvestrange = harvestWeapon and (harvestWeapon.range * harvestLeashMult) or (radius * harvestLeashMult) -- eg: armck_harvest_weapon
     if unitDef.canFly then               -- Air units need that extra oomph
         radius = radius * 1.3
     end
@@ -625,7 +631,7 @@ local function automateCheck(unitID, unitDef, caller)
                                                 local health,maxHealth,_,_,done = spGetUnitHealth(x)
                                                 return (done and health < (maxHealth * 0.99)) end )
     local nearestFeatureID = nearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
-    local nearestChunkID = nearestItemAround(unitID, pos, unitDef, radius,
+    local nearestChunkID = nearestItemAround(unitID, pos, unitDef, harvestrange,
                                             function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
                                             nil, false, gaiaTeamID)
 
@@ -713,7 +719,7 @@ local function automateCheck(unitID, unitDef, caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-    -- spEcho("CommandID registered: "..(cmdID or "nil"))
+     spEcho("CommandID registered: "..(cmdID or "nil"))
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
@@ -758,7 +764,7 @@ function widget:GameFrame(f)
         return
     end
 
-    spEcho("This frame: "..f.." deauto'ed unit #: "..(pairs_len(deautomatedUnits) or "nil").." toAutomate #: "..(pairs_len(unitsToAutomate) or "nil"))
+    --spEcho("This frame: "..f.." deauto'ed unit #: "..(pairs_len(deautomatedUnits) or "nil").." toAutomate #: "..(pairs_len(unitsToAutomate) or "nil"))
 
     for unitID, data in pairs(loadedHarvesters) do
         local nearestOreTowerID = data.nearestOreTowerID
@@ -806,8 +812,7 @@ function widget:GameFrame(f)
     --spEcho(pairs_len(unitsToAutomate).." unit(s) to automate")
     for unitID, automateFrame in pairs(unitsToAutomate) do
         if IsValidUnit(unitID) and f >= automateFrame then
-            spEcho("1")
-            --Spring.Echo("1")
+            --spEcho("1")
             local unitDef = UnitDefs[spGetUnitDefID(unitID)]
             --- We only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
             local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
@@ -821,7 +826,7 @@ function widget:GameFrame(f)
     end
 
     for unitID, recheckFrame in pairs(automatedUnits) do
-        spEcho("2")
+        --spEcho("2")
         local unitState = automatedState[unitID]
         if IsValidUnit(unitID) and f >= recheckFrame then
             --- Checking for Idle (let's dodge Spring's default idle, its event fires in unwanted situations)

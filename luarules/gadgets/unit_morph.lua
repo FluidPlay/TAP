@@ -178,7 +178,7 @@ include("LuaRules/colors.h.lua")
 
 local stopPenalty  = 0.667
 local morphPenaltyUnits = 1.5 --1.6
-local morphPenaltyStructures = 1.33 --1.25
+local morphPenaltyStructures = 1.4 --1.25, 1.33
 local morphtimePenaltyUnits = 1.5
 local minMorphTime, maxMorphTime = 10000, 600000
 -- Workertime to morph into targets @ tiers 0 (no tech requirement), 1, 2, 3 and 4

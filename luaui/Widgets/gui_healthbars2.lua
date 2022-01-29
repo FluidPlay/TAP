@@ -27,7 +27,8 @@ end
 
 VFS.Include("gamedata/taptools.lua")
 
-harvest_eco = (tonumber(Spring.GetModOptions().harvest_eco)) or 1
+harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
+local harvestEcoEnabled = true
 
 local barHeight = 3
 local barWidth  = 14  --// (barWidth)x2 total width!!!
@@ -42,7 +43,6 @@ local drawBarPercentages = true
 local titlesAlpha   = 0.3*barAlpha
 
 local drawFullHealthBars = false
-local drawOreLoadBars = false --true
 
 local drawFeatureHealth  = false
 local featureTitlesAlpha = featureBarAlpha * titlesAlpha/barAlpha
@@ -71,8 +71,6 @@ local spGetGameFrame = Spring.GetGameFrame
 local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color			= gl.Color
-
-local harvestEcoEnabled = true
 
 local function SetColor(r,g,b,a)
     gl_Color(r,g,b,a)
@@ -295,8 +293,7 @@ function flicker()
 end
 
 function widget:Initialize()
-    --if not harvest_eco == 1 then
-    --    widgetHandler:RemoveGadget(self)
+    --if not harvestEcoEnabled == 1 then
     --end
     --WG.InitializeTranslation (languageChanged, GetInfo().name)
 
@@ -769,13 +766,16 @@ do
             hp = 0
         end
 
+        hp = (hp >= 0.99) and 1 or hp
+
         morph = UnitMorphs[unitID]
 
         if (drawUnitsOnFire)and(GetUnitRulesParam(unitID,"on_fire")==1) then
             onFireUnits[#onFireUnits+1]=unitID
         end
 
-        local oreLoad = harvestEcoEnabled and spGetUnitHarvestStorage(unitID) or false
+        --local oreLoad = harvestEcoEnabled and spGetUnitHarvestStorage(unitID) or false
+        local oreLoad = spGetUnitHarvestStorage(unitID) or false
 
         --//=====================================================================================
         --// BARS //-----------------------------------------------------------------------------
@@ -801,7 +801,7 @@ do
         end
 
         --// ORE LOAD
-        if (drawOreLoadBars and oreLoad and oreLoad>0) then
+        if (harvestEcoEnabled and oreLoad and oreLoad>0) then
             local oreLoadPct = oreLoad / (ci.maxorestorage or 620)
             local oreLoad100 = oreLoadPct*100;
             oreLoad100 = oreLoad100 - oreLoad100%1; --//same as floor(oreLoad*100), but 10% faster
