@@ -154,7 +154,6 @@ if gadgetHandler:IsSyncedCode() then
 
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math.min(curStorage, amount) ) --eg: curStorage = 3, amount = 5, add 3.
         spSetUnitHarvestStorage (harvesterID, math.max(curStorage - amount, 0))
-        --TODO: If out of harvest storage, send idleHarvester event to ai_builder_brain
     end
 
     --- Delivers resource straight to the pool (it's in range of a tower)
@@ -183,7 +182,7 @@ if gadgetHandler:IsSyncedCode() then
 
         -- Block further usage of the unit's harvest weapon while storage is full
         local attackerDef = UnitDefs[harvesterDefID]
-        local maxStorage = attackerDef and attackerDef.harveststorage or defaultMaxStorage
+        local maxStorage = attackerDef and attackerDef.harvestStorage or defaultMaxStorage
         --Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
 
         doingHarvest[unitID] = true
