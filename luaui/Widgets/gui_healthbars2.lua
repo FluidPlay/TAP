@@ -720,7 +720,7 @@ do
                 dyanmicComm   = ud.customParams.dynamic_comm,
                 maxWaterTank  = ud.customParams.maxwatertank,
                 freeStockpile = (ud.customParams.freestockpile and true) or nil,
-                maxorestorage = ud.harvestStorage,
+                maxorestorage = ud.customParams.maxorestorage,
             }
         end
         ci = customInfo[unitDefID]

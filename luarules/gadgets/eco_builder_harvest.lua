@@ -23,6 +23,8 @@ if gadgetHandler:IsSyncedCode() then
 
     VFS.Include("gamedata/taptools.lua")
 
+    local localDebug = true --|| Enables text state debug messages
+
     local CHECK_FREQ = 30 --4
 
     local spGetGameFrame = Spring.GetGameFrame
@@ -41,14 +43,17 @@ if gadgetHandler:IsSyncedCode() then
     local spGetUnitSeparation = Spring.GetUnitSeparation
     local spGetUnitAllyTeam = Spring.GetUnitAllyTeam
 
-    local defaultMaxStorage = 620
+    local defaultMaxStorage = 400 --620
     local defaultOreTowerRange = 330
+
+    local harvesters = {} -- { unitID = unitDef.customparams.maxorestorage, ... }
+    local partialLoadHarvesters = {} --{ unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
     local loadedHarvesters = {}
     local oreTowers = {}
-    local doingHarvest = {} -- Harvesters "in action"
+    local harvestersInAction = {} -- Harvesters "in action"
 
     local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
-    local deployPerTickAmount = 100
+    local deployPerTickAmount = 20
 
     local oreTowerDefNames = {
         armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
@@ -62,6 +67,11 @@ if gadgetHandler:IsSyncedCode() then
 
     local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
+    local function spEcho(string)
+        if localDebug then --and isCom(unitID) and state ~= "deautomated"
+            Spring.Echo("gadget|eco_builder:: "..string) end
+    end
+
     function gadget:Initialize()
         _G.OreTowers = oreTowers    -- making it available for unsynced access via SYNCED table
         --startFrame = Spring.GetGameFrame()
@@ -72,25 +82,30 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
-        local ud = UnitDefs[unitDefID]
-        if ud == nil then
+        local unitDef = UnitDefs[unitDefID]
+        if unitDef == nil then
             return end
-        if not oreTowerDefNames[ud.name] then
-            return end
-        Spring.Echo("Ore Tower added: "..unitID)
-        oreTowers[unitID] = { range = (ud.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) } -- 330 is lvl1 outpost build range
-        spSetUnitRulesParam(unitID, "oretowerrange", (ud.buildDistance or defaultOreTowerRange)) --330
+        if oreTowerDefNames[unitDef.name] then
+            spEcho("Ore Tower added: "..unitID)
+            oreTowers[unitID] = { range = (unitDef.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) } -- 330 is lvl1 outpost build range
+            spSetUnitRulesParam(unitID, "oretowerrange", (unitDef.buildDistance or defaultOreTowerRange)) --330
+        end
+
+        local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+        spEcho("finished unit harvestStorage: "..(maxorestorage or "nil")) --maxorestorage
+        if maxorestorage and maxorestorage > 0 then
+            harvesters[unitID] = maxorestorage
+            spEcho("Harvester added: "..unitID.." storage: "..maxorestorage)
+        else
+            spEcho("Harvester not detected")
+        end
     end
 
     function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
+        harvesters[unitID] = nil
         oreTowers[unitID] = nil
         loadedHarvesters[unitID] = nil
-        local ud = UnitDefs[unitDefID]
-        if ud == nil then
-            return end
-        if not oreTowerDefNames[ud.name] then
-            return end
-        oreTowers[unitID] = nil
+
         --chunksToSprawl[unitID] = nil
         --local chunk = spawnedChunks[unitID]
         --if not spawnedChunks[unitID] then
@@ -131,7 +146,7 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     local function isHarvesting(unitID)
-        return doingHarvest[unitID]
+        return harvestersInAction[unitID]
     end
 
     local function inTowerRange(harvesterID)
@@ -149,7 +164,13 @@ if gadgetHandler:IsSyncedCode() then
         return false
     end
 
-    local function DeliverResources(harvesterID, amount)
+    local function DeliverResources(harvesterID)
+        if not IsValidUnit(harvesterID) then
+            return end
+        local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+        local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"] -- eg: armck_harvest_weapon
+        local amount = harvestWeapon and harvestWeapon.damage.default or deployPerTickAmount
+        spEcho("Amount: "..amount)
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
 
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math.min(curStorage, amount) ) --eg: curStorage = 3, amount = 5, add 3.
@@ -162,7 +183,7 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:UnitIdle(unitID, unitDefID, unitTeam)
-        doingHarvest[unitID] = nil
+        harvestersInAction[unitID] = nil
     end
 
     ---can't issue attack if the builder is loaded
@@ -182,10 +203,10 @@ if gadgetHandler:IsSyncedCode() then
 
         -- Block further usage of the unit's harvest weapon while storage is full
         local attackerDef = UnitDefs[harvesterDefID]
-        local maxStorage = attackerDef and attackerDef.harvestStorage or defaultMaxStorage
+        local maxStorage = attackerDef and tonumber(attackerDef.customParams.maxorestorage) or defaultMaxStorage
         --Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
 
-        doingHarvest[unitID] = true
+        harvestersInAction[unitID] = true
 
         if curStorage < maxStorage then
             if inTowerRange(harvesterID) then
@@ -198,12 +219,13 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id ) --TODO: Do it right. Just a sample.
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
 
-            Spring.Echo("gadget:: unit ".. harvesterID .." is loaded!!")
+            spEcho("unit ".. harvesterID .." is loaded!!")
             local nearestTowerID = getNearestTowerID(harvesterID)
             loadedHarvesters[harvesterID] = nearestTowerID or true -- if there's no nearby tower, set it to true!
             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
             SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, nearestTowerID or true)
-            --TODO: In ai_builder_brain, it'll move to be in range of closest ore tower
+
+            --ai_builder_brain: moves it to be in range of closest ore tower
             --- once there it'll only return to previous harvest spot when it's totally unloaded
         end
     end
@@ -213,22 +235,36 @@ if gadgetHandler:IsSyncedCode() then
             return
         end
 
+        --- Verify if harvesters are partially loaded or not
+        for harvesterID, maxStorage in pairs(harvesters) do
+            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+            --spEcho("harv id "..(harvesterID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
+            if curStorage >= maxStorage then
+                partialLoadHarvesters[harvesterID] = nil
+            elseif curStorage > 0 then
+                partialLoadHarvesters[harvesterID] = true
+            end
+            if inTowerRange(harvesterID) then
+                DeliverResources(harvesterID)
+            end
+        end
+
         for unitID, nearestTowerID in pairs(loadedHarvesters) do
-            Spring.Echo("load harv id "..(unitID or "nil"))
+            --spEcho("load harv id "..(unitID or "nil"))
             if IsValidUnit(unitID) then
-                --Spring.Echo("intowerrange: "..tostring(inTowerRange(unitID)))
-                if not isHarvesting(unitID) and inTowerRange(unitID) then
-                    DeliverResources(unitID, deployPerTickAmount) ----TODO: Read from unitDefs (weapon damage)
-                end
+                --spEcho("intowerrange: "..tostring(inTowerRange(unitID)))
+                    --if inTowerRange(unitID) then --not isHarvesting(unitID) and
+                    --    DeliverResources(unitID)
+                    --end
                 local unitDefID = spGetUnitDefID(unitID)
                 local uDef = UnitDefs[unitDefID]
-                local maxStorage = uDef and (uDef.harvestStorage or defaultMaxStorage)
+                local maxStorage = uDef and (tonumber(uDef.customParams.maxorestorage) or defaultMaxStorage)
                 local curStorage = spGetUnitHarvestStorage(unitID)
+                spEcho("harv id "..(unitID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
                 if (curStorage < 10) then --< maxStorage
                     loadedHarvesters[unitID] = nil
                     spCallCOBScript(unitID, "UnblockWeapon", 0)
-                    Spring.Echo("unit ".. unitID .." is no longer loaded")
-                    --TODO: Check - Maybe locking range will help AI?
+                    spEcho("unit ".. unitID .." is no longer loaded")
                     ---TODO: Cache original weapon ranges by unitDefID
                     --local weaponDefID = UnitDefs[Spring.GetUnitDefID(unitID)].weapons[1].weaponDef
                     --local origRange = WeaponDefs[weaponDefID].range

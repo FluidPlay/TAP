@@ -19,7 +19,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = true --false --|| Enables text state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -101,7 +101,7 @@ local widgetScale = (0.50 + (vsx*vsy / 5000000))
 ---Harvest-system related
 local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
 
-local harvesters = {} -- { unitID = uDef.harvestStorage, ... }
+local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, ... } -- <== uDef.harvestStorage is not working (105)
 local loadedHarvesters = {}  -- { unitID = { nearestOreTowerID, previousHarvestPos = { x = phx, y = phy, z = phz } }
 local partialLoadHarvesters = { unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
 local unloadingHarvesters = {}
@@ -191,6 +191,7 @@ local function removeCommands(unitID)
     ---TODO: RemoveCommands is not working here..
     spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_GUARD }, { "alt"})
     spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_PATROL }, { "alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_ATTACK }, { "alt"})
     spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_FIGHT }, { "alt"})
     spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_REPAIR }, { "alt"})
 end
@@ -374,7 +375,8 @@ end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     if myTeamID==unitTeam then					--check if unit is mine
-        local unitDef = UnitDefs[unitDefID]
+        --local unitDef = UnitDefs[unitDefID]
+        local unitDef = UnitDefs[spGetUnitDefID(unitID)]
         if oreTowerDefNames[unitDef.name] then
             oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
         if not unitDef.isBuilding then
@@ -384,9 +386,12 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
             --unitsToAutomate[unitID] = spGetGameFrame() + automationLatency --that's the frame it'll try automation
             --customUnitIdle(unitID)
         end
-        if isnumber(unitDef.harvestStorage) and unitDef.harvestStorage > 0 then
-            harvesters[unitID] = unitDef.harvestStorage
-            Spring.Echo("ai_builder_brain: added harvester: "..unitID.." storage: "..unitDef.harvestStorage)
+
+        local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+        Spring.Echo("finished unit harvestStorage: "..(maxorestorage or "nil"))
+        if maxorestorage and maxorestorage > 0 then
+            harvesters[unitID] = maxorestorage
+            Spring.Echo("ai_builder_brain: added harvester: "..unitID.." storage: "..unitDef.customParams.maxorestorage)
         end
     end
 end
@@ -529,11 +534,11 @@ local automatedFunctions = {
                                                 action = function(ud) --unitData
                                                     spEcho("**2** Delivery check")
                                                     --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
-                                                    if ud.nearestOreTowerID and automatedState[ud.unitID] ~= "deliver" then
+                                                    if ud.nearestOreTowerID and automatedState[ud.unitID] ~= "harvest" then
                                                         local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
                                                         spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
                                                         spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z }, { "" })
-                                                        return "deliver"
+                                                        return "harvest"
                                                     end
                                                     return nil
                                                 end
@@ -842,7 +847,7 @@ local function isReallyIdle(unitID)
     end
     if unitState == "harvest" then
         if harvestSubState[unitID] == "waitforunload" or
-           (loadedHarvesters[unitID] and nearestOreTowerID(unitID) == nil) then
+           (loadedHarvesters[unitID]) then -- and nearestOreTowerID(unitID) == nil || partialLoadHarvesters[harvesterID]
             result = true
         end
     end
@@ -865,7 +870,7 @@ function widget:GameFrame(f)
     --- Verify if harvesters are partially loaded or not
     for harvesterID, maxStorage in pairs(harvesters) do
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-        if curStorage >= maxStorage then
+        if curStorage >= maxStorage or curStorage == 0 then
             partialLoadHarvesters[harvesterID] = nil
         elseif curStorage > 0 then
             partialLoadHarvesters[harvesterID] = true
@@ -939,10 +944,10 @@ function widget:GameFrame(f)
             --- Checking for Idle (let's dodge Spring's default idle, its event fires in unwanted situations)
             spEcho("[automated] Checking "..unitID.." for idle; automatedState: "..(automatedState[unitID] or "nil"))
             if isReallyIdle(unitID) then
-                spEcho("Unit really Idle!")
+                spEcho("Unit really idle!")
                 customUnitIdle(unitID, automationLatency)
             else
-                spEcho("Unit not Idle")
+                spEcho("Unit not idle")
                 automatedUnits[unitID] = spGetGameFrame() + automationLatency
             end
 
