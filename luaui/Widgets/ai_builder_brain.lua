@@ -761,20 +761,28 @@ function widget:GameFrame(f)
 
     for unitID, data in pairs(loadedHarvesters) do
         local nearestOreTowerID = data.nearestOreTowerID
-        --TODO: get defaultOreTowerRange from eco_builder_harvest (buildDistance)
-        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (defaultOreTowerRange - 20) then
+        --- If it's close enough to the previously defined nearest Ore Tower
+        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID)
+            and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (oreTowers[nearestOreTowerID] or defaultOreTowerRange) - 20 then
             loadedHarvesters[unitID] = nil
             spGiveOrderToUnit(unitID, CMD_STOP)
-            unloadingHarvesters[unitID] = nearestOreTowerID --TODO: Finish
-            setAutomateState(unitID, "waitforunload", "GameFrame")
+            unloadingHarvesters[unitID] = nearestOreTowerID
+            setAutomateState(unitID, "waitforunload", "GameFrame: loadedHarvesters loop")
         end
     end
 
     for unitID, nearestOreTowerID in pairs(unloadingHarvesters) do
         --If harvestLoad == 0, set it to idle again
         if spGetUnitHarvestStorage(unitID) <= 0 then
-            setAutomateState(unitID, "deautomated", "GameFrame")
+            setAutomateState(unitID, "deautomated", "GameFrame: unloadingHarvesters loop")
             unloadingHarvesters[unitID] = nil
+        else    -- if it still has a load but the destination ore tower is destroyed, or it's too far from it (was pushed), deautomate it
+            local oreTowerRange = oreTowers[nearestOreTowerID]
+            local isFarFromTower = spGetUnitSeparation(unitID, nearestOreTowerID, false) > (oreTowerRange or defaultOreTowerRange) - 5
+            if not IsValidUnit(nearestOreTowerID) or isFarFromTower then
+                setAutomateState(unitID, "deautomated", "GameFrame: unloadingHarvesters loop")
+                unloadingHarvesters[unitID] = nil
+            end
         end
     end
 
