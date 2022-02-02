@@ -23,7 +23,7 @@ if gadgetHandler:IsSyncedCode() then
 
     VFS.Include("gamedata/taptools.lua")
 
-    local localDebug = true --|| Enables text state debug messages
+    local localDebug = false --true --|| Enables text state debug messages
 
     local CHECK_FREQ = 30 --4
 
@@ -53,7 +53,7 @@ if gadgetHandler:IsSyncedCode() then
     local harvestersInAction = {} -- Harvesters "in action"
 
     local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
-    local deployPerTickAmount = 20
+    local defaultDeliveryAmount = 20
 
     local oreTowerDefNames = {
         armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
@@ -168,9 +168,12 @@ if gadgetHandler:IsSyncedCode() then
         if not IsValidUnit(harvesterID) then
             return end
         local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-        local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"] -- eg: armck_harvest_weapon
-        local amount = harvestWeapon and harvestWeapon.damage.default or deployPerTickAmount
-        spEcho("Amount: "..amount)
+        local harvestWeapDefID = WeaponDefNames[unitDef.name.."_harvest_weapon"].id    -- eg: armck_harvest_weapon
+        local harvestWeaponDef = WeaponDefs[harvestWeapDefID]
+        --Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
+
+        local amount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
+        --Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
 
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math.min(curStorage, amount) ) --eg: curStorage = 3, amount = 5, add 3.
@@ -204,7 +207,6 @@ if gadgetHandler:IsSyncedCode() then
         -- Block further usage of the unit's harvest weapon while storage is full
         local attackerDef = UnitDefs[harvesterDefID]
         local maxStorage = attackerDef and tonumber(attackerDef.customParams.maxorestorage) or defaultMaxStorage
-        --Spring.Echo("cur Storage: "..curStorage.." max: "..maxStorage)
 
         harvestersInAction[unitID] = true
 
@@ -216,7 +218,7 @@ if gadgetHandler:IsSyncedCode() then
             end
         else
             --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running?
-            --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id ) --TODO: Do it right. Just a sample.
+            --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id )
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
 
             spEcho("unit ".. harvesterID .." is loaded!!")
@@ -225,7 +227,7 @@ if gadgetHandler:IsSyncedCode() then
             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
             SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, nearestTowerID or true)
 
-            --ai_builder_brain: moves it to be in range of closest ore tower
+            --@ ai_builder_brain: moves it to be in range of closest ore tower
             --- once there it'll only return to previous harvest spot when it's totally unloaded
         end
     end
