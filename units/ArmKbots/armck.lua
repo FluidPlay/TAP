@@ -22,7 +22,7 @@ return {
 		explodeas = "smallexplosiongeneric-builder",
 		footprintx = 2,
 		footprintz = 2,
-        harveststorage = 700,
+        harvestmetalstorage = 700,
 		idleautoheal = 5,
 		idletime = 1800,
 		maxdamage = 540,

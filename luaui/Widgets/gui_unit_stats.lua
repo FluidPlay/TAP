@@ -579,7 +579,7 @@ function widget:DrawScreen()
 			for cat=0, #uWep.damages do
 				local oDmg = uWep.damages[cat]
 				local catName = Game.armorTypes[cat]
-				if catName and oDmg and (oDmg ~= defaultDmg or cat == 0) then
+				if catName and oDmg and (oDmg ~= defaultDmg or cat == 0) then   -- Shows only Default or cats with different damage
 					local dmgString
 					if oBurst > 1 then
 						dmgString = format(yellow .. "%d (x%d)" .. white .. " / " .. yellow .. "%.2f\s" .. white .. " = " .. yellow .. "%.2f \d\p\s", oDmg, oBurst, oRld, oBurst * oDmg / oRld)

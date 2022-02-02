@@ -137,6 +137,7 @@ function DebugTableKeys(table)
 end
 
 -- Debug table keys and values, up to three nested levels
+---TODO: Fix for iPairs, not really working (tested with weaponDef / damages itable)
 function DebugTable(tbl)
 	--Spring.Echo(" Debug Table: ")
 	for k, v in pairsByKeys(tbl) do
@@ -481,6 +482,12 @@ function IsValidUnit(unitID)
 		return true
 	end
 	return false
+end
+
+function printUnitDef(unitDef)
+    for name,param in unitDef:pairs() do
+        Spring.Echo("uDef name: "..(name or "nil").." | param"..(tostring(param) or "nil"))
+    end
 end
 
 -- Heading is in radians, 2 * PI or ~6.28

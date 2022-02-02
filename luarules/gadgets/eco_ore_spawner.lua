@@ -21,7 +21,7 @@ if gadgetHandler:IsSyncedCode() then
 
     VFS.Include("gamedata/taptools.lua")
 
-    harvest_eco = (tonumber(Spring.GetModOptions().harvest_eco)) or 1
+    --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
 
     local updateRate = 10
     local oreSpots -- { 1 = { ring = {
@@ -125,9 +125,9 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:Initialize()
-        if not harvest_eco == 1 then
-            gadgetHandler:RemoveGadget(self)
-        end
+        --if not harvest_eco == 1 then
+        --    gadgetHandler:RemoveGadget(self)
+        --end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         startFrame = Spring.GetGameFrame()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua

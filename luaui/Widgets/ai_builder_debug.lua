@@ -10,7 +10,7 @@ function widget:GetInfo()
         date = "Sep 27, 2021",
         license = "GPLv3",
         layer = 0,
-        enabled = false, --true,
+        enabled = true,
     }
 end
 
@@ -33,7 +33,7 @@ local function SetColor(r,g,b,a)
 end
 
 function widget:Initialize()
-    if not WG.automatedStates then
+    if not WG.automatedStates or not WG.harvestSubStates then
         Spring.Echo("<AI Builder Brain> This widget requires the 'AI Builder Brain' widget to run.")
         widgetHandler:RemoveWidget(self)
     end
@@ -51,7 +51,15 @@ function widget:DrawScreen()
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-            gl.Text(state, sx, sy, textSize, "ocd")
+            local text = state
+            local substate = ""
+            if (state == "harvest") then
+                substate = WG.harvestSubStates[unitID]
+                if (substate) then
+                    text = text.." : "..substate
+                end
+            end
+            gl.Text(text, sx, sy, textSize, "ocd")
         end
     end
     gl.EndText()
