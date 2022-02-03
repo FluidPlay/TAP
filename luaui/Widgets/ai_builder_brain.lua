@@ -25,7 +25,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = true --|| Enables text state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -428,13 +428,6 @@ function widget:UnitDestroyed(unitID)
     loadedHarvesters[unitID] = nil
     unloadingHarvesters[unitID] = nil
     harvesters[unitID] = nil
-end
-
-function widget:Initialize()
-    for _, unitID in ipairs(spGetAllUnits()) do
-        local unitDefID = spGetUnitDefID(unitID)
-        gadget:UnitCreated(unitID, unitDefID)
-    end
 end
 
 ---- Initialize the unit when received (shared)
