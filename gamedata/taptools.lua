@@ -10,6 +10,11 @@ local spFindUnitCmdDesc     = Spring.FindUnitCmdDesc
 local spInsertUnitCmdDesc     = Spring.InsertUnitCmdDesc
 local spEditUnitCmdDesc     = Spring.EditUnitCmdDesc
 local spGetUnitPosition = Spring.GetUnitPosition
+local spGetFeaturePosition = Spring.GetFeaturePosition
+local spGetFeaturesInCylinder = Spring.GetFeaturesInCylinder
+local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
+local spGetFeatureDefID = Spring.GetFeatureDefID
+local spValidFeatureID = Spring.ValidFeatureID
 local spValidUnitID = Spring.ValidUnitID
 local spGetUnitDefID = Spring.GetUnitDefID
 
@@ -550,9 +555,64 @@ end
 --end
 
 -------------------------------------------------------------------------------------
---- ZeroK Utilities
+--- Advanced Functions
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
+function GetNearest (originUID, targets, isFeature)
+    local nearestSqrDistance = 999999
+    local nearestItemID = #targets > 0 and targets[1] or nil    --safe check
+
+    local ox,oy,oz = spGetUnitPosition(originUID)
+    local origin = {x = ox, y = oy, z = oz}
+    for targetID in pairs(targets) do
+        local x,y,z
+        if isFeature then
+            x,y,z = spGetFeaturePosition(targetID)
+        else
+            x,y,z = spGetUnitPosition(targetID) end
+        local target = { x = x, y = y, z = z }
+        local thisSqrDist = sqrDistance(origin.x, origin.z, target.x, target.z)
+        if isnumber(thisSqrDist) and isnumber(nearestSqrDistance)
+                and (thisSqrDist < nearestSqrDistance) then
+            nearestItemID = targetID
+            nearestSqrDistance = thisSqrDist
+        end
+    end
+    return nearestItemID
+end
+
+-- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
+-- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
+function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID, allyTeamID)
+    --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID
+    local itemsAround = isFeature
+            and spGetFeaturesInCylinder(pos.x, pos.z, radius)
+            or (teamID and spGetUnitsInCylinder(pos.x, pos.z, radius, teamID)
+                or spGetUnitsInCylinder(pos.x, pos.z, radius))
+    if not istable(itemsAround) then
+        return nil end
+    local targets = {}
+    --- Get list of valid targets
+    for _,targetID in pairs(itemsAround) do
+        if isFeature and spValidFeatureID(targetID) then
+            local targetDefID = spGetFeatureDefID(targetID)
+            local targetDef = (targetDefID ~= nil) and FeatureDefs[targetDefID] or nil
+            --if targetDef and targetDef.isFactory then ==> eg.: function(x) return x.isFactory end
+            if targetDef and (uDefCheck == nil or uDefCheck(targetDef))
+                    and (uIDCheck == nil or uIDCheck(targetID)) then
+                targets[targetID] = true
+            end
+        elseif IsValidUnit(targetID) and targetID ~= unitID then
+            local targetDefID = spGetUnitDefID(targetID)
+            local targetDef = (targetDefID ~= nil) and UnitDefs[targetDefID] or nil
+            if targetDef and (uDefCheck == nil or uDefCheck(targetDef))
+                    and (uIDCheck == nil or uIDCheck(targetID)) then
+                targets[targetID] = true
+            end
+        end
+    end
+    return GetNearest (unitID, targets, isFeature)
+end
 
 --local buildTimes = {}
 --local variableCostUnit = {
