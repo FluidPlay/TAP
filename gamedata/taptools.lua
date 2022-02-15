@@ -30,6 +30,11 @@ function sqrDistance(x1,z1,x2,z2)
 	return (dx*dx)+(dz*dz)
 end
 
+function distance(x1,y1,z1,x2,y2,z2)
+	local dist = math.sqrt((x1-x2)^2 + (y1-y2)^2 + (z1-z2)^2)
+	return dist
+end
+
 function sign(number)
     return number > 0 and 1 or (number == 0 and 0 or -1)
 end
