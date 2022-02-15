@@ -539,6 +539,16 @@ function Distance2D(unitID, px, pz)
 	return dist
 end
 
+function Split(s, separator)
+    local results = {}
+    for part in s:gmatch("[^" .. separator .. "]+") do
+        results[#results + 1] = part
+    end
+    return results
+end
+-- Usage example: engineVersion = Split(Engine.version, '-') => engineVersion[0], engineVersion[1]
+
+
 --function indent(i, str)
 --	local result = ""
 --	if str == nil then

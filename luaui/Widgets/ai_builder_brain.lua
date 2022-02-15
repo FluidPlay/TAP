@@ -16,31 +16,10 @@ function widget:GetInfo()
     }
 end
 
---- Harvest-cycle Priorities and Logic
---- #1 :: harvest_deliver - is fully loaded, not in range of nearest ore tower => move to it
---- #2 :: harvest_await - has resources (partialLoad), in range of nearest ore tower => define return pos, stay still
---- #3 :: harvest_return - has no resources, has return pos => move to return pos
---- #4 :: harvest_attack - has no resources, can harvest, is near chunks => attack nearest chunk
-
----What's an "orphan harvester"?
----	   - load < maxload & has no parentOretower
----	=> Find nearest ore tower and set parentOretower, new returnPos to it
----	=> Attack nearest ore Chunk
----
----What's an "unloading" harvester? (set by other logic)
----	=> Stay still
----	=> Start being watched by game loop until it's unloaded, then set it to returning
----
----What's a "returning" harvester?
----	   - was unloading and is now fully unloaded (0 load), has parentOretower & returnPos
----	=> Go to returnPos
----	=> Once there, attack nearest ore Chunk
----		=> if succeed, set it to 'attack'
-
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = true --|| Enables text state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -108,8 +87,6 @@ local deautomatedUnits = {} -- Post deautomation (direct order) // { [unitID] = 
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
 local automatedState = {}   -- This is the automated state. It's always there for automatableUnits, after the initial latency period
---- Attack: actually harvesting; Deliver: going to the nearest ore tower; Await: in range of an ore tower, stopped and unloading;
---- Resume: returning to the previous harvest position, after delivery
 local assistingUnits = {}    -- TODO: Commanders guarding factories, we use it to stop guarding when we're out of resources
 --local orderRemovalDelay = 10    -- 10 frames of delay before removing commands, to prevent the engine from removing just given orders
 --local internalCommandUIDs = {}
@@ -123,10 +100,11 @@ local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, 
 
 -- == uDef.harvestStorage is not working (105)
 local harvesters = {} -- { unitID = { maxorestorage = uDef.customparams.maxorestorage, parentOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } }
+local harvestersToAutomate = {}
 local loadedHarvesters = {} -- { unitID = true, ...  }
 local oreTowers = {}  -- { unitID = oreTowerReturnRange, ... }
 
-local enoughResourcesThreshold = 0.1 -- for 0.1, 'enough' is more than 10% storage
+local enoughResourcesThreshold = 0.1 -- for 0.1, 'enough' is more than 10% global storage for that resource
 ---
 -- We use this to identify units that can't be build-assisted by basic builders
 local WIPmobileUnits = {}     -- { unitID = true, ... }
@@ -353,7 +331,8 @@ function widget:Initialize()
     --end
 
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
-    WG.harvestSubStates = harvestSubState   -- This will allow the harvest subState to be read and set by other widgets
+    WG.harvestersToAutomate = harvestersToAutomate  -- This will allow the list of working Harvesters to be read and set by other widgets
+
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
     if Spring.IsReplay() or Spring.GetGameFrame() > 0 then
@@ -483,37 +462,37 @@ end
 
 local automatedFunctions = {
     harvest = { condition = function(ud)
-        return automatedState[ud.unitID] ~= "harvest" --and automatedState[ud.unitID] ~= "await"
-                and canharvest[ud.unitDef.name]
-                and ud.nearestChunkID
-                and not loadedHarvesters[ud.unitID]
-    end,
-                       action = function(ud) --unitData
-                           spEcho("**5** Harvest attack - nearest chunk: "..(ud.nearestChunkID or "nil"))
-                           if ud.nearestChunkID then
-                               --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
-                               --spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, {} ) --{ x, y, z, 50 } <= requires attack ground
-                               spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-                               return "harvest"
-                           end
-                           return nil
+                    return automatedState[ud.unitID] ~= "harvest" --and automatedState[ud.unitID] ~= "await"
+                            and canharvest[ud.unitDef.name]
+                            and ud.nearestChunkID
+                            and not loadedHarvesters[ud.unitID]
+                    end,
+                    action = function(ud) --unitData
+                       spEcho("**5** Harvest attack - nearest chunk: "..(ud.nearestChunkID or "nil"))
+                       if ud.nearestChunkID then
+                           --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
+                           --spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, {} ) --{ x, y, z, 50 } <= requires attack ground
+                           ---TODO: Move to ai_harvester_brain.lua (WIP)
+                           ---spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                           return "harvest"
                        end
+                       return nil
+                    end
     },
-
     enemyreclaim = { condition = function(ud)  -- Commanders shouldn't prioritize enemy-reclaiming
-        return automatedState[ud.unitID] ~= "harvest" and
-                automatedState[ud.unitID] ~= "enemyreclaim"
-                and not ud.unitDef.customParams.iscommander
-    end,
-                     action = function(ud) --unitData
-                         --Spring.Echo("[1] Enemy-reclaim check")
-                         local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
-                         if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
-                             spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
-                             return "enemyreclaim"
+                        return automatedState[ud.unitID] ~= "harvest" and
+                                automatedState[ud.unitID] ~= "enemyreclaim"
+                                and not ud.unitDef.customParams.iscommander
+                        end,
+                         action = function(ud) --unitData
+                             --Spring.Echo("[1] Enemy-reclaim check")
+                             local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
+                             if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
+                                 spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
+                                 return "enemyreclaim"
+                             end
+                             return nil
                          end
-                         return nil
-                     end
     },
     resurrect = { condition =  function(ud)
         return canresurrect[ud.unitDef.name] and not ud.orderIssued
@@ -665,9 +644,11 @@ local function automateCheck(unitID, unitDef, caller)
     --- 0. harvest : attack => If it's a non-loaded harvester and is near an ore chunk, attack it;
     if automatedFunctions["harvest"].condition(ud) then
         ud.orderIssued = automatedFunctions["harvest"].action(ud)
-        automatedState[unitID] = "harvest"
-        ---TODO: Send 'attack' message to ai_harvester_brain
-        --harvestSubState[unitID] = "attack"
+        --automatedState[unitID] = "harvest"
+        --harvestersToAutomate[unitID] = true
+        --- Send message to ai_harvester_brain
+        --Spring.Echo("Adding harvestersToAutomate "..(ud.unitID or "nil"))
+        harvestersToAutomate[ud.unitID] = true
     end
     --- 1. If has no weapon (outpost, FARK, etc), reclaim enemy units;
     if automatedFunctions["enemyreclaim"].condition(ud) then

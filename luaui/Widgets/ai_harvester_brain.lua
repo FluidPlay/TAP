@@ -9,21 +9,39 @@ function widget:GetInfo()
         author = "MaDDoX",
         date = "Feb 7, 2022",
         license = "GPLv3",
-        layer = 1,
-        enabled = false, --true,
+        layer = 16,
+        enabled = true,
     }
 end
 
 --- Harvest-cycle Priorities and Logic
---- #1 :: harvest_deliver - is fully loaded, not in range of nearest ore tower => move to it
---- #2 :: harvest_waitforunload - has resources (partialLoad), in range of nearest ore tower => define return pos, stay still
---- #3 :: harvest_return - has no resources, has return pos => move to return pos
---- #4 :: harvest_attack - has no resources, can harvest, is near chunks => attack nearest chunk
+---       idle - set to 'Harvest' mode (by ai_builder_brain.lua) but still not automated
+--- #1 :: attack - is NOT fully loaded & can harvest & has chunk nearby => attack nearest chunk
+--- #2 :: deliver - is fully loaded, not in range of nearest ore tower => move to nearestOreTower, set current pos to 'returnpos'
+--- #3 :: unloading - is on #deliver & has resources (partial or not) & in range of nearest ore tower => define return pos, stay still
+--- #4 :: return - is on #unloading & has no resources & has return pos => move to return pos
+
+---What's an "orphan harvester"?
+---	- load < maxload & has no parentOretower
+---	=> Find nearest ore tower and set parentOretower, new returnPos to it
+---	=> Attack nearest ore Chunk
+---
+---What's an "unloading" harvester? (set by other logic) [ was "await"]
+---=> Stay still
+---=> Start being watched by game loop until it's unloaded, then set it to 'returning'
+---
+---What's a "returning" harvester?
+---=> was unloading and is now fully unloaded (0 load), has parentOretower & returnPos
+---=> Go to returnPos
+---=> Once there, attack nearest ore Chunk
+---=> if succeed, set it to 'attack'
+
+-- "idle", "attacking", "delivering", "unloading", "returning"
 
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = false --true --|| Enables text state debug messages
+local localDebug = true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -44,18 +62,12 @@ local spGetUnitTeam    = Spring.GetUnitTeam
 local spGetUnitsInSphere = Spring.GetUnitsInSphere
 local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
-local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
-local spGetFeaturesInCylinder = Spring.GetFeaturesInCylinder
-local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
 local spGetUnitSeparation = Spring.GetUnitSeparation
-local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 local glGetViewSizes = gl.GetViewSizes
-
-
 local myTeamID, myAllyTeamID = -1, -1
 local gaiaTeamID = Spring.GetGaiaTeamID()
 
@@ -63,41 +75,40 @@ local startupGracetime = 300        -- Widget won't work at all before those man
 local updateRate = 15               -- Global update "tick rate"
 local automationLatency = 60        -- Delay before automation kicks in, or the unit is set to idle
 
-local deautomatedRecheckLatency = 30 -- Delay until a de-automated unit checks for automation again
-local reclaimRadius = 20            -- Reclaim commands issued by code apparently only work with a radius (area-reclaim)
+local idleRecheckLatency = 30 -- Delay until a de-automated unit checks for automation again
+local automatedState = {}
 
 local maxOreTowerScanRange = 900
 local defaultOreTowerRange = 330
 local harvestLeashMult = 6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
 
-local automatableUnits = {} -- All units which can be automated // { [unitID] = true|false, ... }
-local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
-local automatedUnits = {}   -- All units currently automated    // { [unitID] = frameToRecheckAutomation, ... }
-local deautomatedUnits = {} -- Post deautomation (direct order) // { [unitID] = frameToTryReautomation, ... }
-        -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
-
 local vsx, vsy = gl.GetViewSizes()
 local widgetScale = (0.50 + (vsx*vsy / 5000000))
 
---- Attack: actually harvesting; Deliver: going to the nearest ore tower; Wait For Unload: in range of an ore tower, stopped and unloading;
+---=== Harvest-system related
+
+local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, parentOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } } -- <== uDef.harvestStorage is not working (105)
+--- Attack: actually harvesting; Deliver: going to the nearest ore tower; Unloading: in range of an ore tower, stopped and unloading;
 --- Resume: returning to the previous harvest position, after delivery
 ---local automatedState = {}   -- This is the automated state. It's always there for automatableUnits, after the initial latency period
-local harvestState = {}     -- Substate for harvest state. // "none", "attack", "deliver", "waitforunload", "resume"
-
----Harvest-system related
+local harvestState = {}     -- Harvest state. // "idle", "attacking", "delivering", "unloading", "returning"
 local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
 local oreTowers = {}        -- { unitID = oreTowerReturnRange, ... }
 
-local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, parentOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } } -- <== uDef.harvestStorage is not working (105)
-
 --- Harvest-cycle state controllers
-local workingHarvesters = {}    -- { unitID = true, ... }
+local harvestersToAutomate = {}
+local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOretower assigned, "idle"
+-- Post direct order                // { [unitID] = frameToTryReautomation, ... }
+                                    -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
+local automatedHarvesters = {}    -- { unitID = true, ... }    -- Basically the opposite of an 'orphaHarvester'
+
+--local attackingHarvesters = {}    -- { unitID = true, ... }
+--local deliveringHarvesters = {}    -- { unitID = true, ... }
+--local returningHarvesters = {}  -- { unitID = true, ... }    -- fully loaded, returning to returnPos
+--local unloadingHarvesters = {}  -- { unitID = true, ... }    -- at returnPos, waiting for unload to finish
+
 local partialLoadHarvesters = {}-- { unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
 local loadedHarvesters = {}     -- { unitID = true, ... }
-
-local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOretower assigned
-local returningHarvesters = {}  -- { unitID = true, ... }    -- fully loaded, returning to returnPos
-local unloadingHarvesters = {}  -- { unitID = true, ... }    -- at returnPos, waiting for unload to finish
 
 local CMD_FIGHT = CMD.FIGHT
 local CMD_PATROL = CMD.PATROL
@@ -125,7 +136,7 @@ local canharvest = {
 -----
 
 local function spEcho(string)
-    if localDebug then --and isCom(unitID) and state ~= "deautomated"
+    if localDebug then --and isCom(unitID) and state ~= "idle"
         Spring.Echo(string) end
 end
 
@@ -188,8 +199,9 @@ function widget:Initialize()
         widgetHandler:RemoveWidget()
         return false
     end
-    local automatedState = WG.automatedStates -- Set by ai_builder_brain
-    WG.harvestState = harvestState            -- This will allow the harvest state to be read and set by other widgets
+    automatedState = WG.automatedStates             -- Set by ai_builder_brain
+    harvestersToAutomate = WG.harvestersToAutomate  -- Set by ai_builder_brain
+    WG.harvestState = harvestState      -- This will allow the harvest state to be read and set by other widgets
 
     -- We do this to re-initialize (after /luaui reload) properly
     myTeamID = spGetMyTeamID()
@@ -199,7 +211,6 @@ function widget:Initialize()
         local unitID    = allUnits[i]
         local unitDefID = spGetUnitDefID(unitID)
         local unitTeam  = spGetUnitTeam(unitID)
-        widget:UnitCreated(unitID, unitDefID) --, unitTeam)
         widget:UnitFinished(unitID, unitDefID, unitTeam)
     end
 end
@@ -238,19 +249,13 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 end
 
 function widget:UnitDestroyed(unitID)
-    automatableUnits[unitID] = nil
-    unitsToAutomate[unitID] = nil
-    automatedUnits[unitID] = nil
-    deautomatedUnits[unitID] = nil
-
-    oreTowers[unitID] = nil
+    harvesters[unitID] = nil
+    harvestersToAutomate[unitID] = nil
     partialLoadHarvesters[unitID] = nil
     loadedHarvesters[unitID] = nil
-
     orphanHarvesters[unitID] = nil
-    unloadingHarvesters[unitID] = nil
-    returningHarvesters[unitID] = nil
-    harvesters[unitID] = nil
+
+    oreTowers[unitID] = nil
 end
 
 --local function inTowerRange(harvesterID)
@@ -268,70 +273,70 @@ end
 ---                         b) fully loaded => go for nearest ore tower.
 
 local automatedFunctions = {
-    harvest_deliver = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
-        return harvestState[ud.unitID] ~= "deliver"
-                and (loadedHarvesters[ud.unitID] or partialLoadHarvesters[ud.unitID])
-                and ud.nearestOreTowerID -- and separation is > oreTower build/deliver distance?
-                and ud.farFromOreTower
-    end,
+    delivering = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
+                        return harvestState[ud.unitID] ~= "delivering"
+                                and (loadedHarvesters[ud.unitID] or partialLoadHarvesters[ud.unitID])
+                                and ud.nearestOreTowerID -- and separation is > oreTower build/deliver distance?
+                                and ud.farFromOreTower
+                        end,
                         action = function(ud) --unitData
                             spEcho("**2** Delivery check")
                             --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
-                            if ud.nearestOreTowerID and automatedState[ud.unitID] ~= "harvest" then
+                            if ud.nearestOreTowerID then --and automatedState[ud.unitID] ~= "harvest" then
                                 local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
                                 spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
                                 spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z }, { "" })
                                 harvesters[ud.unitID].returnPos = { x = x, y = y, z = z }
-                                return "harvest"
+                                return "delivering"
                             end
                             return nil
                         end
     },
-    harvest_await = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
-        return harvestState[ud.unitID] ~= "deliver"
-                and partialLoadHarvesters[ud.unitID]
-                and ud.nearestOreTowerID and not ud.farFromOreTower --TODO: Check
-    end,
-                      action = function(ud) --unitData
-                          spEcho("**3** Await check")
+    unloading = { condition = function(ud) -- Only for fully loaded harvesters (including Comms this time)
+                        return harvestState[ud.unitID] ~= "delivering"
+                                and partialLoadHarvesters[ud.unitID]
+                                and ud.nearestOreTowerID and not ud.farFromOreTower --TODO: Check
+                        end,
+                        action = function(ud) --unitData
+                          spEcho("**3** Unload check")
                           --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
                           spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
-                          return "harvest"
+                          return "unloading"
                           --return nil
-                      end
+                        end
     },
-    harvest_return = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
+    returning = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
         --spEcho(" ud.returnPos.x: "..(ud.returnPos and ud.returnPos.x or "nil"))
-        return harvestState[ud.unitID] == "await" -- <= it *should* be on await subState
-                and spGetUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
-    end,
+                       return harvestState[ud.unitID] == "unloading" -- <= it *should* be on 'unloading' State
+                               and spGetUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
+                       end,
                        action = function(ud) --unitData
                            spEcho("**4** Return check")
                            if ud.returnPos then
                                local rp = ud.returnPos
                                spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                               return "harvest"
+                               return "returning"
                            end
                            return nil
                        end
     },
-    harvest_attack = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
-        return harvestState[ud.unitID] ~= "deliver"
-                and harvestState[ud.unitID] ~= "await"
-                and harvestState[ud.unitID] ~= "return"
-                and harvestState[ud.unitID] ~= "attack"
-                and canharvest[ud.unitDef.name]
-                and not loadedHarvesters[ud.unitID] and ud.nearestChunkID
-    end,
-                       action = function(ud) --unitData
+    attacking = { condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
+                        return harvestState[ud.unitID] ~= "delivering"
+                                and harvestState[ud.unitID] ~= "unloading"
+                                and harvestState[ud.unitID] ~= "returning"
+                                and harvestState[ud.unitID] ~= "attacking"
+                                and canharvest[ud.unitDef.name]
+                                and not loadedHarvesters[ud.unitID] and ud.nearestChunkID
+                        end,
+                        action = function(ud) --unitData
                            spEcho("**5** Harvest attack - nearest chunk: "..(ud.nearestChunkID or "nil"))
                            if ud.nearestChunkID then
                                --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                                spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-                               return "harvest"
+                               return "attacking"
                            end
                            return nil
-                       end
+                        end
     },
 }
 
@@ -394,7 +399,7 @@ local function automateCheck(unitID, unitDef, caller)
     end
     --- 0.1. harvest : attack => If it's a non-loaded harvester and is near an ore chunk, attack it;
     if automatedFunctions["attacking"].condition(ud) then
-        ud.orderIssued = automatedFunctions["attack"].action(ud)
+        ud.orderIssued = automatedFunctions["attacking"].action(ud)
         harvestState[unitID] = "attacking"
     end
     ----- 0.2. harvest : partialdeliver => If it's a partially-loaded harvester and is near an ore tower (but not in range), go for it;
@@ -416,36 +421,42 @@ local function automateCheck(unitID, unitDef, caller)
     --- If any automation attempt above was successful, set new harvest state
     if ud.orderIssued then
         spEcho ("New order Issued")
-        unitsToAutomate[unitID] = nil
+        --orphanHarvesters[unitID] = nil
         setHarvestState(unitID, ud.orderIssued, caller.."> automateCheck")
     end
     return ud.orderIssued
 end
 
-local function setHarvestState(unitID, state, caller)
-    if state == "deautomated" then --or state == "idle" then
-        automatedUnits[unitID] = nil
-        --- It'll only get out of deautomated if it's idle, that's only the delay to recheck idle
-        deautomatedUnits[unitID] = spGetGameFrame() + deautomatedRecheckLatency
-        spEcho("To automate in: "..spGetGameFrame() + deautomatedRecheckLatency)
+local function setHarvestState(unitID, newState, caller)
+    if newState == "idle" then
+        automatedHarvesters[unitID] = nil
+        --- delay to recheck if it's still idle
+        orphanHarvesters[unitID] = spGetGameFrame() + idleRecheckLatency
+        spEcho("To automate in: "..spGetGameFrame() + idleRecheckLatency)
     else
-        deautomatedUnits[unitID] = nil
-        automatedUnits[unitID] = spGetGameFrame() + automationLatency
+        orphanHarvesters[unitID] = nil
+        automatedHarvesters[unitID] = spGetGameFrame() + automationLatency --when to check it again
     end
-    harvestState[unitID] = state
-    spEcho("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    harvestState[unitID] = newState
+    spEcho("New automateState: ".. newState .." for: "..unitID.." set by function: "..caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-     spEcho("CommandID registered: "..(cmdID or "nil"))
-    ---TODO: If guarding, interrupt what's doing, otherwise don't
+    spEcho("CommandID registered: "..(cmdID or "nil"))
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
     for _, unitID in ipairs(selUnits) do
-        if workingHarvesters[unitID] and (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
-            spEcho("CMD_ATTACK, params #: "..#params)
-            if #params == 1 then
-                setHarvestState(unitID, "attack", "CommandNotify") -- none, attack, waitforunload, deliver, resume
+        if automatedHarvesters[unitID] then
+            local setToAttacking
+            if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
+                spEcho("CMD_ATTACK, params #: "..#params)
+                if #params == 1 then
+                    setHarvestState(unitID, "attacking", "CommandNotify")
+                    setToAttacking = true
+                end
+            end
+            if not setToAttacking then
+                setHarvestState(unitID, "idle", "CommandNotify") --"deautomated"
             end
         end
     end
@@ -467,20 +478,7 @@ function widget:GameFrame(f)
         return
     end
 
-    --- Check if it's time to actually try to automate an unit (after idle or creation)
-    for unitID, automateFrame in pairs(unitsToAutomate) do
-        if IsValidUnit(unitID) and f >= automateFrame then
-            local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-            --- PS: we only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
-            local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
-            if not orderIssued and not harvestState[unitID] and harvestState[unitID]~="deautomated" then
-                --spEcho("1.5")
-                setHarvestState(unitID, "none", "GameFrame: unitsToAutomate")
-            end
-        end
-    end    
-
-    --- Check/Update: if harvesters are partially loaded or not
+    ---
     for harvesterID, data in pairs(harvesters) do
         local maxStorage = data.maxorestorage
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
@@ -489,7 +487,27 @@ function widget:GameFrame(f)
         elseif curStorage > 0 then
             partialLoadHarvesters[harvesterID] = true
         end
+
+        if harvestersToAutomate[harvesterID] then
+            --Spring.Echo("Found: "..harvesterID)
+            local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+            --- PS: we only un-set harvestersToAutomate[unitID] down the pipe, if automation is successful
+            automateCheck(harvesterID, unitDef, "harvestersToAutomate")
+        end
     end
+
+    --- Check if it's time to actually try to automate an unit (after being set to harvest mode, or idle'd)
+    --for unitID, automateFrame in pairs(orphanHarvesters) do
+    --    if IsValidUnit(unitID) and f >= automateFrame then
+    --        local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+    --        --- PS: we only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
+    --        local orderIssued = automateCheck(unitID, unitDef, "harvestersToAutomate")
+    --        if not orderIssued and not harvestState[unitID] and harvestState[unitID]~="idle" then
+    --            --spEcho("1.5")
+    --            setHarvestState(unitID, "idle", "GameFrame: orphanHarvesters")
+    --        end
+    --    end
+    --end
 
     --- TODO: Orphans processing
     --- load < maxload & has no parentOretower
@@ -498,41 +516,55 @@ function widget:GameFrame(f)
 
 
     --- Set "harvest : unloading" state on loaded harvesters which have reached their destination
-    for unitID in pairs(loadedHarvesters) do
-        local data = harvesters[unitID]
-        local nearestOreTowerID = data.nearestOreTowerID
-        local oreTowerRange = getOreTowerRange(nearestOreTowerID)
-
-        if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (oreTowerRange - 20) then
-            loadedHarvesters[unitID] = nil
-            spGiveOrderToUnit(unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
-            returningHarvesters[unitID] = true
-            setHarvestState(unitID, "unloading", "gameFrame: loadedHarvesters loop") -- none, attack, await, deliver, return
-        end
-    end
+    --for unitID in pairs(loadedHarvesters) do
+    --    local data = harvesters[unitID]
+    --    local nearestOreTowerID = data.nearestOreTowerID
+    --    local oreTowerRange = getOreTowerRange(nearestOreTowerID)
+    --
+    --    if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (oreTowerRange - 20) then
+    --        loadedHarvesters[unitID] = nil
+    --        spGiveOrderToUnit(unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
+    --        setHarvestState(unitID, "unloading", "gameFrame: loadedHarvesters loop") -- idle, attack, deliver, unloading, return
+    --    end
+    --end
 
     --- Set "harvest : returning" on just-unloaded harvesters to return to their previous harvest point
-    for unitID in pairs(unloadingHarvesters) do
-        local data = harvesters[unitID]
-        if spGetUnitHarvestStorage(unitID) <= 0 then                            --If harvestLoad == 0, set it to idle again
-            spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
-            local rp = data.returnPos
-            --Spring.Echo("ai_builder_brain: trying return")
-            spGiveOrderToUnit(unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-            setHarvestState(unitID, "returning", "gameFrame: unloadingHarvesters loop") -- none, attack, await, deliver, return
-            unloadingHarvesters[unitID] = true
-            returningHarvesters[unitID] = nil
-        else    -- if it still has a load but the destination ore tower is destroyed, or it's too far from it (was pushed), deautomate it
-            local oreTowerRange = oreTowers[data.parentOreTowerID]
-            local isFarFromTower = spGetUnitSeparation(unitID, data.nearestOreTowerID, false) > (oreTowerRange or defaultOreTowerRange) - 5
-            if not IsValidUnit(data.parentOreTowerID) or isFarFromTower then
-                DeharvestUnit(unitID)
-                returningHarvesters[unitID] = nil
-            end
-        end
-    end
-
+    --for unitID in pairs(unloadingHarvesters) do
+    --    local data = harvesters[unitID]
+    --    if spGetUnitHarvestStorage(unitID) <= 0 then                            --If harvestLoad == 0, set it to idle again
+    --        spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
+    --        local rp = data.returnPos
+    --        --Spring.Echo("ai_builder_brain: trying return")
+    --        spGiveOrderToUnit(unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+    --        setHarvestState(unitID, "returning", "gameFrame: unloadingHarvesters loop") -- none, attack, await, deliver, return
+    --        unloadingHarvesters[unitID] = true
+    --        returningHarvesters[unitID] = nil
+    --    else    -- if it still has a load but the destination ore tower is destroyed, or it's too far from it (was pushed), deautomate it
+    --        local oreTowerRange = oreTowers[data.parentOreTowerID]
+    --        local isFarFromTower = spGetUnitSeparation(unitID, data.nearestOreTowerID, false) > (oreTowerRange or defaultOreTowerRange) - 5
+    --        if not IsValidUnit(data.parentOreTowerID) or isFarFromTower then
+    --            DeharvestUnit(unitID)
+    --            returningHarvesters[unitID] = nil
+    --        end
+    --    end
+    --end
 end
+
+----From ai_builder_brain: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")
+--function widget:RecvLuaMsg(msg, playerID)
+--    --if not playerID == myTeamID then
+--    --    return end
+--    Spring.Echo("Message Received: "..msg)
+--    if msg:sub(1, 20) == 'harvestersToAutomate' then
+--        local data = Split(msg, '_')
+--        local unitID = tonumber(data[2])
+--        Spring.Echo("Harvester To Automate: "..(unitID or "nil"))
+--        if unitID then
+--            harvestersToAutomate[unitID] = true
+--            setHarvestState(unitID, "idle", "RcvLuaMsg")
+--        end
+--    end
+--end
 
 ---- Initialize the unit when received (shared)
 function widget:UnitGiven(unitID, unitDefID, unitTeam)
