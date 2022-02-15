@@ -4,12 +4,12 @@
 ---
 function widget:GetInfo()
     return {
-        name = "AI Builder Debug",
+        name = "AI Harvester Debug",
         desc = "Shows visually the state of AI-automated builder units",
         author = "MaDDoX",
-        date = "Sep 27, 2021",
+        date = "Feb 15, 2022",
         license = "GPLv3",
-        layer = 0,
+        layer = 5,
         enabled = true,
     }
 end
@@ -27,14 +27,14 @@ local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color = gl.Color
 
-local function SetColor(r,g,b,a)
-    gl_Color(r,g,b,a)
-    font:SetTextColor(r,g,b,a)
-end
+--local function SetColor(r,g,b,a)
+--    gl_Color(r,g,b,a)
+--    font:SetTextColor(r,g,b,a)
+--end
 
 function widget:Initialize()
-    if not WG.automatedStates then
-        Spring.Echo("<AI Builder Brain> This widget requires the 'AI Builder Brain' widget to run.")
+    if not WG.harvestState then
+        Spring.Echo("<AI Harvester Brain> This widget requires the 'AI Builder Brain' widget to run.")
         widgetHandler:RemoveWidget(self)
     end
 end
@@ -45,20 +45,13 @@ function widget:DrawScreen()
     local textSize = 22
 
     gl.PushMatrix()
-    gl.Translate(50, 50, 0)
+    gl.Translate(50, -50, 0)
     gl.BeginText()
-    for unitID, state in pairs(WG.automatedStates) do
+    for unitID, state in pairs(WG.harvestState) do
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
             local text = state
-            --local substate = ""
-            --if (state == "harvest") then
-            --    substate = WG.harvestSubStates[unitID]
-            --    if (substate) then
-            --        text = text.." : "..substate
-            --    end
-            --end
             gl.Text(text, sx, sy, textSize, "ocd")
         end
     end
@@ -67,7 +60,7 @@ function widget:DrawScreen()
 end
 
 function widget:TextCommand(command)
-    if command == "aidebug" then
+    if command == "harvesterdebug" then
         localDebug = not localDebug
         return
     end
