@@ -19,7 +19,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = true --|| Enables text state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -101,7 +101,6 @@ local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, 
 
 -- == uDef.harvestStorage is not working (105)
 local harvesters = {} -- { unitID = { maxorestorage = uDef.customparams.maxorestorage, parentOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } }
-local harvestersToAutomate = {}
 local loadedHarvesters = {} -- { unitID = true, ...  }
 local oreTowers = {}  -- { unitID = oreTowerReturnRange, ... }
 
@@ -262,7 +261,6 @@ local function DeautomateUnit(unitID, caller)
     removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
     spEcho("Deautomating Unit: "..unitID)
     setAutomateState(unitID, "deautomated", caller or "DeautomateUnit")
-    harvestersToAutomate[unitID] = nil
     spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
     Spring.Echo("Send message: unitDeautomated_"..(unitID or "nil"))
 end
@@ -324,7 +322,7 @@ function widget:Initialize()
     --end
 
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
-    WG.harvestersToAutomate = harvestersToAutomate  -- This will allow the list of working Harvesters to be read and set by other widgets
+    --WG.harvestersToAutomate = harvestersToAutomate  -- This will allow the list of working Harvesters to be read and set by other widgets
 
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
@@ -461,7 +459,9 @@ local automatedFunctions = {
                spEcho("**5** Harvest check - nearest chunk: "..(ud.nearestChunkID or "nil"))
                if ud.nearestChunkID then
                    ---Moved to ai_harvester_brain.lua (WIP)
-                   harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                   --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                   Spring.Echo("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID)
+                   spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID, "allies") --(message, mode)
                    return "harvest"
                end
                return nil
@@ -635,9 +635,10 @@ local function automateCheck(unitID, unitDef, caller)
     }
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
-    for i, data in ipairs(automatedFunctions) do
-        if data.condition(ud) then
-            ud.orderIssued = data.action(ud)
+    for i = 1, #automatedFunctions do
+        local autoFunc = automatedFunctions[i]
+        if autoFunc.condition(ud) then
+            ud.orderIssued = autoFunc.action(ud)
             break
         end
     end
@@ -674,9 +675,9 @@ local function automateCheck(unitID, unitDef, caller)
 --        ud.orderIssued = automatedFunctions["reclaim"].action(ud)
 --    end
 
-    Spring.Echo("Order issued [2]: " .. (ud.orderIssued or "nil"))
+    --Spring.Echo("Order issued [2]: " .. (ud.orderIssued or "nil"))
     if ud.orderIssued then
-        spEcho ("New order Issued")
+        spEcho ("New order Issued: "..ud.orderIssued)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
     end
@@ -729,7 +730,7 @@ end
 local function isReallyIdle(unitID)
     local result = true
     -- commandqueue with guard => not idle
-    if hasBuildQueue(unitID) or hasCommandQueue(unitID) then --or automatedState[unitID] == "harvest" then
+    if hasBuildQueue(unitID) or hasCommandQueue(unitID) or automatedState[unitID] == "harvest" then
         result = false
     end
     --Spring.Echo("IsReallyIdle: "..tostring(result))
@@ -818,6 +819,19 @@ end
 ---- Decomissions the unit data when given away
 function widget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
     widget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+end
+
+----From ai_builder_brain: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")
+function widget:RecvLuaMsg(msg, playerID)
+    --Spring.Echo("[ai_builder_brain] Message Received: "..msg)
+    if msg:sub(1, 13) == 'harvesterIdle' then --"harvesterIdle_"..unitID
+        local data = Split(msg, '_')
+        local unitID = tonumber(data[2])
+        Spring.Echo("[ai_builder_brain]Idle Harvester: "..(unitID or "nil"))
+        if unitID then
+            DeautomateUnit(unitID, "RecvLuaMsg")
+        end
+    end
 end
 
 function widget:ViewResize(n_vsx,n_vsy)
