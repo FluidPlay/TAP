@@ -37,7 +37,7 @@ local mapcfg = {
 		bottom = 2000, -- no fog below this altitude
 		fade_alt = 2500, -- fog will linearly fade away between this and "height", should be between height and bottom
 		scale = 450, --270, --600, -- how large will the clouds be
-		opacity = 0, --0.65, -- what it says
+		opacity = 0.7, --0.65, -- what it says
 		clamp_to_map = false, -- whether fog volume is sliced to fit map, or spreads to horizon
 		sun_penetration = 20, -- how much does the sun penetrate the fog
 		},

@@ -262,7 +262,7 @@ local function DeautomateUnit(unitID, caller)
     spEcho("Deautomating Unit: "..unitID)
     setAutomateState(unitID, "deautomated", caller or "DeautomateUnit")
     spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
-    Spring.Echo("Send message: unitDeautomated_"..(unitID or "nil"))
+    spEcho("Send message: unitDeautomated_"..(unitID or "nil"))
 end
 
 --- Spring's UnitIdle is just too weird, it fires up when units are transitioning between commands..
@@ -460,7 +460,7 @@ local automatedFunctions = {
                if ud.nearestChunkID then
                    ---Moved to ai_harvester_brain.lua (WIP)
                    --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-                   Spring.Echo("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID)
+                   spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID)
                    spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID, "allies") --(message, mode)
                    return "harvest"
                end
@@ -827,8 +827,8 @@ function widget:RecvLuaMsg(msg, playerID)
     if msg:sub(1, 13) == 'harvesterIdle' then --"harvesterIdle_"..unitID
         local data = Split(msg, '_')
         local unitID = tonumber(data[2])
-        Spring.Echo("[ai_builder_brain]Idle Harvester: "..(unitID or "nil"))
-        if unitID then
+        spEcho("[ai_builder_brain]Idle Harvester: "..(unitID or "nil"))
+        if unitID and isReallyIdle(unitID) then
             DeautomateUnit(unitID, "RecvLuaMsg")
         end
     end

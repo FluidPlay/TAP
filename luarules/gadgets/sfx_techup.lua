@@ -9,9 +9,11 @@ function gadget:GetInfo()
         license   = "GNU GPL, v2 or later",
         version   = 1,
         layer     = 5,
-        enabled   = true  --  loaded by default?
+        enabled   = false --true  --  loaded by default?
     }
 end
+
+---Currently disabled, this will be eventually used for CARTS (to play alerts for all playerIDs on a team)
 
 local txtcolor = "\255\240\200\86"
 
@@ -65,32 +67,30 @@ local txtcolor = "\255\240\200\86"
 if not gadgetHandler:IsSyncedCode() then
     return end
 
-VFS.Include("gamedata/taptools.lua")
-
-local techCenters = {armtech = 2, armtech1 = 3, armtech2 = 4, armtech3 = 5, armtech4 = 6,
-                     cortech = 2, cortech1 = 3, cortech2 = 4, cortech3 = 5, cortech4 = 6}
-
-function gadget:UnitFinished(unitID, unitDefID, teamID)
-    local unitDef = UnitDefs[unitDefID]
-    if unitDef == nil then
-        return end
-    if not techCenters[unitDef.name] then
-        return end
-    local newTier = tostring(techCenters[unitDef.name])
-    --TODO: Check if tech was already unlocked, only play sound if it wasn't
-    if IsValidUnit(unitID) then
-        local playerIDs = Spring.GetPlayerList (teamID)
-        for _,playerID in playerIDs do
-            --Spring.SendMessageToTeam
-            Spring.SendMessageToPlayer(playerID, txtcolor .."------------------------------------------------")
-            Spring.SendMessageToPlayer(playerID, txtcolor .."  You've reached Tech Level "..newTier)
-            Spring.SendMessageToPlayer(playerID, txtcolor .."------------------------------------------------")
-            --Spring.PlaySoundFile("sounds/ui/achievement.wav",0.5) --,_,_,_,_,_,_,"userinterface")
-            Spring.PlaySoundFile("sounds/ui/t"..newTier..".wav",0.5, 'sfx')
-            --TODO: Move it to a widget, fire it at 'ui', etc
-            --Spring.SendLuaUIMsg
-        end
-    end
-end
+--VFS.Include("gamedata/taptools.lua")
+--
+--local techCenters = {armtech = 2, armtech1 = 3, armtech2 = 4, armtech3 = 5, armtech4 = 6,
+--                     cortech = 2, cortech1 = 3, cortech2 = 4, cortech3 = 5, cortech4 = 6}
+--
+--function gadget:UnitFinished(unitID, unitDefID, teamID)
+--    local unitDef = UnitDefs[unitDefID]
+--    if unitDef == nil then
+--        return end
+--    if not techCenters[unitDef.name] then
+--        return end
+--    local newTier = tostring(techCenters[unitDef.name])
+--    --TODO: Check if tech was already unlocked, only play sound if it wasn't
+--    if IsValidUnit(unitID) then
+--        local playerIDs = Spring.GetPlayerList (teamID)
+--        for _,playerID in ipairs(playerIDs) do
+--            --Spring.SendMessageToTeam
+--            Spring.SendMessageToPlayer(playerID, txtcolor .."------------------------------------------------")
+--            Spring.SendMessageToPlayer(playerID, txtcolor .."  You've reached Tech Level "..newTier)
+--            Spring.SendMessageToPlayer(playerID, txtcolor .."------------------------------------------------")
+--            --Spring.PlaySoundFile("sounds/ui/achievement.wav",0.5) --,_,_,_,_,_,_,"userinterface")
+--            Spring.PlaySoundFile("sounds/ui/t"..newTier..".wav",0.5, 'sfx')
+--        end
+--    end
+--end
 	
 

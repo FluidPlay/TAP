@@ -9,8 +9,8 @@ function widget:GetInfo()
         author = "MaDDoX",
         date = "Feb 15, 2022",
         license = "GPLv3",
-        layer = 5,
-        enabled = true,
+        layer = 20,
+        enabled = false, --true,
     }
 end
 

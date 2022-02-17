@@ -4,7 +4,7 @@
 ---
 function gadget:GetInfo()
     return {
-        name      = "Eco - Ore Spawner",
+        name      = "Eco - Ore Manager",
         desc      = "Spawn Ore Chunks around metal spots at game start then repeatedly",
         author    = "MaDDoX",
         date      = "July 2021",
@@ -51,11 +51,10 @@ if gadgetHandler:IsSyncedCode() then
 
     local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
 
-    local spGetGameFrame = Spring.GetGameFrame
     local spCreateUnit = Spring.CreateUnit
     local spSetUnitNeutral = Spring.SetUnitNeutral
     local spGetAllUnits = Spring.GetAllUnits
-    local spGetUnitPosition = Spring.GetUnitPosition
+    local spSendLuaUIMsg = Spring.SendLuaUIMsg
 
     local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
@@ -136,6 +135,7 @@ if gadgetHandler:IsSyncedCode() then
         startFrame = Spring.GetGameFrame()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         --metalSpotsByPos = GG.metalSpotsByPos
+        gadget:GameStart()
     end
 
     --function gadget:GameFrame(frame)
@@ -154,12 +154,14 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
-    function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
-        if (chunks[unitID]) then
+    function gadget:UnitDestroyed(unitID) --, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
+        if chunks[unitID] then
             local spotIdx = (chunks[unitID]).spotIdx
             local chunkIdx = (chunks[unitID]).idxInSpot
             table.remove(oreSpots[spotIdx].chunks, chunkIdx )
             chunks[unitID] = nil
+            spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
+            --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
         end
     end
 
@@ -172,12 +174,12 @@ if gadgetHandler:IsSyncedCode() then
         allUnits = spGetAllUnits()
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
-            local existingCount = #(oreSpots[i].chunks)
+            local existingCount = oreSpots[i].chunks and #(oreSpots[i].chunks) or 0
             local chunksToSpawnHere = clamp( existingCount * chunkMultiplier,0, maxChunkCount - existingCount)
             if i == 1 then
-                Spring.Echo(i.."\n\n")
-                Spring.Echo("oreSpots#: "..#oreSpots)
-                Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
+                --Spring.Echo(i.."\n\n")
+                --Spring.Echo("oreSpots#: "..#oreSpots)
+                --Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
             end
             for j = 1, chunksToSpawnHere do
                 local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind) -- spotIdx, idxInSpot

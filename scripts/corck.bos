@@ -3,13 +3,14 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
+#define SIG_AIM			2
 #define SIG_BUILD		4	
 
 piece  torso, nanospray2, pelvis, lthigh, rthigh, rleg, lleg, gunclamp,
        rfoot, lfoot, guncover, nanogun, nozzle, ground;
 
 static-var  notBuilding, bMoving, moveSpeed, currentSpeed,
-			statechg_DesiredState, statechg_StateChanging;
+			statechg_DesiredState, statechg_StateChanging, blockWeaponFlag;
 
 
 walk()
@@ -407,22 +408,43 @@ TargetHeading(Func_Var_1)
 }
 */
 
+// =========================
+// Attack (Harvest) weapon:
+// =========================
+
+AimPrimary(heading, pitch)
+{
+	if (blockWeaponFlag)
+		return (0);
+
+	signal SIG_AIM;
+	set-signal-mask SIG_AIM;
+
+	start-script RequestState(0);
+	//signal SIG_BUILD;
+	turn torso to y-axis heading speed <400.000000>;
+	wait-for-turn torso around y-axis;
+
+	return (1);
+}
+
 FirePrimary()
 {
-	sleep 150;
+	sleep 50; //150
+	return (0);
 }
 
 AimFromPrimary(piecenum)
 {
-	piecenum = turret;
+	piecenum = nozzle; //turret;
 }
 
 QueryPrimary(piecenum)
 {
-	piecenum = flare;
+	piecenum = nanospray2; //flare;
 }
 
-/* */
+// =========================
 
 SweetSpot(piecenum)
 {

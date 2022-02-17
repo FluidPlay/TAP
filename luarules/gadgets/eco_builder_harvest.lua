@@ -174,7 +174,7 @@ if gadgetHandler:IsSyncedCode() then
         --Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
 
         local amount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
-        Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
+        --Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
 
         spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math.min(curStorage, amount) ) --eg: curStorage = 3, amount = 5, add 3.

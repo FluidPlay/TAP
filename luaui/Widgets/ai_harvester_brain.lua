@@ -41,7 +41,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = true --|| Enables text state debug messages
+local localDebug = false --true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -88,7 +88,9 @@ local widgetScale = (0.50 + (vsx*vsy / 5000000))
 
 ---=== Harvest-system related
 
-local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, parentOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } } -- <== uDef.harvestStorage is not working (105)
+-- ALERT: uDef.harvestStorage is not working (up to Spring 105)
+local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, parentOreTowerID, targetChunkID
+                      --   returnPos = { x = rpx, y = rpy, z = rpz } }
 --- Attack: actually harvesting; Deliver: going to the nearest ore tower; Unloading: in range of an ore tower, stopped and unloading;
 --- Resume: returning to the previous harvest position, after delivery
 ---local automatedState = {}   -- This is the automated state. It's always there for automatableUnits, after the initial latency period
@@ -101,11 +103,6 @@ local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOre
 -- Post direct order                // { [unitID] = frameToTryReautomation, ... }
                                     -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 local automatedHarvesters = {}    -- { unitID = true, ... }    -- Basically the opposite of an 'orphaHarvester'
-
---local attackingHarvesters = {}    -- { unitID = true, ... }
---local deliveringHarvesters = {}    -- { unitID = true, ... }
---local returningHarvesters = {}  -- { unitID = true, ... }    -- fully loaded, returning to returnPos
---local unloadingHarvesters = {}  -- { unitID = true, ... }    -- at returnPos, waiting for unload to finish
 
 local partialLoadHarvesters = {}-- { unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
 local loadedHarvesters = {}     -- { unitID = true, ... }
@@ -129,9 +126,10 @@ local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 ----- Type Tables
 
 local canharvest = {
-    armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
-    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
-}
+    armck = true, corck = true }
+--, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+--    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
+--}
 
 -----
 
@@ -233,7 +231,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
         oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
     if maxorestorage and maxorestorage > 0 then
-        harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {} }
+        harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil }
         spEcho("ai_harvester_brain: added harvester: "..unitID.." storage: "..maxorestorage)
         orphanHarvesters[unitID] = true -- newborns are orphan. Usually not for long.
     end
@@ -244,8 +242,15 @@ function widget:UnitDestroyed(unitID)
     partialLoadHarvesters[unitID] = nil
     loadedHarvesters[unitID] = nil
     orphanHarvesters[unitID] = nil
-
-    oreTowers[unitID] = nil
+    --- if an Ore Tower is destroyed, must go through all harvesters and clear their nearest/parentOreTower
+    if oreTowers[unitID] then
+        for harvesterID, data in pairs(harvesters) do
+            if data.parentOreTowerID == unitID then
+               data.parentOreTowerID = nil
+            end
+        end
+        oreTowers[unitID] = nil
+    end
 end
 
 --local function inTowerRange(harvesterID)
@@ -272,68 +277,90 @@ local automatedFunctions = {
                                         and (not ud.parentOreTowerID) and (ud.nearestOreTowerID and ud.farFromOreTower))
                                     )
                         end,
-                        action = function(ud) --unitData
-                            spEcho("**1** Delivering actions")
-                            if ud.nearestOreTowerID then
-                                harvesters[ud.unitID].parentOreTowerID = ud.nearestOreTowerID
-                                local x,y,z = spGetUnitPosition(ud.nearestOreTowerID)
-                                spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
-                                spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z }, { "" })
-                                harvesters[ud.unitID].returnPos = { x = x, y = y, z = z }
-                                return "delivering"
-                            end
-                        end
+            action = function(ud)
+                spEcho("**1** Delivering actions")
+                local harvester = harvesters[ud.unitID]
+                if not harvester.parentOreTowerID and ud.nearestOreTowerID then
+                    harvester.parentOreTowerID = ud.nearestOreTowerID
+                end
+                if harvester.parentOreTowerID then
+                    harvester.returnPos = { x = ud.pos.x, y = ud.pos.y, z = ud.pos.z }
+                    spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
+                    local x,y,z = spGetUnitPosition(harvester.parentOreTowerID)
+                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z}, { "" })
+                    return "delivering"
+                end
+            end
     },
     [2] = { id="unloading",
             condition = function(ud) -- delivering => unloading
                         return harvestState[ud.unitID] == "delivering"
                                 and ud.parentOreTowerID and not ud.farFromOreTower
                         end,
-                        action = function(ud)
-                          spEcho("**2** Unloading Actions")
-                          --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
-                          spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
-                          return "unloading"
-                        end
+            action = function(ud)
+              spEcho("**2** Unloading Actions")
+              --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
+              spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
+              return "unloading"
+            end
     },
     [3] = { id="returning",
-            condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
-                        --spEcho(" ud.returnPos.x: "..(ud.returnPos and ud.returnPos.x or "nil"))
+            condition = function(ud)
                        return harvestState[ud.unitID] == "unloading" -- has no resources & has return pos
-                               and spGetUnitHarvestStorage(ud.unitID) <= 0 and harvesters[ud.unitID].returnPos
+                               and spGetUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
                        end,
-                       action = function(ud) --unitData
-                           spEcho("**3** Returning Actions")
-                           local rp = harvesters[ud.unitID].returnPos
-                           if rp.x then
-                               spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                               return "returning"
-                           end
-                       end
+            action = function(ud) --unitData
+               spEcho("**3** Returning Actions")
+               local rp = ud.returnPos
+               if rp.x then
+                   spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                   return "returning"
+               end
+            end
     },
     ---TODO: Add 'returned' state, so it can transition to 'attacking' without a problem
-    [4] = { id="attacking",
-            condition = function(ud) -- Commanders shouldn't prioritize harvesting; harvester can't be fully loaded
-                        return (harvestState[ud.unitID] == "idle" or harvestState[ud.unitID] == "returning")
+    [4] = { id="returned",
+            condition = function(ud)
+                local rp = ud.returnPos
+                return harvestState[ud.unitID] == "returning"                   -- has no resources & has return pos
+                       and sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140  -- distance to returnPos <= 40 (sqr)
+            end,
+            action = function(ud)
+                spEcho("**4** Returned Actions")
+                local rp = harvesters[ud.unitID].returnPos
+                if rp.x then
+                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                    return "returned"
+                end
+            end
+    },
+    [5] = { id="attacking",
+            condition = function(ud)
+                        return (harvestState[ud.unitID] == "idle" or harvestState[ud.unitID] == "returned")
                                 and canharvest[ud.unitDef.name]
                                 and not loadedHarvesters[ud.unitID] and ud.nearestChunkID
                         end,
-                        action = function(ud) --unitData
-                           spEcho("**4** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
-                           if ud.nearestChunkID then
-                               --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
-                               spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-                               return "attacking"
-                           end
-                        end
+            action = function(ud)
+               spEcho("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
+               if ud.nearestChunkID then
+                   --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
+                   spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                   harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
+                   return "attacking"
+               end
+            end
     },
-    [5] = { id="idle",
+    [6] = { id="idle",
             condition = function(ud) -- if full and no parent or nearby oreTower
-                return harvestState[ud.unitID] == "attacking" and loadedHarvesters[ud.unitID]
-                        and (not ud.nearestOreTowerID and not ud.parentOreTowerID)
+                return harvestState[ud.unitID] == "attacking" and not loadedHarvesters[ud.unitID]
+                        and
+                        (   (loadedHarvesters[ud.unitID] and (not ud.nearestOreTowerID and not ud.parentOreTowerID))
+                            or
+                            ud.targetChunkID == nil
+                        )
             end,
-            action = function(ud) --unitData
-                spEcho("**5** Idle actions")
+            action = function(ud)
+                spEcho("**6** Idle actions")
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
             end
@@ -393,9 +420,10 @@ local function automateCheck(unitID, unitDef, caller)
 
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
                  nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
-                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID, --nearestDeliveryPos = nearestDeliveryPos,
+                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID,
                  nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID, parentOreTowerID = targetOreTowerID,
-                 farFromOreTower = farFromOreTower
+                 farFromOreTower = farFromOreTower, returnPos = harvesters[unitID].returnPos,
+                 targetChunkID = harvesters[unitID].targetChunkID
                }
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
@@ -503,16 +531,14 @@ function widget:GameFrame(f)
         return
     end
 
-    ---
     for harvesterID, data in pairs(harvesters) do
+
+        --- Update Partial/Loaded Harvesters tables
         local maxStorage = data.maxorestorage
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
         if curStorage >= maxStorage then
-            if not loadedHarvesters[harvesterID] then
-                Spring.Echo("Harvester loaded: "..harvesterID)
-                local rpx, rpy, rpz = spGetUnitPosition(harvesterID) -- "previous harvest"
+            if not loadedHarvesters[harvesterID] then --                Spring.Echo("Harvester loaded: "..harvesterID)
                 loadedHarvesters[harvesterID] = true
-                harvesters[harvesterID].returnPos = { x = rpx, y = rpy, z = rpz }
                 partialLoadHarvesters[harvesterID] = nil
             end
         else
@@ -521,6 +547,8 @@ function widget:GameFrame(f)
                 partialLoadHarvesters[harvesterID] = true
             end
         end
+
+        --- Check/Update harvest Automation
         local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
         automateCheck(harvesterID, unitDef, "harvesters")
     end
@@ -579,15 +607,15 @@ function widget:GameFrame(f)
     --end
 end
 
-----From ai_builder_brain: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")
+----From ai_builder_brain or eco_ore_manager: Spring.SendLuaRulesMsg("msgKey_"..value, "allies")
 function widget:RecvLuaMsg(msg, playerID)
     --if not playerID == myTeamID then
     --    return end
-    Spring.Echo("Message Received: "..msg)
+    --Spring.Echo("Message Received: "..msg)
     local data = Split(msg, '_')
     if data[1] == 'unitDeautomated' then
         local unitID = tonumber(data[2])
-        Spring.Echo("Harvester To Deautomate: "..(unitID or "nil"))
+        --Spring.Echo("Harvester To Deautomate: "..(unitID or "nil"))
         if unitID then
             setHarvestState(unitID, "idle", "RcvLuaMsg")
             --harvestersToAutomate[unitID] = true
@@ -597,12 +625,28 @@ function widget:RecvLuaMsg(msg, playerID)
     if data[1] == 'harvesterAttack' then
         local unitID = tonumber(data[2])
         local nearestChunkID = tonumber(data[3])
-        Spring.Echo("Harvester To Attack: "..(unitID or "nil"))
+        --Spring.Echo("Harvester To Attack: "..(unitID or "nil"))
         if unitID then
             setHarvestState(unitID, "attacking", "RcvLuaMsg")
             spGiveOrderToUnit(unitID, CMD_ATTACK, nearestChunkID, { "alt" })
         end
     end
+    --chunkDestroyed_
+    if data[1] == 'chunkDestroyed' then
+        local thisChunkID = tonumber(data[2])
+        --Spring.Echo("Chunk destroyed message received: "..(thisChunkID or "nil"))
+        if thisChunkID then
+            for harvesterID, data in pairs(harvesters) do
+                if data.targetChunkID == thisChunkID then
+                    data.targetChunkID = nil
+                    --TODO: Force-try automation? Maybe not needed due to GameFrame loop..
+                    local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+                    automateCheck(harvesterID, unitDef, "chunkDestroyed")
+                end
+            end
+        end
+    end
+
 end
 
 ---- Initialize the unit when received (shared)
