@@ -56,6 +56,7 @@ local spGetFeatureResources = Spring.GetFeatureResources
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
 local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
@@ -79,7 +80,8 @@ local automationLatency = 60        -- Delay before automation kicks in, or the 
 local idleRecheckLatency = 30 -- Delay until a de-automated unit checks for automation again
 local automatedState = {}
 
-local maxOreTowerScanRange = 900
+local oretowerScanRange1 = 250 -- Collection-start scan range
+local oretowerScanRange2 = 900 -- Return/devolution scan range
 local defaultOreTowerRange = 330
 local harvestLeashMult = 6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
 
@@ -138,13 +140,17 @@ local function spEcho(string)
         Spring.Echo(string) end
 end
 
+local function spGiveAIOrderToUnit(unitID, cmdID, cmdParams) --TODO: FINISH
+    spSetUnitRulesParam(unitID, "AIcommandissued", 1)
+end
+
 local function removeCommands(unitID)
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_GUARD }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_PATROL }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_ATTACK }, { "" })
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_UNIT_SET_TARGET }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_FIGHT }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_REPAIR }, { "alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_GUARD }, {"alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_PATROL }, {"alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_ATTACK }, {""})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_UNIT_SET_TARGET }, {"alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_FIGHT }, {"alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_REPAIR }, {"alt"})
 end
 
 local function setHarvestState(unitID, state, caller) -- none, attack, waitforunload, deliver, resume
@@ -272,7 +278,7 @@ local automatedFunctions = {
             condition = function(ud)
                         return harvestState[ud.unitID] ~= "delivering" and loadedHarvesters[ud.unitID]
                                 and (
-                                        (harvestState[ud.unitID] == "attacking" and (ud.parentOreTowerID or ud.nearestOreTowerID))
+                                        (harvestState[ud.unitID] == "attacking" and (ud.parentOreTowerID or ud.nearestOreTowerID2))
                                     or (harvestState[ud.unitID] == "idle" -- or partialLoadHarvesters[ud.unitID])
                                         and (not ud.parentOreTowerID) and (ud.nearestOreTowerID and ud.farFromOreTower))
                                     )
@@ -280,8 +286,8 @@ local automatedFunctions = {
             action = function(ud)
                 spEcho("**1** Delivering actions")
                 local harvester = harvesters[ud.unitID]
-                if not harvester.parentOreTowerID and ud.nearestOreTowerID then
-                    harvester.parentOreTowerID = ud.nearestOreTowerID
+                if not harvester.parentOreTowerID and ud.nearestOreTowerID2 then
+                    harvester.parentOreTowerID = ud.nearestOreTowerID2
                 end
                 if harvester.parentOreTowerID then
                     harvester.returnPos = { x = ud.pos.x, y = ud.pos.y, z = ud.pos.z }
@@ -354,7 +360,7 @@ local automatedFunctions = {
             condition = function(ud) -- if full and no parent or nearby oreTower
                 return harvestState[ud.unitID] == "attacking" and not loadedHarvesters[ud.unitID]
                         and
-                        (   (loadedHarvesters[ud.unitID] and (not ud.nearestOreTowerID and not ud.parentOreTowerID))
+                        (   (loadedHarvesters[ud.unitID] and (not ud.nearestOreTowerID1 and not ud.parentOreTowerID))
                             or
                             ud.targetChunkID == nil
                         )
@@ -393,9 +399,11 @@ local function automateCheck(unitID, unitDef, caller)
     local nearestChunkID = NearestItemAround(unitID, pos, unitDef, harvestrange,
                                             function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
                                             nil, false, gaiaTeamID)
-    local nearestOreTowerID = NearestItemAround(unitID, pos, unitDef, maxOreTowerScanRange, nil,
+    local nearestOreTowerID1 = NearestItemAround(unitID, pos, unitDef, oretowerScanRange1, nil,
                                         function(x) return (oreTowers and oreTowers[x] or nil) end) --,
                                         --nil, false, nil, spGetUnitAllyTeam(unitID))
+    local nearestOreTowerID2 = NearestItemAround(unitID, pos, unitDef, oretowerScanRange2, nil,
+            function(x) return (oreTowers and oreTowers[x] or nil) end) --,
     local nearestFactoryID = NearestItemAround(unitID, pos, unitDef, radius,
                                                     function(x) return x.isFactory end,     --We're only interested in factories currently producing
                                                     function(x) return hasBuildQueue(x) end)
@@ -405,7 +413,7 @@ local function automateCheck(unitID, unitDef, caller)
                                                         return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
                                              true)
     local nearestEnergyID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil,true)
-    local targetOreTowerID = harvesters[unitID].parentOreTowerID or nearestOreTowerID
+    local targetOreTowerID = harvesters[unitID].parentOreTowerID or nearestOreTowerID1
 
     local otx, oty, otz
     if targetOreTowerID then
@@ -413,16 +421,16 @@ local function automateCheck(unitID, unitDef, caller)
     end
     local farFromOreTower = true
     if otx and otz then
-        local sqrOreTowerRange = getOreTowerRange(nearestOreTowerID)
+        local sqrOreTowerRange = getOreTowerRange(nearestOreTowerID1)
         sqrOreTowerRange = sqrOreTowerRange * sqrOreTowerRange
         farFromOreTower = sqrDistance(x,z,otx,otz) > sqrOreTowerRange
     end
 
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
                  nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
-                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID,
-                 nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID, parentOreTowerID = targetOreTowerID,
-                 farFromOreTower = farFromOreTower, returnPos = harvesters[unitID].returnPos,
+                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID1= nearestOreTowerID1,
+                 nearestOreTowerID2 = nearestOreTowerID2, nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID,
+                 parentOreTowerID = targetOreTowerID, farFromOreTower = farFromOreTower, returnPos = harvesters[unitID].returnPos,
                  targetChunkID = harvesters[unitID].targetChunkID
                }
 
@@ -441,10 +449,10 @@ local function automateCheck(unitID, unitDef, caller)
     --    ud.orderIssued = automatedFunctions["delivering"].action(ud)
     --    harvestState[unitID] = "delivering"
     --    local rpx, rpy, rpz = spGetUnitPosition(unitID) -- "previous harvest"
-    --    if (nearestOreTowerID) then
-    --        loadedHarvesters[unitID] = { nearestOreTowerID = nearestOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } }
+    --    if (nearestOreTowerID1) then
+    --        loadedHarvesters[unitID] = { nearestOreTowerID1 = nearestOreTowerID1, returnPos = { x = rpx, y = rpy, z = rpz } }
     --    else
-    --        loadedHarvesters[unitID] = { nearestOreTowerID = nil, returnPos = { x = rpx, y = rpy, z = rpz } }
+    --        loadedHarvesters[unitID] = { nearestOreTowerID1 = nil, returnPos = { x = rpx, y = rpy, z = rpz } }
     --    end
     --end
     ----- 0.1. harvest : attack => If it's a non-loaded harvester and is near an ore chunk, attack it;
@@ -458,11 +466,11 @@ local function automateCheck(unitID, unitDef, caller)
     ----    automatedState[unitID] = "harvest"
     ----    harvestState[unitID] = "partialdeliver"
     ----    local rpx, rpy, rpz = spGetUnitPosition(unitID) -- "previous harvest"
-    ----    if (nearestOreTowerID) then
-    ----        --local otx, oty, otz = spGetUnitPosition(nearestOreTowerID)  -- "ore tower"
-    ----        loadedHarvesters[unitID] = { nearestOreTowerID = nearestOreTowerID, returnPos = { x = rpx, y = rpy, z = rpz } }
+    ----    if (nearestOreTowerID1) then
+    ----        --local otx, oty, otz = spGetUnitPosition(nearestOreTowerID1)  -- "ore tower"
+    ----        loadedHarvesters[unitID] = { nearestOreTowerID1 = nearestOreTowerID1, returnPos = { x = rpx, y = rpy, z = rpz } }
     ----    else
-    ----        loadedHarvesters[unitID] = { nearestOreTowerID = nil, returnPos = { x = rpx, y = rpy, z = rpz } }
+    ----        loadedHarvesters[unitID] = { nearestOreTowerID1 = nil, returnPos = { x = rpx, y = rpy, z = rpz } }
     ----    end
     ----    --else
     ----    --    Spring.Echo("Deliver condition not met ... State: "..automatedState[unitID].." loadedHarvester: "..(tostring(loadedHarvesters[unitID]) or "nil"))
@@ -575,10 +583,10 @@ function widget:GameFrame(f)
     --- Set "harvest : unloading" state on loaded harvesters which have reached their destination
     --for unitID in pairs(loadedHarvesters) do
     --    local data = harvesters[unitID]
-    --    local nearestOreTowerID = data.nearestOreTowerID
-    --    local oreTowerRange = getOreTowerRange(nearestOreTowerID)
+    --    local nearestOreTowerID1 = data.nearestOreTowerID1
+    --    local oreTowerRange = getOreTowerRange(nearestOreTowerID1)
     --
-    --    if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID) and spGetUnitSeparation(unitID, nearestOreTowerID, false) < (oreTowerRange - 20) then
+    --    if IsValidUnit(unitID) and IsValidUnit(nearestOreTowerID1) and spGetUnitSeparation(unitID, nearestOreTowerID1, false) < (oreTowerRange - 20) then
     --        loadedHarvesters[unitID] = nil
     --        spGiveOrderToUnit(unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
     --        setHarvestState(unitID, "unloading", "gameFrame: loadedHarvesters loop") -- idle, attack, deliver, unloading, return
@@ -598,7 +606,7 @@ function widget:GameFrame(f)
     --        returningHarvesters[unitID] = nil
     --    else    -- if it still has a load but the destination ore tower is destroyed, or it's too far from it (was pushed), deautomate it
     --        local oreTowerRange = oreTowers[data.parentOreTowerID]
-    --        local isFarFromTower = spGetUnitSeparation(unitID, data.nearestOreTowerID, false) > (oreTowerRange or defaultOreTowerRange) - 5
+    --        local isFarFromTower = spGetUnitSeparation(unitID, data.nearestOreTowerID1, false) > (oreTowerRange or defaultOreTowerRange) - 5
     --        if not IsValidUnit(data.parentOreTowerID) or isFarFromTower then
     --            DeharvestUnit(unitID)
     --            returningHarvesters[unitID] = nil

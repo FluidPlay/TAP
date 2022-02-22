@@ -235,11 +235,11 @@ assert(type(weaponID) == "number","Argument weaponID is of invalid type - expect
 return  numberMock
  end
 
-function Spring.SetUnitFlanking   (  unitID, mode, mode)
+function Spring.SetUnitFlanking   (  unitID, moveFactor, mode)
 assert(type(unitID) == "number","Argument unitID is of invalid type - expected number");
-assert(type(mode) == "string","Argument mode is of invalid type - expected string");
+assert(type(moveFactor) == "string","Argument moveFactor is of invalid type - expected string");
 assert(type(mode) == "number","Argument mode is of invalid type - expected number");
-return  numberMock
+return numberMock
  end
 
 function Spring.SetUnitWeaponState   (  unitID, weaponNum, states)
@@ -537,9 +537,13 @@ assert(type(param1) == "number","Argument param1 is of invalid type - expected n
 return  numberMock
  end
 
-function Spring.GiveOrderToUnit   ( )
-return
- end
+function Spring.GiveOrderToUnit ( unitID, cmdID, params, options )
+assert(type(unitID) == "number","Argument unitID is of invalid type - expected number");
+assert(type(cmdID) == "number","Argument cmdID is of invalid type - expected number");
+assert(type(params) == "number","Argument params is of invalid type - expected number");    --= { number, etc...}
+assert(type(options) == "table","Argument params is of invalid type - expected table");     --= {"alt", "ctrl", "shift", "right"}
+return numberMock
+end
 
 function Spring.GiveOrderToUnitMap   ( )
 return
