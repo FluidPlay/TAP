@@ -13,6 +13,7 @@ function widget:GetInfo()
         license = "GPLv3",
         layer = 0,
         enabled = true,
+        handler = false,
     }
 end
 
@@ -686,6 +687,7 @@ end
 
 function widget:CommandNotify(cmdID, params, options)
     spEcho("CommandID registered: "..(cmdID or "nil"))
+    Spring.Echo("Got cmdID: "..cmdID)
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }

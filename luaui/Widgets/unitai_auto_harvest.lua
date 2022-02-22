@@ -11,6 +11,7 @@ function widget:GetInfo()
         license = "GPLv3",
         layer = 16,
         enabled = true,
+        handler = false,
     }
 end
 
@@ -294,6 +295,7 @@ local automatedFunctions = {
                     spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
                     local x,y,z = spGetUnitPosition(harvester.parentOreTowerID)
                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z}, { "" })
+                    Spring.Echo("Issued Command: "..tostring(CMD_MOVE))
                     return "delivering"
                 end
             end
@@ -307,6 +309,7 @@ local automatedFunctions = {
               spEcho("**2** Unloading Actions")
               --Spring.Echo("1; nearestOreTowerID: "..(ud.nearestOreTowerID or "nil"))
               spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
+              Spring.Echo("Issued Command: "..tostring(CMD_STOP))
               return "unloading"
             end
     },
@@ -320,6 +323,7 @@ local automatedFunctions = {
                local rp = ud.returnPos
                if rp.x then
                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                   Spring.Echo("Issued Command: "..tostring(CMD_MOVE))
                    return "returning"
                end
             end
@@ -336,6 +340,7 @@ local automatedFunctions = {
                 local rp = harvesters[ud.unitID].returnPos
                 if rp.x then
                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                    Spring.Echo("Issued Command: "..tostring(CMD_MOVE))
                     return "returned"
                 end
             end
@@ -352,6 +357,7 @@ local automatedFunctions = {
                    --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                    spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
                    harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
+                   Spring.Echo("Issued Command: "..tostring(CMD_ATTACK))
                    return "attacking"
                end
             end
@@ -637,6 +643,7 @@ function widget:RecvLuaMsg(msg, playerID)
         if unitID then
             setHarvestState(unitID, "attacking", "RcvLuaMsg")
             spGiveOrderToUnit(unitID, CMD_ATTACK, nearestChunkID, { "alt" })
+            Spring.Echo("Issued Command: "..tostring(CMD_ATTACK))
         end
     end
     --chunkDestroyed_

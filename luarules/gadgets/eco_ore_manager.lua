@@ -22,7 +22,7 @@ if gadgetHandler:IsSyncedCode() then
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
     local updateRate = 120 * 30 -- 2 mins
-    local oreSpots -- { 1 = { chunks = { 1 = { unitID, pos, kind, spotIdx, idxInSpot }, ...},
+    local oreSpots = {} -- { 1 = { chunks = { 1 = { unitID, pos, kind, spotIdx, idxInSpot }, ...},
                    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
                    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
                    --       }, ...
@@ -142,6 +142,8 @@ if gadgetHandler:IsSyncedCode() then
     function gadget:GameStart()
         --Spring.Echo("Number of ore spots found: "..#oreSpots)
         allUnits = spGetAllUnits()
+        if not istable(oreSpots) then
+            return end
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             for j = 1, startingChunkCount do
