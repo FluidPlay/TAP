@@ -4,7 +4,7 @@
 ---
 function widget:GetInfo()
     return {
-        name = "AI Builder Debug",
+        name = "UnitAI Auto Assist - Debug",
         desc = "Shows visually the state of AI-automated builder units",
         author = "MaDDoX",
         date = "Sep 27, 2021",

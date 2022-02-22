@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------------------------
--- IMPORTANT: Requires ai_builder_brain.lua to work!
+-- IMPORTANT: Requires unitai_auto_assist.lua to work!
 ---------------------------------------------------------------------------------------------------------------------
 
 function widget:GetInfo()
     return {
-        name = "AI Harvester Brain",
+        name = "UnitAI Auto Harvest",
         desc = "Handles the Harvest cycle of Builders in the ai_builder_brain's 'harvest' state",
         author = "MaDDoX",
         date = "Feb 7, 2022",
@@ -15,7 +15,7 @@ function widget:GetInfo()
 end
 
 --- Harvest-cycle Priorities and Logic
----       idle - set to 'Harvest' mode (by ai_builder_brain.lua) but still not automated
+---       idle - set to 'Harvest' mode (by unitai_auto_assist.lua) but still not automated
 --- #1 :: attack - is NOT fully loaded & can harvest & has chunk nearby => attack nearest chunk
 --- #2 :: deliver - is fully loaded, not in range of nearest ore tower => move to nearestOreTower, set current pos to 'returnpos'
 --- #3 :: unloading - is on #deliver & has resources (partial or not) & in range of nearest ore tower => define return pos, stay still

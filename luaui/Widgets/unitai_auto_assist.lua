@@ -6,7 +6,7 @@
 
 function widget:GetInfo()
     return {
-        name = "AI Builder Brain",
+        name = "UnitAI Auto Assist",
         desc = "Makes idle construction units and structures reclaim, repair nearby units and assist building",
         author = "MaDDoX, based on Johan Hanssen Seferidis' unit_auto_reclaim_heal_assist",
         date = "Oct 14, 2020",
@@ -458,7 +458,7 @@ local automatedFunctions = {
             action = function(ud) --unitData
                spEcho("**5** Harvest check - nearest chunk: "..(ud.nearestChunkID or "nil"))
                if ud.nearestChunkID then
-                   ---Moved to ai_harvester_brain.lua (WIP)
+                   ---Moved to unitai_auto_harvest.lua (WIP)
                    --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
                    spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID)
                    spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID, "allies") --(message, mode)

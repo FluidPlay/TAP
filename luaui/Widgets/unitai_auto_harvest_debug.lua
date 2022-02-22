@@ -4,7 +4,7 @@
 ---
 function widget:GetInfo()
     return {
-        name = "AI Harvester Debug",
+        name = "UnitAI Auto Harvest - Debug",
         desc = "Shows visually the state of AI-automated builder units",
         author = "MaDDoX",
         date = "Feb 15, 2022",
