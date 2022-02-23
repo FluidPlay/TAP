@@ -20,7 +20,7 @@ end
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 
-local localDebug = false --true --|| Enables text state debug messages
+local localDebug = true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -80,7 +80,7 @@ local deautomatedRecheckLatency = 30 -- Delay until a de-automated unit checks f
 local reclaimRadius = 20            -- Reclaim commands issued by code apparently only work with a radius (area-reclaim)
 local maxOreTowerScanRange = 900
 local defaultOreTowerRange = 330
-local harvestLeashMult = 6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
+local harvestLeashMult = 0.6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
 
 local automatableUnits = {} -- All units which can be automated // { [unitID] = true|false, ... }
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
@@ -187,12 +187,7 @@ local function unitIsBeingBuilt(unitID)
 end
 
 local function removeCommands(unitID)
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_GUARD }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_PATROL }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_ATTACK }, { "" })
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_UNIT_SET_TARGET }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_FIGHT }, { "alt"})
-    spGiveOrderToUnit(unitID, CMD_REMOVE, { CMD_REPAIR }, { "alt"})
+    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
 end
 
 local function stopAssisting(unitID)
@@ -205,14 +200,18 @@ local function stopAssisting(unitID)
     --end
 end
 
+local function DeautomateUnit(unitID, caller)
+    removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
+    automatedUnits[unitID] = nil
+    --- It'll only get out of deautomated if it's idle, that's only the delay to recheck idle
+    deautomatedUnits[unitID] = spGetGameFrame() + deautomatedRecheckLatency
+    spEcho("Autoassist: Deautomating Unit: "..unitID..", try re-automation in: "..spGetGameFrame() + deautomatedRecheckLatency)
+    spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
+end
+
 local function setAutomateState(unitID, state, caller)
     if state == "deautomated" then --or state == "idle" then
-        automatedUnits[unitID] = nil
-        --- It'll only get out of deautomated if it's idle, that's only the delay to recheck idle
-        --if not deautomatedUnits[unitID] then
-        deautomatedUnits[unitID] = spGetGameFrame() + deautomatedRecheckLatency
-        --end
-        spEcho("To automate in: "..spGetGameFrame() + deautomatedRecheckLatency)
+        DeautomateUnit(unitID, caller)
     else
         deautomatedUnits[unitID] = nil
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
@@ -256,14 +255,6 @@ local function hasBuildQueue(unitID)
     else
         return false
     end
-end
-
-local function DeautomateUnit(unitID, caller)
-    removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
-    spEcho("Deautomating Unit: "..unitID)
-    setAutomateState(unitID, "deautomated", caller or "DeautomateUnit")
-    spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
-    spEcho("Send message: unitDeautomated_"..(unitID or "nil"))
 end
 
 --- Spring's UnitIdle is just too weird, it fires up when units are transitioning between commands..
@@ -453,8 +444,13 @@ local automatedFunctions = {
             condition = function(ud)
                 return automatedState[ud.unitID] ~= "harvest" --and automatedState[ud.unitID] ~= "await"
                         and canharvest[ud.unitDef.name]
-                        and ud.nearestChunkID
-                        and not loadedHarvesters[ud.unitID]
+                        and( (
+                                ud.nearestChunkID and not loadedHarvesters[ud.unitID]
+                              )
+                           or (
+                                ud.nearestOreTowerID and loadedHarvesters[ud.unitID]
+                              )
+                           )
                 end,
             action = function(ud) --unitData
                spEcho("**5** Harvest check - nearest chunk: "..(ud.nearestChunkID or "nil"))
@@ -686,8 +682,7 @@ local function automateCheck(unitID, unitDef, caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-    spEcho("CommandID registered: "..(cmdID or "nil"))
-    Spring.Echo("Got cmdID: "..cmdID)
+    --spEcho("CommandID registered: "..(cmdID or "nil"))
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
@@ -703,7 +698,7 @@ function widget:CommandNotify(cmdID, params, options)
         if automatableUnits[unitID] and IsValidUnit(unitID) then
             if automatedState[unitID] ~= "deautomated" then -- if it's working, don't touch it
                 --guardingUnits[unitID] then --options.shift and
-                DeautomateUnit(unitID, "CommandNotify")
+                setAutomateState(unitID, "deautomated", "CommandNotify")
             end
         end
     end
@@ -756,7 +751,7 @@ function widget:GameFrame(f)
     --- Set units to "deautomated" when it's really idle. There's a delay before the actual re-automation attempt below
     for unitID, recheckFrame in pairs(deautomatedUnits) do
         if IsValidUnit(unitID) and f >= recheckFrame then
-            spEcho("ai_builder_brain: Deautomated units check")
+            spEcho("unitai_auto_assit: Deautomated units check")
             if isReallyIdle(unitID) then
                 --stopAssisting(unitID) --TODO: Check if needed
                 --if validStateForRepurpose(unitID) then
@@ -825,13 +820,12 @@ end
 
 ----From ai_builder_brain: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")
 function widget:RecvLuaMsg(msg, playerID)
-    --Spring.Echo("[ai_builder_brain] Message Received: "..msg)
     if msg:sub(1, 13) == 'harvesterIdle' then --"harvesterIdle_"..unitID
         local data = Split(msg, '_')
         local unitID = tonumber(data[2])
-        spEcho("[ai_builder_brain]Idle Harvester: "..(unitID or "nil"))
-        if unitID and isReallyIdle(unitID) then
-            DeautomateUnit(unitID, "RecvLuaMsg")
+        spEcho("Autoassist :: Idle Harvester: "..(unitID or "nil"))
+        if unitID then --and isReallyIdle(unitID) then
+            setAutomateState(unitID, "deautomated", "RecvLuaMsg")
         end
     end
 end

@@ -659,7 +659,7 @@ StopBuilding()
     building = FALSE;
 	set INBUILDSTANCE to 0;
 	signal SIG_AIM;
-	set-signal-mask SIG_AIM;;
+	set-signal-mask SIG_AIM;
 	sleep 3000;
 	if (building) return;
 	call-script RestorePosition();

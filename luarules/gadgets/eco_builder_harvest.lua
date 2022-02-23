@@ -117,33 +117,33 @@ if gadgetHandler:IsSyncedCode() then
         --spawnedChunks[unitID] = nil
     end
 
-    ---Returns nearestTowerID (or nil if none found within 999 range) & nearestDeployPos
-    local function getNearestTowerID(harvesterID)
-        local nearestDist = 999
-        local nearestTowerID = nil
-        local nearestTowerRange = 999
-        for oreTowerID, data in pairs(oreTowers) do
-            local range = data.range
-            local thisTowerDist = spGetUnitSeparation ( harvesterID, oreTowerID, true) -- [, bool surfaceDist ]] )
-            if (thisTowerDist - range + distBuffer) <= nearestDist then  -- Eg: ttD = 600 - range = 200 => 600-200+40) => 440
-                nearestTowerRange = range
-                nearestTowerID = oreTowerID
-            end
-        end
-        if nearestTowerRange == 999 then
-            return nil
-        end
-        -- Get nearest point in deliver range of the Ore Tower
-        --L = sqrt ((x2-x1)^2 + (y2-y1)^2) --that's already nearestDist
-        local p = (nearestTowerRange - distBuffer) / nearestDist	--percentage (radius to discount / length of p1~p2)
-        local x1, y1 = spGetUnitPosition(harvesterID)
-        local x2, y2 = spGetUnitPosition(nearestTowerID)
-        if x1==x2 and y1==y2 then
-            return nil
-        end
-        local nearestDeployPos = { x = x2+p*(x1-x2), y = y2+p*(y1-y2) }
-        return nearestTowerID, nearestDeployPos
-    end
+    -----Returns nearestTowerID (or nil if none found within 999 range) & nearestDeployPos
+    --local function getNearestTowerID(harvesterID)
+    --    local nearestDist = 999
+    --    local nearestTowerID = nil
+    --    local nearestTowerRange = 999
+    --    for oreTowerID, data in pairs(oreTowers) do
+    --        local range = data.range
+    --        local thisTowerDist = spGetUnitSeparation ( harvesterID, oreTowerID, true) -- [, bool surfaceDist ]] )
+    --        if (thisTowerDist - range + distBuffer) <= nearestDist then  -- Eg: ttD = 600 - range = 200 => 600-200+40) => 440
+    --            nearestTowerRange = range
+    --            nearestTowerID = oreTowerID
+    --        end
+    --    end
+    --    if nearestTowerRange == 999 then
+    --        return nil
+    --    end
+    --    -- Get nearest point in deliver range of the Ore Tower
+    --    --L = sqrt ((x2-x1)^2 + (y2-y1)^2) --that's already nearestDist
+    --    local p = (nearestTowerRange - distBuffer) / nearestDist	--percentage (radius to discount / length of p1~p2)
+    --    local x1, y1 = spGetUnitPosition(harvesterID)
+    --    local x2, y2 = spGetUnitPosition(nearestTowerID)
+    --    if x1==x2 and y1==y2 then
+    --        return nil
+    --    end
+    --    local nearestDeployPos = { x = x2+p*(x1-x2), y = y2+p*(y1-y2) }
+    --    return nearestTowerID, nearestDeployPos
+    --end
 
     local function isHarvesting(unitID)
         return harvestersInAction[unitID]
@@ -199,15 +199,14 @@ if gadgetHandler:IsSyncedCode() then
         --Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
         if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
             return end
-        local uDef = UnitDefs[harvesterDefID]
-        if not uDef or not canharvest[uDef.name] then
+        local harvesterDef = UnitDefs[harvesterDefID]
+        if not harvesterDef or not canharvest[harvesterDef.name] then
             return end
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
         --Spring.Echo("cur Storage: "..curStorage.." damage: "..damage)
 
         -- Block further usage of the unit's harvest weapon while storage is full
-        local attackerDef = UnitDefs[harvesterDefID]
-        local maxStorage = attackerDef and tonumber(attackerDef.customParams.maxorestorage) or defaultMaxStorage
+        local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
 
         harvestersInAction[unitID] = true
 
@@ -223,13 +222,12 @@ if gadgetHandler:IsSyncedCode() then
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
 
             spEcho("unit ".. harvesterID .." is loaded!!")
-            local nearestTowerID = getNearestTowerID(harvesterID)
-            loadedHarvesters[harvesterID] = nearestTowerID or true -- if there's no nearby tower, set it to true!
+            --local nearestTowerID = getNearestTowerID(harvesterID)
+            loadedHarvesters[harvesterID] = true
             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
-            SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID, nearestTowerID or true)
+            SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID)
 
-            --@ ai_builder_brain: moves it to be in range of closest ore tower
-            --- once there it'll only return to previous harvest spot when it's totally unloaded
+            --@ unitai_auto_assist: move it to be in range of closest ore tower
         end
     end
 
@@ -252,7 +250,7 @@ if gadgetHandler:IsSyncedCode() then
             end
         end
 
-        for unitID, nearestTowerID in pairs(loadedHarvesters) do
+        for unitID, _ in pairs(loadedHarvesters) do
             --spEcho("load harv id "..(unitID or "nil"))
             if IsValidUnit(unitID) then
                 --spEcho("intowerrange: "..tostring(inTowerRange(unitID)))
@@ -291,7 +289,7 @@ else
     local function handleLoadedHarvesterEvent(cmd, harvesterTeam, unitID, value)
         if not Script.LuaUI(LoadedHarvesterEvent) then
             return end
-        --- LuaUI event consumed by ai_builder_brain (to set loadedHarvesters[unitID])
+        --- LuaUI event consumed by unitai_autoassist (to set loadedHarvesters[unitID])
         Script.LuaUI.LoadedHarvesterEvent(harvesterTeam, unitID, value)
     end
 

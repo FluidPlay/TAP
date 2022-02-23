@@ -1,5 +1,5 @@
 #line 10001
-const float noiseScale = 4 / float(%f); //1.
+const float noiseScale = 4.0 / float(%f); //1.
 const float fogHeight = float(%f);
 const float fogBottom = float(%f);
 const float fogThicknessInv = 1. / (fogHeight - fogBottom);
@@ -11,13 +11,13 @@ const float opacity = float(%f);
 
 const float sunPenetrationDepth = float(%f);
 
-const float shadowOpacity = 0.45; //0.33; //0.4; //0.3
+const float shadowOpacity = float(0.435); //0.33; //0.4; //0.3
 const float sunDiffuseStrength = float(6.0);
-const float noiseTexSizeInv = 1.0 / 256.0; //1.0
-const float noiseCloudness = float(0.9) * 0.075; //0.5; 0.7 // TODO: configurable
+const float noiseTexSizeInv = 0.5 / 128.0; //1.0 / 256.0
+const float noiseCloudness = float(0.6) * 0.075; //0.5; 0.7 // TODO: configurable
 
 #ifdef CLAMP_TO_MAP
-	const vec3 vAA = vec3(  1.,fogBottom,  1.);
+	const vec3 vAA = vec3(  1.0, fogBottom,  1.0);
 	const vec3 vBB = vec3(mapX-1.,fogHeight,mapZ-1.);
 #else
 	const vec3 vAA = vec3(-300000.0, fogBottom, -300000.0);
@@ -108,12 +108,12 @@ vec4 RaymarchClouds(in vec3 start, in vec3 end, float op)
 {
 	float l = length(end - start);
 	const float numsteps = 20.0;
-	const float tstep = 1. / numsteps;
+	const float tstep = 1.0 / numsteps;
 	float depth = min(l * fogThicknessInv, 1.5);
 
-	float fogContrib = 0.;
-	float sunContrib = 0.;
-	float alpha = 0.;
+	float fogContrib = 0.0;
+	float sunContrib = 0.0;
+	float alpha = 0.0;
 
 	for (float t=0.0; t<=1.0; t+=tstep) {
 		vec3  pos = mix(start, end, t);
@@ -135,7 +135,7 @@ vec4 RaymarchClouds(in vec3 start, in vec3 end, float op)
 
 	vec3 ndir = (end - start) / l;
 	float sun = pow( clamp( dot(sundir, ndir), 0.0, 1.0 ), sunSpecularExponent );
-	sunContrib += sun * clamp(1. - fogContrib * alpha, 0.2, 1.) * 1.0;
+	sunContrib += sun * clamp(1. - fogContrib * alpha, 0.2, 1.0) * 1.0;
 
 	vec4 col;
 	col.rgb = sunContrib * suncolor + fogColor;
@@ -152,7 +152,7 @@ vec3 GetWorldPos(in float z, in vec2 screenpos)
 		ppos.xyz = NORM2SNORM(vec3(screenpos, z));
 	#endif
 
-	ppos.a = 1.;
+	ppos.a = 1.0;
 	vec4 worldPos4 = viewProjectionInv * ppos;
 	worldPos4.xyz /= worldPos4.w;
 
@@ -173,11 +173,11 @@ vec4 Blend(in vec4 Src, in vec4 Dst)
 	vec4 Out;
 
 	//alpha blending - shit
-	//Out = Src * Src.a + Dst * (1.0 - Src.a);
+	Out = Src * Src.a + Dst * (1.0 - Src.a);
+	//Out.rgb = Src.rgb * Src.a + Dst.rgb * Dst.a;
 
-	Out.rgb = Src.rgb * Src.a + Dst.rgb * Dst.a;
-	//Out.a = max(Src.a, Dst.a);
-	Out.a = Src.a + Dst.a;
+	Out.a = max(Src.a, Dst.a);
+	//Out.a = Src.a + Dst.a;
 
 	return Out;
 }
