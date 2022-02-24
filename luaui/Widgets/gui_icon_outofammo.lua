@@ -42,7 +42,7 @@ local DebugMsgs = false; --true;
 --    font:SetTextColor(r,g,b,a)
 --end
 
-local function SpringEcho(msg)
+local function spEcho(msg)
     if DebugMsgs then
         Spring.Echo(msg) end
 end
@@ -73,8 +73,8 @@ end
 local function outOfAmmo(unitID)
     local ammo = 1
     local unitammo = spGetUnitRulesParam(unitID, "ammo")
-    SpringEcho("ammo: "..unitammo)
     if unitammo then
+        spEcho("ammo: "..(tostring(unitammo) or "nil"))
         unitammo = tonumber(unitammo) end
     return unitammo < 1
 end
@@ -148,7 +148,7 @@ function widget:GameFrame(f)
     for unitID in pairs(trackedUnits) do
         if IsValidUnit(unitID) then
             local outOfAmmo = outOfAmmo(unitID)
-            SpringEcho("Is Valid: "..unitID.." Out Of Ammo: "..(tostring(outOfAmmo) or "nil"))
+            spEcho("Is Valid: "..unitID.." Out Of Ammo: "..(tostring(outOfAmmo) or "nil"))
             if outOfAmmo then
                 if not outOfAmmoPlanes[unitID] then
                     outOfAmmoPlanes[unitID] = true

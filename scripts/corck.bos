@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-#define SIG_AIM			2
+//#define SIG_AIM			2
 #define SIG_BUILD		4	
 
 piece  torso, nanospray2, pelvis, lthigh, rthigh, rleg, lleg, gunclamp,
@@ -414,11 +414,10 @@ TargetHeading(Func_Var_1)
 
 AimPrimary(heading, pitch)
 {
-	if (blockWeaponFlag)
-		return (0);
+//	if (blockWeaponFlag)
+//		return (0);
 
-	signal SIG_AIM;
-	set-signal-mask SIG_AIM;
+	signal SIG_BUILD;
 
 	start-script RequestState(0);
 	//signal SIG_BUILD;

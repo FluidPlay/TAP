@@ -262,7 +262,7 @@ if gadgetHandler:IsSyncedCode() then
                 local maxStorage = uDef and (tonumber(uDef.customParams.maxorestorage) or defaultMaxStorage)
                 local curStorage = spGetUnitHarvestStorage(unitID)
                 spEcho("harv id "..(unitID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
-                if (curStorage < 10) then --< maxStorage
+                if (curStorage < maxStorage) then --< maxStorage
                     loadedHarvesters[unitID] = nil
                     spCallCOBScript(unitID, "UnblockWeapon", 0)
                     spEcho("unit ".. unitID .." is no longer loaded")

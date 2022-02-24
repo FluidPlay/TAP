@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-#define SIG_AIM			2
+//#define SIG_AIM			2
 #define SIG_BUILD		4	
 
 piece  nanospray, turret, rfoot, lfoot, pelvis, lflap, rflap, guncover,
@@ -561,7 +561,6 @@ StartBuilding(heading, pitch)
 	start-script RequestState(0);
 	while( notBuilding ) sleep 100;
 	signal SIG_BUILD;
-	set-signal-mask SIG_BUILD;
 	turn turret to y-axis heading speed <300.000000>;
 	wait-for-turn turret around y-axis;
 	set INBUILDSTANCE to 1;
@@ -572,8 +571,8 @@ StopBuilding()
 	signal SIG_BUILD;	
 	set-signal-mask SIG_BUILD;
 	sleep 6000;
-	//set-signal-mask 0;
-	//signal SIG_BUILD;	
+	set-signal-mask 0;
+	signal SIG_BUILD;	
 	start-script RequestState(1);
 }
 
@@ -605,11 +604,10 @@ TargetHeading(Func_Var_1)
 
 AimPrimary(heading, pitch)
 {
-	if (blockWeaponFlag)
-		return (0);
+//	if (blockWeaponFlag)
+//		return (0);
 
-	signal SIG_AIM;
-	set-signal-mask SIG_AIM;
+	signal SIG_BUILD;
 
 	start-script RequestState(0);
 	turn turret to y-axis heading speed <400.000000>;
