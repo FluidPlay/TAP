@@ -44,6 +44,12 @@ local t2WindMultiplier      = 4.5
 local spSetUnitResourcing   = Spring.SetUnitResourcing
 local maxModWindSpeed       = 25
 
+local t1WindGens = {
+    armwin = true, corwin = true,
+}
+local t4WindGens = {
+    armawin = true, corawin = true,
+}
 
 local advWindGens = {}     --[unitID] = true
 local windGens = {}
@@ -72,12 +78,17 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
     local ud = UnitDefs[unitDefID]
     if ud == nil then
         return end
-    if ud.customParams.specialty == "wind" then
-        --Spring.Echo("Unit added, specialty: "..ud.customParams.specialty.." Tier: "..ud.customParams.tier)
+    if t1WindGens[ud.name] then
         windGens[unitID] = true
-        if ud.customParams.tier == "2" then
-            advWindGens[unitID]=true end
+    elseif t4WindGens[ud.name] then
+        advWindGens[unitID] = true
     end
+    --if ud.customParams.specialty == "wind" then
+    --    --Spring.Echo("Unit added, specialty: "..ud.customParams.specialty.." Tier: "..ud.customParams.tier)
+    --    windGens[unitID] = true
+    --    if ud.customParams.tier == "2" then
+    --        advWindGens[unitID]=true end
+    --end
 end
 
 function gadget:GameFrame(f)
@@ -85,7 +96,7 @@ function gadget:GameFrame(f)
         return end
 
     local _, _, _, currentWind = spGetWind()
-    -- limit to 25, the maximum wind speed in TA Prime and BA
+    -- limit to 25, the maximum wind speed in TAP
     currentWind = math.min(math.min(currentWind, gmMaxWind), maxModWindSpeed)
     for unitID,_ in pairs(windGens) do
         local _,unitYpos = spGetUnitPosition(unitID)

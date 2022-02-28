@@ -33,7 +33,7 @@ if gadgetHandler:IsSyncedCode() then
     local deadZone = 30
     local startKind = "lrg"
     local spawnDelay = { ["sml"]=300, ["lrg"]=400, ["moho"]=550, ["mantle"]=750 }
-    local allUnits = {}
+    local maxIter = 50 -- it'll quit trying to recurse (find an appropriate spot) after 50 attempts
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
 
@@ -43,59 +43,56 @@ if gadgetHandler:IsSyncedCode() then
     local math_sin = math.sin
     local math_pi = math.pi
     local minSpawnDistance = 12     -- This prevents stacked ore chunks when spawning
-    local startingChunkCount = 4    --
-    local maxChunkCount = 10        -- Won't have more than this amount of chunks in a single spot (on respawn)
+    local startingChunkCount = 2 --4    --
+    local maxChunkCount = 8        -- Won't have more than this amount of chunks in a single spot (on respawn)
     local chunkMultiplier = 1       -- existing chunks times this number will be spawned (up to maxChunkCount above)
     local spawnRadius = 55 --starting spawn radius from oreSpot's center
     local chunks = {} --{ unitID = { pos = {x=x, z=z}, kind="sml | lrg | moho | mantle", spotIdx = idx {oreSpots[idx]}), idxInSpot = n }
 
+    -- currently unused/obsolete, we're using the health of the chunk. 1 hp = 1 ore
     local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
 
     local spCreateUnit = Spring.CreateUnit
     local spSetUnitNeutral = Spring.SetUnitNeutral
-    local spGetAllUnits = Spring.GetAllUnits
+    local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
+
 
     local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
-    local function sqr (x)
-        return math.pow(x, 2)
-    end
     --local function distance (x1, y1, z1, x2, y2, z2 )
     --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
     --end
-    local function distance (pos1, pos2)
-        --Spring.Echo("x1: "..(pos1.x or "nil").." | z1: ".. (pos1.z or "nil") .. " | x2: "..(pos2.x or "nil").." | z2: "..(pos2.z or "nil"))
-        if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
-            return 999
-        end
-        return math.sqrt(sqr(pos2.x-pos1.x) + sqr(pos2.z-pos1.z))
-    end
+    --- Moved to taptools.lua
+    --local function distance (pos1, pos2)
+    --    --Spring.Echo("x1: "..(pos1.x or "nil").." | z1: ".. (pos1.z or "nil") .. " | x2: "..(pos2.x or "nil").." | z2: "..(pos2.z or "nil"))
+    --    if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
+    --        return 999
+    --    end
+    --    return math.sqrt(sqr(pos2.x-pos1.x) + sqr(pos2.z-pos1.z))
+    --end
 
-    local function chunkOrUnitNearby(x, _, z, allUnits)
+    local function chunkOrUnitNearby(x, _, z, iter)
         if x == nil or z == nil then
-            return false end
-        for _, data in pairs(chunks) do
-            if distance(data.pos, {x=x, z=z}) < minSpawnDistance then
-                return true
-            end
-            --for _, unitID in pairs(allUnits) do
-            --    local x,_,z = spGetUnitPosition(unitID)
-            --    local unitPos = {x=x, z=z}
-            --    if distance(unitPos, {x=x, z=z}) < minSpawnDistance then
-            --        return true
-            --    end
-            --end
+            return false
         end
-        return false
+        local unitsNearSpawnpoint = spGetUnitsInCylinder(x, z, minSpawnDistance) --that should be the chunk collision width really
+        if unitsNearSpawnpoint == nil or (istable(unitsNearSpawnpoint) and #unitsNearSpawnpoint == 0) then
+            return false
+        else
+            Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
+            iter.value = iter.value + 1   --we use a table since it's passed by reference, so it's read by caller's scope
+            return true
+        end
+--        return false
     end
 
-    local function TooCloseToSpot (x, z, cx, cz)
+    local function tooCloseToSpot (x, z, cx, cz)
         return distance({x=x, z=z}, {x=cx, z=cz}) < deadZone
     end
 
     --- Returns: Spawned unitID
-    local function SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind)
+    local function SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, iter)
 
         kind = kind or "sml"
 
@@ -110,8 +107,12 @@ if gadgetHandler:IsSyncedCode() then
         --Spring.Echo("dist: "..distance({x, z}, {cx, cz}))
 
         --recurses when result is invalid (close to center or to existing chunk)
-        if TooCloseToSpot(x,z,cx,cz) or chunkOrUnitNearby(x,cy,z, allUnits) then
-            SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind)
+        if tooCloseToSpot(x,z,cx,cz) or chunkOrUnitNearby(x,cy,z, iter) then
+            if iter.value >= maxIter then
+                return nil
+            else
+                SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, iter)
+            end
         else    -- otherwise, actually spawn the unit and make it neutral
             --Spring.Echo("Name: "..(ore[kind] or "invalid"))
             --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
@@ -132,7 +133,6 @@ if gadgetHandler:IsSyncedCode() then
         --    gadgetHandler:RemoveGadget(self)
         --end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
-        startFrame = Spring.GetGameFrame()
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         --metalSpotsByPos = GG.metalSpotsByPos
         gadget:GameStart()
@@ -141,17 +141,20 @@ if gadgetHandler:IsSyncedCode() then
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
         --Spring.Echo("Number of ore spots found: "..#oreSpots)
-        allUnits = spGetAllUnits()
+        startFrame = Spring.GetGameFrame()
+        --allUnits = spGetAllUnits()
         if not istable(oreSpots) then
             return end
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             for j = 1, startingChunkCount do
-                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind) -- spotIdx, idxInSpot
-                -- We also store the spawned chunks from each oreSpot, in oreSpots data
-                if (oreSpots[i].chunks == nil) then
-                    oreSpots[i].chunks = {} end
-                oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
+                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, { value=1 }) -- spotIdx, idxInSpot
+                -- We also store the spawned chunks in each oreSpot, in oreSpots data
+                if spawnedUnitID then
+                    if (oreSpots[i].chunks == nil) then
+                        oreSpots[i].chunks = {} end
+                    oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
+                end
             end
         end
     end
@@ -173,18 +176,19 @@ if gadgetHandler:IsSyncedCode() then
         if f % updateRate > 0.0001 then
             return end
 
-        allUnits = spGetAllUnits()
+        Spring.Echo("Populating chunks at frame: "..tostring(f))
+        --allUnits = spGetAllUnits()
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             local existingCount = oreSpots[i].chunks and #(oreSpots[i].chunks) or 0
             local chunksToSpawnHere = clamp( existingCount * chunkMultiplier,0, maxChunkCount - existingCount)
-            if i == 1 then
-                --Spring.Echo(i.."\n\n")
-                --Spring.Echo("oreSpots#: "..#oreSpots)
-                --Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
-            end
+            --if i == 1 then
+            --    --Spring.Echo(i.."\n\n")
+            --    --Spring.Echo("oreSpots#: "..#oreSpots)
+            --    --Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
+            --end
             for j = 1, chunksToSpawnHere do
-                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind) -- spotIdx, idxInSpot
+                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, {value = 1}) -- spotIdx, idxInSpot
                 oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
             end
         end

@@ -229,7 +229,8 @@ local barColors = {
     tank           = { 0.10,0.20,0.90,barAlpha },
     tele           = { 0.00,0.60,0.60,barAlpha },
     tele_pw        = { 0.00,0.60,0.60,barAlpha },
-    upgrade        = { 0.80,0.60,0.00,barAlpha },
+    morph          = { 0.80,0.00,0.90,barAlpha },
+    upgrade        = { 0.90,0.50,0.00,barAlpha },
     ore_load       = { 0.20,0.30,0.40,barAlpha },
 
     -- Features
@@ -833,8 +834,9 @@ do
 
         --// MORPHING
         if (morph) then
-            local build = morph.progress
-            AddBar(messages.morph,build,"build",(fullText and floor(build*100)..'%') or '')
+            local morphProgress = morph.progress
+            --(title,progress,color_index,text,color)
+            AddBar(messages.morph, morphProgress,"morph",(fullText and floor(morphProgress *100)..'%') or '')
         end
 
         --// STOCKPILE

@@ -20,6 +20,9 @@ function GetClosestEnemyDistance()
 end
 
 function distance(x1,y1,z1,x2,y2,z2)
+    --    if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
+    --        return 999
+    --    end
 	local dist = math.sqrt((x1-x2)^2 + (y1-y2)^2 + (z1-z2)^2)
 	return dist
 end

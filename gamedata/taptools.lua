@@ -30,14 +30,32 @@ function getFontPath()
     return FontPath
 end
 
-function sqrDistance(x1,z1,x2,z2)
-	local dx,dz = x1-x2,z1-z2
-	return (dx*dx)+(dz*dz)
+local function sqr (x)
+    return x*x --math.pow(x, 2)
 end
 
+function sqrDistance(x1,z1,x2,z2)
+	local dx,dz = x1-x2,z1-z2
+	return sqr(dx)+sqr(dz)
+end
+
+-- eg.: distance(pos1, pos2) | pos1 = { x=n, y=n }
 function distance(x1,y1,z1,x2,y2,z2)
-	local dist = math.sqrt((x1-x2)^2 + (y1-y2)^2 + (z1-z2)^2)
-	return dist
+    if istable(x1) and istable(y1) and not z1 then -- (pos1, pos2) |.x, .z format
+        local pos1 = x1
+        local pos2 = y1
+        if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
+            return 9999
+        end
+        return math.sqrt(sqr(pos2.x-pos1.x) + sqr(pos2.z-pos1.z))
+    else
+        if x1 == nil or z1 == nil or x2 == nil or z2 == nil then
+            return 9999
+        end
+        y1 = (y1 == nil) and 0 or y1
+        y2 = (y2 == nil) and 0 or y2
+	    return math.sqrt(sqr(x1-x2) + sqr(y1-y2) + sqr(z1-z2))
+    end
 end
 
 function sign(number)
