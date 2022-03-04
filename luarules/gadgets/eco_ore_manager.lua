@@ -21,7 +21,7 @@ if gadgetHandler:IsSyncedCode() then
     VFS.Include("gamedata/taptools.lua")
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
-    local updateRate = 120 * 30 -- 2 mins
+    local updateRate = 120 * 30 -- 1m30 (was 2 mins)
     local oreSpots = {} -- { 1 = { chunks = { 1 = { unitID, pos, kind, spotIdx, idxInSpot }, ...},
                    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
                    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
@@ -42,9 +42,9 @@ if gadgetHandler:IsSyncedCode() then
     local math_cos = math.cos
     local math_sin = math.sin
     local math_pi = math.pi
-    local minSpawnDistance = 12     -- This prevents stacked ore chunks when spawning
-    local startingChunkCount = 2 --4    --
-    local maxChunkCount = 8        -- Won't have more than this amount of chunks in a single spot (on respawn)
+    local minSpawnDistance = 18 --12     -- This prevents stacked ore chunks when spawning
+    local startingChunkCount = 1 --4    --
+    local maxChunkCount = 9        -- Won't have more than this amount of chunks in a single spot (on respawn)
     local chunkMultiplier = 1       -- existing chunks times this number will be spawned (up to maxChunkCount above)
     local spawnRadius = 55 --starting spawn radius from oreSpot's center
     local chunks = {} --{ unitID = { pos = {x=x, z=z}, kind="sml | lrg | moho | mantle", spotIdx = idx {oreSpots[idx]}), idxInSpot = n }
@@ -80,7 +80,7 @@ if gadgetHandler:IsSyncedCode() then
         if unitsNearSpawnpoint == nil or (istable(unitsNearSpawnpoint) and #unitsNearSpawnpoint == 0) then
             return false
         else
-            Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
+            --Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
             iter.value = iter.value + 1   --we use a table since it's passed by reference, so it's read by caller's scope
             return true
         end
@@ -163,7 +163,11 @@ if gadgetHandler:IsSyncedCode() then
         if chunks[unitID] then
             local spotIdx = (chunks[unitID]).spotIdx
             local chunkIdx = (chunks[unitID]).idxInSpot
-            table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+            if oreSpots[spotIdx].chunks and (oreSpots[spotIdx].chunks)[chunkIdx] then
+                table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+            else
+                oreSpots[spotIdx].chunks = {}
+            end
             chunks[unitID] = nil
             spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
             --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
@@ -171,12 +175,12 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:GameFrame(f)
-        if f < startFrame + updateRate
-            then return end
-        if f % updateRate > 0.0001 then
+        if f % updateRate > 0.0001 or f <= startFrame then
             return end
+        --if f < startFrame + updateRate
+        --    then return end
 
-        Spring.Echo("Populating chunks at frame: "..tostring(f))
+        --Spring.Echo("Populating chunks at frame: "..tostring(f))
         --allUnits = spGetAllUnits()
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
@@ -189,7 +193,9 @@ if gadgetHandler:IsSyncedCode() then
             --end
             for j = 1, chunksToSpawnHere do
                 local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, {value = 1}) -- spotIdx, idxInSpot
-                oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
+                if spawnedUnitID then
+                    oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
+                end
             end
         end
     end

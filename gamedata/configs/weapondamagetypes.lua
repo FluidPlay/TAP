@@ -25,6 +25,13 @@ local weaponDamageTypes = {
 --	armroy = { arm_roy = "cannon", depthcharge = "omni"},
 
     armck = { ["Harvester"] = "omni", },
+    corck = { ["Harvester"] = "omni", },
+    armack = { ["Harvester"] = "omni", },
+    corack = { ["Harvester"] = "omni", },
+    armca = { ["Harvester"] = "omni", },
+    corca = { ["Harvester"] = "omni", },
+    armaca = { ["Harvester"] = "omni", },
+    coraca = { ["Harvester"] = "omni", },
 	
 	corsnap = { ["MediumPlasmaCannon"] = "cannon", },
 	corsktl = { ["RailWeapon"]="thermo"}, --{ ["Mine Detonator"] = "omni", ["Crawlingbomb Dummy Weapon"] = "omni", ["RailWeapon"] = "rail" },

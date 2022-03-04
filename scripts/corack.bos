@@ -363,6 +363,42 @@ TargetHeading(Func_Var_1)
 }
 */
 
+// =========================
+// Attack (Harvest) weapon:
+// =========================
+
+AimPrimary(heading, pitch)
+{
+//	if (blockWeaponFlag)
+//		return (0);
+
+	signal SIG_BUILD;
+
+	start-script RequestState(0);
+	turn torso to y-axis heading speed <400.000000>;
+	wait-for-turn torso around y-axis;
+
+	return (1);
+}
+
+FirePrimary()
+{
+	sleep 50; //150
+	return (0);
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = lnanogun; //turret;
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = lnanospray; //flare;
+}
+
+// =========================
+
 SweetSpot(piecenum)
 {
 	piecenum = torso;

@@ -125,10 +125,13 @@ local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 ----- Type Tables
 
 local canharvest = {
-    armck = true, corck = true }
---, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
---    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
---}
+    armck = true, corck = true, armca = true, corca = true,
+    armaca = true, coraca = true,
+    armack = true, corack = true,
+    --armcv = true, corcv = true,
+    --armacv = true, coracv = true, armcs = true, corcs = true,
+    --armacsub = true, coracsub = true,
+}
 
 -----
 
