@@ -56,6 +56,7 @@ if gadgetHandler:IsSyncedCode() then
     local spSetUnitNeutral = Spring.SetUnitNeutral
     local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
+    local spGetGameFrame = Spring.GetGameFrame
 
 
     local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
@@ -94,6 +95,10 @@ if gadgetHandler:IsSyncedCode() then
     --- Returns: Spawned unitID
     local function SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, iter)
 
+        if not cx or not cy or not cz then
+            return nil
+        end
+
         kind = kind or "sml"
 
         --https://dev.to/seanpgallivan/solution-generate-random-point-in-a-circle-ldh
@@ -118,13 +123,21 @@ if gadgetHandler:IsSyncedCode() then
             --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
             local unitID = spCreateUnit((UnitDefs[ore.moho]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
             spSetUnitNeutral(unitID, true)
-            --local featureID = spCreateFeature ( "ore_moho", x, cy, z, math_random(0,0.01), gaiaTeamID )--number heading [, number AllyTeamID [, number featureID ]]] )
-            --local sprawlTime = spGetGameFrame() + (spawnDelay[kind] or 240) + math_random(0,60)
             chunks[unitID] = { pos = { x=x, y=cy, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R, idxInSpot = idxInSpot } --, time = sprawlTime }
-            --if math_random() < sprawlChance then
-            --    chunksToSprawl[unitID] = spawnedChunks[unitID]
-            --end
             return unitID
+        end
+    end
+
+    local function spawnOneChunk(x, y, z, i, j)
+        local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, { value=1 }) -- spotIdx, idxInSpot
+        -- We also store the spawned chunks in each oreSpot, in oreSpots data
+        if spawnedUnitID then
+            if not oreSpots[i] or not oreSpots[i].chunks then
+                oreSpots[i] = { chunks = {} }
+            end
+            local chunkCount = #(oreSpots[i].chunks)
+            oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
+            SendToUnsynced("chunkSpawnedEvent", gaiaTeamID, i, j, spawnedUnitID, startKind)   -- i = spotIdx, j = chunkIdx
         end
     end
 
@@ -134,43 +147,42 @@ if gadgetHandler:IsSyncedCode() then
         --end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
+        if not istable(oreSpots) then
+            Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
+            oreSpots = {} end
+        for i, data in ipairs(oreSpots) do
+            local x, y, z = data.x, data.y, data.z
+            for j = 1, startingChunkCount do
+                spawnOneChunk(x, y, z, i, j)
+            end
+        end
         --metalSpotsByPos = GG.metalSpotsByPos
-        gadget:GameStart()
+        --gadget:GameStart()
+        startFrame = spGetGameFrame()
     end
 
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
         --Spring.Echo("Number of ore spots found: "..#oreSpots)
-        startFrame = Spring.GetGameFrame()
+        --startFrame = Spring.GetGameFrame()
         --allUnits = spGetAllUnits()
-        if not istable(oreSpots) then
-            return end
-        for i, data in ipairs(oreSpots) do
-            local x, y, z = data.x, data.y, data.z
-            for j = 1, startingChunkCount do
-                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, { value=1 }) -- spotIdx, idxInSpot
-                -- We also store the spawned chunks in each oreSpot, in oreSpots data
-                if spawnedUnitID then
-                    if (oreSpots[i].chunks == nil) then
-                        oreSpots[i].chunks = {} end
-                    oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
-                end
-            end
-        end
     end
 
     function gadget:UnitDestroyed(unitID) --, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
-        if chunks[unitID] then
-            local spotIdx = (chunks[unitID]).spotIdx
-            local chunkIdx = (chunks[unitID]).idxInSpot
-            if oreSpots[spotIdx].chunks and (oreSpots[spotIdx].chunks)[chunkIdx] then
-                table.remove(oreSpots[spotIdx].chunks, chunkIdx )
-            else
-                oreSpots[spotIdx].chunks = {}
+        local chunk = chunks[unitID]
+        if chunk then
+            local spotIdx = chunk.spotIdx
+            local chunkIdx = chunk.idxInSpot
+            if not oreSpots[spotIdx] or not oreSpots[spotIdx].chunks then
+                oreSpots[spotIdx] = { chunks = {} }
             end
-            chunks[unitID] = nil
-            spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
-            --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
+            if (oreSpots[spotIdx].chunks)[chunkIdx] then
+                table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+                chunks[unitID] = nil
+                spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
+                SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, spotIdx, chunkIdx) --should be 'gaiaAllyTeam' (irrelevant here)
+                --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
+            end
         end
     end
 
@@ -192,10 +204,7 @@ if gadgetHandler:IsSyncedCode() then
             --    --Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
             --end
             for j = 1, chunksToSpawnHere do
-                local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, {value = 1}) -- spotIdx, idxInSpot
-                if spawnedUnitID then
-                    oreSpots[i].chunks[#(oreSpots[i].chunks)+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
-                end
+                spawnOneChunk(x, y, z, i, j)
             end
         end
     end
@@ -217,7 +226,9 @@ else
     --local spGetLocalTeamID = Spring.GetLocalTeamID
     local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
     local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+    local spGetUnitPosition = Spring.GetUnitPosition
     local CMD_CAPTURE = CMD.CAPTURE
+    local oreSpots  = {}        -- This will be updated by the events
 
     local strUnit = "unit"
 
@@ -227,6 +238,39 @@ else
         [UnitDefNames["oremoho"].id] = true,
         [UnitDefNames["oremantle"].id] = true,
     }
+
+    local function handleChunkDestroyedEvent(cmd, allyTeam, spotIdx, chunkIdx)
+        if not oreSpots[spotIdx] or not oreSpots[spotIdx].chunks then
+            oreSpots[spotIdx] = { chunks = {} }
+        end
+        if (oreSpots[spotIdx].chunks)[chunkIdx] then
+            table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+            Spring.Echo("Removed: i: "..spotIdx.." j: "..chunkIdx)
+        else
+            Spring.Echo("Couldn't remove: i: "..spotIdx.." j: "..chunkIdx)
+        end
+    end
+
+    local function handleChunkSpawnedEvent(cmd, allyTeam, gaiaTeamID, i, j, spawnedUnitID, kind) --i = spotIdx, j = chunkIdx
+        if not oreSpots[i] or not oreSpots[i].chunks then
+            oreSpots[i] = { chunks = {} }
+        end
+        local x, _, z = spGetUnitPosition(spawnedUnitID)
+        local chunkCount = #(oreSpots[i].chunks)
+        oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=kind, spotIdx = i, idxInSpot = j }
+        Spring.Echo("Added: unitID: "..spawnedUnitID..", i: "..i..", j: "..j)
+    end
+
+    function gadget:Initialize()
+        gadgetHandler:AddSyncAction("chunkDestroyedEvent", handleChunkDestroyedEvent)
+        gadgetHandler:AddSyncAction("chunkSpawnedEvent", handleChunkSpawnedEvent)
+    end
+
+    function gadget:Shutdown()
+        gadgetHandler:RemoveSyncAction("chunkDestroyedEvent")
+        gadgetHandler:RemoveSyncAction("chunkSpawnedEvent")
+    end
+
 
     function gadget:DefaultCommand()
         local function isOre(unitDefID)
