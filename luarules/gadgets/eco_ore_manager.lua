@@ -14,11 +14,12 @@ function gadget:GetInfo()
     }
 end
 
+VFS.Include("gamedata/taptools.lua")
+
 if gadgetHandler:IsSyncedCode() then
     -----------------
     ---- SYNCED
     -----------------
-    VFS.Include("gamedata/taptools.lua")
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
     local updateRate = 120 * 30 -- 1m30 (was 2 mins)
@@ -58,7 +59,6 @@ if gadgetHandler:IsSyncedCode() then
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGetGameFrame = Spring.GetGameFrame
 
-
     local ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id } --{ sm = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
 
     --local function distance (x1, y1, z1, x2, y2, z2 )
@@ -82,7 +82,6 @@ if gadgetHandler:IsSyncedCode() then
             return false
         else
             --Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
-            iter.value = iter.value + 1   --we use a table since it's passed by reference, so it's read by caller's scope
             return true
         end
 --        return false
@@ -112,11 +111,12 @@ if gadgetHandler:IsSyncedCode() then
         --Spring.Echo("dist: "..distance({x, z}, {cx, cz}))
 
         --recurses when result is invalid (close to center or to existing chunk)
-        if tooCloseToSpot(x,z,cx,cz) or chunkOrUnitNearby(x,cy,z, iter) then
+        if tooCloseToSpot(x,z,cx,cz) then --or chunkOrUnitNearby(x,cy,z, iter) then
             if iter.value >= maxIter then
-                return nil
+                return nil  -- max attempts reached, too busy around. Quit trying
             else
-                SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, iter)
+                --Try again, until maxIter. We use a table for 'iter' (iteration) since it's passed by reference, so it can be read by caller's scope
+                SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, { value = iter.value+1 })
             end
         else    -- otherwise, actually spawn the unit and make it neutral
             --Spring.Echo("Name: "..(ore[kind] or "invalid"))
@@ -128,12 +128,16 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
+    --TODO: Refactor idxInSpot. It's badly broken. Better use the chunk's unitID instead, then go through it using a regular for..in pairs
     local function spawnOneChunk(x, y, z, i, j)
         local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, { value=1 }) -- spotIdx, idxInSpot
         -- We also store the spawned chunks in each oreSpot, in oreSpots data
         if spawnedUnitID then
-            if not oreSpots[i] or not oreSpots[i].chunks then
-                oreSpots[i] = { chunks = {} }
+            if not oreSpots[i] then
+                Spring.Echo("Ore Spot "..i.." not found")
+                end
+            if not oreSpots[i].chunks then
+                oreSpots[i].chunks = {}
             end
             local chunkCount = #(oreSpots[i].chunks)
             oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
@@ -147,15 +151,16 @@ if gadgetHandler:IsSyncedCode() then
         --end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oremantle"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
-        if not istable(oreSpots) then
-            Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
-            oreSpots = {} end
+        --if not istable(oreSpots) then
+        --    Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
+        --    oreSpots = {} end
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             for j = 1, startingChunkCount do
                 spawnOneChunk(x, y, z, i, j)
             end
         end
+        _G.oreSpots = oreSpots; --make it available for the unsynced side
         --metalSpotsByPos = GG.metalSpotsByPos
         --gadget:GameStart()
         startFrame = spGetGameFrame()
@@ -180,8 +185,11 @@ if gadgetHandler:IsSyncedCode() then
                 table.remove(oreSpots[spotIdx].chunks, chunkIdx )
                 chunks[unitID] = nil
                 spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
+                --_G.oreSpots = oreSpots;
                 SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, spotIdx, chunkIdx) --should be 'gaiaAllyTeam' (irrelevant here)
                 --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
+            else
+                Spring.Echo("Oops.. ")
             end
         end
     end
@@ -196,8 +204,12 @@ if gadgetHandler:IsSyncedCode() then
         --allUnits = spGetAllUnits()
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
-            local existingCount = oreSpots[i].chunks and #(oreSpots[i].chunks) or 0
-            local chunksToSpawnHere = clamp( existingCount * chunkMultiplier,0, maxChunkCount - existingCount)
+            if not data.chunks then
+                Spring.Echo("ore Spot idx "..i..".chunks not found")
+            end
+            local existingCount = data.chunks and #(data.chunks) or 0
+            local chunksToSpawnHere = clamp( 0, maxChunkCount - existingCount, existingCount * chunkMultiplier )
+            Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * chunkMultiplier.."; max: "..maxChunkCount - existingCount)
             --if i == 1 then
             --    --Spring.Echo(i.."\n\n")
             --    --Spring.Echo("oreSpots#: "..#oreSpots)
@@ -240,30 +252,44 @@ else
     }
 
     local function handleChunkDestroyedEvent(cmd, allyTeam, spotIdx, chunkIdx)
-        if not oreSpots[spotIdx] or not oreSpots[spotIdx].chunks then
-            oreSpots[spotIdx] = { chunks = {} }
-        end
-        if (oreSpots[spotIdx].chunks)[chunkIdx] then
-            table.remove(oreSpots[spotIdx].chunks, chunkIdx )
-            Spring.Echo("Removed: i: "..spotIdx.." j: "..chunkIdx)
-        else
-            Spring.Echo("Couldn't remove: i: "..spotIdx.." j: "..chunkIdx)
-        end
+        oreSpots = SYNCED.oreSpots;
+        Spring.Echo("Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
+        DebugTable(oreSpots)
+        --if not oreSpots[spotIdx] then
+        --    Spring.Echo("[unsync]Ore Spot "..spotIdx.." not found")
+        --end
+        --if not oreSpots[spotIdx].chunks then
+        --    oreSpots[spotIdx].chunks = {}
+        --end
+        --if (oreSpots[spotIdx].chunks)[chunkIdx] then
+        --    table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+        --    Spring.Echo("Removed: i: "..spotIdx.." j: "..chunkIdx)
+        --else
+        --    Spring.Echo("Couldn't remove: i: "..spotIdx.." j: "..chunkIdx)
+        --end
     end
 
     local function handleChunkSpawnedEvent(cmd, allyTeam, gaiaTeamID, i, j, spawnedUnitID, kind) --i = spotIdx, j = chunkIdx
-        if not oreSpots[i] or not oreSpots[i].chunks then
-            oreSpots[i] = { chunks = {} }
-        end
-        local x, _, z = spGetUnitPosition(spawnedUnitID)
-        local chunkCount = #(oreSpots[i].chunks)
-        oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=kind, spotIdx = i, idxInSpot = j }
-        Spring.Echo("Added: unitID: "..spawnedUnitID..", i: "..i..", j: "..j)
+        oreSpots = SYNCED.oreSpots;
+        Spring.Echo("Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
+        DebugTable(oreSpots)
+        --if not oreSpots[i] then
+        --    Spring.Echo("[unsync]Ore Spot "..i.." not found")
+        --end
+        --if not oreSpots[i].chunks then
+        --    oreSpots[i].chunks = {}
+        --end
+        --
+        --local x, _, z = spGetUnitPosition(spawnedUnitID)
+        --local chunkCount = #(oreSpots[i].chunks)
+        --oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=kind, spotIdx = i, idxInSpot = j }
+        --Spring.Echo("Added: unitID: "..spawnedUnitID..", i: "..i..", j: "..j)
     end
 
     function gadget:Initialize()
         gadgetHandler:AddSyncAction("chunkDestroyedEvent", handleChunkDestroyedEvent)
         gadgetHandler:AddSyncAction("chunkSpawnedEvent", handleChunkSpawnedEvent)
+        oreSpots = SYNCED.oreSpots;
     end
 
     function gadget:Shutdown()
@@ -290,24 +316,25 @@ else
         if not isOre(targetDefID) then
             return false end
 
+        ---TODO: Replace with new 'harvest' icon
         -- If any of the selected units is a capturer, default to 'capture'
-        local sUnits = spGetSelectedUnits()
+        --local sUnits = spGetSelectedUnits()
         --local teamID = spGetLocalTeamID()
 
-        for i=1,#sUnits do
-            local unitID = sUnits[i]
-            local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-            --if unitDef.customParams.iscommander then
-            --    return CMD_CAPTURE
-            --end
-            if unitDef.canCapture then
-                -- Check if the units has capture enabled already
-                local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
-                local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
-                if not cmdDesc.disabled then
-                    return CMD_CAPTURE end
-            end
-        end
+        --for i=1,#sUnits do
+        --    local unitID = sUnits[i]
+        --    local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+        --    --if unitDef.customParams.iscommander then
+        --    --    return CMD_CAPTURE
+        --    --end
+        --    if unitDef.canCapture then
+        --        -- Check if the units has capture enabled already
+        --        local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
+        --        local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
+        --        if not cmdDesc.disabled then
+        --            return CMD_CAPTURE end
+        --    end
+        --end
         return false
     end
 
