@@ -23,7 +23,7 @@ if gadgetHandler:IsSyncedCode() then
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
     local updateRate = 120 * 30 -- 1m30 (was 2 mins)
-    local oreSpots = {} -- { 1 = { chunks = { 1 = { unitID, pos, kind, spotIdx, idxInSpot }, ...},
+    local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
                    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
                    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
                    --       }, ...
@@ -44,8 +44,8 @@ if gadgetHandler:IsSyncedCode() then
     local math_sin = math.sin
     local math_pi = math.pi
     local minSpawnDistance = 18 --12     -- This prevents stacked ore chunks when spawning
-    local startingChunkCount = 1 --4    --
-    local maxChunkCount = 9        -- Won't have more than this amount of chunks in a single spot (on respawn)
+    local startingChunkCount = 2 --4    --
+    local maxChunkCount = 10        -- Won't have more than this amount of chunks in a single spot (on respawn)
     local chunkMultiplier = 1       -- existing chunks times this number will be spawned (up to maxChunkCount above)
     local spawnRadius = 55 --starting spawn radius from oreSpot's center
     local chunks = {} --{ unitID = { pos = {x=x, z=z}, kind="sml | lrg | moho | mantle", spotIdx = idx {oreSpots[idx]}), idxInSpot = n }
@@ -92,14 +92,12 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     --- Returns: Spawned unitID
-    local function SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, iter)
-
-        if not cx or not cy or not cz then
+    local function SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, kind, iter)
+        if not cx or not cz then --or not cy or
             return nil
         end
 
         kind = kind or "sml"
-
         --https://dev.to/seanpgallivan/solution-generate-random-point-in-a-circle-ldh
 
         local ang = math_random() * 2 * math_pi
@@ -113,36 +111,48 @@ if gadgetHandler:IsSyncedCode() then
         --recurses when result is invalid (close to center or to existing chunk)
         if tooCloseToSpot(x,z,cx,cz) then --or chunkOrUnitNearby(x,cy,z, iter) then
             if iter.value >= maxIter then
+                Spring.Echo("Couldn't spawn chunk at spot#: "..spotIdx)
                 return nil  -- max attempts reached, too busy around. Quit trying
             else
                 --Try again, until maxIter. We use a table for 'iter' (iteration) since it's passed by reference, so it can be read by caller's scope
-                SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, idxInSpot, kind, { value = iter.value+1 })
+                return SpawnChunk(cx, cy, cz, R, deadZone, spotIdx, kind, { value = iter.value+1 })
             end
         else    -- otherwise, actually spawn the unit and make it neutral
             --Spring.Echo("Name: "..(ore[kind] or "invalid"))
             --spCreateUnit((UnitDefs[ore[kind]]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
             local unitID = spCreateUnit((UnitDefs[ore.moho]).id, x, cy, z, math_random(0, 3), gaiaTeamID)
-            spSetUnitNeutral(unitID, true)
-            chunks[unitID] = { pos = { x=x, y=cy, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R, idxInSpot = idxInSpot } --, time = sprawlTime }
+            if unitID then
+                spSetUnitNeutral(unitID, true)
+                chunks[unitID] = { pos = { x=x, y=cy, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R } --, time = sprawlTime }
+                if not oreSpots[spotIdx] then
+                    Spring.Echo("Ore Spot "..spotIdx.." not found")
+                end
+                if not oreSpots[spotIdx].chunks then
+                    oreSpots[spotIdx].chunks = {}
+                end
+                oreSpots[spotIdx].chunks.unitID = { pos = {x=x, z=z}, kind=startKind, spotIdx = spotIdx }
+                SendToUnsynced("chunkSpawnedEvent", gaiaTeamID, spotIdx, unitID, startKind)   -- i = spotIdx, j = chunkIdx
+            else
+                Spring.Echo("Invalid chunk unit spawned at spot#: "..spotIdx)
+            end
             return unitID
         end
     end
 
-    --TODO: Refactor idxInSpot. It's badly broken. Better use the chunk's unitID instead, then go through it using a regular for..in pairs
-    local function spawnOneChunk(x, y, z, i, j)
-        local spawnedUnitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, j, startKind, { value=1 }) -- spotIdx, idxInSpot
+    local function spawnOneChunk(x, y, z, i)
         -- We also store the spawned chunks in each oreSpot, in oreSpots data
-        if spawnedUnitID then
-            if not oreSpots[i] then
-                Spring.Echo("Ore Spot "..i.." not found")
-                end
-            if not oreSpots[i].chunks then
-                oreSpots[i].chunks = {}
-            end
-            local chunkCount = #(oreSpots[i].chunks)
-            oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=startKind, spotIdx = i, idxInSpot = j }
-            SendToUnsynced("chunkSpawnedEvent", gaiaTeamID, i, j, spawnedUnitID, startKind)   -- i = spotIdx, j = chunkIdx
-        end
+        --if spawnedUnitID then
+        --    if not oreSpots[i] then
+        --        Spring.Echo("Ore Spot "..i.." not found")
+        --    end
+        --    if not oreSpots[i].chunks then
+        --        oreSpots[i].chunks = {}
+        --    end
+        --    oreSpots[i].chunks.spawnedUnitID = { pos = {x=x, z=z}, kind=startKind, spotIdx = i }
+        --    SendToUnsynced("chunkSpawnedEvent", gaiaTeamID, i, spawnedUnitID, startKind)   -- i = spotIdx, j = chunkIdx
+        --else
+        --    Spring.Echo("Couldn't spawn chunk at spot#: "..i)
+        --end
     end
 
     function gadget:Initialize()
@@ -154,22 +164,24 @@ if gadgetHandler:IsSyncedCode() then
         --if not istable(oreSpots) then
         --    Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
         --    oreSpots = {} end
-        for i, data in ipairs(oreSpots) do
-            local x, y, z = data.x, data.y, data.z
-            for j = 1, startingChunkCount do
-                spawnOneChunk(x, y, z, i, j)
-            end
-        end
-        _G.oreSpots = oreSpots; --make it available for the unsynced side
         --metalSpotsByPos = GG.metalSpotsByPos
         --gadget:GameStart()
-        startFrame = spGetGameFrame()
     end
 
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
-        --Spring.Echo("Number of ore spots found: "..#oreSpots)
-        --startFrame = Spring.GetGameFrame()
+        Spring.Echo("Number of ore spots found: "..#oreSpots)
+        startFrame = Spring.GetGameFrame()
+        for i, data in ipairs(oreSpots) do
+            --Spring.Echo("Adding chunks to spot#: "..i)
+            local x, y, z = data.x, data.y, data.z
+            for j = 1, startingChunkCount do
+                local unitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, startKind, { value=1 })
+                Spring.Echo("Chunk unitID: "..(unitID or "nil").." added to spot #: "..i)
+            end
+        end
+        _G.oreSpots = oreSpots; --make it available for the unsynced side
+        DebugTable(oreSpots)
         --allUnits = spGetAllUnits()
     end
 
@@ -177,19 +189,19 @@ if gadgetHandler:IsSyncedCode() then
         local chunk = chunks[unitID]
         if chunk then
             local spotIdx = chunk.spotIdx
-            local chunkIdx = chunk.idxInSpot
             if not oreSpots[spotIdx] or not oreSpots[spotIdx].chunks then
                 oreSpots[spotIdx] = { chunks = {} }
             end
-            if (oreSpots[spotIdx].chunks)[chunkIdx] then
-                table.remove(oreSpots[spotIdx].chunks, chunkIdx )
+            if oreSpots[spotIdx].chunks.unitID then
+                oreSpots[spotIdx].chunks.unitID = nil
                 chunks[unitID] = nil
                 spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
                 --_G.oreSpots = oreSpots;
-                SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, spotIdx, chunkIdx) --should be 'gaiaAllyTeam' (irrelevant here)
+                SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, spotIdx, unitID) --should be 'gaiaAllyTeam' (irrelevant here)
                 --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
             else
-                Spring.Echo("Oops.. ")
+                Spring.Echo("WARNING: Destroyed chunk "..(unitID or "nil").." not found in list of spot# "..spotIdx)
+                debugTable(oreSpots[spotIdx].chunks)
             end
         end
     end
@@ -207,16 +219,11 @@ if gadgetHandler:IsSyncedCode() then
             if not data.chunks then
                 Spring.Echo("ore Spot idx "..i..".chunks not found")
             end
-            local existingCount = data.chunks and #(data.chunks) or 0
+            local existingCount = data.chunks and tablelength(data.chunks) or 0
             local chunksToSpawnHere = clamp( 0, maxChunkCount - existingCount, existingCount * chunkMultiplier )
-            Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * chunkMultiplier.."; max: "..maxChunkCount - existingCount)
-            --if i == 1 then
-            --    --Spring.Echo(i.."\n\n")
-            --    --Spring.Echo("oreSpots#: "..#oreSpots)
-            --    --Spring.Echo("chunks to spawn#: "..chunksToSpawnHere)
-            --end
+            Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * chunkMultiplier.."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)
             for j = 1, chunksToSpawnHere do
-                spawnOneChunk(x, y, z, i, j)
+                SpawnChunk (x, y, z, spawnRadius, deadZone, i, startKind, { value=1 })
             end
         end
     end
@@ -251,10 +258,10 @@ else
         [UnitDefNames["oremantle"].id] = true,
     }
 
-    local function handleChunkDestroyedEvent(cmd, allyTeam, spotIdx, chunkIdx)
+    local function handleChunkDestroyedEvent(cmd, allyTeam, spotIdx, destroyedUnitID)
         oreSpots = SYNCED.oreSpots;
-        Spring.Echo("Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
-        DebugTable(oreSpots)
+        Spring.Echo("<destroy> Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
+        --DebugTable(oreSpots)
         --if not oreSpots[spotIdx] then
         --    Spring.Echo("[unsync]Ore Spot "..spotIdx.." not found")
         --end
@@ -269,10 +276,10 @@ else
         --end
     end
 
-    local function handleChunkSpawnedEvent(cmd, allyTeam, gaiaTeamID, i, j, spawnedUnitID, kind) --i = spotIdx, j = chunkIdx
+    local function handleChunkSpawnedEvent(cmd, allyTeam, gaiaTeamID, i, spawnedUnitID, kind) --i = spotIdx
         oreSpots = SYNCED.oreSpots;
-        Spring.Echo("Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
-        DebugTable(oreSpots)
+        Spring.Echo("<spawn> Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
+        --DebugTable(oreSpots)
         --if not oreSpots[i] then
         --    Spring.Echo("[unsync]Ore Spot "..i.." not found")
         --end
@@ -282,7 +289,7 @@ else
         --
         --local x, _, z = spGetUnitPosition(spawnedUnitID)
         --local chunkCount = #(oreSpots[i].chunks)
-        --oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=kind, spotIdx = i, idxInSpot = j }
+        --oreSpots[i].chunks[chunkCount+1] = { unitID = spawnedUnitID, pos = {x=x, z=z}, kind=kind, spotIdx = i } --, idxInSpot = j
         --Spring.Echo("Added: unitID: "..spawnedUnitID..", i: "..i..", j: "..j)
     end
 
