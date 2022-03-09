@@ -1,5 +1,5 @@
 return {
-	oremantle = {
+	oreuber = {
 		acceleration = 0,
 		activatewhenbuilt = true,
 		brakerate = 0,
@@ -30,7 +30,7 @@ return {
 		maxdamage = 1750,
 		maxslope = 20,
 		maxwaterdepth = 99999,
-		name = "Mantle Pandore Chunk",
+		name = "Uber Pandore Chunk",
 		objectname = "ARMGEO",
         reclaimable = true,
 		seismicsignature = 0,

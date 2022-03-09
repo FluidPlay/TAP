@@ -169,30 +169,39 @@ end
 function DebugTable(tbl)
 	--Spring.Echo(" Debug Table: ")
 	for k, v in pairsByKeys(tbl) do
-		local str
+		local str = ""
 		if type(v) == "table" then
-			str = "{"
 			for k2, v2 in pairsByKeys(v) do
-				str = str .. k2
+				str = str .. k2 .. "="
 				if type(v2) == "table" then
 					str = str .. "{"
 					for k3, v3 in pairsByKeys(v2) do
+                        str = str .. k3 .. "="
 						if type(v3) == "table" then
-							str = str .. k3 .. "={<table>}, "
+                            str = str .. "{"
+                            for k4, v4 in pairsByKeys(v3) do
+                                str = str .. k4 .. "="
+                                if type(v4) == "table" then
+                                    str = str .. "{<table>}, "
+                                else
+                                    str = str .. tostring(v4) .. ", "
+                                end
+                            end
+                            str = str .. "}, "
 						else
-							str = str .. k3 .. "=" .. tostring(v3) .. ", "
+							str = str .. tostring(v3) .. ", "
 						end
 					end
-					str = str .. "}"
+					str = str .. "}, "
 				else
-					str = str .. tostring(v2)
+					str = str ..tostring(v2)..", "
 				end
 			end
-			str = str .. "}"
+			str = str .. "}, "
 		else
-			str = tostring(v)
+			str = tostring(v)..", "
 		end
-		Spring.Echo(tostring(k), str)
+		Spring.Echo(tostring(k).."="..str..", ")
 	end
 end
 
@@ -421,6 +430,9 @@ function lerp(a, b, t)
 end
 
 function clamp(min, max, n)
+    if not isnumber(min) or not isnumber(max) then
+        return n
+    end
 	if n > max then
 		n = max end
 	if n < min then
