@@ -372,7 +372,7 @@ local function DefCost(paramName, udSrc, udDst)
   end
   cost = cost * morphPenalty
   if paramName == 'buildTime' then
-      cost = clamp(cost, minMorphTime, maxMorphTime) -- morph time can never be out of this range
+      cost = math_clamp(minMorphTime, maxMorphTime, cost) -- morph time can never be out of this range
   end
   return Floor(Max(0, cost))
 end
@@ -1128,11 +1128,11 @@ local function UpdateMorph(unitID, morphData, bonus)
     local pullM = pullM - currentM
     local deficitMin, deficitMax = 0, 300
     -- First we make sure pullM is in the desired range, then we find the deficitFactor interpolator, from 0.01 to 1
-    deficitFactor = lerp(1, 0.01, inverselerp(deficitMin, deficitMax, clamp(pullM, deficitMin, deficitMax)))
+    deficitFactor = lerp(1, 0.01, inverselerp(deficitMin, deficitMax, math_clamp(deficitMin, deficitMax, pullM)))
   elseif currentE / storageE < 0.02 then
     local pullE = pullE - currentE
     local deficitMin, deficitMax = 0, 3000
-    deficitFactor = lerp(1, 0.01, inverselerp(deficitMin, deficitMax, clamp(pullE, deficitMin, deficitMax)))
+    deficitFactor = lerp(1, 0.01, inverselerp(deficitMin, deficitMax, math_clamp(deficitMin, deficitMax, pullE)))
   end
   if deficitFactor ~= 1 then
     --Spring.Echo("Deficit factor: "..deficitFactor)

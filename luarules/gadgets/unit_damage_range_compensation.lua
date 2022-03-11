@@ -104,7 +104,7 @@ function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, w
 
     local victimWeapRange = GetFastestWeapRange(unitDef)
 
-    local DRCmult = clamp((victimWeapRange / attackerWeaponRange), minDRCmult, maxDRCmult) --eg: 200/50 = 4; 50/200 = 0.25
+    local DRCmult = math_clamp(minDRCmult, maxDRCmult, (victimWeapRange / attackerWeaponRange)) --eg: 200/50 = 4; 50/200 = 0.25
     --Spring.Echo("Atk range: "..attackerWeaponRange.." Victim range: ".. victimWeapRange .." DRC mult: "..DRCmult.." original: "..damage.." final: "..(DRCmult * damage))
     damage = DRCmult * damage
 

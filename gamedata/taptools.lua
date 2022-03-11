@@ -429,8 +429,12 @@ function lerp(a, b, t)
 	return a + (b - a) * t
 end
 
-function clamp(min, max, n)
-    if not isnumber(min) or not isnumber(max) then
+function math_round(x)
+    return math.floor(x+0.5)
+end
+
+function math_clamp(min, max, n)
+    if not isnumber(min) or not isnumber(max) or not isnumber(n) then
         return n
     end
 	if n > max then

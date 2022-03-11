@@ -31,7 +31,6 @@ local COM_EMPTRIGGER = WeaponDefNames['commander_emptrigger'].id
 
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
--- MaDDoX: Added Commanders level 2 through 4 to list
 local COMMANDER = {
   [UnitDefNames["corcom"].id] = true,
   [UnitDefNames["corcom1"].id] = true,

@@ -493,7 +493,7 @@ function widget:GameFrame(f)
     for harvesterID, data in pairs(harvesters) do
         local maxStorage = data.maxorestorage
         local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-        harvesters[harvesterID].loadPercent = clamp(curStorage/maxStorage, 0, 1)
+        harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
         if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
             --- Check/Update harvest Automation
             local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
