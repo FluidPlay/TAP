@@ -425,6 +425,10 @@ function inverselerp(a, b, t)
     return (t - a) / (b - a)
 end
 
+function math_sign(n)
+        return n >= 0 and 1 or -1
+end
+
 function lerp(a, b, t)
 	return a + (b - a) * t
 end

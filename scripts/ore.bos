@@ -5,9 +5,49 @@
 
 piece  base;
 
+static-var RotateSpeed, accelbrakerate, statechg_DesiredState, statechg_StateChanging;
+
+Go()
+{
+	spin base around y-axis speed <60.01099>;
+	return (0);
+}
+
+InitState()
+{
+	statechg_DesiredState = TRUE;
+	statechg_StateChanging = FALSE;
+	return (0);
+}
+
+RequestState(requestedstate, currentstate)
+{
+	if( statechg_StateChanging )
+	{
+		statechg_DesiredState = requestedstate;
+		return (0);
+	}
+	statechg_StateChanging = TRUE;
+	currentstate = statechg_DesiredState;
+	statechg_DesiredState = requestedstate;
+	while( statechg_DesiredState != currentstate )
+	{
+		if( statechg_DesiredState == 0 )
+		{
+			call-script Go();
+			currentstate = 0;
+		}
+	}
+	statechg_StateChanging = FALSE;
+	return (0);
+}
+
 Create()
 {
-	//start-script SmokeUnit();
+	RotateSpeed = 80;
+	accelbrakerate = 1;
+	call-script InitState();
+	start-script RequestState(0);	
 	return (0);
 }
 
@@ -21,4 +61,5 @@ Killed( severity, corpsetype )
 {
 	//corpsetype = 1;
 	//return(corpsetype);
+	return 1;
 }

@@ -7,7 +7,7 @@
 #define SIG_BUILD		4	
 
 piece  nanospray, turret, rfoot, lfoot, pelvis, lflap, rflap, guncover,
-       nozzle, arms, nanobody2, ground;
+       nozzle, arms, nanobody, nanobody2, ground;
 
 static-var  bMoving, statechg_DesiredState, statechg_StateChanging,
 			notBuilding, moveSpeed, currentSpeed, blockWeaponFlag;
@@ -396,20 +396,20 @@ Go()
 	sleep 300;
 
 	turn guncover to x-axis <126.027473> speed <350.000000>;
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	sleep 300;
 
-	move nozzle to z-axis [0.000000] speed [0.000000];
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	//move nozzle to z-axis [0.000000] speed [0.000000];
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	turn arms to x-axis <90.016484> speed <350.000000>;
 	turn nanobody2 to x-axis <-90.016484> speed <350.000000>;
 	sleep 100;
 
-	move nozzle to z-axis [4.400000] speed [18.000000];
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	//move nozzle to z-axis [4.400000] speed [18.000000];
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	turn arms to x-axis <90.016484> speed <0.000000>;
 	turn nanobody2 to x-axis <-90.016484> speed <0.000000>;
 	sleep 100;
@@ -421,32 +421,33 @@ Stop()
 	turn turret to y-axis <0.000000> speed <350.000000>;
 	wait-for-turn turret around y-axis;
 
-	move nozzle to z-axis [4.400000] now;
-	move nozzle to z-axis [-0.200000] speed [18.000000];
+	//move nozzle to z-axis [4.400000] now;
+	//move nozzle to z-axis [-0.200000] speed [18.000000];
 	turn guncover to x-axis <126.923077> speed <1513.901762>;
-	turn lflap to z-axis <97.923077> now;
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.923077> now;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	turn lflap to z-axis <180.923077> now;
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.923077> now;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	turn arms to x-axis <90.016484> now;
 	turn arms to x-axis <90.016484> speed <0.000000>;
 	turn nanobody2 to x-axis <-90.016484> speed <1073.690592>;
 	sleep 50;
 
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	turn arms to x-axis <0.000000> speed <350.000000>;
 	turn nanobody2 to x-axis <-40.005495> speed <350.000000>;
 	sleep 50;
 
 	turn guncover to x-axis <126.027473> speed <0.000000>;
-	turn lflap to z-axis <97.016484> speed <0.000000>;
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn nanobody to x-axis <0.000000> speed <350.000000>;
 	turn nanobody2 to x-axis <0.000000> speed <350.000000>;
 	sleep 50;
 
 	turn guncover to x-axis <0.000000> speed <350.000000>;
-	turn lflap to z-axis <97.016484> speed <0.000000>;
-	turn rflap to z-axis <-97.016484> speed <0.000000>;
+	turn lflap to z-axis <180.016484> speed <0.000000>;
+	turn rflap to z-axis <-180.016484> speed <0.000000>;
 	sleep 50;
 
 	turn lflap to z-axis <0.000000> speed <350.000000>;
@@ -610,8 +611,10 @@ AimPrimary(heading, pitch)
 	signal SIG_BUILD;
 
 	start-script RequestState(0);
-	turn turret to y-axis heading speed <400.000000>;
-	wait-for-turn turret around y-axis;	
+	turn nanobody to y-axis heading speed <400.000000>;
+	wait-for-turn nanobody around y-axis;
+	turn nanobody2 to x-axis <0.000000> - pitch speed <400.000000>;
+	wait-for-turn nanobody2 around x-axis;
 
 	return (1);
 }

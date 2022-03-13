@@ -62,12 +62,18 @@ if gadgetHandler:IsSyncedCode() then
     -- currently unused/obsolete, we're using the health of the chunk. 1 hp = 1 ore
     --local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
 
+    local spGetUnitPosition = Spring.GetUnitPosition
     local spCreateUnit = Spring.CreateUnit
     local spSetUnitNeutral = Spring.SetUnitNeutral
+    local spSetUnitRotation = Spring.SetUnitRotation
     local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
     local spGetUnitDefID = Spring.GetUnitDefID
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
+    local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spGetGameFrame = Spring.GetGameFrame
+
+    local cmdFly = 145
+    local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
 
     local function spEcho(string)
         if localDebug then
@@ -108,19 +114,42 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
-    local function chunkOrUnitNearby(x, _, z)
+    local function chunkTooClose(x, _, z)
         if x == nil or z == nil then
             return false
         end
-        local unitsNearSpawnpoint = spGetUnitsInCylinder(x, z, minSpawnDistance) --that should be the chunk collision width really
+        local unitsNearSpawnpoint = spGetUnitsInCylinder(x, z, minSpawnDistance)
         if unitsNearSpawnpoint == nil or (istable(unitsNearSpawnpoint) and #unitsNearSpawnpoint == 0) then
             return false
         else
-            --Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
-            return true
+            for _,unitID in ipairs(unitsNearSpawnpoint) do
+                if chunks[unitID] then
+                    --Spring.Echo("Not valid: "..x..", "..z..", count: "..(#unitsNearSpawnpoint)..", iter: "..tostring(iter.value))
+                    return true
+                end
+            end
         end
 --        return false
     end
+
+    --local function nudgeNearbyUnits(x, _, z)
+    --    if x == nil or z == nil then
+    --        return false
+    --    end
+    --    local unitsNearSpawnpoint = spGetUnitsInCylinder(x, z, 40) --TODO: that should be the chunk collision width really --18
+    --    if unitsNearSpawnpoint ~= nil or (istable(unitsNearSpawnpoint) and #unitsNearSpawnpoint > 0) then
+    --        for _,unitID in ipairs(unitsNearSpawnpoint) do
+    --            if IsValidUnit(unitID) and not chunks[unitID] then
+    --                Spring.Echo("Impulsing: "..unitID)
+    --                local ux,_,uz = spGetUnitPosition(unitID)
+    --                local xMult = math_sign(ux-x)
+    --                local zMult = math_sign(uz-z)
+    --                Spring.Echo("xmult: "..xMult.." zMult: "..zMult)
+    --                Spring.AddUnitImpulse ( unitID, 0.2 * xMult, 0.1, 0.2 * zMult )
+    --            end
+    --        end
+    --    end
+    --end
 
     local function tooCloseToSpot (x, z, cx, cz)
         return distance({x=x, z=z}, {x=cx, z=cz}) < deadZone
@@ -144,7 +173,7 @@ if gadgetHandler:IsSyncedCode() then
         --Spring.Echo("dist: "..distance({x, z}, {cx, cz}))
 
         --recurses when result is invalid (close to center or to existing chunk)
-        if tooCloseToSpot(x,z,cx,cz) or chunkOrUnitNearby(x,cy,z) then
+        if tooCloseToSpot(x,z,cx,cz) or chunkTooClose(x, _, z) then
             if iter.value >= maxIter then
                 spEcho("Couldn't spawn chunk at spot#: "..spotIdx)
                 return nil  -- max attempts reached, too busy around. Quit trying
@@ -158,11 +187,16 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.Echo("Kind: "..(kind or "nil"))
             --Spring.Echo("ID: "..(ore[tostring(kind)] and (ore[tostring(kind)]).id or "nil"))
             --local unitID = spCreateUnit((UnitDefs[(ore["lrg"]).id]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID)
-            local unitID = spCreateUnit((UnitDefs[ore[kind]]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID)
+            --nudgeNearbyUnits(x,cy,z)
+            local unitID = spCreateUnit((UnitDefs[ore[kind]]).id, x, cy+50, z, math_random(0, 3), gaiaTeamID) --cy+spawnHeight
             if unitID then
                 --Spring.MoveCtrl.Enable(unitID)
-                Spring.MoveCtrl.SetGravity(unitID, 0.1)
+                --Spring.MoveCtrl.SetGravity(unitID, 0.1)
                 spSetUnitNeutral(unitID, true)
+                spSetUnitRotation(unitID,0,math.random()*85,0) -- 0~85 degress after the spawn placement (N,S,E,W)
+                spGiveOrderToUnit(unitID, cmdFly, { 0 }, {})
+                spGiveOrderToUnit(unitID, cmdAirRepairLevel, { 0 }, {})
+
                 --Spring.SetUnitBlocking ( number unitID, bool isblocking, bool isSolidObjectCollidable, bool isProjectileCollidable, bool isRaySegmentCollidable, bool crushable, bool blockEnemyPushing, bool blockHeightChanges )
                 --Spring.SetUnitBlocking ( unitID, true, true, true, true, false, true, false )
                 chunks[unitID] = { pos = { x=x, y=cy, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R } --, time = sprawlTime }
@@ -188,7 +222,7 @@ if gadgetHandler:IsSyncedCode() then
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oreuber"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         if testMode then
-            updateRate = 45 * 30
+            updateRate = 30 * 30
         end
         --if not istable(oreSpots) then
         --    Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
