@@ -39,11 +39,12 @@ if gadgetHandler:IsSyncedCode() then
     local maxIter = 50 -- it'll quit trying to recurse (find an appropriate spot) after 50 attempts
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
-    local spawnHeight = 240 -- how high above the ground the chunks are spawned, then "rain down" at the ground
-    local localDebug = false --true
+    local spawnHeight = 50   -- how high above the ground the chunks are spawned
+    local localDebug = false -- true
     ---####
     local testMode = true   -- Speeds up the respawn cycle (updateRate) to 45s
 
+    local math_rad = math.rad
     local math_random = math.random
     local math_sqrt = math.sqrt
     local math_cos = math.cos
@@ -57,7 +58,8 @@ if gadgetHandler:IsSyncedCode() then
     local minChunkMult = 0.2     -- minimum chunk multiplier, per spot
     local spawnRadius = 55       -- starting spawn radius from oreSpot's center
     local spawnIter = 0          -- how many times the global spawning ("pandore rain") has occured
-    local chunks = {} --{ unitID = { pos = {x=x, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}), idxInSpot = n }
+    local chunks = {} --{ unitID = { pos = {x=x, y=y, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}),
+                      --             idxInSpot = n}
 
     -- currently unused/obsolete, we're using the health of the chunk. 1 hp = 1 ore
     --local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
@@ -71,6 +73,10 @@ if gadgetHandler:IsSyncedCode() then
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spGetGameFrame = Spring.GetGameFrame
+    local mcSetPosition         = Spring.MoveCtrl.SetPosition
+    --local mcSetRotation         = Spring.MoveCtrl.SetRotation
+    local mcDisable             = Spring.MoveCtrl.Disable
+    local mcEnable              = Spring.MoveCtrl.Enable
 
     local cmdFly = 145
     local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
@@ -188,7 +194,7 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.Echo("ID: "..(ore[tostring(kind)] and (ore[tostring(kind)]).id or "nil"))
             --local unitID = spCreateUnit((UnitDefs[(ore["lrg"]).id]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID)
             --nudgeNearbyUnits(x,cy,z)
-            local unitID = spCreateUnit((UnitDefs[ore[kind]]).id, x, cy+50, z, math_random(0, 3), gaiaTeamID) --cy+spawnHeight
+            local unitID = spCreateUnit((UnitDefs[ore[kind]]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID) --cy+spawnHeight
             if unitID then
                 --Spring.MoveCtrl.Enable(unitID)
                 --Spring.MoveCtrl.SetGravity(unitID, 0.1)
@@ -199,7 +205,8 @@ if gadgetHandler:IsSyncedCode() then
 
                 --Spring.SetUnitBlocking ( number unitID, bool isblocking, bool isSolidObjectCollidable, bool isProjectileCollidable, bool isRaySegmentCollidable, bool crushable, bool blockEnemyPushing, bool blockHeightChanges )
                 --Spring.SetUnitBlocking ( unitID, true, true, true, true, false, true, false )
-                chunks[unitID] = { pos = { x=x, y=cy, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R } --, time = sprawlTime }
+                chunks[unitID] = { pos = { x=x, y=cy+spawnHeight, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R } --, time = sprawlTime }
+                mcEnable(unitID)
                 if not oreSpots[spotIdx] then
                     spEcho("Ore Spot "..spotIdx.." not found")
                 end
@@ -224,6 +231,7 @@ if gadgetHandler:IsSyncedCode() then
         if testMode then
             updateRate = 30 * 30
         end
+        gadget:GameStart()
         --if not istable(oreSpots) then
         --    Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
         --    oreSpots = {} end
@@ -273,7 +281,27 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
+    local timePeriod = 2
+    local height = 2
+
+    local function animateChunks()
+        --{ pos = {x=x, y=y, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}, idxInSpot = n}
+        local gameFrame = Spring.GetGameFrame()
+        --local offset = math.sin(gameFrame * 180) / 20 --*5
+        local offset = 2*height * math.sin(((math.pi * 2) / timePeriod) * gameFrame/100)
+        --Spring.Echo("ofs: "..offset)
+        for unitID, data in pairs(chunks) do
+            local pos = data.pos
+            --mcEnable(unitID)
+            mcSetPosition( unitID, pos.x, pos.y + offset, pos.z)
+            --mcDisable(unitID)
+        end
+    end
+
+
     function gadget:GameFrame(f)
+        animateChunks()
+
         if f % updateRate > 0.0001 or f <= startFrame then
             return end
         spawnIter = spawnIter + 1
