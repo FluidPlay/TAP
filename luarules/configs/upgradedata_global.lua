@@ -80,7 +80,9 @@ GlobalUpgrades = {
         buttonToUnlock = nil,
         buttonToUnlockTooltip = "", --automatically fed when button is locked (@ unit create)
         --UnlockedCmdDescTootip = "" (to be added/used by handlers)
-        upgradableDefIDs = { [UnitDefNames["armstump"].id] = true,
+        upgradableDefIDs = { [UnitDefNames["armcv"].id] = true,
+                             [UnitDefNames["corcv"].id] = true,
+                             [UnitDefNames["armstump"].id] = true,
                              [UnitDefNames["corraid"].id] = true,
                              [UnitDefNames["armfav"].id] = true,
                              [UnitDefNames["corlevlr"].id] = true,

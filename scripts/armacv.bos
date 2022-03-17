@@ -153,6 +153,36 @@ Deactivate()
 	start-script RequestState(1);
 }
 
+
+// =========================
+// Attack (Harvest) weapon:
+// =========================
+
+AimPrimary(heading, pitch)
+{
+//	if (blockWeaponFlag)
+//		return (0);
+	return (1);
+}
+
+FirePrimary()
+{
+	sleep 50; //150
+	return (0);
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = nano; //turret;
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = beam; //flare;
+}
+
+// =========================
+
 /*
 TargetHeading(Func_Var_1)
 {

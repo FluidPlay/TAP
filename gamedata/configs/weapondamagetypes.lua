@@ -26,8 +26,12 @@ local weaponDamageTypes = {
 
     armck = { ["Harvester"] = "omni", },
     corck = { ["Harvester"] = "omni", },
+    armcv = { ["Harvester"] = "omni", },
+    corcv = { ["Harvester"] = "omni", },
     armack = { ["Harvester"] = "omni", },
+    armacv = { ["Harvester"] = "omni", },
     corack = { ["Harvester"] = "omni", },
+    coracv = { ["Harvester"] = "omni", },
     armca = { ["Harvester"] = "omni", },
     corca = { ["Harvester"] = "omni", },
     armaca = { ["Harvester"] = "omni", },

@@ -22,7 +22,7 @@ if gadgetHandler:IsSyncedCode() then
     -----------------
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
-    local updateRate = 120 * 30 -- 1m30 (was 2 mins)
+    local updateRate = 120 * 30 -- 2 mins
     local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
                    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
                    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
@@ -42,7 +42,7 @@ if gadgetHandler:IsSyncedCode() then
     local spawnHeight = 50   -- how high above the ground the chunks are spawned
     local localDebug = false -- true
     ---####
-    local testMode = true   -- Speeds up the respawn cycle (updateRate) to 45s
+    local testMode = false --true   -- Speeds up the respawn cycle (updateRate) to 45s
 
     local math_rad = math.rad
     local math_random = math.random
@@ -205,7 +205,7 @@ if gadgetHandler:IsSyncedCode() then
 
                 --Spring.SetUnitBlocking ( number unitID, bool isblocking, bool isSolidObjectCollidable, bool isProjectileCollidable, bool isRaySegmentCollidable, bool crushable, bool blockEnemyPushing, bool blockHeightChanges )
                 --Spring.SetUnitBlocking ( unitID, true, true, true, true, false, true, false )
-                chunks[unitID] = { pos = { x=x, y=cy+spawnHeight, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R } --, time = sprawlTime }
+                chunks[unitID] = { pos = { x=x, y=cy+spawnHeight, z=z}, kind = kind, spotIdx = spotIdx, spawnR = R, timePeriod = (math_random(20, 40))/10 } --, time = sprawlTime }
                 mcEnable(unitID)
                 if not oreSpots[spotIdx] then
                     spEcho("Ore Spot "..spotIdx.." not found")
@@ -281,16 +281,18 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
-    local timePeriod = 2
+    --local timePeriod = 2
     local height = 2
 
     local function animateChunks()
         --{ pos = {x=x, y=y, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}, idxInSpot = n}
         local gameFrame = Spring.GetGameFrame()
         --local offset = math.sin(gameFrame * 180) / 20 --*5
-        local offset = 2*height * math.sin(((math.pi * 2) / timePeriod) * gameFrame/100)
         --Spring.Echo("ofs: "..offset)
+        local doubleHeight = 2*height
         for unitID, data in pairs(chunks) do
+            local period = (math.pi * 2) / data.timePeriod
+            local offset = doubleHeight * math.sin(period * gameFrame/100)
             local pos = data.pos
             --mcEnable(unitID)
             mcSetPosition( unitID, pos.x, pos.y + offset, pos.z)

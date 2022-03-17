@@ -240,11 +240,11 @@ if gadgetHandler:IsSyncedCode() then
         for harvesterID, maxStorage in pairs(harvesters) do
             local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
             --spEcho("harv id "..(harvesterID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
-            if curStorage >= maxStorage then
-                partialLoadHarvesters[harvesterID] = nil
-            elseif curStorage > 0 then
-                partialLoadHarvesters[harvesterID] = true
-            end
+            --if curStorage >= maxStorage then
+            --    partialLoadHarvesters[harvesterID] = nil
+            --elseif curStorage > 0 then
+            --    partialLoadHarvesters[harvesterID] = true
+            --end
             if inTowerRange(harvesterID) then
                 DeliverResources(harvesterID)
             end

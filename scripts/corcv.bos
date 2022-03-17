@@ -146,6 +146,35 @@ QueryNanoPiece(piecenum)
 	piecenum = beam;
 }
 
+// =========================
+// Attack (Harvest) weapon:
+// =========================
+
+AimPrimary(heading, pitch)
+{
+//	if (blockWeaponFlag)
+//		return (0);
+	return (1);
+}
+
+FirePrimary()
+{
+	sleep 50; //150
+	return (0);
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = gun; //turret;
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = beam; //flare;
+}
+
+// =========================
+
 /*
 TargetHeading(Func_Var_1)
 {

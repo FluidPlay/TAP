@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, wing1, wing2, thrustb;
+piece  base, wing1, wing2, thrustb, buildbase, buildtip;
 
 static-var  Static_Var_1, Static_Var_2;
 
@@ -120,6 +120,35 @@ QueryNanoPiece(piecenum)
 	piecenum = base;
 	return (0);
 }
+
+// =========================
+// Attack (Harvest) weapon:
+// =========================
+
+AimPrimary(heading, pitch)
+{
+//	if (blockWeaponFlag)
+//		return (0);
+	return (1);
+}
+
+FirePrimary()
+{
+	sleep 50; //150
+	return (0);
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = buildbase; //turret;
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = buildtip; //flare;
+}
+
+// =========================
 
 SweetSpot(piecenum)
 {

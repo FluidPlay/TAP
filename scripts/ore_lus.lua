@@ -2,7 +2,7 @@
 -- Dev: MaDDoX
 -- Date: 16/03/21
 -- Time: 12:25
---
+--- Attention: UNUSED, cob being used instead
 local SIG_REQSTATE = {}
 
 local base = piece ('base')

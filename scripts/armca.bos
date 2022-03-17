@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, wing1, wing2, rearthrust;
+piece  base, wing1, wing2, rearthrust, buildbase, buildtip;
 
 static-var  statechg_DesiredState, statechg_StateChanging;
 
@@ -154,12 +154,12 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = base; //turret;
+	piecenum = buildbase; //turret;
 }
 
 QueryPrimary(piecenum)
 {
-	piecenum = rearthrust; //flare;
+	piecenum = buildtip; //flare;
 }
 
 // =========================

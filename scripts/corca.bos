@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, winga, wingb, thrusta1, thrusta2;
+piece  base, winga, wingb, thrusta1, thrusta2, buildbase, buildtip;
 
 static-var  Static_Var_1, Static_Var_2;
 
@@ -140,12 +140,12 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = base; //turret;
+	piecenum = buildbase; //turret;
 }
 
 QueryPrimary(piecenum)
 {
-	piecenum = thrusta2; //flare;
+	piecenum = buildtip; //flare;
 }
 
 // =========================

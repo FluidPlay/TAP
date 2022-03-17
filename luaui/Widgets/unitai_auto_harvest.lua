@@ -128,8 +128,9 @@ local canharvest = {
     armck = true, corck = true, armca = true, corca = true,
     armaca = true, coraca = true,
     armack = true, corack = true,
-    --armcv = true, corcv = true,
-    --armacv = true, coracv = true, armcs = true, corcs = true,
+    armcv = true, corcv = true,
+    armacv = true, coracv = true,
+    --armcs = true, corcs = true,
     --armacsub = true, coracsub = true,
 }
 

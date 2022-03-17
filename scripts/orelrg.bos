@@ -9,7 +9,7 @@ static-var RotateSpeed, accelbrakerate, statechg_DesiredState, statechg_StateCha
 
 Go()
 {
-	spin base around y-axis speed RotateSpeed;
+	spin base around y-axis speed <30.00000>;;
 	return (0);
 }
 
@@ -44,7 +44,7 @@ RequestState(requestedstate, currentstate)
 
 Create()
 {
-	RotateSpeed = 60;
+	RotateSpeed = 50;
 	accelbrakerate = 1;
 	call-script InitState();
 	start-script RequestState(0);	
