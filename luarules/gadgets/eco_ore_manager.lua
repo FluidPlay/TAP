@@ -30,11 +30,11 @@ if gadgetHandler:IsSyncedCode() then
                    -- }
     local startFrame
     local gaiaTeamID = Spring.GetGaiaTeamID()
-    local sprawlChance = 0.2
+    --local sprawlChance = 0.2
     local deadZone = 30
     local startOreKind = "lrg"  -- the initial ore chunks on the map
     local baseOreKind = "sml"   -- base ore type to be spawned in each global spawning, when no sprawler assigned to the spot
-    local sprawlerMult = { ["sml"]=1.25, ["lrg"]=1.5, ["moho"]=2, ["uber"]=4 }
+    --local sprawlerMult = { ["sml"]=1.25, ["lrg"]=1.5, ["moho"]=2, ["uber"]=4 }
 
     local maxIter = 50 -- it'll quit trying to recurse (find an appropriate spot) after 50 attempts
     --local respawnTime = 60 -- in frames; 60f = 2s
@@ -42,7 +42,8 @@ if gadgetHandler:IsSyncedCode() then
     local spawnHeight = 50   -- how high above the ground the chunks are spawned
     local localDebug = false -- true
     ---####
-    local testMode = false --true   -- Speeds up the respawn cycle (updateRate) to 45s
+    local testMode = true   -- Speeds up the respawn cycle (updateRate) to whatever's defined below
+    local testModeUpdateRate = 30
 
     local math_rad = math.rad
     local math_random = math.random
@@ -51,6 +52,7 @@ if gadgetHandler:IsSyncedCode() then
     local math_sin = math.sin
     local math_pi = math.pi
     local minSpawnDistance = 18  -- 12   -- This prevents stacked ore chunks when spawning
+    local spotSearchRadius = 100
     local startingChunkCount = 3 --
     local maxChunkCount = 10     -- Won't have more than this amount of chunks in a single spot (on respawn)
     local baseChunkMult = 1      -- existing chunks times this number will be spawned (up to maxChunkCount above)
@@ -90,34 +92,40 @@ if gadgetHandler:IsSyncedCode() then
                   ["lrg"] = {id = UnitDefNames["orelrg"].id},
                   ["moho"] = {id = UnitDefNames["oremoho"].id},
                   ["uber"] = {id = UnitDefNames["oreuber"].id} }
-    local sprawlers = { [UnitDefNames["armamex"].id] = { kind = "lrg" },
-                        [UnitDefNames["armmoho"].id] = { kind = "moho"},
-                        [UnitDefNames["armuber"].id] = { kind = "uber"}
+    local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.1 },
+                        [UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.15 },
+                        [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25},
+                        [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3}
     }
 
     --local function distance (x1, y1, z1, x2, y2, z2 )
     --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
     --end
 
-    local function sprawlerOnSpot(spotID)
+    --- returns the chunk type to be spawned here, and the spawn rate multiplier
+    local function chunkToSpawn(spotID)
         local x,z = oreSpots[spotID].x, oreSpots[spotID].z
-        local unitsNearSpot = spGetUnitsInCylinder(x, z, minSpawnDistance)
-        local bestSprawlerKind = "sml"
+        local unitsNearSpot = spGetUnitsInCylinder(x, z, spotSearchRadius)
+        local sprawlerResult = "sml"
+        local multiplier = 1
         for _,unitID in ipairs(unitsNearSpot) do
             local unitDefID = spGetUnitDefID(unitID)
-            --local uDef = UnitDefs[unitDefID]
-
             local sprawler = sprawlers[unitDefID]
             if sprawler then
                 if sprawler.kind == "uber" then
-                    bestSprawlerKind = "uber"
+                    sprawlerResult = "uber"
+                    multiplier = sprawler.multiplier
+                    break   -- one uber already seals the deal
                 elseif sprawler.kind == "moho" then
-                    bestSprawlerKind = "moho"
-                elseif sprawler.kind == "lrg" then
-                    bestSprawlerKind = "lrg"
+                    sprawlerResult = "moho"
+                    multiplier = sprawler.multiplier
+                elseif sprawler.kind == "lrg" and sprawlerResult ~= "moho" then
+                    sprawlerResult = "lrg"
+                    multiplier = sprawler.multiplier
                 end
             end
         end
+        return sprawlerResult, multiplier
     end
 
     local function chunkTooClose(x, _, z)
@@ -229,9 +237,9 @@ if gadgetHandler:IsSyncedCode() then
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oreuber"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
         if testMode then
-            updateRate = 30 * 30
+            updateRate = testModeUpdateRate * 30
         end
-        gadget:GameStart()
+        --gadget:GameStart()
         --if not istable(oreSpots) then
         --    Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
         --    oreSpots = {} end
@@ -307,7 +315,7 @@ if gadgetHandler:IsSyncedCode() then
         if f % updateRate > 0.0001 or f <= startFrame then
             return end
         spawnIter = spawnIter + 1
-        local chunkMult = math.max(minChunkMult, baseChunkMult - (spawnIter * spawnIterMult)) --TODO: Apply oreSpot's sprawlerMult
+        local chunkMult = math.max(minChunkMult, baseChunkMult - (spawnIter * spawnIterMult))
         spEcho("Spawn Iteration: "..spawnIter.." chunkMult: "..chunkMult)
 
         for i, data in ipairs(oreSpots) do
@@ -321,11 +329,12 @@ if gadgetHandler:IsSyncedCode() then
             -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 3 => ceil(2 * (1 - 3 * 0.11) => round (2 * 0.67) = 1
 
             -- eg: 1 chunk,  baseChunkMult 1, spawnIterChunkMult 0.75, iteration 1 => ceil(1 * 1 * ( 0.75 / 1)) => ceil (0.75) = 1
-            local targetNewChunks = math_round (existingCount * chunkMult )
+            local chunkTypeToSpawn, sprawlerMult = chunkToSpawn(i)
+            local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)
             local chunksToSpawnHere = math_clamp( 0, maxChunkCount - existingCount, targetNewChunks)
             --Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * baseChunkMult .."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)
             for j = 1, chunksToSpawnHere do
-                SpawnChunk (x, y, z, spawnRadius, deadZone, i, baseOreKind, { value=1 })
+                SpawnChunk (x, y, z, spawnRadius, deadZone, i, chunkTypeToSpawn, { value=1 }) --baseOreKind
             end
         end
     end
