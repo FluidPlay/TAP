@@ -93,9 +93,18 @@ if gadgetHandler:IsSyncedCode() then
                   ["moho"] = {id = UnitDefNames["oremoho"].id},
                   ["uber"] = {id = UnitDefNames["oreuber"].id} }
     local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.1 },
+                        [UnitDefNames["armuwmex"].id] = { kind = "sml", multiplier = 1.1 },
                         [UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.15 },
-                        [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25},
-                        [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3}
+                        [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25 },
+                        [UnitDefNames["armuwmme"].id] = { kind = "moho", multiplier = 1.25 },
+                        [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3 },
+
+                        [UnitDefNames["cormex"].id] = { kind = "sml", multiplier = 1.1 },
+                        [UnitDefNames["coruwmex"].id] = { kind = "sml", multiplier = 1.1 },
+                        [UnitDefNames["corexp"].id] = { kind = "lrg", multiplier = 1.15 },
+                        [UnitDefNames["cormoho"].id] = { kind = "moho", multiplier = 1.25 },
+                        [UnitDefNames["coruwmme"].id] = { kind = "moho", multiplier = 1.25 },
+                        [UnitDefNames["coruber"].id] = { kind = "uber", multiplier = 1.3 },
     }
 
     --local function distance (x1, y1, z1, x2, y2, z2 )
