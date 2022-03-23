@@ -14,6 +14,11 @@ function gadget:GetInfo()
     }
 end
 
+--- Darken Map: (TODO) color_groundambient_g / r/ b (0.33)
+--GroundShadowDensity (half)
+--Unit tonemapping, unitExposureMult:
+--
+
 VFS.Include("gamedata/taptools.lua")
 
 if gadgetHandler:IsSyncedCode() then
