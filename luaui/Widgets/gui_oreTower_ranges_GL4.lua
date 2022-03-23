@@ -1,8 +1,8 @@
 function widget:GetInfo()
 	return {
-		name      = "Sensor Ranges Radar",
-		desc      = "Shows ranges of all ally radars. (GL4)",
-		author    = "Kev, Beherith GL4",
+		name      = "Ore Tower Ranges - GL4",
+		desc      = "Shows ranges of all ally ore Towers. (GL4)",
+		author    = "Kev, Beherith GL4, modified by MaDDoX for oreTower usage",
 		date      = "2021.06.18",
 		license   = "Lua: GPLv2, GLSL: (c) Beherith (mysterme@gmail.com)",
 		layer     = 0,
@@ -11,8 +11,8 @@ function widget:GetInfo()
 end
 
 -------   Configurables: -------------------
-local rangeLineWidth = 3.5 -- (note: will end up larger for larger vertical screen resolution size)
-local minRadarDistance = 500
+local rangeLineWidth = 4.5 --3.5 -- (note: will end up larger for larger vertical screen resolution size)
+local minDevolutionRadius = 250 --500
 
 local gaiaTeamID = Spring.GetGaiaTeamID()
 local rangeColor = { 0.0, 1.0, 0.0, 0.16 } -- default range color
@@ -190,16 +190,21 @@ local allyTeamID = Spring.GetMyAllyTeamID()
 
 local chobbyInterface
 
--- find all unit types with radar in the game and place ranges into unitRange table
+local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
+
+-- find all unit types which are oreTowers in the game and place their devolution ranges into unitRange table
 local unitRange = {} -- table of unit types with their radar ranges
 local isBuilding = {} -- unitDefID keys
 for unitDefID, unitDef in pairs(UnitDefs) do
-	if unitDef.radarRadius and unitDef.radarRadius > minRadarDistance then	-- save perf by excluding low radar range units
-		if not unitRange[unitDefID] then unitRange[unitDefID] = {} end
-		unitRange[unitDefID]['range'] = unitDef.radarRadius
+	if oreTowerDefNames[unitDef.name] then
+		local buildDistance = unitDef.buildDistance --ore Tower devolution range
+		if buildDistance and buildDistance > minDevolutionRadius then	-- save perf by excluding low radar range units
+			if not unitRange[unitDefID] then unitRange[unitDefID] = {} end
+			unitRange[unitDefID]['range'] = buildDistance
 
-		if unitDef.isBuilding or unitDef.isFactory or unitDef.speed==0 then
-			isBuilding[unitDefID] = true
+			if unitDef.isBuilding or unitDef.isFactory or unitDef.speed==0 then
+				isBuilding[unitDefID] = true
+			end
 		end
 	end
 end
@@ -240,8 +245,8 @@ local function processUnit(unitID, unitDefID, noUpload)
 
 	local x, y, z = spGetUnitPosition(unitID)
 
-    local range = unitRange[unitDefID]['range']
-    local height = unitRange[unitDefID]['height']
+    --local range = unitRange[unitDefID]['range']
+    --local height = unitRange[unitDefID]['height']
 
     unitList[unitID] = unitDefID
 	activeUnits[unitID] = false
@@ -315,7 +320,6 @@ function widget:GameFrame(n)
 				instanceData[instanceDataOffset+7] = z
 
 			end
-
 
 			local range = unitRange[unitDefID]['range']
 			local active = spGetUnitIsActive(unitID)
