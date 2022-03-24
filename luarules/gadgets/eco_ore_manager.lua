@@ -47,7 +47,7 @@ if gadgetHandler:IsSyncedCode() then
     local spawnHeight = 50   -- how high above the ground the chunks are spawned
     local localDebug = false -- true
     ---####
-    local testMode = true   -- Speeds up the respawn cycle (updateRate) to whatever's defined below
+    local testMode = false --true   -- Speeds up the respawn cycle (updateRate) to whatever's defined below
     local testModeUpdateRate = 30
 
     local math_rad = math.rad

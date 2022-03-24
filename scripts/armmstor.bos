@@ -3,8 +3,12 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base;
+piece base, nano, pad;
 
+static-var  statechg_DesiredState, statechg_StateChanging;
+
+// Signal definitions
+#define SIG_ACTIVATE 2
 
 SmokeUnit(healthpercent, sleeptime, smoketype)
 {
@@ -37,6 +41,82 @@ SmokeUnit(healthpercent, sleeptime, smoketype)
 Create()
 {
 	start-script SmokeUnit();
+	statechg_DesiredState = TRUE;
+	statechg_StateChanging = FALSE;	
+	return (0);
+}
+
+//==============
+// Build stuff
+//==============
+
+QueryNanoPiece(piecenum)
+{
+	piecenum = nano;
+	return (0);
+}
+
+RequestState(requestedstate, currentstate)
+{
+	if( statechg_StateChanging )
+	{
+		statechg_DesiredState = requestedstate;
+		return (0);
+	}
+	statechg_StateChanging = TRUE;
+	currentstate = statechg_DesiredState;
+	statechg_DesiredState = requestedstate;
+	while( statechg_DesiredState != currentstate )
+	{
+		if( statechg_DesiredState )
+		{
+			set YARD_OPEN to 0;
+			set INBUILDSTANCE to 0;
+			currentstate = 1;
+		}
+		else
+		{
+			set YARD_OPEN to 1;
+			set INBUILDSTANCE to 1;
+			currentstate = 0;
+		}
+	}
+	statechg_StateChanging = FALSE;
+}
+
+Activate()
+{
+	signal SIG_ACTIVATE;
+	start-script RequestState(0);
+	return (0);	
+}
+
+Deactivate()
+{
+	signal SIG_ACTIVATE;
+	set-signal-mask SIG_ACTIVATE;
+	set-signal-mask 0;
+	start-script RequestState(1);
+	return (0);	
+}
+
+StartBuilding()
+{
+	//spin pad around y-axis speed <0.000000>;
+	start-script RequestState(0);
+	return (0);
+}
+
+StopBuilding()
+{
+	//stop-spin pad around y-axis;
+	start-script RequestState(1);
+	return (0);	
+}
+
+QueryBuildInfo(piecenum)
+{
+	piecenum = pad;
 	return (0);
 }
 
