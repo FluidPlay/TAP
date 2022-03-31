@@ -120,6 +120,8 @@ QueryBuildInfo(piecenum)
 	return (0);
 }
 
+//================
+
 SweetSpot(piecenum)
 {
 	piecenum = base;

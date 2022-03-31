@@ -21,7 +21,7 @@ return {
 		corpse = "DEAD",
 		description = "Extracts Metal",
 		explodeas = "tinyBuildingExplosionGeneric",
-		extractsmetal = 0.001,
+		extractsmetal = 0,
 		footprintx = 3,
 		footprintz = 3,
 		icontype = "building",

@@ -571,10 +571,12 @@ local automatedFunctions = {
 
 
 local function automateCheck(unitID, unitDef, caller)
+    if not unitDef or not IsValidUnit(unitID) then
+        return end
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
-    local radius = unitDef.buildDistance * 1.8
+    local radius = (unitDef.buildDistance or 1) * 1.8
     if unitDef.canFly then               -- Air units need that extra oomph
         radius = radius * 1.3
     end
@@ -738,10 +740,12 @@ function widget:GameFrame(f)
         if IsValidUnit(unitID) and f >= automateFrame then
             local unitDef = UnitDefs[spGetUnitDefID(unitID)]
             --- PS: we only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
-            local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
-            if not orderIssued and not automatedState[unitID] and automatedState[unitID]~="deautomated" then
-                --spEcho("1.5")
-                setAutomateState(unitID, "deautomated", "GameFrame: deautomate")
+            if unitDef then
+                local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
+                if not orderIssued and not automatedState[unitID] and automatedState[unitID]~="deautomated" then
+                    --spEcho("1.5")
+                    setAutomateState(unitID, "deautomated", "GameFrame: deautomate")
+                end
             end
         end
     end
@@ -763,8 +767,10 @@ function widget:GameFrame(f)
             ----- Rechecking if a repairing/building unit has better things to do (like assist or resurrect)
             if unitNotDeautomated(unitID) then
                 local unitDef = UnitDefs[spGetUnitDefID(unitID)]    --TODO: Optimization - cache this within automatableUnits
-                spEcho("[automated] Rechecking automation of unitID: "..unitID)
-                automateCheck(unitID, unitDef, "repurposeCheck")
+                if unitDef then
+                    spEcho("[automated] Rechecking automation of unitID: "..unitID)
+                    automateCheck(unitID, unitDef, "repurposeCheck")
+                end
             end
             --- We need to remove Guard commands, otherwise the unit will keep guarding
             if assistingUnits[unitID] and not isReallyAssisting(unitID) then

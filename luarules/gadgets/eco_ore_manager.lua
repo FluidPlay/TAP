@@ -61,7 +61,7 @@ if gadgetHandler:IsSyncedCode() then
     local startingChunkCount = 3 --
     local maxChunkCount = 10     -- Won't have more than this amount of chunks in a single spot (on respawn)
     local baseChunkMult = 1      -- existing chunks times this number will be spawned (up to maxChunkCount above)
-    local spawnIterMult = 0.11   -- every global spawning iteration, this is multiplied by the iter and subtracted from baseChunkMult
+    local spawnIterMult = 0.03   -- every global spawning iteration, this is multiplied by the iter and subtracted from baseChunkMult
     local minChunkMult = 0.2     -- minimum chunk multiplier, per spot
     local spawnRadius = 55       -- starting spawn radius from oreSpot's center
     local spawnIter = 0          -- how many times the global spawning ("pandore rain") has occured

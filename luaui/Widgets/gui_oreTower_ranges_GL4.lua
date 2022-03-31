@@ -11,13 +11,13 @@ function widget:GetInfo()
 end
 
 -------   Configurables: -------------------
-local rangeLineWidth = 4.5 --3.5 -- (note: will end up larger for larger vertical screen resolution size)
+local rangeLineWidth = 10.5 --3.5, 4.5 -- (note: will end up larger for larger vertical screen resolution size)
 local minDevolutionRadius = 250 --500
 
 local gaiaTeamID = Spring.GetGaiaTeamID()
-local rangeColor = { 0.0, 1.0, 0.0, 0.16 } -- default range color
+local rangeColor = { 1.0, 0.88, 0.0, 0.56 } -- default range color -- was pure green, a: 0.16
 local usestipple = 1 -- 0 or 1resolution size)
-local opacity = 0.16
+local opacity = 0.56 --0.16
 
 
 local circleSegments = 64
