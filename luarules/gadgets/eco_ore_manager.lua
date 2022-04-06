@@ -345,7 +345,7 @@ if gadgetHandler:IsSyncedCode() then
             -- eg: 1 chunk,  baseChunkMult 1, spawnIterChunkMult 0.75, iteration 1 => ceil(1 * 1 * ( 0.75 / 1)) => ceil (0.75) = 1
             local chunkTypeToSpawn, sprawlerMult = chunkToSpawn(i)
             local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)
-            local chunksToSpawnHere = math_clamp( 0, maxChunkCount - existingCount, targetNewChunks)
+            local chunksToSpawnHere = math_clamp( (existingCount > 0 and 1 or 0), maxChunkCount - existingCount, targetNewChunks)
             --Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * baseChunkMult .."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)
             for j = 1, chunksToSpawnHere do
                 SpawnChunk (x, y, z, spawnRadius, deadZone, i, chunkTypeToSpawn, { value=1 }) --baseOreKind
