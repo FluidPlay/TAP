@@ -621,7 +621,7 @@ AimPrimary(heading, pitch)
 
 FirePrimary()
 {
-	sleep 50; //150
+	//sleep 50; //150
 	return (0);
 }
 

@@ -214,6 +214,8 @@ end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local unitDef = UnitDefs[unitDefID]
+    if not unitDef then
+        return end
     if oreTowerDefNames[unitDef.name] then
         oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
     --local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
@@ -371,6 +373,9 @@ local automatedFunctions = {
 }
 
 local function automateCheck(unitID, unitDef, caller)
+    if not unitID or not unitDef then
+        return
+    end
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
@@ -387,10 +392,14 @@ local function automateCheck(unitID, unitDef, caller)
                                  function(x)
                                             --local isAllied = spGetUnitAllyTeam(unitID) == myAllyTeamID
                                             local health,maxHealth = spGetUnitHealth(x)
+                                            if not health or not maxHealth then
+                                               return nil end
                                             return (health < (maxHealth * 0.99)) end)
     local nearestRepairableID = NearestItemAround(unitID, pos, unitDef, radius, nil,
                                     function(x)
                                                 local health,maxHealth,_,_,done = spGetUnitHealth(x)
+                                                if not health or not maxHealth then
+                                                    return nil end
                                                 return (done and health < (maxHealth * 0.99)) end )
     local nearestFeatureID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
     local nearestChunkID = NearestItemAround(unitID, pos, unitDef, harvestrange,

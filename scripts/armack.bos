@@ -591,13 +591,16 @@ AimPrimary(heading, pitch)
 	start-script RequestState(0);
 	turn torso to y-axis heading speed <400.000000>;
 	wait-for-turn torso around y-axis;	
-
+	turn lnanogun to x-axis pitch speed <400.000000>;
+	turn rnanogun to x-axis pitch speed <400.000000>;	
+	wait-for-turn lnanogun around x-axis;
+	wait-for-turn rnanogun around x-axis;
 	return (1);
 }
 
 FirePrimary()
 {
-	sleep 50; //150
+	//sleep 50; //150
 	return (0);
 }
 

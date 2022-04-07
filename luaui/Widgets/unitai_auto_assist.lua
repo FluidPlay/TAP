@@ -345,6 +345,8 @@ end
 function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
     -- If unit just created is a mobile unit, add it to array
     local uDef = UnitDefs[unitDefID]
+    if not uDef then
+        return end
     if not uDef.isImmobile then
         WIPmobileUnits[unitID] = true
     end
@@ -371,6 +373,8 @@ end
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     --if myTeamID==unitTeam then					--check if unit is mine
     local unitDef = UnitDefs[unitDefID]
+    if not unitDef then
+        return end
     if oreTowerDefNames[unitDef.name] then
         oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
     if not unitDef.isBuilding then
@@ -590,11 +594,16 @@ local function automateCheck(unitID, unitDef, caller)
             function(x) return (x.customParams.isorechunk == nil) end,
             function(x)
                 local health,maxHealth = spGetUnitHealth(x)
+                if not health or not maxHealth then
+                    return nil end
                 return (health < (maxHealth * 0.99)) end)
     local nearestRepairableID = NearestItemAround(unitID, pos, unitDef, radius,
             function(x) return (x.customParams.isorechunk == nil) end ,
             function(x)
                 local health,maxHealth,_,_,done = spGetUnitHealth(x)
+                if not health or not maxHealth then
+                    return nil
+                end
                 return done and health < (maxHealth * 0.99) end )
     local nearestFeatureID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
     local nearestChunkID = NearestItemAround(unitID, pos, unitDef, harvestrange,
