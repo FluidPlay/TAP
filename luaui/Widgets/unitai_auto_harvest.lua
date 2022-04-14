@@ -75,7 +75,7 @@ local myTeamID, myAllyTeamID = -1, -1
 local gaiaTeamID = Spring.GetGaiaTeamID()
 
 local startupGracetime = 300        -- Widget won't work at all before those many frames (10s)
-local updateRate = 15               -- Global update "tick rate"
+local updateRate = 30 --15               -- Global update "tick rate"
 
 local recheckLatency = 30 -- Delay until a de-automated unit checks for automation again
 local automatedState = {}
@@ -496,22 +496,42 @@ end
 
 --- Frame-based Update
 function widget:GameFrame(f)
-    if f < startupGracetime or f % updateRate > 0.001 then
+    if f < startupGracetime then
         return
     end
-
-    for harvesterID, data in pairs(harvesters) do
-        local maxStorage = data.maxorestorage
-        local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-        harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
-        if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
-            --- Check/Update harvest Automation
-            local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-            automateCheck(harvesterID, unitDef, "harvesters")
-            -- Queue up the next automation test
-            harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
+    if f % updateRate < 0.001 then
+        for harvesterID, data in pairs(harvesters) do
+            if harvesterID % 2 then
+                local maxStorage = data.maxorestorage
+                local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+                harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
+                if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
+                    --- Check/Update harvest Automation
+                    local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+                    automateCheck(harvesterID, unitDef, "harvesters")
+                    -- Queue up the next automation test
+                    harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
+                end
+            end
         end
     end
+    if f % updateRate+15 < 0.001 then
+        for harvesterID, data in pairs(harvesters) do
+            if not harvesterID % 2 then
+                local maxStorage = data.maxorestorage
+                local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+                harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
+                if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
+                    --- Check/Update harvest Automation
+                    local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+                    automateCheck(harvesterID, unitDef, "harvesters")
+                    -- Queue up the next automation test
+                    harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
+                end
+            end
+        end
+    end
+
 
     --- TODO: Orphans processing
     --- load < maxload & has no parentOretower

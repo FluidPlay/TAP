@@ -16,10 +16,13 @@ if (gadgetHandler:IsSyncedCode()) then
     reverseUnit = {}
     refreshList = {}
     function gadget:UnitCreated(unitID, unitDefID)
-        if not (UnitDefs[unitDefID].rSpeed == nil or UnitDefs[unitDefID].rSpeed == 0) then
+        local uDef = UnitDefs[unitDefID]
+        if uDef.canFly then
+            return end
+        if not (uDef.rSpeed == nil or uDef.rSpeed == 0) then
             reverseUnit[unitID] = unitDefID
             refreshList[unitID] = unitDefID
-            Spring.MoveCtrl.SetGroundMoveTypeData(unitID, "maxSpeed", UnitDefs[unitDefID].speed)
+            Spring.MoveCtrl.SetGroundMoveTypeData(unitID, "maxSpeed", uDef.speed)
             Spring.MoveCtrl.SetGroundMoveTypeData(unitID, "maxReverseSpeed", 0)
         end
     end

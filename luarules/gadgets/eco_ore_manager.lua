@@ -325,8 +325,9 @@ if gadgetHandler:IsSyncedCode() then
 
     function gadget:GameFrame(f)
         animateChunks()
-
-        if f % updateRate > 0.0001 or f <= startFrame then
+        if startFrame and f <= startFrame then
+            return end
+        if f % updateRate > 0.0001 then
             return end
         spawnIter = spawnIter + 1
         local chunkMult = math.max(minChunkMult, baseChunkMult - (spawnIter * spawnIterMult))

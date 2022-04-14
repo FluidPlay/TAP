@@ -371,7 +371,8 @@ local function getOreTowerRange(oreTowerID, unitDef)
 end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
-    --if myTeamID==unitTeam then					--check if unit is mine
+    if myTeamID ~= unitTeam then					--check if unit is mine
+        return end
     local unitDef = UnitDefs[unitDefID]
     if not unitDef then
         return end
