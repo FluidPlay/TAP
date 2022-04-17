@@ -19,6 +19,7 @@ end
 
 VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
+VFS.Include("gamedata/unitai_functions.lua")
 
 local localDebug = false --true --|| Enables text state debug messages
 
@@ -385,7 +386,8 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
                                             or (160 * harvestLeashMult)
         harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
                                recheckFrame = spGetGameFrame() + recheckLatency, loadPercent = 0,
-                               harvestWeapon = harvestWeapon, harvestRange = harvestRange
+                               harvestWeapon = harvestWeapon, harvestRange = harvestRange,
+                               unitDef = UnitDefs[unitDefID]
                              }
         spEcho("unitai_autoharvest: added harvester: "..unitID.." storage: "..maxorestorage)
         --orphanHarvesters[unitID] = true -- newborns are orphan. Usually not for long.
@@ -442,72 +444,6 @@ end
 --    end
 --end
 
-local function getNearestUID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
-            function(x) return (x.customParams.isorechunk == nil) end,
-            function(x)
-                local health,maxHealth = spGetUnitHealth(x)
-                if not health or not maxHealth then
-                    return nil end
-                return (health < (maxHealth * 0.99)) end)
-end
-
-local function getNearestRepairableID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
-        function(x) return (x.customParams.isorechunk == nil) end ,
-        function(x)
-            local health,maxHealth,_,_,done = spGetUnitHealth(x)
-            if not health or not maxHealth then
-                return nil
-            end
-            return done and health < (maxHealth * 0.99) end )
-end
-
-local function getNearestFeatureID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil, nil, true)
-end
-
-local function getNearestChunkID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.harvestRange,
-            function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
-            nil, false, gaiaTeamID)
-end
-
-local function getNearestOreTowerID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, maxOreTowerScanRange, nil,
-            function(x) return (oreTowers and oreTowers[x] or nil) end) --,
-end
-
-local function getParentOreTowerID (ud, nearestOreTowerID)
-    return harvesters[ud.unitID] and harvesters[ud.unitID].parentOreTowerID or nearestOreTowerID
-end
-
-local function getOreTowerCollectRange(parentOreTowerID)
-    return oreTowers[parentOreTowerID] or nil
-end
-
-local function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
-    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
-end
-
-local function getNearestFactoryID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
-        function(x) return x.isFactory end,     --We're only interested in factories currently producing
-        function(x) return hasBuildQueue(x) end)
-end
-
-local function getNearestMetalID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil,
-            function(x)
-                local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
-                return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
-            true)
-end
-
-local function getNearestEnergyID(ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil, nil,true)
-end
-
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
 --- 1. If is not harvesting and there's a chunk nearby, set it to 'harvest' (from there on, ai_harvester_brain takes control, until it's deautomated)
 --- 2. If has no weapon (outpost, FARK, etc), reclaim enemy units;
@@ -521,7 +457,7 @@ local automatedFunctions = {
             condition = function(ud)
                 --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
                 local nearestChunkID = getNearestChunkID(ud)
-                local parentOreTowerID = getParentOreTowerID(ud)
+                local parentOreTowerID = getParentOreTowerID(ud, harvesters)
                 return nearestChunkID and automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
                         and( (
                                 nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent ~= 1
