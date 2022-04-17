@@ -37,7 +37,7 @@ local mapcfg = {
 		bottom = 2000, -- no fog below this altitude
 		fade_alt = 2500, -- fog will linearly fade away between this and "height", should be between height and bottom
 		scale = 450, --270, --600, -- how large will the clouds be
-		opacity = 0.7, --0.65, -- what it says
+		opacity = 0.4, --0.65, -- what it says
 		clamp_to_map = false, -- whether fog volume is sliced to fit map, or spreads to horizon
 		sun_penetration = 20, -- how much does the sun penetrate the fog
 		},
@@ -267,9 +267,9 @@ end
 --------------------------------------------------------------------------------
 
 function widget:Initialize()
-	if (Spring.GetMiniMapDualScreen() == 'left') then --FIXME dualscreen
-		enabled = false
-	end
+	--if (Spring.GetMiniMapDualScreen() == 'left') then --FIXME dualscreen
+	--	enabled = false
+	--end
 
 	if (not glCreateShader) then
 		enabled = false
@@ -279,7 +279,6 @@ function widget:Initialize()
     if windStrength < 3 then
         enabled = false
     end
-
 
 	if enabled then
 		depthShader = glCreateShader({
@@ -363,7 +362,9 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-function widget:GameFrame()
+function widget:GameFrame(f)
+    if f%2 > 0.0001 then    --- updateRate = 15 ticks/s
+        return end
 	--local dx,dy,dz = spGetWind()
 	--offsetX = offsetX-dx*speed
 	--offsetY = offsetY-0.25-dy*0.25*speed

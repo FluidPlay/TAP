@@ -350,11 +350,6 @@ function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
     if not uDef.isImmobile then
         WIPmobileUnits[unitID] = true
     end
-    local unitDef = UnitDefs[unitDefID]
-    if canrepair[unitDef.name] or canresurrect[unitDef.name] then
-        spEcho("Registering unit "..unitID.." as automatable: "..unitDef.name)--and isCom(unitID)
-        automatableUnits[unitID] = true
-    end
 end
 
 local function getOreTowerRange(oreTowerID, unitDef)
@@ -385,10 +380,20 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     end
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
     if maxorestorage and maxorestorage > 0 then
+        local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"]   -- eg: armck_harvest_weapon
+        local harvestRange = harvestWeapon and (harvestWeapon.range * harvestLeashMult)
+                                            or (160 * harvestLeashMult)
         harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
-                               recheckFrame = spGetGameFrame() + recheckLatency, loadPercent = 0,  }
+                               recheckFrame = spGetGameFrame() + recheckLatency, loadPercent = 0,
+                               harvestWeapon = harvestWeapon, harvestRange = harvestRange
+                             }
         spEcho("unitai_autoharvest: added harvester: "..unitID.." storage: "..maxorestorage)
         --orphanHarvesters[unitID] = true -- newborns are orphan. Usually not for long.
+    end
+    local unitDef = UnitDefs[unitDefID]
+    if canrepair[unitDef.name] or canresurrect[unitDef.name] then
+        spEcho("Registering unit "..unitID.." as automatable: "..unitDef.name)--and isCom(unitID)
+        automatableUnits[unitID] = true
     end
 end
 
@@ -437,6 +442,72 @@ end
 --    end
 --end
 
+local function getNearestUID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
+            function(x) return (x.customParams.isorechunk == nil) end,
+            function(x)
+                local health,maxHealth = spGetUnitHealth(x)
+                if not health or not maxHealth then
+                    return nil end
+                return (health < (maxHealth * 0.99)) end)
+end
+
+local function getNearestRepairableID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
+        function(x) return (x.customParams.isorechunk == nil) end ,
+        function(x)
+            local health,maxHealth,_,_,done = spGetUnitHealth(x)
+            if not health or not maxHealth then
+                return nil
+            end
+            return done and health < (maxHealth * 0.99) end )
+end
+
+local function getNearestFeatureID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil, nil, true)
+end
+
+local function getNearestChunkID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.harvestRange,
+            function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
+            nil, false, gaiaTeamID)
+end
+
+local function getNearestOreTowerID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, maxOreTowerScanRange, nil,
+            function(x) return (oreTowers and oreTowers[x] or nil) end) --,
+end
+
+local function getParentOreTowerID (ud, nearestOreTowerID)
+    return harvesters[ud.unitID] and harvesters[ud.unitID].parentOreTowerID or nearestOreTowerID
+end
+
+local function getOreTowerCollectRange(parentOreTowerID)
+    return oreTowers[parentOreTowerID] or nil
+end
+
+local function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
+    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
+end
+
+local function getNearestFactoryID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
+        function(x) return x.isFactory end,     --We're only interested in factories currently producing
+        function(x) return hasBuildQueue(x) end)
+end
+
+local function getNearestMetalID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil,
+            function(x)
+                local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
+                return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
+            true)
+end
+
+local function getNearestEnergyID(ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil, nil,true)
+end
+
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
 --- 1. If is not harvesting and there's a chunk nearby, set it to 'harvest' (from there on, ai_harvester_brain takes control, until it's deautomated)
 --- 2. If has no weapon (outpost, FARK, etc), reclaim enemy units;
@@ -449,25 +520,25 @@ local automatedFunctions = {
     [1] = { id="harvest",
             condition = function(ud)
                 --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
-                return automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
+                local nearestChunkID = getNearestChunkID(ud)
+                local parentOreTowerID = getParentOreTowerID(ud)
+                return nearestChunkID and automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
                         and( (
-                                ud.nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent ~= 1
+                                nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent ~= 1
                               )
                            or (
-                                ud.parentOreTowerID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent == 1
+                                parentOreTowerID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent == 1
                               )
                            )
                 end,
             action = function(ud) --unitData
-               spEcho("**5** Harvest check - nearest chunk: "..(ud.nearestChunkID or "nil"))
-               if ud.nearestChunkID then
-                   ---Moved to unitai_auto_harvest.lua (WIP)
-                   --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-                   spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID)
-                   spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..ud.nearestChunkID, "allies") --(message, mode)
-                   return "harvest"
-               end
-               return nil
+               local nearestChunkID = getNearestChunkID(ud)
+               spEcho("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
+               ---Moved to unitai_auto_harvest.lua (WIP)
+               --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+               spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
+               spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
+               return "harvest"
             end
     },
     [2] = { id="enemyreclaim",
@@ -476,28 +547,30 @@ local automatedFunctions = {
                                 automatedState[ud.unitID] ~= "enemyreclaim"
                                 and not ud.unitDef.customParams.iscommander
                         end,
-                         action = function(ud) --unitData
-                             --Spring.Echo("[1] Enemy-reclaim check")
-                             local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
-                             if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
-                                 spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
-                                 return "enemyreclaim"
-                             end
-                             return nil
-                         end
+                        action = function(ud) --unitData
+                            --Spring.Echo("[1] Enemy-reclaim check")
+                            local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
+                            if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
+                                spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
+                                return "enemyreclaim"
+                            end
+                            return nil
+                        end
     },
     [3] = { id="resurrect",
             condition = function(ud)
-                        return canresurrect[ud.unitDef.name] and not ud.orderIssued
+                        local hasEnergy = resourcesCheck("e")
+                        return canresurrect[ud.unitDef.name] --and not ud.orderIssued
                                 and automatedState[ud.unitID] ~= "harvest"
                                 and automatedState[ud.unitID] ~= "enemyreclaim"
                                 and automatedState[ud.unitID] ~= "resurrect"
-                                and ud.hasEnergy -- must have enough "E" to resurrect stuff
+                                and hasEnergy -- must have enough "E" to resurrect stuff
                         end,
             action = function(ud) --unitData
               --Spring.Echo("[2] Ressurect check")
-              if ud.nearestFeatureID and automatedState[ud.unitID] ~= "resurrect" then
-                  local x,y,z = spGetFeaturePosition(ud.nearestFeatureID)
+              local nearestFeatureID = getNearestFeatureID(ud)
+              if nearestFeatureID and automatedState[ud.unitID] ~= "resurrect" then
+                  local x,y,z = spGetFeaturePosition(nearestFeatureID)
                   spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
                   return "resurrect"
               end
@@ -507,19 +580,21 @@ local automatedFunctions = {
     [4] = { id="assist",
             condition =  function(ud) --unitData
                 --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
-                return canassist[ud.unitDef.name] and not ud.orderIssued
+                local hasResources = resourcesCheck()
+                return canassist[ud.unitDef.name] --and not ud.orderIssued
                     and automatedState[ud.unitID] ~= "harvest"
                     and automatedState[ud.unitID] ~= "enemyreclaim"
                     and automatedState[ud.unitID] ~= "resurrect" and automatedState[ud.unitID] ~= "assist"
-                    and ud.hasResources -- must have enough energy and ore to assist things being built
+                    and hasResources -- must have enough energy and ore to assist things being built
                 end,
             action = function(ud)
                --Spring.Echo("[3] Factory-assist check")
                --TODO: If during 'automation' it's guarding a factory but factory stopped production, remove it
                --Spring.Echo ("Autoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
-               if ud.nearestFactoryID then
-                   spGiveOrderToUnit(ud.unitID, CMD_GUARD, { ud.nearestFactoryID }, {} )
-                   assistingUnits[ud.unitID] = ud.nearestFactoryID    -- guardedUnit
+               local nearestFactoryID = getNearestFactoryID(ud)
+               if nearestFactoryID then
+                   spGiveOrderToUnit(ud.unitID, CMD_GUARD, { nearestFactoryID }, {} )
+                   assistingUnits[ud.unitID] = nearestFactoryID    -- guardedUnit
                    return "assist"
                end
                return nil
@@ -527,19 +602,22 @@ local automatedFunctions = {
     },
     [5] = { id="repair",
             condition = function(ud) --unitData
-                return canrepair[ud.unitDef.name] and not ud.orderIssued
+                local hasEnergy = resourcesCheck("e")
+                return canrepair[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "harvest"
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "resurrect" and automatedState[ud.unitID] ~= "assist"
-                        and automatedState[ud.unitID] ~= "repair" and ud.hasEnergy
+                        and automatedState[ud.unitID] ~= "repair" and hasEnergy
                 end,
             action = function(ud)
                 --Spring.Echo("[3] Repair check")
                 local nearestTargetID
                 if canassist[ud.unitDef.name] then
-                   nearestTargetID = ud.nearestUID
+                   local nearestUID = getNearestUID(ud)
+                   nearestTargetID = nearestUID
                 else
-                   nearestTargetID = ud.nearestRepairableID -- only finished units can be targetted then
+                   local nearestRepairableID = getNearestRepairableID(ud)
+                   nearestTargetID = nearestRepairableID -- only finished units can be targetted then
                 end
                 if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
                    --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
@@ -551,23 +629,29 @@ local automatedFunctions = {
     },
     [6] = { id="reclaim",
             condition = function(ud) --unitData
-                return canreclaim[ud.unitDef.name] and not ud.orderIssued
+                return canreclaim[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "harvest" and automatedState[ud.unitID] ~= "await"
-                        and automatedState[ud.unitID] ~= "enemyreclaim"
-                        and automatedState[ud.unitID] ~= "resurrect" and automatedState[ud.unitID] ~= "assist"
-                        and automatedState[ud.unitID] ~= "repair" and automatedState[ud.unitID] ~= "reclaim"
+                        and automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "resurrect"
+                        and automatedState[ud.unitID] ~= "assist" and automatedState[ud.unitID] ~= "repair"
+                        and automatedState[ud.unitID] ~= "reclaim"
                 end,
             action = function(ud)
                 --Spring.Echo("[3] Reclaim check")
-                if ud.nearestMetalID and not ud.hasMetal then
-                    local x,y,z = spGetFeaturePosition(ud.nearestMetalID)
+                local nearestMetalID = getNearestMetalID(ud)
+                local hasMetal = resourcesCheck("m",true)
+                if nearestMetalID and not hasMetal then
+                    local x,y,z = spGetFeaturePosition(nearestMetalID)
                     spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
                     return "reclaim"
-                elseif ud.nearestEnergyID and not ud.hasEnergy then
-                    -- If not, we'll check if there's an energy resource nearby and if we're not flooding energy, reclaim it
-                    local x,y,z = spGetFeaturePosition(ud.nearestEnergyID)
-                    spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
-                    return "reclaim"
+                else
+                    local nearestEnergyID = getNearestEnergyID(ud)
+                    local hasEnergy = resourcesCheck("e")
+                    if nearestEnergyID and not hasEnergy then
+                        -- If not, we'll check if there's an energy resource nearby and if we're not overflowing energy, reclaim it
+                        local x,y,z = spGetFeaturePosition(nearestEnergyID)
+                        spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
+                        return "reclaim"
+                    end
                 end
                 return nil
             end
@@ -586,57 +670,59 @@ local function automateCheck(unitID, unitDef, caller)
         radius = radius * 1.3
     end
 
-    local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
+--    local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
 
-    local harvestrange = harvestWeapon and (harvestWeapon.range * harvestLeashMult) or (radius * harvestLeashMult) -- eg: armck_harvest_weapon
+--    local harvestRange = harvestWeapon and (harvestWeapon.range * harvestLeashMult) or (radius * harvestLeashMult) -- eg: armck_harvest_weapon
+    local harvestRange = harvesters[unitID] and harvesters[unitID].harvestRange
 
-    -- Includes unfinished units (for repair/assist)
-    local nearestUID = NearestItemAround(unitID, pos, unitDef, radius,
-            function(x) return (x.customParams.isorechunk == nil) end,
-            function(x)
-                local health,maxHealth = spGetUnitHealth(x)
-                if not health or not maxHealth then
-                    return nil end
-                return (health < (maxHealth * 0.99)) end)
-    local nearestRepairableID = NearestItemAround(unitID, pos, unitDef, radius,
-            function(x) return (x.customParams.isorechunk == nil) end ,
-            function(x)
-                local health,maxHealth,_,_,done = spGetUnitHealth(x)
-                if not health or not maxHealth then
-                    return nil
-                end
-                return done and health < (maxHealth * 0.99) end )
-    local nearestFeatureID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
-    local nearestChunkID = NearestItemAround(unitID, pos, unitDef, harvestrange,
-            function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
-            nil, false, gaiaTeamID)
+    ---- Includes unfinished units (for repair/assist)
+    --local nearestUID = NearestItemAround(unitID, pos, unitDef, radius,
+    --        function(x) return (x.customParams.isorechunk == nil) end,
+    --        function(x)
+    --            local health,maxHealth = spGetUnitHealth(x)
+    --            if not health or not maxHealth then
+    --                return nil end
+    --            return (health < (maxHealth * 0.99)) end)
+    --local nearestRepairableID = NearestItemAround(unitID, pos, unitDef, radius,
+    --        function(x) return (x.customParams.isorechunk == nil) end ,
+    --        function(x)
+    --            local health,maxHealth,_,_,done = spGetUnitHealth(x)
+    --            if not health or not maxHealth then
+    --                return nil
+    --            end
+    --            return done and health < (maxHealth * 0.99) end )
+    --local nearestFeatureID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil, true)
+    --local nearestChunkID = NearestItemAround(unitID, pos, unitDef, harvestrange,
+    --        function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
+    --        nil, false, gaiaTeamID)
+    --
+    --local nearestOreTowerID = NearestItemAround(unitID, pos, unitDef, maxOreTowerScanRange, nil,
+            --function(x) return (oreTowers and oreTowers[x] or nil) end) --,
+            --nil, false, nil, spGetUnitAllyTeam(unitID))
 
-    local nearestOreTowerID = NearestItemAround(unitID, pos, unitDef, maxOreTowerScanRange, nil,
-            function(x) return (oreTowers and oreTowers[x] or nil) end) --,
-    --nil, false, nil, spGetUnitAllyTeam(unitID))
-    local parentOreTowerID = harvesters[unitID] and harvesters[unitID].parentOreTowerID or nearestOreTowerID
+    --local parentOreTowerID = harvesters[unitID] and harvesters[unitID].parentOreTowerID or nearestOreTowerID
+    --
+    --local oreTowerCollectRange = parentOreTowerID and oreTowers[parentOreTowerID] or nil
+    --local farFromOreTower = oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
+    --local returnPos = harvesters[unitID] and harvesters[unitID].returnPos or nil
+    --
+    --local nearestFactoryID = NearestItemAround(unitID, pos, unitDef, radius,
+    --        function(x) return x.isFactory end,     --We're only interested in factories currently producing
+    --        function(x) return hasBuildQueue(x) end)
+    --local nearestMetalID = NearestItemAround(unitID, pos, unitDef, radius, nil,
+    --        function(x)
+    --            local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
+    --            return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
+    --        true)
+    --local nearestEnergyID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil,true)
 
-    local oreTowerCollectRange = parentOreTowerID and oreTowers[parentOreTowerID] or nil
-    local farFromOreTower = oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
-    local returnPos = harvesters[unitID] and harvesters[unitID].returnPos or nil
-
-    local nearestFactoryID = NearestItemAround(unitID, pos, unitDef, radius,
-            function(x) return x.isFactory end,     --We're only interested in factories currently producing
-            function(x) return hasBuildQueue(x) end)
-    local nearestMetalID = NearestItemAround(unitID, pos, unitDef, radius, nil,
-            function(x)
-                local remainingMetal,_,remainingEnergy = spGetFeatureResources(x) --feature
-                return remainingMetal and remainingEnergy and remainingMetal > remainingEnergy end,
-            true)
-    local nearestEnergyID = NearestItemAround(unitID, pos, unitDef, radius, nil, nil,true)
-
-    local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
-                 hasEnergy = resourcesCheck("e"), hasResources = resourcesCheck(), hasMetal = resourcesCheck("m",true),
-                 nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
-                 nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID,
-                 nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID, farFromOreTower = farFromOreTower, returnPos = returnPos,
-                 parentOreTowerID = parentOreTowerID,
-    }
+    local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, harvestRange = harvestRange, orderIssued = nil }
+                 --hasEnergy = resourcesCheck("e"), hasResources = resourcesCheck(), hasMetal = resourcesCheck("m",true),
+                 --nearestUID = nearestUID, nearestRepairableID = nearestRepairableID, nearestFactoryID = nearestFactoryID,
+                 --nearestFeatureID = nearestFeatureID, nearestChunkID = nearestChunkID, nearestOreTowerID=nearestOreTowerID,
+                 --nearestEnergyID = nearestEnergyID, nearestMetalID = nearestMetalID, farFromOreTower = farFromOreTower, returnPos = returnPos,
+                 --parentOreTowerID = parentOreTowerID,
+    --}
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #automatedFunctions do

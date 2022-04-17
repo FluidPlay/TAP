@@ -501,55 +501,22 @@ function widget:GameFrame(f)
     end
     if f % updateRate < 0.001 then
         for harvesterID, data in pairs(harvesters) do
-            if harvesterID % 2 then
-                local maxStorage = data.maxorestorage
-                local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-                harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
-                if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
-                    --- Check/Update harvest Automation
-                    local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-                    automateCheck(harvesterID, unitDef, "harvesters")
-                    -- Queue up the next automation test
-                    harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
-                end
+            local maxStorage = data.maxorestorage
+            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+            harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
+            if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
+                --- Check/Update harvest Automation
+                local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
+                automateCheck(harvesterID, unitDef, "harvesters")
+                -- Queue up the next automation test
+                harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
             end
         end
     end
-    if f % updateRate+15 < 0.001 then
-        for harvesterID, data in pairs(harvesters) do
-            if not harvesterID % 2 then
-                local maxStorage = data.maxorestorage
-                local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-                harvesters[harvesterID].loadPercent = math_clamp(curStorage/maxStorage, 0, 1)
-                if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
-                    --- Check/Update harvest Automation
-                    local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-                    automateCheck(harvesterID, unitDef, "harvesters")
-                    -- Queue up the next automation test
-                    harvesters[harvesterID].recheckFrame = spGetGameFrame() + recheckLatency
-                end
-            end
-        end
-    end
-
-
     --- TODO: Orphans processing
     --- load < maxload & has no parentOretower
     --- => Find nearest ore tower and set parentOretower, new returnPos to it
     --- => Attack nearest ore Chunk
-
-    --- Check if it's time to actually try to automate an unit (after being set to harvest mode, or idle'd)
-    --for unitID, automateFrame in pairs(orphanHarvesters) do
-    --    if IsValidUnit(unitID) and f >= automateFrame then
-    --        local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-    --        --- PS: we only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
-    --        local orderIssued = automateCheck(unitID, unitDef, "harvestersToAutomate")
-    --    --        if not orderIssued and not harvestState[unitID] and harvestState[unitID]~="idle" then
-    --    --            --spEcho("1.5")
-    --    --            setHarvestState(unitID, "idle", "GameFrame: orphanHarvesters")
-    --    --        end
-    --    --    end
-    --    --end
 end
 
 ----From unitai_auto_assist or eco_ore_manager: Spring.SendLuaRulesMsg("msgKey_"..value, "allies")

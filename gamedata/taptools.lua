@@ -638,6 +638,7 @@ end
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
 function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID, allyTeamID)
     --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID
+    radius = radius and radius or 80 --default scan Radius
     local itemsAround = isFeature
             and spGetFeaturesInCylinder(pos.x, pos.z, radius)
             or (teamID and spGetUnitsInCylinder(pos.x, pos.z, radius, teamID)
