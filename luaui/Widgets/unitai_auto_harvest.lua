@@ -43,7 +43,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = false --true --|| Enables text state debug messages
+local localDebug = true -- false|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -354,6 +354,7 @@ local function automateCheck(unitID, caller)
         return end
     local unitDef = harvesters[unitID].unitDef
     if not unitDef then
+        --Spring.Echo("harvesters unitDef not found")
         return end
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
