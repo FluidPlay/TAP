@@ -67,6 +67,19 @@ function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
     return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
 end
 
+--function getFarFromOreTower (ud)
+--    local otx, oty, otz
+--    if ud.parentOreTowerID then
+--        otx,oty,otz = spGetUnitPosition(ud.parentOreTowerID)
+--    end
+--    local farFromOreTower = true
+--    if otx and otz then
+--        local sqrOreTowerRange = getOreTowerRange(ud.parentOreTowerID)
+--        sqrOreTowerRange = sqrOreTowerRange * sqrOreTowerRange
+--        farFromOreTower = sqrDistance(ud.pos.x, ud.pos.z, otx, otz) > sqrOreTowerRange
+--    end
+--end
+
 function getNearestFactoryID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
             function(x) return x.isFactory end,     --We're only interested in factories currently producing
@@ -107,18 +120,6 @@ function getParentOreTowerID (ud, harvesters)
     return harvesters[ud.unitID] and harvesters[ud.unitID].parentOreTowerID
 end
 
-function getFarFromOreTower (ud)
-    local otx, oty, otz
-    if ud.parentOreTowerID then
-        otx,oty,otz = spGetUnitPosition(ud.parentOreTowerID)
-    end
-    local farFromOreTower = true
-    if otx and otz then
-        local sqrOreTowerRange = getOreTowerRange(ud.parentOreTowerID)
-        sqrOreTowerRange = sqrOreTowerRange * sqrOreTowerRange
-        farFromOreTower = sqrDistance(ud.pos.x, ud.pos.z, otx, otz) > sqrOreTowerRange
-    end
-end
 
 ----return: parentOreTowerID, nearestOreTowerID2
 --function getOreTowerInfo(ud, harvesters, oreTowers, longScanRange)
