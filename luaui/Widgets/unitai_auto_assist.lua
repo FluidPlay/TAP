@@ -406,6 +406,7 @@ function widget:UnitDestroyed(unitID)
     deautomatedUnits[unitID] = nil
     automatedState[unitID] = nil
     assistingUnits[unitID] = nil
+    harvesters[unitID] = nil
 
     oreTowers[unitID] = nil
 end
@@ -460,10 +461,10 @@ local automatedFunctions = {
                 local parentOreTowerID = getParentOreTowerID(ud, harvesters)
                 return nearestChunkID and automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
                         and( (
-                                nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent ~= 1
+                                nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent < 1
                               )
                            or (
-                                parentOreTowerID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent == 1
+                                parentOreTowerID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent >= 1
                               )
                            )
                 end,

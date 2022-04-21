@@ -72,7 +72,7 @@ local myTeamID, myAllyTeamID = -1, -1
 local gaiaTeamID = Spring.GetGaiaTeamID()
 
 local startupGracetime = 300        -- Widget won't work at all before those many frames (10s)
-local updateRate = 30 --15               -- Global update "tick rate"
+local updateRate = 15               -- Global update "tick rate"
 
 local recheckLatency = 30 -- Delay until a de-automated unit checks for automation again
 local automatedState = {}
@@ -438,6 +438,7 @@ function widget:GameFrame(f)
         return
     end
     if f % updateRate < 0.001 then
+        Spring.Echo("Harvester count: "..tablelength(harvesters))
         for harvesterID, data in pairs(harvesters) do
             local maxStorage = data.maxorestorage
             local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
