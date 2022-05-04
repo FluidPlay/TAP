@@ -21,7 +21,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = false --true|| Enables text state debug messages
+local localDebug = true --false|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -81,7 +81,7 @@ local deautomatedRecheckLatency = 30 -- Delay until a de-automated unit checks f
 local reclaimRadius = 20            -- Reclaim commands issued by code apparently only work with a radius (area-reclaim)
 local maxOreTowerScanRange = 900
 local defaultOreTowerRange = 330
-local harvestLeashMult = 0.6          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
+local harvestLeashMult = 2.0          -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
 local recheckLatency = 30             -- Delay until a de-automated unit checks for automation again
 
 local automatableUnits = {} -- All units which can be automated // { [unitID] = true|false, ... }

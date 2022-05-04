@@ -5420,7 +5420,7 @@ local lastOptionCommand = 0
 function widget:TextCommand(command)
     if string.find(command, "options", nil, true) == 1 and string.len(command) == 7 then
         local newShow = not show
-        if newShow and WG['topbar'] then
+        if newShow and WG['topbar'] and WG['topbar'].hideWindows then
             WG['topbar'].hideWindows()
         end
         show = newShow

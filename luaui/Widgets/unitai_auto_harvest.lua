@@ -98,6 +98,7 @@ local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, 
 local oreTowers = {}        -- { unitID = oreTowerReturnRange, ... }
 
 --- Harvest-cycle state controllers
+local oreChunks = {} --TODO (!!!) can we get this from eco_ore_manager?
 local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOretower assigned, "idle"
 -- Post direct order                // { [unitID] = frameToTryReautomation, ... }
                                     -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
@@ -211,6 +212,13 @@ function widget:UnitDestroyed(unitID)
             end
         end
         oreTowers[unitID] = nil
+    end
+    local oreChunkID = oreChunks[unitID]
+    if oreChunkID then
+        for harvesterID, data in pairs(harvesters) do
+            if harvesters[harvesterID].targetChunkID == oreChunkID then
+                harvesters[harvesterID].targetChunkID = nil end
+        end
     end
 end
 
@@ -343,6 +351,8 @@ local automatedFunctions = {
             end,
             action = function(ud)
                 spEcho("**6** Idle actions")
+                harvesters[ud.unitID].parentOreTowerID = nil
+                harvesters[ud.unitID].parentOreTowerID.returnPos = nil
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
             end
@@ -375,7 +385,7 @@ local function automateCheck(unitID, caller)
 
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, orderIssued = nil,
                  returnPos = harvesters[unitID].returnPos, targetChunkID = harvesters[unitID].targetChunkID,
-                 parentOreTowerID = parentOreTowerID
+                 parentOreTowerID = parentOreTowerID, harvestRange = harvesters[unitID].harvestRange,
                }
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
