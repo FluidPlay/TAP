@@ -35,6 +35,8 @@ local function sqr (x)
 end
 
 function sqrDistance(x1,z1,x2,z2)
+    if not x1 or not z1 or not x2 or not z2 then
+        return 9999999 end
 	local dx,dz = x1-x2,z1-z2
 	return sqr(dx)+sqr(dz)
 end

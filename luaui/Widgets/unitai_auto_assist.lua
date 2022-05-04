@@ -21,7 +21,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = false --true --|| Enables text state debug messages
+local localDebug = false --true|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -459,23 +459,26 @@ local automatedFunctions = {
                 --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
                 local nearestChunkID = getNearestChunkID(ud)
                 local parentOreTowerID = getParentOreTowerID(ud, harvesters)
-                return nearestChunkID and automatedState[ud.unitID] ~= "harvest" and canharvest[ud.unitDef.name]
-                        and( (
-                                nearestChunkID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent < 1
-                              )
-                           or (
-                                parentOreTowerID and harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent >= 1
-                              )
-                           )
-                end,
+                if harvesters[ud.unitID] and automatedState[ud.unitID] ~= "harvest" then
+                    if not parentOreTowerID then
+                        parentOreTowerID = getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
+                        harvesters[ud.unitID].parentOreTowerID = parentOreTowerID
+                    end
+                    if (nearestChunkID and harvesters[ud.unitID].loadPercent < 1)
+                            or (parentOreTowerID and harvesters[ud.unitID].loadPercent >= 1) then
+                        return true end
+                end
+            end,
             action = function(ud) --unitData
                local nearestChunkID = getNearestChunkID(ud)
                spEcho("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
                ---Moved to unitai_auto_harvest.lua (WIP)
                --harvestersToAutomate[ud.unitID] = true -- spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
                spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
-               spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
-               return "harvest"
+                if nearestChunkID then
+                    spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
+                    return "harvest"
+                end
             end
     },
     [2] = { id="enemyreclaim",
