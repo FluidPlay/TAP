@@ -98,7 +98,7 @@ local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, 
 local oreTowers = {}        -- { unitID = oreTowerReturnRange, ... }
 
 --- Harvest-cycle state controllers
-local oreChunks = {} --TODO (!!!) can we get this from eco_ore_manager?
+local oreChunks = {} --TODO
 local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOretower assigned, "idle"
 -- Post direct order                // { [unitID] = frameToTryReautomation, ... }
                                     -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
@@ -208,17 +208,10 @@ function widget:UnitDestroyed(unitID)
     if oreTowers[unitID] then
         for harvesterID, data in pairs(harvesters) do
             if data.parentOreTowerID == unitID then
-               data.parentOreTowerID = nil
+                harvesters[harvesterID].parentOreTowerID = nil
             end
         end
         oreTowers[unitID] = nil
-    end
-    local oreChunkID = oreChunks[unitID]
-    if oreChunkID then
-        for harvesterID, data in pairs(harvesters) do
-            if harvesters[harvesterID].targetChunkID == oreChunkID then
-                harvesters[harvesterID].targetChunkID = nil end
-        end
     end
 end
 
@@ -251,15 +244,21 @@ local automatedFunctions = {
                         if not ud.parentOreTowerID then
                             local nearestOreTowerID = getNearestOreTowerID (ud, oreTowers, oretowerLongScanRange)
                             ud.parentOreTowerID = nearestOreTowerID end
+                        local pushed
+                        if ud.parentOreTowerID and
+                            (harvestState[ud.unitID] == "unloading" or
+                             (harvestState[ud.unitID] == "delivering" and spGetCommandQueue(ud.unitID, 0) < 1)) then
+                            pushed = getFarFromOreTower(ud.unitID, oreTowers[ud.parentOreTowerID], ud.parentOreTowerID)--(ud)
+                        end
                         return ud.parentOreTowerID and harvestState[ud.unitID] ~= "delivering"
-                            and harvesters[ud.unitID].loadPercent == 1
-                            and (
-                                    (harvestState[ud.unitID] == "attacking" or harvestState[ud.unitID] == "idle")
-                                    and ud.parentOreTowerID
-                                )
+                            and (harvesters[ud.unitID].loadPercent == 1
+                                    and (
+                                        (harvestState[ud.unitID] == "attacking" or harvestState[ud.unitID] == "idle")
+                                        and ud.parentOreTowerID
+                                    ) )
+                            or pushed
                         end,
             action = function(ud)
-                ---TODO: Check why harvesters[unitID].parentOreTowerID is not set here
                 harvesters[ud.unitID].returnPos = { x = ud.pos.x, y = ud.pos.y, z = ud.pos.z }
                 spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})
                 local x,y,z = spGetUnitPosition(ud.parentOreTowerID)
@@ -298,22 +297,28 @@ local automatedFunctions = {
                end
             end
     },
-    ---TODO: Add 'returned' state, so it can transition to 'attacking' without a problem
     [4] = { id="returned",
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
-                return harvestState[ud.unitID] == "returning"                   -- has no resources & has return pos
-                       and sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140  -- distance to returnPos <= 40 (sqr)
+                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
+                if (harvestState[ud.unitID] == "returning" and not hasReturned and spGetCommandQueue(ud.unitID, 0) < 1) then
+                    local rp = harvesters[ud.unitID].returnPos
+                    if rp and rp.x then
+                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                    end
+                end
+                return harvestState[ud.unitID] == "returning" and hasReturned  -- distance to returnPos <= 40 (sqr)
             end,
             action = function(ud)
                 spEcho("**4** Returned Actions")
-                local rp = harvesters[ud.unitID].returnPos
-                if rp.x then
-                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                    --Spring.Echo("HARVESTER: Issued Command: MOVE")
-                    return "returned"
-                end
+                --local rp = harvesters[ud.unitID].returnPos
+                --if rp.x then
+                --    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                --    --Spring.Echo("HARVESTER: Issued Command: MOVE")
+                --    return "returned"
+                --end
+                return "returned"
             end
     },
     [5] = { id="attacking",
@@ -352,7 +357,7 @@ local automatedFunctions = {
             action = function(ud)
                 spEcho("**6** Idle actions")
                 harvesters[ud.unitID].parentOreTowerID = nil
-                harvesters[ud.unitID].parentOreTowerID.returnPos = nil
+                harvesters[ud.unitID].returnPos = nil
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
             end
@@ -496,14 +501,13 @@ function widget:RecvLuaMsg(msg, playerID)
     --chunkDestroyed_
     if data[1] == 'chunkDestroyed' then
         local thisChunkID = tonumber(data[2])
-        --Spring.Echo("Chunk destroyed message received: "..(thisChunkID or "nil"))
+        Spring.Echo("Chunk destroyed message received: "..(thisChunkID or "nil"))
         if thisChunkID then
             for harvesterID, data in pairs(harvesters) do
                 if data.targetChunkID == thisChunkID then
-                    data.targetChunkID = nil
-                    --TODO: Force-try automation? Maybe not needed due to GameFrame loop..
+                    harvesters[harvesterID].targetChunkID = nil
                     --local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-                    automateCheck(harvesterID, "chunkDestroyed")
+                    --automateCheck(harvesterID, "chunkDestroyed") --not needed
                 end
             end
         end
