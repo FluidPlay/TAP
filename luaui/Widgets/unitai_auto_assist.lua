@@ -21,7 +21,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = true --false|| Enables text state debug messages
+local localDebug = false --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID

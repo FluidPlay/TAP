@@ -501,7 +501,7 @@ function widget:RecvLuaMsg(msg, playerID)
     --chunkDestroyed_
     if data[1] == 'chunkDestroyed' then
         local thisChunkID = tonumber(data[2])
-        Spring.Echo("Chunk destroyed message received: "..(thisChunkID or "nil"))
+        --Spring.Echo("Chunk destroyed message received: "..(thisChunkID or "nil"))
         if thisChunkID then
             for harvesterID, data in pairs(harvesters) do
                 if data.targetChunkID == thisChunkID then
