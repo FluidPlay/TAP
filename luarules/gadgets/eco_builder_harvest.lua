@@ -164,6 +164,18 @@ if gadgetHandler:IsSyncedCode() then
         return false
     end
 
+    --TODO: Fix
+    --function gadget:AllowFeatureBuildStep(builderID, builderTeam, featureID, featureDefID, part)
+    --    Spring.Echo("damager: "..builderID.." damage: "..part.." isharvester: "..( harvesters[builderID] and "true" or "false"))
+    --    --if not IsValidUnit(builderID) or not harvesters[builderID] then
+    --    --    return true end
+    --    local curStorage = spGetUnitHarvestStorage(builderID) or 0
+    --    spAddTeamResource (spGetUnitTeam(builderID), "metal", math.min(curStorage, -part*3000) )
+    --    --spSetUnitHarvestStorage (builderID, math.max(curStorage - part*1000, 0))
+    --    spSetUnitHarvestStorage (builderID, 0)
+    --    return true
+    --end
+
     local function DeliverResources(harvesterID)
         if not IsValidUnit(harvesterID) then
             return end
