@@ -297,31 +297,36 @@ local automatedFunctions = {
                end
             end
     },
-    [4] = { id="returned",
+    [4] = { id="returningandstuck",
+            condition = function(ud)
+                local rp = ud.returnPos
+                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
+                return (harvestState[ud.unitID] == "returning" or harvestState[ud.unitID] == "returningandstuck")
+                        and (not hasReturned) and (spGetCommandQueue(ud.unitID, 0) < 1)
+            end,
+            action = function(ud)
+                spEcho("**4** Return Unstucking Actions")
+                local rp = ud.returnPos
+                if rp and rp.x then
+                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                    Spring.Echo("HARVESTER: Return Unstucking - issued Command: MOVE")
+                end
+                return "returningandstuck"
+            end
+    },
+    [5] = { id="returned",
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
                 local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
-                if (harvestState[ud.unitID] == "returning" and not hasReturned and spGetCommandQueue(ud.unitID, 0) < 1) then
-                    local rp = harvesters[ud.unitID].returnPos
-                    if rp and rp.x then
-                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                    end
-                end
-                return harvestState[ud.unitID] == "returning" and hasReturned  -- distance to returnPos <= 40 (sqr)
+                return (harvestState[ud.unitID] == "returning" or harvestState[ud.unitID] == "returningandstuck") and hasReturned  -- distance to returnPos <= 40 (sqr)
             end,
             action = function(ud)
                 spEcho("**4** Returned Actions")
-                --local rp = harvesters[ud.unitID].returnPos
-                --if rp.x then
-                --    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                --    --Spring.Echo("HARVESTER: Issued Command: MOVE")
-                --    return "returned"
-                --end
                 return "returned"
             end
     },
-    [5] = { id="attacking",
+    [6] = { id="attacking",
             condition = function(ud)
                         --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." can harvest: "..tostring(canharvest[ud.unitDef.name]).." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
                         local nearestChunkID = getNearestChunkID(ud)
@@ -332,14 +337,24 @@ local automatedFunctions = {
                         end,
             action = function(ud)
                spEcho("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
+               local dist = Spring.GetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
                --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
-               spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
-               harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
-               --Spring.Echo("HARVESTER: Issued Command: ATTACK")
-               return "attacking"
+                if dist > 30 then   --TODO: De-hardcode
+                    spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                    harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
+                    --Spring.Echo("HARVESTER: Issued Command: ATTACK")
+                    return "attacking"
+                else
+                    local unitPosX, unitPosY, unitPosZ = spGetUnitPosition(ud.unitID)
+                    local chunkPosX, _, chunkPosZ = spGetUnitPosition(ud.nearestChunkID)
+                    local nudgeX = unitPosX - chunkPosX
+                    local nudgeZ = unitPosZ - chunkPosZ
+                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
+                    return "idle"
+                end
             end
     },
-    [6] = { id="idle",
+    [7] = { id="idle",
             condition = function(ud) -- if full and no parent or nearby oreTower
                 local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, oretowerShortScanRange)
                 return (harvestState[ud.unitID] == "attacking" and

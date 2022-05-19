@@ -275,11 +275,6 @@ function widget:Initialize()
 		enabled = false
 	end
 
-    local _,_,_,windStrength = spGetWind()
-    if windStrength < 3 then
-        enabled = false
-    end
-
 	if enabled then
 		depthShader = glCreateShader({
 			vertex = vertSrc,
@@ -304,6 +299,10 @@ function widget:Initialize()
 		end
 	end
 
+    --local _,_,_,windStrength = spGetWind()
+    --if windStrength < 3 then
+    --    enabled = false
+    --end
 	if not(enabled) then
 		widgetHandler:RemoveWidget()
 		return
@@ -375,6 +374,13 @@ function widget:GameFrame(f)
 
 	sunDir = {gl.GetSun('pos')}
 	sunCol = {gl.GetSun('specular')}
+
+    --TODO: Fix for moon maps
+    --local _,_,_,windStrength = spGetWind()
+    --if windStrength < 2 then
+    --    widgetHandler:RemoveWidget()
+    --    return
+    --end
 end
 
 local function DrawClouds()
