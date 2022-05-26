@@ -421,7 +421,7 @@ AimPrimary(heading, pitch)
 
 	start-script RequestState(0);
 	//signal SIG_BUILD;
-	turn nozzle to y-axis heading speed <400.000000>;
+	turn nozzle to y-axis -1*heading speed <400.000000>;
 	wait-for-turn nozzle around y-axis;
 
 	turn nozzle to x-axis pitch speed <400.000000>;
