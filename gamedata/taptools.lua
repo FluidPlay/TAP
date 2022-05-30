@@ -534,6 +534,16 @@ function IsValidUnit(unitID)
 	return false
 end
 
+function IsValidFeature(featureID)
+    if not isnumber(featureID) then
+        return false end
+    local featureDefID = spGetFeatureDefID(featureID)
+    if featureDefID and spValidFeatureID(featureID) then
+        return true
+    end
+    return false
+end
+
 function printUnitDef(unitDef)
     for name,param in unitDef:pairs() do
         Spring.Echo("uDef name: "..(name or "nil").." | param"..(tostring(param) or "nil"))
