@@ -139,10 +139,6 @@ local function spEcho(string)
         Spring.Echo(string) end
 end
 
-local function removeCommands(unitID)
-    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
-end
-
 --- If you left the game this widget has no raison d'etré
 function widget:PlayerChanged()
     if Spring.GetSpectatingState() and Spring.GetGameFrame() > 0 then
@@ -215,6 +211,26 @@ function widget:UnitDestroyed(unitID)
     end
 end
 
+---returns spot = { x = x, z = z }
+local function GetNearestSpotPos(x, z)
+    local bestSpot
+    local bestDist = math.huge
+    local metalSpots = WG.metalSpots
+    for i = 1, #metalSpots do
+        local spot = metalSpots[i]
+        local dx, dz = x - spot.x, z - spot.z
+        local dist = dx*dx + dz*dz
+        if dist < bestDist then
+            bestSpot = spot
+            bestDist = dist
+        end
+    end
+    return bestSpot
+end
+
+local function removeCommands(unitID)
+    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
+end
 
 local function deautomateUnit(unitID)
     removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
@@ -346,9 +362,9 @@ local automatedFunctions = {
                     return "attacking"
                 else
                     local unitPosX, unitPosY, unitPosZ = spGetUnitPosition(ud.unitID)
-                    local chunkPosX, _, chunkPosZ = spGetUnitPosition(ud.nearestChunkID)
-                    local nudgeX = unitPosX - chunkPosX
-                    local nudgeZ = unitPosZ - chunkPosZ
+                    local nearestSpot = GetNearestSpotPos(unitPosX, unitPosZ) --spGetUnitPosition(ud.nearestChunkID)
+                    local nudgeX = unitPosX - nearestSpot.x
+                    local nudgeZ = unitPosZ - nearestSpot.z
                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
                     return "idle"
                 end
