@@ -21,7 +21,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = true --false|| Enables text state debug messages
+local localDebug = false --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -537,6 +537,7 @@ local automatedFunctions = {
                 return nil
             end
     },
+    ---TODO: remove 'automatableUnits nearestChunkID' from harvestAttack. Shouldn't be handled there
     [3] = { id="harvest",
             condition = function(ud)
                 --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
@@ -561,7 +562,7 @@ local automatedFunctions = {
                 spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
                 if nearestChunkID then
                     spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
-                    automatableUnits[ud.unitID] = nearestChunkID
+                    --automatableUnits[ud.unitID] = nearestChunkID
                     return "harvest"
                 end
             end

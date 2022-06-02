@@ -135,6 +135,7 @@ function NoAlliedMex(x,z, batchextracts) -- Is there any better and allied mex a
 		end
 	return true
 end
+
 local function GetClosestMetalSpot(x, z)
 	local bestSpot
 	local bestDist = math.huge

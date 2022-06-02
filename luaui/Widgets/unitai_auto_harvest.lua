@@ -309,7 +309,7 @@ local automatedFunctions = {
                 local rp = ud.returnPos
                 if rp and rp.x then
                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                    Spring.Echo("HARVESTER: Return Unstucking - issued Command: MOVE")
+                    --Spring.Echo("HARVESTER: Return Unstucking - issued Command: MOVE")
                 end
                 return "returningandstuck"
             end
