@@ -104,6 +104,8 @@ after the Initialize phase of gadgets. Check the layer value
 in GetInfo if you need to call them in Initialize.
 ------------------------------------------------------------
 
+Update: Disables the tech if the unit is deactivated, and vice-versa (by MaDDoX, 06/2022)
+
 ]]--
 
 function gadget:GetInfo()
@@ -142,6 +144,8 @@ if (gadgetHandler:IsSyncedCode()) then
 	local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
 	local spEditUnitCmdDesc = Spring.EditUnitCmdDesc
 	local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+
+	local CMD_ONOFF = CMD.ONOFF
 
 	local function SplitString(Line)
 		local words={}
@@ -428,6 +432,20 @@ if (gadgetHandler:IsSyncedCode()) then
 
 	function gadget:UnitTaken(u,ud,team,newteam)
 		UnitLost(u,ud,team)
+	end
+
+	-- Disables the tech if the unit is deactivated, and vice-versa
+	function gadget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdOpts, cmdParams) --, cmdTag)
+		if cmdID == CMD_ONOFF then
+			if cmdParams then
+				if cmdOpts[1] == 0 then -- DEACTIVATE
+					UnitLost(unitID, unitDefID, unitTeam)
+				elseif cmdOpts[1] == 1 then -- ACTIVATE
+					UnitGained(unitID, unitDefID, unitTeam)
+				end
+			end
+			--Spring.GiveOrderToUnit(unitID, CMD.WAIT, {}, {})
+		end
 	end
 
 	function gadget:AllowCommand(u, ud, team, cmdId, param, opt, synced)

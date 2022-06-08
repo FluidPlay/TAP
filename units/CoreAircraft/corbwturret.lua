@@ -1,5 +1,5 @@
 return {
-	corbwturret = {
+	corbw = {
 		acceleration = 0.25,
 		brakerate = 0.55,
 		buildcostenergy = 1300,
@@ -25,7 +25,7 @@ return {
 		maxslope = 10,
 		maxvelocity = 9.35,
 		maxwaterdepth = 0,
-		name = "Bladewing Turret",
+		name = "Bladewing",
 		nochasecategory = "COMMANDER VTOL",
 		objectname = "CORBW",
 		seismicsignature = 0,
