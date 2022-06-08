@@ -10,7 +10,7 @@ piece  nanospray, turret, rfoot, lfoot, pelvis, lflap, rflap, guncover,
        nozzle, arms, nanobody, nanobody2, ground;
 
 static-var  bMoving, statechg_DesiredState, statechg_StateChanging,
-			notBuilding, moveSpeed, currentSpeed, blockWeaponFlag;
+			notBuilding, moveSpeed, currentSpeed, blockWeaponFlag, newpitch;
 
 
 walk()
@@ -562,8 +562,11 @@ StartBuilding(heading, pitch)
 	start-script RequestState(0);
 	while( notBuilding ) sleep 100;
 	signal SIG_BUILD;
-	turn turret to y-axis heading speed <300.000000>;
-	wait-for-turn turret around y-axis;
+	turn turret to y-axis heading speed <400.000000>; //turrent
+	wait-for-turn nanobody around y-axis;
+	newpitch = pitch - <90.016484>;
+	turn nanobody2 to x-axis newpitch speed <400.000000>; //turrent
+	wait-for-turn nanobody2 around x-axis;
 	set INBUILDSTANCE to 1;
 }
 

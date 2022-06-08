@@ -14,9 +14,9 @@ local SIG_REQSTATE = {}
 --local emitnano = piece 'emitnano'
 
 local base, outpost2, outpost3, outpost4, outpost5, outpostwing1, outpostwing2, pillar1, pillar2, pillar3, pillar4,
-      pillar5, emitnano, cap1, cap2, cap3, cap4, cap5
+      pillar5, emitnano, cap1, cap2, cap3, cap4, cap5, headadv
             = piece('base', 'outpost2', 'outpost3', 'outpost4', 'outpost5', 'outpostwing1', 'outpostwing2',
-                    'pillar1', 'pillar2', 'pillar3', 'pillar4', 'pillar5', 'emitnano', 'cap1', 'cap2', 'cap3', 'cap4', 'cap5')
+                    'pillar1', 'pillar2', 'pillar3', 'pillar4', 'pillar5', 'emitnano', 'cap1', 'cap2', 'cap3', 'cap4', 'cap5', 'headadv')
 
 --#include "sfxtype.h"
 --#include "exptype.h"
@@ -103,10 +103,18 @@ local function EnableTowers()
 		Move (pillar2, y_axis, 0.00000, 18.03424 )
         WaitForMove(pillar2, y_axis)
         Show (cap2)
+        --
+        Show (outpostwing1)
+        Show (outpostwing2)
         Move (outpostwing1, x_axis, 0.0, 18.03)
         Move (outpostwing2, x_axis, 0.0, 18.03)
 	end
 	if level >= 3 then
+        Hide (outpost5)
+        Hide (outpostwing1)
+        Hide (outpostwing2)
+        Show (headadv)
+        --
 		Move (pillar3, y_axis, 0.00000, 18.03424 )
         WaitForMove(pillar3, y_axis)
         Show (cap3)
@@ -209,6 +217,8 @@ local function InitState()
 	justcreated = true
 	statechg_DesiredState = 1
 	statechg_StateChanging = false
+    Hide (outpostwing1)
+    Hide (outpostwing2)
     Move (outpostwing1, x_axis, 3.5)
     Move (outpostwing2, x_axis, -3.5)
     Move (pillar1, y_axis, undergroundHeight)
@@ -221,6 +231,7 @@ local function InitState()
     Hide (cap3)
     Hide (cap4)
     Hide (cap5)
+    Hide (headadv)
 	local unitDefID = UnitDefs[unitDefID].name
 	if (unitDefID == "armoutpost" or unitDefID == "coroutpost") then
 		level = 1

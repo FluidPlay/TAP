@@ -311,10 +311,10 @@ if gadgetHandler:IsSyncedCode() then
         local gameFrame = Spring.GetGameFrame()
         --local offset = math.sin(gameFrame * 180) / 20 --*5
         --Spring.Echo("ofs: "..offset)
-        local doubleHeight = 2*height
+        local heightDelta = 1.25*height
         for unitID, data in pairs(chunks) do
             local period = (math.pi * 2) / data.timePeriod
-            local offset = doubleHeight * math.sin(period * gameFrame/100)
+            local offset = heightDelta * math.sin(period * gameFrame/100)
             local pos = data.pos
             --mcEnable(unitID)
             mcSetPosition( unitID, pos.x, pos.y + offset, pos.z)

@@ -7,7 +7,7 @@
 #define SIG_BUILD		4	
 
 piece  torso, nanospray2, pelvis, lthigh, rthigh, rleg, lleg, gunclamp,
-       rfoot, lfoot, guncover, nanogun, nozzle, ground;
+       rfoot, lfoot, guncover, nanogun, nozzle, ground, nano;
 
 static-var  notBuilding, bMoving, moveSpeed, currentSpeed,
 			statechg_DesiredState, statechg_StateChanging, blockWeaponFlag;
@@ -22,7 +22,7 @@ walk()
 		move rthigh to y-axis [0.000000] now;
 		move rleg to y-axis [0.000000] now;
 		move lleg to y-axis [0.000000] now;
-		move gunclamp to y-axis [0.000000] now;
+		move gunclamp to y-axis [0.000000] speed <1600.000000>;
 		turn lthigh to x-axis <-44.291209> speed <528.292734> *  currentSpeed / 100;
 		turn rthigh to x-axis <12.291209> speed <146.605987> *  currentSpeed / 100;
 		turn rleg to x-axis <17.571429> speed <209.586924> *  currentSpeed / 100;
@@ -262,7 +262,8 @@ Go()
 	move rthigh to y-axis [0.000000] now;
 	move rleg to y-axis [0.000000] now;
 	move lleg to y-axis [0.000000] now;
-	move gunclamp to y-axis [0.000000] now;
+	//move gunclamp to y-axis [0.000000] now;	
+	move gunclamp to y-axis [1.800000] speed [1600.000000];
 	move guncover to x-axis [0.000000] now;
 	move guncover to x-axis [-0.939990] speed [20.000000];
 	sleep 200;
@@ -277,7 +278,7 @@ Go()
 	turn nanogun to z-axis <-180.038462> speed <600.000000>;
 	sleep 200;
 
-	move nozzle to x-axis [-3.850000] speed [20.000000];
+	move nozzle to x-axis [-1.850000] speed [20.000000];
 	turn gunclamp to x-axis <0.000000> speed <0.000000>;
 	turn nanogun to z-axis <-180.038462> speed <0.000000>;
 	sleep 200;
@@ -293,9 +294,9 @@ Stop()
 	move rthigh to y-axis [0.000000] now;
 	move rleg to y-axis [0.000000] now;
 	move lleg to y-axis [0.000000] now;
-	move gunclamp to y-axis [0.000000] now;
+	move gunclamp to y-axis [0.000000] speed [1600.000000];//now;
 	move guncover to x-axis [-0.939990] speed [3.752379];
-	move nozzle to x-axis [-3.850000] now;
+	move nozzle to x-axis [-1.850000] now;
 	move nozzle to x-axis [0.000000] speed [20.000000];
 	turn gunclamp to x-axis <0.000000> now;
 	turn gunclamp to x-axis <0.000000> speed <0.000000>;
@@ -417,15 +418,23 @@ AimPrimary(heading, pitch)
 //	if (blockWeaponFlag)
 //		return (0);
 
-	signal SIG_BUILD;
-
-	start-script RequestState(0);
 	//signal SIG_BUILD;
-	turn nozzle to y-axis heading speed <400.000000>;
-	wait-for-turn nozzle around y-axis;
 
-	turn nozzle to x-axis pitch speed <400.000000>;
-	wait-for-turn nozzle around x-axis;
+	//start-script RequestState(0);
+	//turn nozzle to y-axis -1*heading speed <400.000000>;
+	//wait-for-turn nozzle around y-axis;
+	
+	turn torso to y-axis heading speed <600.000000>;
+	wait-for-turn torso around y-axis;
+	
+	//--
+	move gunclamp to y-axis [1.800000] speed <1600.000000>;
+	//turn gunclamp to y-axis <-60.000000> now;
+	turn gunclamp to y-axis <-90.000000> speed <900.000000>; //-1*heading+180
+	wait-for-turn gunclamp around y-axis;
+
+	turn nanogun to z-axis -1*pitch speed <600.000000>;
+	wait-for-turn nanogun around z-axis;	
 
 	return (1);
 }
@@ -438,7 +447,7 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = nozzle; //turret;
+	piecenum = nano; //turret;
 }
 
 QueryPrimary(piecenum)

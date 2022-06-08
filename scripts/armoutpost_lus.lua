@@ -13,7 +13,7 @@ local SIG_REQSTATE = {}
 --local tower1, tower2, tower3 = piece('tower1', 'tower2', 'tower3')
 --local emitnano = piece 'emitnano'
 
-local base, body, aim, tower1, tower2, tower3, emitnano = piece('base', 'body', 'aim', 'tower1', 'tower2', 'tower3', 'emitnano')
+local base, aim, tower1, tower2, tower3, emitnano, headadv = piece('base', 'aim', 'tower1', 'tower2', 'tower3', 'emitnano', 'headadv')
 
 --local TA = -- This is a TA script
 
@@ -77,6 +77,12 @@ local function EnableTowers()
 	-- Why? A.: Those pieces have been raised before
 	if (justcreated) then
 		justcreated = false
+        if level >=2 then
+            Show (headadv)
+            Hide (outpost5)
+            Hide (outpostwing1)
+            Hide (outpostwing2)
+        end
 		if level >= 3 then
 			Move ( tower1, y_axis, 48.200000)
 		end

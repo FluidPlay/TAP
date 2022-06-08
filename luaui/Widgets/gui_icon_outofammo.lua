@@ -75,9 +75,12 @@ local function outOfAmmo(unitID)
     local unitammo = spGetUnitRulesParam(unitID, "ammo")
     if unitammo then
         spEcho("ammo: "..(tostring(unitammo) or "nil"))
-        unitammo = tonumber(unitammo) end
+        unitammo = tonumber(unitammo)
+    else
+        return true
+    end
     return unitammo < 1
-end
+    end
 
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local ud = UnitDefs[unitDefID]
