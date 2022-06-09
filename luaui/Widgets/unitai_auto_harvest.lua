@@ -71,7 +71,7 @@ local glGetViewSizes = gl.GetViewSizes
 local myTeamID, myAllyTeamID = -1, -1
 local gaiaTeamID = Spring.GetGaiaTeamID()
 
-local startupGracetime = 300        -- Widget won't work at all before those many frames (10s)
+local startupGracetime = 60 --300        -- Widget won't work at all before those many frames (10s)
 local updateRate = 15               -- Global update "tick rate"
 
 local recheckLatency = 30 -- Delay until a de-automated unit checks for automation again
@@ -317,7 +317,7 @@ local automatedFunctions = {
             condition = function(ud)
                 local rp = ud.returnPos
                 local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
-                return (harvestState[ud.unitID] == "returning" or harvestState[ud.unitID] == "returningandstuck")
+                return (harvestState[ud.unitID] == "returning")
                         and (not hasReturned) and (spGetCommandQueue(ud.unitID, 0) < 1)
             end,
             action = function(ud)
@@ -373,7 +373,9 @@ local automatedFunctions = {
     [7] = { id="idle",
             condition = function(ud) -- if full and no parent or nearby oreTower
                 local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, oretowerShortScanRange)
-                return (harvestState[ud.unitID] == "attacking" and
+                return  harvestState[ud.unitID] == "returningandstuck"
+                        or
+                        (harvestState[ud.unitID] == "attacking" and
                             (   ud.targetChunkID == nil
                                 or
                                 (harvesters[ud.unitID].loadPercent >= 1 and (not ud.parentOreTowerID and not nearestOreTowerID))

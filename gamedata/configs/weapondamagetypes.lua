@@ -120,7 +120,7 @@ local weaponDamageTypes = {
 	corenaa = { ["FlakCannon"] = "flak", },
 	corsent = { ["FlakCannon"] = "flak", ["FlakCannonAA"] = "flak", ["Shield"] = "omni", },
 	armkam = { ["RiotRocket"] = "pierce", },
-    armkamturret = { ["RiotRocket"] = "pierce", ["Shield"] = "omni", },
+    armkamturret = { ["RiotRocket"] = "omni", ["Shield"] = "omni", },
 	corvamp = { ["GuidedMissiles"] = "pierce", ["VampBlaster"] = "thermo", },
 	meteor = { ["Asteroid"] = "plasma", },
     meteorite = { ["Meteorite"] = "pierce", },

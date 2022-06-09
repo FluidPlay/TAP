@@ -21,7 +21,7 @@ VFS.Include("gamedata/tapevents.lua") --"LoadedHarvestEvent"
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
-local localDebug = false --|| Enables text state debug messages
+local localDebug = true --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -73,7 +73,7 @@ local glScale          			= gl.Scale
 local myTeamID, myAllyTeamID = -1, -1
 local gaiaTeamID = Spring.GetGaiaTeamID()
 
-local startupGracetime = 300        -- Widget won't work at all before those many frames (10s)
+local startupGracetime = 60        -- Widget won't work at all before those many frames (1s)
 local updateRate = 15               -- Global update "tick rate"
 local automationLatency = 60        -- Delay before automation kicks in, or the unit is set to idle
 --local repurposeLatency = 160        -- Delay before checking if an automated unit should be doing something else
@@ -254,8 +254,6 @@ end
 
 ---- Disable widget if I'm spec
 function widget:Initialize()
-    --TODO: Remove, obsolete. We'll now use WG.harvesters[unitID].loadPercent (==1) instead
-    --widgetHandler:RegisterGlobal(LoadedHarvesterEvent, setLoadedHarvester)
 
     --local harvestWeapDefID = WeaponDefNames["armck_harvest_weapon"].id --unitDef.name..
     --Spring.Echo("Harv weap def ID: "..harvestWeapDefID)
@@ -274,7 +272,6 @@ function widget:Initialize()
 
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
     WG.harvesters = harvesters              --- Read by unitai_auto_harvest.lua
-    harvestState = WG.harvestState
 
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
@@ -429,10 +426,11 @@ end
 
 local function isReallyIdle(unitID)
     local result = true
-    if automatedState[unitID] == "harvest" and harvestState[unitID] == "idle" then
+    if automatedState[unitID] == "harvest" and WG.harvestState[unitID] == "idle" then
         result = true
     end
     -- commandqueue with guard => not idle
+    --TODO: Cache last command and check cmdDone callin
     if hasBuildQueue(unitID) or hasCommandQueue(unitID) then --or automatedState[unitID] == "harvest" then
         result = false
     end
@@ -508,10 +506,39 @@ local automatedFunctions = {
                 return nil
             end
     },
-    [2] = { id="reclaim",
+    [2] = { id="harvest",
+            condition = function(ud)
+                --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
+                local nearestChunkID = getNearestChunkID(ud)
+                local parentOreTowerID = getParentOreTowerID(ud, harvesters)
+                if harvesters[ud.unitID]
+                        and automatedState[ud.unitID] ~= "enemyreclaim"
+                        and automatedState[ud.unitID] ~= "harvest" then
+                    if not parentOreTowerID then
+                        parentOreTowerID = getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
+                        harvesters[ud.unitID].parentOreTowerID = parentOreTowerID
+                    end
+                    if (nearestChunkID and harvesters[ud.unitID].loadPercent < 1)
+                            or (parentOreTowerID and harvesters[ud.unitID].loadPercent >= 1) then
+                        return true end
+                end
+            end,
+            action = function(ud) --unitData
+                local nearestChunkID = getNearestChunkID(ud)
+                spEcho("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
+                spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
+                if nearestChunkID then
+                    spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
+                    --automatableUnits[ud.unitID] = nearestChunkID
+                    return "harvest"
+                end
+            end
+    },
+    [3] = { id="reclaim",
             condition = function(ud) --unitData
                 return canreclaim[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "enemyreclaim"
+                        and automatedState[ud.unitID] ~= "harvest"
                         and automatedState[ud.unitID] ~= "reclaim"
             end,
             action = function(ud)
@@ -535,36 +562,6 @@ local automatedFunctions = {
                     end
                 end
                 return nil
-            end
-    },
-    ---TODO: remove 'automatableUnits nearestChunkID' from harvestAttack. Shouldn't be handled there
-    [3] = { id="harvest",
-            condition = function(ud)
-                --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
-                local nearestChunkID = getNearestChunkID(ud)
-                local parentOreTowerID = getParentOreTowerID(ud, harvesters)
-                if harvesters[ud.unitID]
-                        and automatedState[ud.unitID] ~= "enemyreclaim"
-                        and automatedState[ud.unitID] ~= "reclaim"
-                        and automatedState[ud.unitID] ~= "harvest" then
-                    if not parentOreTowerID then
-                        parentOreTowerID = getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
-                        harvesters[ud.unitID].parentOreTowerID = parentOreTowerID
-                    end
-                    if (nearestChunkID and harvesters[ud.unitID].loadPercent < 1)
-                            or (parentOreTowerID and harvesters[ud.unitID].loadPercent >= 1) then
-                        return true end
-                end
-            end,
-            action = function(ud) --unitData
-                local nearestChunkID = getNearestChunkID(ud)
-                spEcho("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
-                spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
-                if nearestChunkID then
-                    spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
-                    --automatableUnits[ud.unitID] = nearestChunkID
-                    return "harvest"
-                end
             end
     },
     [4] = { id="repair",
@@ -734,6 +731,10 @@ function widget:CommandNotify(cmdID, params, options)
             end
         end
     end
+end
+
+function widget:UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
+    spEcho("CmdDone for "..(unitID or "nil").." cmdID: "..(cmdID or "nil"))
 end
 
 --- Frame-based Update

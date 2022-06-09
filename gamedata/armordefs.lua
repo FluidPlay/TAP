@@ -62,6 +62,7 @@ local armorDefs = {
                "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",
                "armrl","armatl","armcir","armdeva","armfflak","armflak","armfrt","coratl","corenaa","corerad","corflak",
                "corfrt","corrl","madsam","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
+               "armkamturret", "corbwturret",
     },
 
     ore = { "orelrg", "oreuber", "oremoho", "oresml", },
