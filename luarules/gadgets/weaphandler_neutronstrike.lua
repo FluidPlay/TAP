@@ -83,5 +83,25 @@ function gadget:GameFrame(f)
         end
         --spawnList[i]=nil
     end
+    ---TODO: Spawn projectile instead of Unit:
+    ---Spring.SpawnProjectile ( number weaponDefID, table projectileParams )
+    --return: nil | number projectileID
+    --
+    --Possible keys of projectileParams are:
+    --    pos = {number x, number y, number z},
+    --    end = {number x, number y, number z},
+    --    speed = {number x, number y, number z},
+    --    spread = {number x, number y, number z},
+    --    error = {number x, number y, number z},
+    --    owner = number,
+    --    team = number,
+    --    ttl = number,
+    --    gravity = number,
+    --    tracking = number,
+    --    maxRange = number,
+    --    startAlpha = number,
+    --    endAlpha = number,
+    --    model = string,
+    --    cegTag = string
 end
 
