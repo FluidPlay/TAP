@@ -970,6 +970,7 @@ local function FinishMorph(unitID, morphData)
     local newUnit = nil
     local face = HeadingToFacing(h)
 
+    --- It's a structure?
     if udDst.isBuilding or udDst.isFactory then
       --if udDst.isBuilding then
 
@@ -991,6 +992,7 @@ local function FinishMorph(unitID, morphData)
       newUnit = spCreateUnit(defName, x, y, z, face, unitTeam)
       if newUnit then
           spSetUnitPosition(newUnit, x, y, z) end
+    --- it's a mobile unit
     else
       newUnit = spCreateUnit(defName, px, py, pz, face, unitTeam)
       --Spring.SetUnitRotation(newUnit, 0, -h * math.pi / 32768, 0)
@@ -1155,7 +1157,7 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
   
-  --// Add MorphDefs from customData entries (TODO: allow data merge, currently only overrides)
+  --// Add MorphDefs from customData entries (TODO: allow data merge with customParams, currently only overrides)
 local function AddCustomMorphDefs()
     for id,unitDef in pairs(UnitDefs) do
         -- Below params can be defined directly into unitdef customParams. Tables may be decoded in alldefs_post (from UnitDefsData)
@@ -1166,6 +1168,8 @@ local function AddCustomMorphDefs()
                 require = unitDef.customParams.morphdef__require,
                 cmdname = unitDef.customParams.morphdef__cmdname,
                 time = tonumber(unitDef.customParams.morphdef__time),
+                isfactory = tobool(unitDef.customParams.morphdef__isfactory),   -- Will enable buildOptions according to the target unit;
+                                                                                -- will also update the morphdef once morph is done
             }
             morphDefs[unitDef.name] = customMorphDef
         end

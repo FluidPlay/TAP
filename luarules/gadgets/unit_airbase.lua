@@ -30,6 +30,8 @@ VFS.Include("gamedata/taptools.lua")
 ---------------------------------------------------------------------------------
 local CMD_LAND_AT_AIRBASE = 35430
 local CMD_LAND_AT_SPECIFIC_AIRBASE = 35431
+local CMD_PATROL = CMD.PATROL
+local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
 CMD.LAND_AT_AIRBASE = CMD_LAND_AT_AIRBASE
 CMD[CMD_LAND_AT_AIRBASE] = "LAND_AT_AIRBASE"
@@ -59,6 +61,7 @@ local SetUnitWeaponState = Spring.SetUnitWeaponState
 local UseUnitResource	 = Spring.UseUnitResource
 local GetTeamRulesParam	= Spring.GetTeamRulesParam
 local SetTeamRulesParam	= Spring.SetTeamRulesParam
+local spGetUnitPosition = Spring.GetUnitPosition
 local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
 local spSetUnitLandGoal = Spring.SetUnitLandGoal
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
@@ -626,7 +629,12 @@ if (gadgetHandler:IsSyncedCode()) then
                     spSetUnitLoadingTransport(unitID, airbaseID)
                     --spGiveOrderToUnit(unitID, CMD.INSERT, {0, CMD_LAND_AT_SPECIFIC_AIRBASE, 0, airbaseID}, {"alt"})
                     RemoveOrderFromQueue(unitID, CMD_LAND_AT_AIRBASE) -- hack!
-                    spGiveOrderToUnit(unitID, CMD.INSERT, {0, CMD_LAND_AT_SPECIFIC_AIRBASE, -1, airbaseID}, {"alt"})
+                    --spGiveOrderToUnit(unitID, CMD.INSERT, {0, CMD_LAND_AT_SPECIFIC_AIRBASE, -1, airbaseID}, {"alt"})
+                    spGiveOrderToUnit(unitID, CMD_LAND_AT_SPECIFIC_AIRBASE, {airbaseID}, {}) --clear attack commands
+                    local x,y,z = spGetUnitPosition(airbaseID)
+                    -- OPBS: {"alt"} is required to have param[1] be the position in the queue to be inserted
+                    spGiveOrderToUnit(unitID, CMD.INSERT, {1, CMD_PATROL, 0, x, y, z }, {"alt"})
+                    --    spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_MOVE, CMD_OPT_INTERNAL, px,py,pz }, {"alt"} )
                 end
             end
         end
