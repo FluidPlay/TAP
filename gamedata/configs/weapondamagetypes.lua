@@ -47,7 +47,7 @@ local weaponDamageTypes = {
 	armthund = { ["Bombs"] = "omni", },
 	corcrw = { ["HighEnergyLaser"] = "pierce", ["PlasmaBeam"] = "plasma", },
 	--armflea = { ["Laser"] = "laser", },
-	armfig = { ["GuidedMissiles"] = "pierce", ["NeutronA2G"] = "pierce",},
+	armfig = { ["GuidedMissiles"] = "pierce", ["NeutronA2G"] = "neutron",},
 	armllt = { ["LightLaser"] = "laser", },
 	corfgate = { ["NavalPlasmaRepulsor"] = "none", },
 	corssub = { ["advTorpedo"] = "pierce", },
