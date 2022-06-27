@@ -3,7 +3,7 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, rocket, door1, door2, plate, arm;
+piece  base, rocket, arm;
 
 static-var  gun_1, restore_delay, statechg_DesiredState, statechg_StateChanging;
 
@@ -13,36 +13,20 @@ static-var  gun_1, restore_delay, statechg_DesiredState, statechg_StateChanging;
 
 activatescr()
 {
-	set ARMORED to 1;
+	//set ARMORED to 1;
+	//if( TRUE )
+	//{
+	//	move rocket to y-axis [0.00000] now;
+	//	move rocket to z-axis [0.00000] now;
+	//	sleep 621;
+	//}
 	if( TRUE )
 	{
-		move door1 to z-axis [0.00000] now;
-		move door2 to z-axis [0.00000] now;
-		move rocket to y-axis [0.00000] now;
-		move rocket to z-axis [0.00000] now;
-		turn door1 to z-axis <0.00000> now;
-		turn door1 to z-axis <-89.01648> speed <143.00000>;
-		turn door2 to z-axis <0.00000> now;
-		turn door2 to z-axis <90.02198> speed <144.00000>;
-		sleep 621;
-	}
-	if( TRUE )
-	{
-		move door1 to y-axis [-6.34999] speed [10.00000];
-		move door2 to y-axis [-6.50000] speed [10.00000];
-		sleep 627;
-	}
-	if( TRUE )
-	{
-		move plate to y-axis [7.75000] speed [10.00000];
-		sleep 628;
-	}
-	if( TRUE )
-	{
-		move rocket to y-axis [0.00000] speed [0.00000];
-		move rocket to z-axis [0.00000] speed [0.00000];
+		//move rocket to y-axis [0.00000] speed [0.00000];
+		//move rocket to z-axis [0.00000] speed [0.00000];
 		turn arm to x-axis <-89.01648> speed <143.00000>;
-		sleep 628;
+		//sleep 628;
+		wait-for-turn arm around x-axis;
 	}
 	sleep 31;
 	return (0);
@@ -51,38 +35,15 @@ activatescr()
 
 deactivatescr()
 {
-	set ARMORED to 0;
+	//set ARMORED to 0;
 	if( TRUE )
 	{
-		move plate to y-axis [7.75000] now;
-		move door1 to y-axis [-6.34999] now;
-		move door1 to z-axis [0.00000] now;
-		move door2 to y-axis [-6.50000] now;
-		move door2 to z-axis [0.00000] now;
-		move rocket to y-axis [0.00000] now;
-		move rocket to z-axis [0.00000] now;
-		turn door1 to z-axis <-89.10989> now;
-		turn door2 to z-axis <90.02198> now;
+		//move rocket to y-axis [0.00000] now;
+		//move rocket to z-axis [0.00000] now;
 		turn arm to x-axis <-89.80769> now;
 		turn arm to x-axis <0.00000> speed <175.00000>;
-		sleep 512;
-	}
-	if( TRUE )
-	{
-		move plate to y-axis [0.00000] speed [12.50000];
-		sleep 518;
-	}
-	if( TRUE )
-	{
-		move door1 to y-axis [0.00000] speed [10.00000];
-		move door2 to y-axis [0.00000] speed [12.50000];
-		sleep 520;
-	}
-	if( TRUE )
-	{
-		turn door1 to z-axis <0.00000> speed <171.00000>;
-		turn door2 to z-axis <0.00000> speed <173.00000>;
-		sleep 519;
+		//sleep 512;
+		wait-for-turn arm around x-axis;
 	}
 	sleep 25;
 	return (0);
@@ -129,7 +90,7 @@ HitByWeapon(anglex, anglez)
 
 Go()
 {
-	show rocket;
+	hide rocket; //show
 	call-script activatescr();
 	gun_1 = rocket;
 	return (0);
@@ -137,6 +98,7 @@ Go()
 
 Stop()
 {
+	show rocket;
 	gun_1 = base;
 	call-script deactivatescr();
 	return (0);
@@ -179,10 +141,10 @@ RequestState(requestedstate, currentstate)
 Create()
 {
 	gun_1 = base;
-	restore_delay = 3000;
+	restore_delay = 14000; //3000;
 	call-script InitState();
 	start-script SmokeUnit();
-	set ARMORED to 0;
+	//set ARMORED to 0;
 	return (0);
 }
 
@@ -240,9 +202,6 @@ Killed(severity, corpsetype)
 		corpsetype = 1;
 		explode arm type BITMAPONLY | BITMAP1;
 		explode base type BITMAPONLY | BITMAP2;
-		explode door1 type BITMAPONLY | BITMAP3;
-		explode door2 type BITMAPONLY | BITMAP4;
-		explode plate type BITMAPONLY | BITMAP5;
 		explode rocket type BITMAPONLY | BITMAP1;
 		return (corpsetype);
 	}
@@ -251,9 +210,6 @@ Killed(severity, corpsetype)
 		corpsetype = 2;
 		explode arm type FALL | BITMAP1;
 		explode base type BITMAPONLY | BITMAP2;
-		explode door1 type FALL | BITMAP3;
-		explode door2 type FALL | BITMAP4;
-		explode plate type BITMAPONLY | BITMAP5;
 		explode rocket type SHATTER | BITMAP1;
 		return (corpsetype);
 	}
@@ -262,18 +218,12 @@ Killed(severity, corpsetype)
 		corpsetype = 3;
 		explode arm type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
 		explode base type BITMAPONLY | BITMAP2;
-		explode door1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
-		explode door2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP4;
-		explode plate type BITMAPONLY | BITMAP5;
 		explode rocket type SHATTER | BITMAP1;
 		return (corpsetype);
 	}
 	corpsetype = 3;
 	explode arm type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
 	explode base type BITMAPONLY | BITMAP2;
-	explode door1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
-	explode door2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP4;
-	explode plate type BITMAPONLY | BITMAP5;
 	explode rocket type SHATTER | EXPLODE_ON_HIT | BITMAP1;
 	return (corpsetype);
 }

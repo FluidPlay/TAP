@@ -1,5 +1,5 @@
 #line 10001
-const float noiseScale = 4.0 / float(%f); //1.
+const float noiseScale = 1.0 / float(%f); //1.
 const float fogHeight = float(%f);
 const float fogBottom = float(%f);
 const float fogThicknessInv = 1. / (fogHeight - fogBottom);
@@ -14,7 +14,7 @@ const float sunPenetrationDepth = float(%f);
 const float shadowOpacity = float(0.435); //0.33; //0.4; //0.3
 const float sunDiffuseStrength = float(6.0);
 const float noiseTexSizeInv = 0.5 / 128.0; //1.0 / 256.0
-const float noiseCloudness = float(0.6) * 0.075; //0.5; 0.7 // TODO: configurable
+const float noiseCloudness = float(0.7) * 0.075; //0.5; 0.7 // TODO: configurable
 
 #ifdef CLAMP_TO_MAP
 	const vec3 vAA = vec3(  1.0, fogBottom,  1.0);

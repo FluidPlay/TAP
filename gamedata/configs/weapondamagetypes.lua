@@ -158,7 +158,7 @@ local weaponDamageTypes = {
 	corroy = {  ["HeavyCannon"] = "plasma", ["DepthCharge"] = "cannon", },
 	armfav = { ["HeavyRocket"] = "omni", },
 	cjuno = { ["AntiSignal"] = "omni", },
-	armmerl = { ["Rocket"] = "photon", },
+	armmerl = { ["Rocket"] = "pierce", },
 	madsam = { ["AA2Missile"] = "pierce", ["AA2AAMissile"] = "pierce",},
 	armflash = { ["flash"] = "laser", ["flashaa"] = "laser", ["Shield"] = "omni",},
 	corbw = { ["laser"] = "laser", ["Paralyzer"] = "emp", ["Shield"] = "omni",},

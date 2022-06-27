@@ -33,13 +33,13 @@ local mapcfg = {
 		color    = {0.7,0.8,0.9}, --{0.6,0.7,0.8}, -- diffuse color of the fog
 
 		-- all altitude values can be either absolute, in percent, or "auto"
-		height = 3000, -- opacity of fog above and at this altitude will be zero
-		bottom = 2000, -- no fog below this altitude
-		fade_alt = 2500, -- fog will linearly fade away between this and "height", should be between height and bottom
+		height = 500, --3000, -- opacity of fog above and at this altitude will be zero
+		bottom = 0, --2000, -- no fog below this altitude
+		fade_alt = 100, --2500, -- fog will linearly fade away between this and "height", should be between height and bottom
 		scale = 600, --450 --270, --600, -- how large will the clouds be
 		opacity = 0.3, --0.65, -- what it says
-		clamp_to_map = false, -- whether fog volume is sliced to fit map, or spreads to horizon
-		sun_penetration = 20, -- how much does the sun penetrate the fog
+		clamp_to_map = true, -- whether fog volume is sliced to fit map, or spreads to horizon
+		sun_penetration = 0, --20, -- how much does the sun penetrate the fog
 		},
 	},
 }
