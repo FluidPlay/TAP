@@ -3,7 +3,8 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, rocket1, rocket2, rocket3, turret, gun1, gun2, gun3;
+piece  base, base2, turret, head, missiletop, missilebot, missilespawntop, missilespawnbot, aim;
+//rocket1, rocket2, rocket3, turret, gun1, gun2, gun3;
 
 static-var  gun_1;
 
@@ -41,13 +42,17 @@ Create()
 {
 	dont-cache turret;
 	dont-shade turret;
-	dont-cache gun1;
-	dont-shade gun1;
-	dont-cache gun2;
-	dont-shade gun2;
-	dont-cache gun3;
-	dont-shade gun3;
-	gun_1 = rocket1;
+//	dont-cache gun1;
+//	dont-shade gun1;
+//	dont-cache gun2;
+//	dont-shade gun2;
+//	dont-cache gun3;
+//	dont-shade gun3;
+	dont-cache missiletop;
+	dont-shade missiletop;
+	dont-cache missilebot;
+	dont-shade missilebot;	
+	gun_1 = missilespawntop; //rocket1;
 	start-script SmokeUnit();
 	return (0);
 }
@@ -55,25 +60,25 @@ Create()
 AimPrimary(heading, pitch)
 {
 	turn turret to y-axis heading speed <450.00000>;
-	turn turret to x-axis <0.00000> - pitch speed <450.00000>;
+	turn head to x-axis <0.00000> - pitch speed <450.00000>;
 	wait-for-turn turret around y-axis;
-	wait-for-turn turret around x-axis;
+	wait-for-turn head around x-axis;
 	return (1);
 }
 
 FirePrimary()
 {
 	++gun_1;
-	if( gun_1 == 4 )
+	if( gun_1 == 3 ) //4
 	{
-		gun_1 = rocket1;
+		gun_1 = missilespawntop;
 	}
 	return (0);
 }
 
 AimFromPrimary(piecenum)
 {
-	piecenum = turret;
+	piecenum = aim; //turret;
 	return (0);
 }
 
@@ -81,16 +86,16 @@ QueryPrimary(piecenum)
 {
 	if( gun_1 == 1 )
 	{
-		piecenum = rocket1;
+		piecenum = missilespawntop;
 	}
 	if( gun_1 == 2 )
 	{
-		piecenum = rocket2;
+		piecenum = missilespawnbot;
 	}
-	if( gun_1 == 3 )
-	{
-		piecenum = rocket3;
-	}
+//	if( gun_1 == 3 )
+//	{
+//		piecenum = rocket3;
+//	}
 	return (0);
 }
 
@@ -98,25 +103,25 @@ QueryPrimary(piecenum)
 AimSecondary(heading, pitch)
 {
 	turn turret to y-axis heading speed <450.00000>;
-	turn turret to x-axis <0.00000> - pitch speed <450.00000>;
+	turn head to x-axis <0.00000> - pitch speed <450.00000>;
 	wait-for-turn turret around y-axis;
-	wait-for-turn turret around x-axis;
+	wait-for-turn head around x-axis;
 	return (1);
 }
 
 FireSecondary()
 {
 	++gun_1;
-	if( gun_1 == 4 )
+	if( gun_1 == 3 ) //4
 	{
-		gun_1 = rocket1;
+		gun_1 = missilespawntop;
 	}
 	return (0);
 }
 
 AimFromSecondary(piecenum)
 {
-	piecenum = turret;
+	piecenum = aim;
 	return (0);
 }
 
@@ -124,16 +129,16 @@ QuerySecondary(piecenum)
 {
 	if( gun_1 == 1 )
 	{
-		piecenum = rocket1;
+		piecenum = missilespawntop;
 	}
 	if( gun_1 == 2 )
 	{
-		piecenum = rocket2;
+		piecenum = missilespawnbot;
 	}
-	if( gun_1 == 3 )
-	{
-		piecenum = rocket3;
-	}
+//	if( gun_1 == 3 )
+//	{
+//		piecenum = rocket3;
+//	}
 	return (0);
 }
 
@@ -149,12 +154,8 @@ Killed(severity, corpsetype)
 	{
 		corpsetype = 1;
 		explode base type BITMAPONLY | BITMAP1;
-		explode gun1 type BITMAPONLY | BITMAP2;
-		explode gun2 type BITMAPONLY | BITMAP3;
-		explode gun3 type BITMAPONLY | BITMAP4;
-		explode rocket1 type BITMAPONLY | BITMAP5;
-		explode rocket2 type BITMAPONLY | BITMAP1;
-		explode rocket3 type BITMAPONLY | BITMAP2;
+		explode base2 type BITMAPONLY | BITMAP2;
+		explode head type BITMAPONLY | BITMAP3;
 		explode turret type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
@@ -162,12 +163,8 @@ Killed(severity, corpsetype)
 	{
 		corpsetype = 2;
 		explode base type BITMAPONLY | BITMAP1;
-		explode gun1 type FALL | BITMAP2;
-		explode gun2 type FALL | BITMAP3;
-		explode gun3 type SHATTER | BITMAP4;
-		explode rocket1 type FALL | BITMAP5;
-		explode rocket2 type FALL | BITMAP1;
-		explode rocket3 type FALL | BITMAP2;
+		explode base2 type FALL | BITMAP2;
+		explode head type FALL | BITMAP3;
 		explode turret type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
@@ -175,23 +172,15 @@ Killed(severity, corpsetype)
 	{
 		corpsetype = 3;
 		explode base type BITMAPONLY | BITMAP1;
-		explode gun1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
-		explode gun2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
-		explode gun3 type SHATTER | BITMAP4;
-		explode rocket1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP5;
-		explode rocket2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
-		explode rocket3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
+		explode base2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
+		explode head type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
 		explode turret type BITMAPONLY | BITMAP3;
 		return (corpsetype);
 	}
 	corpsetype = 3;
 	explode base type BITMAPONLY | BITMAP1;
-	explode gun1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
-	explode gun2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
-	explode gun3 type SHATTER | EXPLODE_ON_HIT | BITMAP4;
-	explode rocket1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP5;
-	explode rocket2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
-	explode rocket3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
+	explode base2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP2;
+	explode head type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP3;
 	explode turret type BITMAPONLY | BITMAP3;
 	return (corpsetype);
 }

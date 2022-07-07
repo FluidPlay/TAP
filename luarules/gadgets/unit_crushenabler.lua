@@ -33,51 +33,71 @@ function gadget:GetInfo()
         date      = "Dec, 2017",
         license   = "GNU GPL, v2 or later",
         layer     = 10,
-        enabled   = true
+        enabled   = true,
     }
 end
 
 -- TODO: Read from customDefs
 
-local unitsToEdit = {
-    [UnitDefNames.armpw.id] = true,
-    [UnitDefNames.corak.id] = true,
-    [UnitDefNames.armrock.id] = true,
-    [UnitDefNames.corstorm.id] = true,
-    [UnitDefNames.armham.id] = true,
-    [UnitDefNames.corthud.id] = true,	
-    -- Tanks are crushable by the Goliath, not by the Poison
-    [UnitDefNames.armbull.id] = true,
-    [UnitDefNames.armcroc.id] = true,
-    [UnitDefNames.armlatnk.id] = true,
-    [UnitDefNames.corst.id] = true,
-    [UnitDefNames.armstump.id] = true,
-    [UnitDefNames.corraid.id] = true,
-    [UnitDefNames.correap.id] = true,
-    [UnitDefNames.corseal.id] = true,
-                      -- Walls
-    [UnitDefNames.armdrag.id] = true,
-    [UnitDefNames.cordrag.id] = true,
+--local unitsToEdit = {
+--    [UnitDefNames.armpw.id] = false,
+--    [UnitDefNames.corak.id] = false,
+--    [UnitDefNames.armrock.id] = false,
+--    [UnitDefNames.corstorm.id] = false,
+--    [UnitDefNames.armham.id] = false,
+--    [UnitDefNames.corthud.id] = false,
+--    --
+--    -- Tanks are crushable by the Goliath, not by the Poison
+--    [UnitDefNames.armbull.id] = true,
+--    [UnitDefNames.armcroc.id] = true,
+--    [UnitDefNames.armlatnk.id] = true,
+--    [UnitDefNames.corst.id] = true,
+--    [UnitDefNames.armstump.id] = true,
+--    [UnitDefNames.corraid.id] = true,
+--    [UnitDefNames.correap.id] = true,
+--    [UnitDefNames.corseal.id] = true,
+--    --
+--    -- Walls
+--    [UnitDefNames.armdrag.id] = true,
+--    [UnitDefNames.cordrag.id] = true,
+--}
+
+local exceptionUnits = {
+    [UnitDefNames.corgol.id] = true,
 }
 
 --SYNCED
 if (gadgetHandler:IsSyncedCode()) then
 
+    local function setUnitBlocking(unitID, blockEnemyPushing)
+        Spring.SetUnitBlocking (unitID, true, true, true, true, true, blockEnemyPushing, false)
+    end
+
     -- When a unit is completed
     function gadget:UnitFinished(unitID, unitDefID, teamID)
 
-        local function to_string(val)
-            if (val == nil) then
-                return "nil"
-            else
-                return tostring(val)
-            end
-        end
+        --local function to_string(val)
+        --    if (val == nil) then
+        --        return "nil"
+        --    else
+        --        return tostring(val)
+        --    end
+        --end
 
-        if type(unitsToEdit[unitDefID]) == nil or unitsToEdit[unitDefID] == nil then
+        if exceptionUnits[unitDefID] then
             return end
 
-        Spring.SetUnitBlocking (unitID, true, true, true, true, true, true, false) --blockEnemyPushing = false
+        local unitDef = UnitDefs[unitDefID]
+        if unitDef.customParams and unitDef.customParams.tedclass then
+            local tedclass = unitDef.customParams.tedclass
+            if tedclass == "bot" then
+                --Spring.Echo("Bot found")
+                setUnitBlocking(unitID, false)
+            elseif tedclass == "vehicle" then
+                --Spring.Echo("Vehicle found")
+                setUnitBlocking(unitID, true)
+            end
+        end
 
     --local isBlocking,isSolidObjectCollidable,isProjectileCollidable,isRaySegmentCollidable,crushable = Spring.GetUnitBlocking (unitID)
 --        local isBlocking,p2,p3,p4,crushable = Spring.GetUnitBlocking (unitID)

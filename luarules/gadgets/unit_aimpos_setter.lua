@@ -32,6 +32,7 @@ end
 VFS.Include("gamedata/taptools.lua")
 
 local spSetUnitMidAndAimPos = Spring.SetUnitMidAndAimPos
+local vehicleBaseYOffset = 16
 
 --UnitDefID, vertical offset of aim position from base
 local unitsToEdit = { [UnitDefNames.armllt.id] = {bpo = {x=0,y=13,z=0}},
@@ -60,7 +61,7 @@ local unitsToEdit = { [UnitDefNames.armllt.id] = {bpo = {x=0,y=13,z=0}},
                       [UnitDefNames.cortech.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech1.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.cortech4.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.armgmm.id] = {bpo = {x=0,y=20,z=0}}, --Prude
                       --- Model middle position offset fixes
-                      [UnitDefNames.armflash.id] = {bpo = {x=20,y=0,z=20}},
+                      [UnitDefNames.armflash.id] = {bpo = {x=0,y=0,z=0}},
 }
 
 --SYNCED
@@ -70,34 +71,44 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Add aim offset to starting unit, if needed
     end
 
+    local function isVehicle(unitDefID)
+        local unitDef = UnitDefs[unitDefID]
+        return unitDef.customParams and unitDef.customParams.tedclass == "vehicle"
+    end
+
     -- When a unit is completed
     function gadget:UnitFinished(unitID, unitDefID, teamID)
-        if type(unitsToEdit[unitDefID]) == nil then
-            return end
+        --if type(unitsToEdit[unitDefID]) == nil then
+        --    return end
+
         --local modelradius = (UnitDefs[unitDefID]).customParams.modelradius
         --if modelradius then
         --    Spring.Echo("Found modelradius")
         --    spSetUnitRadiusAndHeight(unitID, 0.1,0.1) --, modelradius) --, mr.height
         --end
         -- Check if unitDefID is in the unitsToEdit table
-        if unitsToEdit[unitDefID] == nil or not istable(unitsToEdit[unitDefID]) then
-            return end
-
-        local unitPosOffsets = unitsToEdit[unitDefID]
-        local apo = { x = 0, y = 0, z = 0}
-        local mpo = { x = 0, y = 0, z = 0}
-
-        if istable(unitPosOffsets.apo) then
-            apo = { x = unitPosOffsets.apo.x or 0, y = unitPosOffsets.apo.y or 0, z = unitPosOffsets.apo.z or 0, }
-        end
-        if istable(unitPosOffsets.mpo) then
-            mpo = { x = unitPosOffsets.mpo.x or 0, y = unitPosOffsets.mpo.y or 0, z = unitPosOffsets.mpo.z or 0, }
-        end
-
         local bpx, bpy, bpz, mpx, mpy, mpz, apx, apy, apz = Spring.GetUnitPosition (unitID, true, true) --current base, middle, aim positions
         --Spring.Echo("Created unit positions: ".. bpy, mpx, mpy, mpz, apx, apz.." new Y: "..bpy+tonumber(unitsToEdit[unitDefID]))
 
+        local apo = { x = 0, y = 0, z = 0}
+        local mpo = { x = 0, y = 0, z = 0}
 
+        if isVehicle(unitDefID) then
+            apo.y = apo.y + vehicleBaseYOffset
+        end
+
+        if unitsToEdit[unitDefID] and istable(unitsToEdit[unitDefID]) then
+
+            local unitPosOffsets = unitsToEdit[unitDefID]
+
+            if istable(unitPosOffsets.apo) then
+                apo = { x = unitPosOffsets.apo.x or 0, y = unitPosOffsets.apo.y or 0, z = unitPosOffsets.apo.z or 0, }
+            end
+            if istable(unitPosOffsets.mpo) then
+                mpo = { x = unitPosOffsets.mpo.x or 0, y = unitPosOffsets.mpo.y or 0, z = unitPosOffsets.mpo.z or 0, }
+            end
+
+        end
 
         --Spring.SetUnitMidAndAimPos (number unitID, number mpX, number mpY, number mpZ, number apX, number apY, number apZ [, bool relative ] )
         --mpx, mpy, mpz: New middle position of unit
@@ -110,7 +121,6 @@ if (gadgetHandler:IsSyncedCode()) then
                 bpx+tonumber(apo.x),
                 bpy+tonumber(apo.y), --bpy, since offset is from base
                 bpz+tonumber(apo.z), false)
-
     end
 
 else -- UNSYNCED

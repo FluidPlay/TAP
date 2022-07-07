@@ -21,9 +21,10 @@ local moveDatas = {
 		depthmod = 0,
 		footprintx = 2,
 		footprintz = 2,
-		maxslope = 36,
+		maxslope = 24, --36,
 		maxwaterdepth = 5000,
 		maxwaterslope = 50,
+        slopeMod = 0.0777, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 		depthModParams = {
 			minHeight = 0,
 			linearCoeff = 0.03,
@@ -59,6 +60,7 @@ local moveDatas = {
 		maxslope = 18,
 		maxwaterdepth = 5000,
 		maxwaterslope = 80,
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 		depthModParams = {
 			minHeight = 4,
 			linearCoeff = 0.03,
@@ -72,6 +74,7 @@ local moveDatas = {
 		footprintz = 3,
 		maxslope = 18,
 		maxwaterdepth = 22,
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 		depthModParams = {
 			minHeight = 4,
 			linearCoeff = 0.03,
@@ -90,7 +93,7 @@ local moveDatas = {
         maxWaterDepth = 255,
         minwaterdepth = 15,
         speedModClass = 2, -- 0 = tank, 1 = kbot, 2 = hover, 3 = ship
-
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
         depthModParams = {
             minHeight = 4,
             linearCoeff = 0.03,
@@ -104,6 +107,7 @@ local moveDatas = {
 		footprintz = 3,
 		maxslope = 18,
 		maxwaterdepth = 22,
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 		depthModParams = {
 			minHeight = 4,
 			linearCoeff = 0.03,
@@ -117,6 +121,7 @@ local moveDatas = {
 		footprintz = 4,
 		maxslope = 18,
 		maxwaterdepth = 22,
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 		depthModParams = {
 			minHeight = 4,
 			linearCoeff = 0.03,
@@ -135,11 +140,12 @@ local moveDatas = {
         maxWaterDepth = 255,
         minwaterdepth = 15,
         speedModClass = 2, -- 0 = tank, 1 = kbot, 2 = hover, 3 = ship
+        slopeMod = 0.2222, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
         depthModParams = {
             minHeight = 4,
             linearCoeff = 0.03,
             maxValue = 0.7,
-        }
+        },
     },
 	ATANK3 = {	-- Triton (lvl3), Croc
         allowRawMovement = true,
@@ -150,6 +156,7 @@ local moveDatas = {
 		maxslope = 36,
 		maxwaterdepth = 5000,
 		maxwaterslope = 80,
+        slopeMod = 0.0777, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 	},
 	HTANK4 = {	-- Goliath
         allowRawMovement = true,
@@ -173,6 +180,7 @@ local moveDatas = {
 		maxslope = 36,
 		maxwaterdepth = 5000,
 		maxwaterslope = 80,
+        slopeMod = 0.0777, -- default: 4.0 / (maxSlope + 0.001) || reduced by 30%
 	},
 	BOAT4 = {
         allowRawMovement = true,
