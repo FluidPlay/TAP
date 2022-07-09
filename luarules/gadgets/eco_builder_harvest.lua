@@ -164,19 +164,35 @@ if gadgetHandler:IsSyncedCode() then
         return false
     end
 
-    --TODO: Improve
-    --function gadget:AllowFeatureBuildStep(builderID, builderTeam, featureID, featureDefID, part)
-    --    --Spring.Echo("damager: "..builderID.." damage: "..part.." isharvester: "..( harvesters[builderID] and "true" or "false"))
-    --    --if not IsValidUnit(builderID) or not harvesters[builderID] then
-    --    --    return true end
-    --    --local curStorage = spGetUnitHarvestStorage(builderID) or 0
-    --    if part < 0 then
-    --        spAddTeamResource (spGetUnitTeam(builderID), "metal", -part*3000)
-    --        spSetUnitHarvestStorage (builderID, 0)
-    --    end
-    --    --spSetUnitHarvestStorage (builderID, math.max(curStorage - part*1000, 0))
-    --    return true
-    --end
+    --TODO: Fix
+    function gadget:AllowFeatureBuildStep(builderID, builderTeam, featureID, featureDefID, part)
+        --Spring.Echo("damager: "..builderID.." damage: "..part.." isharvester: "..( harvesters[builderID] and "true" or "false"))
+        --if not IsValidUnit(builderID) or not harvesters[builderID] then
+        --    return true end
+        if part < 0 then
+            local curStorage = spGetUnitHarvestStorage(builderID) or 0
+            -- Can't reclaim if the harvester is fully loaded, sorry
+            if loadedHarvesters[builderID] then
+                return false
+            end
+            local reclaimPerc = -part
+            local harvesterTeam = spGetUnitTeam(builderID)
+            local remMetal, maxMetal, remEnergy, maxEnergy, reclaimLeft, reclaimTime = Spring.GetFeatureResources(featureID)
+            local reclaimedMetal = math.min(remMetal, maxMetal*reclaimPerc)-- eg: remMetal = 20, partMetal = 30  =>  20
+
+            --" curStorg: "..(curStorage or "nil")..
+            Spring.Echo("reclaimPerc: "..(reclaimPerc or "nil").." remMetal, maxMetal: "..(remMetal or "nil")..", "..(maxMetal or "nil").." recMetal: "..(reclaimedMetal or "nil")
+                    .." reclaimLeft: "..(reclaimLeft or "nil").." reclaimTime: "..(reclaimTime or "nil"))
+            spSetUnitHarvestStorage (builderID, math.max(curStorage - reclaimedMetal, 0))
+        end
+        return true
+    end
+
+    --local reclaimedEnergy = math.min(remEnergy, maxEnergy*reclaimperc)
+    --spAddTeamResource (harvesterTeam, "metal", reclaimedMetal)
+    --spAddTeamResource (harvesterTeam, "energy", reclaimedEnergy)
+
+    --spSetUnitHarvestStorage (builderID, 0)
 
     local function DeliverResources(harvesterID)
         if not IsValidUnit(harvesterID) then
@@ -234,14 +250,11 @@ if gadgetHandler:IsSyncedCode() then
             --spSetUnitWeaponState(attackerID, 1, "range", 0)    --block weapon while it's running?
             --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id )
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
-
             spEcho("unit ".. harvesterID .." is loaded!!")
-            --local nearestTowerID = getNearestTowerID(harvesterID)
-            loadedHarvesters[harvesterID] = true
-            --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
+            loadedHarvesters[harvesterID] = true             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
+            --@ unitai_auto_assist: move it to be in range of closest ore tower
             SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID)
 
-            --@ unitai_auto_assist: move it to be in range of closest ore tower
         end
     end
 
