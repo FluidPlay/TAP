@@ -15,7 +15,7 @@ local centerPosX = 0.5	-- note: dont go too far from 0.5
 local centerPosY = 0.49	-- note: dont go too far from 0.5
 
 --    local fontfile = "fonts/" .. Spring.GetConfigString("bar_font", "Poppins-Regular.otf")
-local fontfile = "fonts/Akrobat-SemiBold.otf"
+local fontfile = "fonts/GeogrotesqueCompMedium.otf" --Akrobat-SemiBold.otf
 local vsx,vsy = Spring.GetViewGeometry()
 local widgetScale = (0.5 + (vsx*vsy / 5700000)) * customScale
 WG.uiScale = widgetScale
@@ -46,7 +46,7 @@ local function setEngineFont()
     Spring.SetConfigInt("FontOutlineWeight", fontfileOutlineStrength * 1.5)
 
     --Spring.SendCommands("font "..Spring.GetConfigString("bar_font2", "Exo2-SemiBold.otf"))
-    Spring.SendCommands("font Akrobat-SemiBold.otf")
+    Spring.SendCommands("font GeogrotesqueCompMedium.otf") --Akrobat-SemiBold.otf")
 
     -- set spring engine default font cause it cant thee game archive fonts on launch
     Spring.SetConfigString("SmallFontFile", "FreeSansBold.otf")
