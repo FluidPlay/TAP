@@ -7,6 +7,6 @@ return {
   game='Total Atomic Power',
   shortgame='TAP',
   modtype=1,
-  url = "https://www.fluidplay.co/tap",
-  engine = "105.1.1-659-g800da82 BAR105",    -- for chobby
+  url = 'https://www.fluidplay.co/tap',
+  engine = '105.1.1-957-g7105891 BAR105',    -- for chobby
 }
