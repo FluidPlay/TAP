@@ -11,8 +11,8 @@ function widget:GetInfo()
 end
 
 
-local defaultFile = "fonts/" .. Spring.GetConfigString("bar_font", "Kelson Sans Regular.otf") --Poppins-Regular.otf
-local defaultFile2 = "fonts/" .. Spring.GetConfigString("bar_font2", "WatchtowerMiddle-LM6Z.otf") --Exo2-SemiBold.otf
+local defaultFile = "fonts/" .. Spring.GetConfigString("bar_font", "GeogrotesqueCompMedium.otf") --Kelson Sans Regular.otf") --Poppins-Regular.otf
+local defaultFile2 = "fonts/" .. Spring.GetConfigString("bar_font2", "Geogrotesque-Bold.ttf") --"WatchtowerMiddle-LM6Z.otf") --Exo2-SemiBold.otf
 local defaultSize = 28
 local defaultOutlineSize = 0.18
 local defaultOutlineStrength = 1.1
