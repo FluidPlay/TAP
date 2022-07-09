@@ -596,7 +596,7 @@ glyphs[128] = { --'Ä'--
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
   txn =  421, tyn =   64, txp =  430, typ =   78,
 }
-glyphs[129] = { --'Å'--
+glyphs[129] = { --'?'--
   num = 129,
   adv = 6,
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
@@ -668,7 +668,7 @@ glyphs[140] = { --'å'--
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
   txn =  161, tyn =   85, txp =  170, typ =   99,
 }
-glyphs[141] = { --'ç'--
+glyphs[141] = { --'?'--
   num = 141,
   adv = 6,
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
@@ -680,13 +680,13 @@ glyphs[142] = { --'é'--
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
   txn =  201, tyn =   85, txp =  210, typ =   99,
 }
-glyphs[143] = { --'è'--
+glyphs[143] = { --'?'--
   num = 143,
   adv = 6,
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
   txn =  221, tyn =   85, txp =  230, typ =   99,
 }
-glyphs[144] = { --'ê'--
+glyphs[144] = { --'?'--
   num = 144,
   adv = 6,
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
@@ -764,7 +764,7 @@ glyphs[156] = { --'ú'--
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,
   txn =  481, tyn =   85, txp =  490, typ =   99,
 }
-glyphs[157] = { --'ù'--
+glyphs[157] = { --'?'--
   num = 157,
   adv = 6,
   oxn =   -2, oyn =   -2, oxp =    7, oyp =   12,

@@ -1,20 +1,22 @@
-local spGetActiveCommand    = Spring.GetActiveCommand
-local spGetGameSeconds      = Spring.GetGameSeconds
-local spGetSelectedUnits    = Spring.GetSelectedUnits
-local spGetCommandQueue     = Spring.GetCommandQueue
-local spGetUnitCommands     = Spring.GetUnitCommands
-local spGetMouseState       = Spring.GetMouseState
-local spGetModKeyState      = Spring.GetModKeyState
-local spGiveOrderToUnit     = Spring.GiveOrderToUnit
-local spSelectUnitArray     = Spring.SelectUnitArray
-local spIsAboveMiniMap      = Spring.IsAboveMiniMap
-local spMinimapMouseToWorld = Spring.MinimapMouseToWorld
-local spTestBuildOrder      = Spring.TestBuildOrder
-local spGetBuildFacing      = Spring.GetBuildFacing
-local spGetMyTeamID         = Spring.GetMyTeamID
 
-local spWorldToScreenCoords = Spring.WorldToScreenCoords
-local spTraceScreenRay      = Spring.TraceScreenRay
+VFS.Include("LuaRules/Configs/customcmds.h.lua")
+
+local sprGetActiveCommand    = Spring.GetActiveCommand
+local sprGetDefaultCommand   = Spring.GetDefaultCommand
+local sprGetGameSeconds      = Spring.GetGameSeconds
+local sprGetSelectedUnits    = Spring.GetSelectedUnits
+local sprGetCommandQueue     = Spring.GetCommandQueue
+local sprGetMouseState       = Spring.GetMouseState
+local sprGetModKeyState      = Spring.GetModKeyState
+local sprGiveOrderToUnit     = Spring.GiveOrderToUnit
+local sprSelectUnitArray     = Spring.SelectUnitArray
+local sprIsAboveMiniMap      = Spring.IsAboveMiniMap
+local sprTestBuildOrder      = Spring.TestBuildOrder
+local sprGetBuildFacing      = Spring.GetBuildFacing
+local sprGetMyTeamID         = Spring.GetMyTeamID
+
+local sprWorldToScreenCoords = Spring.WorldToScreenCoords
+local sprTraceScreenRay      = Spring.TraceScreenRay
 
 local floor = math.floor
 
@@ -30,22 +32,47 @@ local glTranslate        = gl.Translate
 local glUnitShape        = gl.UnitShape
 local glPopMatrix        = gl.PopMatrix
 
+local CMD_JUMP = 38521
+
+local CMD_BUILD = -1
 local cmdColorsTbl = {
-	[CMD.MOVE]         = {0.5, 1.0, 0.5, 0.55},
-	[CMD.PATROL]       = {0.3, 0.3, 1.0, 0.55},
-	[CMD.RECLAIM]      = {1.0, 0.2, 1.0, 0.55},
-	[CMD.REPAIR]       = {0.3, 1.0, 1.0, 0.55},
-	[CMD.ATTACK]       = {1.0, 0.2, 0.2, 0.55},
-	[CMD.AREA_ATTACK]  = {1.0, 0.2, 0.2, 0.55},
-	[CMD.FIGHT]        = {0.5, 0.5, 1.0, 0.55},
-	[CMD.LOAD_UNITS]   = {0.3, 1.0, 1.0, 0.55},
-	[CMD.UNLOAD_UNITS] = {1.0, 1.0, 0.0, 0.55},
-	[CMD.RESURRECT]    = {0.2, 0.6, 1.0, 0.55},
-	[CMD.RESTORE]      = {0.0, 1.0, 0.0, 0.55},
+	[CMD.MOVE]         = {0.5, 1.0, 0.5, 0.7},
+	[CMD_RAW_MOVE]     = {0.5, 1.0, 0.5, 0.7},
+	[CMD.PATROL]       = {0.3, 0.3, 1.0, 0.7},
+	[CMD.RECLAIM]      = {1.0, 0.2, 1.0, 0.7},
+	[CMD.REPAIR]       = {0.3, 1.0, 1.0, 0.7},
+	[CMD.ATTACK]       = {1.0, 0.2, 0.2, 0.7},
+	[CMD.AREA_ATTACK]  = {1.0, 0.2, 0.2, 0.7},
+	[CMD.FIGHT]        = {0.5, 0.5, 1.0, 0.7},
+	[CMD.LOAD_UNITS]   = {0.3, 1.0, 1.0, 0.7},
+	[CMD.UNLOAD_UNITS] = {1.0, 1.0, 0.0, 0.7},
+	[CMD.RESURRECT]    = {0.2, 0.6, 1.0, 0.7},
+	[CMD.RESTORE]      = {0.0, 1.0, 0.0, 0.7},
+	[CMD_BUILD]        = {0.0, 1.0, 0.0, 0.7},
+	[CMD_JUMP]         = {0.0, 1.0, 0.0, 0.7},
 }
 
-local wayPtSelDist = 15
-local wayPtSelDistSqr = wayPtSelDist * wayPtSelDist
+-- CMD_RAW_BUILD is intentionally not included because it will always be below another command
+local POINT_COMMAND = {
+	[CMD.MOVE] = true,
+	[CMD_RAW_MOVE] = true,
+	[CMD.PATROL] = true,
+	[CMD_JUMP] = true,
+	[CMD.FIGHT] = true,
+}
+
+local AREA_COMMAND = {
+	[CMD.RECLAIM] = true,
+	[CMD.REPAIR] = true,
+	[CMD.RESURRECT] = true,
+	[CMD.LOAD_UNITS] = true,
+	[CMD.UNLOAD_UNITS] = true,
+	[CMD.UNLOAD_UNIT] = true,
+	[CMD.AREA_ATTACK] = true,
+	[CMD.RESTORE] = true,
+}
+
+local wayPtSelDist = 30
 local selWayPtsTbl = {}
 
 function widget:GetInfo()
@@ -56,7 +83,7 @@ function widget:GetInfo()
 		date      = "Aug. 8, 2007 [updated Aug. 14, 2009]",
 		license   = "GNU GPL v2",
 		layer     = 5,
-		enabled   = true
+		enabled   = false
 	}
 end
 
@@ -66,25 +93,20 @@ end
 function widget:Shutdown()
 end
 
-
-
 local function GetCommandColor(cmdID)
-	if (cmdColorsTbl[cmdID] ~= nil) then
-		return cmdColorsTbl[cmdID][1], cmdColorsTbl[cmdID][2], cmdColorsTbl[cmdID][3], cmdColorsTbl[cmdID][4]
+	if (cmdID < 0) then
+		return cmdColorsTbl[CMD_BUILD][1], cmdColorsTbl[CMD_BUILD][2], cmdColorsTbl[CMD_BUILD][3], cmdColorsTbl[CMD_BUILD][4]
+	else
+		if (cmdColorsTbl[cmdID] ~= nil) then
+			return cmdColorsTbl[cmdID][1], cmdColorsTbl[cmdID][2], cmdColorsTbl[cmdID][3], cmdColorsTbl[cmdID][4]
+		end
 	end
 
 	return 1.0, 1.0, 1.0, 1.0
 end
 
 local function GetMouseWorldCoors(mx, my)
-	local cwc = nil
-
-	if (spIsAboveMiniMap(mx, my)) then
-		cwc = spMinimapMouseToWorld(mx, my)
-	else
-		_, cwc = spTraceScreenRay(mx, my, true)
-	end
-
+	local _, cwc = Spring.TraceScreenRay(mx, my, true, sprIsAboveMiniMap(mx, my))
 	return cwc
 end
 
@@ -97,97 +119,104 @@ end
 local function GetCommandWorldPosition(cmd)
 	local cmdID   = cmd.id
 	local cmdPars = cmd.params
+	local x, y, z, radius
 
-	if (cmdID == CMD.MOVE) then
-		return cmdPars[1], cmdPars[2], cmdPars[3], 0
+	if POINT_COMMAND[cmdID] then
+		x, z, radius = cmdPars[1], cmdPars[3], 0
 	end
-	if (cmdID == CMD.PATROL) then
-		return cmdPars[1], cmdPars[2], cmdPars[3], 0
-	end
-
-
-	if (cmdID == CMD.RECLAIM) then
+	
+	if AREA_COMMAND[cmdID] then
 		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-	if (cmdID == CMD.REPAIR) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-	if (cmdID == CMD.RESURRECT) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-
-	if (cmdID == CMD.LOAD_UNITS) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-	if (cmdID == CMD.UNLOAD_UNITS) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-
-	if (cmdID == CMD.AREA_ATTACK) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
-		end
-	end
-
-	if (cmdID == CMD.RESTORE) then
-		if (#cmdPars >= 4) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], cmdPars[4]
+			x, z, radius = cmdPars[1], cmdPars[3], cmdPars[4]
 		end
 	end
 
 	if (cmdID == CMD.ATTACK) then
 		if (#cmdPars >= 3) then
-			return cmdPars[1], cmdPars[2], cmdPars[3], 0
+		x, z, radius = cmdPars[1], cmdPars[3], 0
 		end
 	end
-	if (cmdID == CMD.FIGHT) then
-		return cmdPars[1], cmdPars[2], cmdPars[3], 0
+
+	if (cmdID < 0) then
+		-- include the build facing (if non-default)
+		x, z, radius = cmdPars[1], cmdPars[3], (cmdPars[4] or 0)
+		local ud = UnitDefs[-cmdID]
+		if ud then
+			local evenX = ((ud.xsize/2)%2)*8
+			local evenZ = ((ud.zsize/2)%2)*8
+			x = math.floor((x + 8 - evenX)/16)*16 + evenX
+			z = math.floor((z + 8 - evenZ)/16)*16 + evenZ
+		end
+	end
+	
+	if x then
+		y = Spring.GetGroundHeight(x,z)
 	end
 
-	return nil, nil, nil, nil
+	return x,y,z,radius
 end
 
-local function GetWayPointsNearCursor(wpTbl, mx, my)
-	local selUnitsTbl = spGetSelectedUnits()
+-- measure distance from waypoint to cursor in screen-space coordinates
+-- (so that at greater zoom-levels, waypoints are less easily dragged)
+local function GetCommandCursorScreenSqDist(cmd, mx, my)
+	local x, y, z, _ = GetCommandWorldPosition(cmd)
+
+	if (x ~= nil and y ~= nil and z ~= nil) then
+		local p, q = sprWorldToScreenCoords(x, y, z)
+		local d    = GetSqDist2D(mx, my, p, q)
+
+		return d
+	end
+
+	return -1
+end
+
+local function IsCommandNearCursor(cmd, mx, my)
+	local d = GetCommandCursorScreenSqDist(cmd, mx, my)
+
+	return (d >= 0 and d < (wayPtSelDist * wayPtSelDist))
+end
+
+local function GetWayPointsNearCursor(wpTbl, mx, my, wantAverage)
+	local selUnitsTbl = sprGetSelectedUnits()
 	local numSelWayPts = 0
 
 	if (selUnitsTbl == nil or #selUnitsTbl == 0) then
 		return numSelWayPts
 	end
-	
+
 	for i = 1, #selUnitsTbl do
 		local unitID = selUnitsTbl[i]
-		local commands = spGetCommandQueue(unitID,20)
-		if commands then
-			for cmdNum = 1, #commands do
-				local curCmd      = commands[cmdNum    ]
-				if cmdColorsTbl[curCmd.id] then
-					local nxtCmd      = commands[cmdNum + 1]
-					local x, y, z, fr = GetCommandWorldPosition(curCmd)
-					if x then
-						local p, q  = spWorldToScreenCoords(x, y, z)
-						if (GetSqDist2D(mx,my,p,q) < wayPtSelDistSqr) then
-							-- save the tag of the next command
-							local wpLink = (nxtCmd and nxtCmd.tag) or nil
-							local wpData = {x, y, z, fr, wpLink, curCmd, unitID}
-							local wpKey  = tostring(unitID) .. "-" .. tostring(curCmd.tag)
+		local commands = sprGetCommandQueue(unitID, -1)
 
-							wpTbl[wpKey] = wpData
-							numSelWayPts = numSelWayPts + 1
-						end
-					end
-				end
+		for cmdNum = 1, #commands do
+			local curCmd      = commands[cmdNum    ]
+			local nxtCmd      = commands[cmdNum + 1]
+			local x, y, z, fr = GetCommandWorldPosition(curCmd)
+			if (IsCommandNearCursor(curCmd, mx, my)) then
+				-- save the tag of the next command
+				local wpLink = (nxtCmd and nxtCmd.tag) or nil
+				local wpData = {x, y, z, fr, wpLink, curCmd, unitID}
+				local wpKey  = tostring(unitID) .. "-" .. tostring(curCmd.tag)
+
+				wpTbl[wpKey] = wpData
+				numSelWayPts = numSelWayPts + 1
 			end
+		end
+	end
+	
+	if wantAverage and numSelWayPts ~= 0 then
+		local aX = 0
+		local aZ = 0
+		for _, data in pairs(wpTbl) do
+			aX = aX + data[1]
+			aZ = aZ + data[3]
+		end
+		aX = aX/numSelWayPts
+		aZ = aZ/numSelWayPts
+		for _, data in pairs(wpTbl) do
+			data[8] = data[1] - aX
+			data[9] = data[3] - aZ
 		end
 	end
 
@@ -200,13 +229,13 @@ local function MoveWayPoints(wpTbl, mx, my, finalize)
 	if (cursorWorldCoors ~= nil) then
 		local wpTblTmp = {}
 		local cx, cy, cz = cursorWorldCoors[1], cursorWorldCoors[2], cursorWorldCoors[3]
-		local alt, ctrl, _, _ = spGetModKeyState()
+		local alt, ctrl, _, _ = sprGetModKeyState()
 
 		if (ctrl) then
 			-- merge waypoints that are currently near
 			-- the cursor with those that were near it
 			-- at the time of the MousePress event
-			GetWayPointsNearCursor(wpTblTmp, mx, my)
+			GetWayPointsNearCursor(wpTblTmp, mx, my, true)
 
 			for wpKey, wpData in pairs(wpTblTmp) do
 				wpTbl[wpKey] = wpData
@@ -222,6 +251,8 @@ local function MoveWayPoints(wpTbl, mx, my, finalize)
 			local cmdPars   = wpData[6].params
 			local cmdTag    = wpData[6].tag
 			local cmdUnitID = wpData[7]
+			local offsetX  	= wpData[8]
+			local offsetZ  	= wpData[9]
 
 			if (finalize) then
 				if (cmdLink == nil) then
@@ -229,15 +260,15 @@ local function MoveWayPoints(wpTbl, mx, my, finalize)
 				end
 
 				if (cmdFacRad > 0) then
-					-- spGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdNum, cmdID, 0, cx, cy, cz, cmdFacRad}, {"alt"})
-					spGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdLink, cmdID, 0, cx, cy, cz, cmdFacRad}, {""})
+					-- sprGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdNum, cmdID, 0, cx, cy, cz, cmdFacRad}, CMD.OPT_ALT)
+					sprGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdLink, cmdID, 0, cx+offsetX, cy, cz+offsetZ, cmdFacRad}, 0)
 				else
-					-- spGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdNum, cmdID, 0, cx, cy, cz}, {"alt"})
-					spGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdLink, cmdID, 0, cx, cy, cz}, {""})
+					-- sprGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdNum, cmdID, 0, cx, cy, cz}, CMD.OPT_ALT)
+					sprGiveOrderToUnit(cmdUnitID, CMD.INSERT, {cmdLink, cmdID, 0, cx+offsetX, cy, cz+offsetZ}, 0)
 				end
 
 				if (not alt) then
-					spGiveOrderToUnit(cmdUnitID, CMD.REMOVE, {cmdTag}, {""})
+					sprGiveOrderToUnit(cmdUnitID, CMD.REMOVE, {cmdTag}, 0)
 				end
 			else
 				wpData[1] = cx
@@ -255,7 +286,7 @@ local function MoveWayPoints(wpTbl, mx, my, finalize)
 end
 
 local function UpdateWayPoints(wpTbl)
-	local _, _, _, shift = spGetModKeyState()
+	local _, _, _, shift = sprGetModKeyState()
 	local badWayPtsTbl = {}
 
 	for wpKey, wpData in pairs(wpTbl) do
@@ -263,7 +294,7 @@ local function UpdateWayPoints(wpTbl)
 		local cmdUnitID = wpData[7]
 		local cmdValid  = false
 
-		local unitCmds = spGetCommandQueue(cmdUnitID,20)
+		local unitCmds = sprGetCommandQueue(cmdUnitID, -1)
 
 		-- check if the command has not been completed
 		-- since the MousePress() event occurred (tags
@@ -298,15 +329,20 @@ function widget:MousePress(mx, my, mb)
 	--   1. we have at least one unit selected
 	--   2. we have the shift key pressed
 	--   3. we pressed the LEFT mouse button (otherwise shift-move orders would break)
-	--   4. our mouse cursor is within "grabbing" radius of (at least)
+	--   4. our default command is Move (ie. we haven't clicked on a build-icon, etc.) [?]
+	--   5. our mouse cursor is within "grabbing" radius of (at least)
 	--      one waypoint of at least one of the units we have selected
 	--
-	local _, actCmdID, _, _      = spGetActiveCommand()
-	local alt, ctrl, meta, shift = spGetModKeyState()
+	local _, actCmdID, _, _      = sprGetActiveCommand()
+	local _, defCmdID, _, _      = sprGetDefaultCommand()
+	local alt, ctrl, meta, shift = sprGetModKeyState()
 	local numWayPts              = 0
+
 	if (not shift)                                     then  return false  end
 	if (mb ~= 1)                                       then  return false  end
-	numWayPts = GetWayPointsNearCursor(selWayPtsTbl, mx, my)
+--	if (actCmdID ~= CMD.MOVE and defCmdID ~= CMD.MOVE) then  return false  end
+
+	numWayPts = GetWayPointsNearCursor(selWayPtsTbl, mx, my, true)
 
 	if (numWayPts == 0) then
 		return false
@@ -335,28 +371,60 @@ function widget:Update(_)
 end
 
 function widget:DrawWorld()
-	local mx, my, _, _, _ = spGetMouseState()
-	local _, _, _, shift = spGetModKeyState()
+	local mx, my, _, _, _ = sprGetMouseState()
+	local _, _, _, shift = sprGetModKeyState()
+	local wpTblTmp = {}
 
 	if (not shift) then
 		return
 	end
+
+	-- we want to draw selection circles even when no
+	-- MousePress event has occurred (more intuitive)
+	-- note: only call this if selWayPtsTbl is empty?
+	GetWayPointsNearCursor(wpTblTmp, mx, my, false)
+
+	for _, wpData in pairs(wpTblTmp) do
+		local cmd        = wpData[6]
+		local x, y, z, _ = GetCommandWorldPosition(cmd)
+		local p, q       = sprWorldToScreenCoords(x, y, z)
+		local r, g, b, a = GetCommandColor(cmd.id)
+
+		glColor(r, g, b, a)
+		glDrawGroundCircle(x, y, z, wayPtSelDist, 16)
+	end
+
 	for _, wpData in pairs(selWayPtsTbl) do
 		local cmd           = wpData[6]
 		local nx, ny, nz    = wpData[1], wpData[2], wpData[3]
 		local ox, oy, oz, _ = GetCommandWorldPosition(cmd)
-		local p, q          = spWorldToScreenCoords(ox, oy, oz)
+		local p, q          = sprWorldToScreenCoords(ox, oy, oz)
 		local d             = GetSqDist2D(mx, my, p, q)
 		local r, g, b, a    = GetCommandColor(cmd.id)
 
 		glColor(r, g, b, a)
 
 		if (d > (wayPtSelDist * wayPtSelDist)) then
-			glDrawGroundCircle(ox, oy, oz, 13, 48)
+			glDrawGroundCircle(ox, oy, oz, wayPtSelDist, 16)
 		end
 
+
+		if (cmd.id < 0) then
+			local ret, _ = sprTestBuildOrder(-cmd.id, nx, ny, nz, sprGetBuildFacing())
+			if (ret == 0) then
+				-- bad position for this UnitDefID
+				glColor(1.0, 0.0, 0.0, 1.0)
+			end
+			glPushMatrix()
+			glTranslate(nx, ny, nz)
+			glRotate(wpData[4] * 90.0, 0.0, 1.0, 0.0)
+			glUnitShape(-cmd.id, sprGetMyTeamID(), false, true, false)
+			glPopMatrix()
+		end
+
+
 		local pattern = (65536 - 775)
-		local offset = floor((spGetGameSeconds() * 16) % 16)
+		local offset = floor((sprGetGameSeconds() * 16) % 16)
 
 		glLineStipple(2, pattern, -offset)
 		glBeginEnd(GL.LINES,

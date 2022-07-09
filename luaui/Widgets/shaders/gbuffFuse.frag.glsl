@@ -5,7 +5,6 @@
 
 uniform sampler2D modelDepthTex;
 uniform sampler2D mapDepthTex;
-uniform sampler2D modelDiffTex;
 
 uniform sampler2D modelNormalTex;
 uniform sampler2D mapNormalTex;
@@ -42,11 +41,8 @@ vec4 GetViewPos(vec2 texCoord, float sampledDepth) {
 void main() {
 	vec2 uv = gl_FragCoord.xy / viewPortSize;
 
-	float modelAlpha = texture(modelDiffTex, uv, 0).a;
-	float validFragment = step(1.0 / 255.0, modelAlpha); //agressive approach
-
-	float modelDepth = texture(modelDepthTex, uv).r;
-	float mapDepth = texture(mapDepthTex, uv).r;
+	float modelDepth = texelFetch(modelDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+	float mapDepth = texelFetch(mapDepthTex, ivec2(gl_FragCoord.xy), 0).r;
 
 	float modelOccludesMap = float(modelDepth < mapDepth);
 	float depth = mix(mapDepth, modelDepth, modelOccludesMap);
@@ -57,7 +53,7 @@ void main() {
 	vec3 mapNormal = texture(mapNormalTex, uv).rgb;
 
 	vec3 viewNormal = mix(mapNormal, modelNormal, modelOccludesMap);
-	float validNormal = step(0.2, length(viewNormal)); //empty spaces in g-buffer will have vec3(0.0) normals
+	float validNormal = float(length(viewNormal) > 0.2); //empty spaces in g-buffer will have vec3(0.0) normals
 
 	viewNormal = NORM2SNORM(viewNormal);
 	viewNormal = normalize(viewNormal);
@@ -73,8 +69,8 @@ void main() {
 	//[0] = gbuffFuseViewPosTex
 	//[1] = gbuffFuseViewNormalTex
 	//[2] = gbuffFuseMiscTex (conditional to MERGE_MISC == 1)
-	gl_FragData[0].xyz = mix( vec3(0.0), viewPosition.xyz, validFragment);
-	gl_FragData[1].xyz = mix( vec3(0.0), viewNormal.xyz, validNormal * validFragment);
+	gl_FragData[0].xyz = viewPosition.xyz;
+	gl_FragData[1].xyz = mix( vec3(0.0), viewNormal.xyz, vec3(validNormal) );
 	#if (MERGE_MISC == 1)
 		gl_FragData[2] = miscInfo;
 	#endif

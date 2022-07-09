@@ -4,7 +4,7 @@
 function widget:GetInfo()
   return {
     name      = "ChiliInspector",
-    desc      = "",
+    desc      = "Inspects Chili API (memory usage, object counts etc.)",
     author    = "",
     date      = "2013",
     license   = "GPLv2",
@@ -35,7 +35,7 @@ local function trace(children, node, level, max_level)
 	for i=1,#children do
 		local obj = children[i]
 		if obj and (obj.name ~= "wnd_inspector") then
-			local caption = ("%s: %s (redrawn: %i/%i)"):format(obj.classname, obj.name, obj._redrawSelfCounter or 0, obj._redrawCounter or 0)
+			local caption = ("%s: %s (redrawn: %i)"):format(obj.classname, obj.name, obj._redrawCounter or 0)
 			local nodec = node:Add(caption)
 			trace(obj.children, nodec, (level or 0) + 1, max_level)
 		end
@@ -44,7 +44,7 @@ end
 
 
 local function traceLost(node)
-
+	
 	for i,obj in pairs(Chili.DebugHandler.allObjects) do
 		if obj.name ~= "wnd_inspector" then
 			if (not obj.parent)and(not obj:InheritsFrom("screen")) then
@@ -104,7 +104,7 @@ function widget:Initialize()
 				right = 0, width = 50,
 				y=5, bottom=-25,
 				caption="gc",
-				OnMouseUp = {function() collectgarbage("collect") end},
+				OnClick = {function() collectgarbage("collect") end},
 			},
 			Chili.ScrollPanel:New{
 				x=0, right=0,
@@ -127,15 +127,15 @@ function widget:Initialize()
 				children = {
 					Chili.Button:New{
 						caption="visible objects",
-						OnMouseUp = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
+						OnClick = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="lost objects",
-						OnMouseUp = {function() tree0.root:Clear(); traceLost(tree0.root) end},
+						OnClick = {function() tree0.root:Clear(); traceLost(tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="per widget",
-						OnMouseUp = {function() tree0.root:Clear(); tracePerWidget(tree0.root) end},
+						OnClick = {function() tree0.root:Clear(); tracePerWidget(tree0.root) end},
 					},
 				},
 			},

@@ -1,113 +1,106 @@
+-- $Id: cmd_unit_mover.lua 3171 2008-11-06 09:06:29Z det $
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
---	file:		CMD.unit_mover.lua
---	brief:	 Allows combat engineers to use repeat when building mobile units (use 2 or more build spots)
---	author:	Owen Martindell
+--  file:    cmd_unit_mover.lua
+--  brief:   Allows combat engineers to use repeat when building mobile units (use 2 or more build spots)
+--  author:  Owen Martindell
 --
---	Copyright (C) 2007.
---	Licensed under the terms of the GNU GPL, v2 or later.
+--  Copyright (C) 2007.
+--  Licensed under the terms of the GNU GPL, v2 or later.
 --
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 function widget:GetInfo()
-	return {
-		name		= "Unit Mover",
-		desc		= "Allows combat engineers to use repeat when building mobile units (use 2 or more build spots)",
-		author		= "TheFatController",
-		date		= "Mar 20, 2007",
-		license		= "GNU GPL, v2 or later",
-		layer		= 0,
-		enabled		= false	--	loaded by default?
-	}
+  return {
+    name      = "Unit Mover",
+    desc      = "Allows combat engineers to use repeat when building mobile units (use 2 or more build spots)",
+    author    = "TheFatController",
+    date      = "Mar 20, 2007",
+    license   = "GNU GPL, v2 or later",
+    layer     = 0,
+    enabled   = false  --  loaded by default?
+  }
 end
-local GetSpectatingState = Spring.GetSpectatingState
-local GiveOrderToUnit = Spring.GiveOrderToUnit
-local GetUnitPosition = Spring.GetUnitPosition
-local GetUnitDirection = Spring.GetUnitDirection
-local GetMyTeamID = Spring.GetMyTeamID
-local GetSelectedUnits = Spring.GetSelectedUnits
-local GetUnitDefID = Spring.GetUnitDefID
-
-
-local CMD_MOVE = CMD.MOVE
-
 
 --------------------------------------------------------------------------------
 
-local myTeamID = GetMyTeamID()
-local engineers = {}
-local engineerDefs = {}
-local moveUnitsDefs = {}
+local GetCommandQueue = Spring.GetCommandQueue
+local GetPlayerInfo = Spring.GetPlayerInfo
+local GetUnitPosition = Spring.GetUnitPosition
+local GiveOrderToUnit = Spring.GiveOrderToUnit
+local GetMyTeamID = Spring.GetMyTeamID
 
-function removeSelfCheck()
-    if Spring.GetSpectatingState() and (Spring.GetGameFrame() > 0 or gameStarted) then
-        widgetHandler:RemoveWidget(self)
-    end
-end
+--------------------------------------------------------------------------------
 
-function widget:GameStart()
-    gameStarted = true
-    removeSelfCheck()
-end
+local countDown = -1
+local DELAY = 0.2
+local moveUnits = {}
+local myID = 0
 
-function widget:PlayerChanged(playerID)
-    removeSelfCheck()
+local function checkSpec()
+  local _, _, spec = GetPlayerInfo(myID, false)
+  if spec then
+    widgetHandler:RemoveWidget()
+  end
 end
 
 function widget:Initialize()
-    if Spring.IsReplay() or Spring.GetGameFrame() > 0 then
-        removeSelfCheck()
+ myID = Spring.GetMyPlayerID()
+ checkSpec()
+end
+
+function widget:Update(deltaTime)
+ if (countDown == -1) then
+   return
+ else
+   countDown = countDown + deltaTime
+ end
+
+ if (countDown > DELAY) then
+   for unitID,_ in pairs(moveUnits) do
+     local cQueue = GetCommandQueue(unitID, 0)
+     if (cQueue == 0) then
+       local x, y, z = GetUnitPosition(unitID)
+       if (math.random(1,2) == 1) then
+         x = x + math.random(50,100)
+       else
+         x = x - math.random(50,100)
+       end
+       if (math.random(1,2) == 1) then
+         z = z + math.random(50,100)
+       else
+         z = z - math.random(50,100)
+       end
+       GiveOrderToUnit(unitID, CMD.FIGHT,  { x, y, z},  0)
+     end
+   end
+   moveUnits = {}
+   countDown = -1
+ end
+end
+
+function widget:UnitFromFactory(unitID, unitDefID, unitTeam, factID, factDefID, userOrders)
+  for uID,_ in pairs(moveUnits) do
+    if (uID == unitID) then
+      table.remove(moveUnits,uID)
+      break
     end
-	for unitDefID,unitDef in pairs(UnitDefs) do
-		if unitDef.canMove and unitDef.speed > 0 then --mobile builder
-			for _,buildeeDefID in pairs(unitDef.buildOptions) do
-				local buildeeDef = UnitDefs[buildeeDefID]
-				if buildeeDef.canMove and buildeeDef.speed > 0 then -- can build a mobile unit
-					engineerDefs[unitDefID] = true -- mark the engineer
-					moveUnitsDefs[buildeeDefID] = true --mark the mobile unit
-				end
-			end
-		end
-	end
-	for _,unitID in pairs(Spring.GetTeamUnits(myTeamID)) do
-		widget:UnitCreated(unitID,GetUnitDefID(unitID),myTeamID)
-	end
+  end
 end
 
-
-
-function widget:UnitCreated(unitID, unitDefID, unitTeam,builderID)
-	if unitTeam ~= myTeamID then
-		return
-	end
-	if engineerDefs[unitDefID] then
-		engineers[unitID] = {}
-	end
-	if builderID and moveUnitsDefs[unitDefID] and engineers[builderID] then
-		local x, y, z = GetUnitPosition(unitID)
-		local dx,dy,dz = GetUnitDirection(unitID)
-		local moveDist = 50
-		GiveOrderToUnit(unitID, CMD_MOVE, {x+dx*moveDist, y, z+dz*moveDist}, { "" })
-	end
+function widget:UnitFinished(unitID, unitDefID, unitTeam)
+ if (unitTeam ~= GetMyTeamID()) then
+   return
+ end
+   
+ local ud = UnitDefs[unitDefID]
+ if (ud and (not ud.customParams.commtype) and not ud.isImmobile) then
+   checkSpec()
+   moveUnits[unitID] = true
+   countDown = 0
+ end
 end
-
-function widget:UnitDestroyed(unitID)
-	engineers[unitID] = nil
-end
-
-function widget:UnitGiven(unitID, unitDefID, newTeam, oldTeamID)
-	widget:UnitDestroyed(unitID)
-	widget:UnitCreated(unitID, unitDefID, newTeam)
-end
-
-function widget:UnitTaken(unitID, unitDefID, oldTeamID, newTeam)
-	widget:UnitDestroyed(unitID)
-	widget:UnitCreated(unitID, unitDefID, newTeam)
-end
-
-
-
 
 --------------------------------------------------------------------------------

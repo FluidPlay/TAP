@@ -19,7 +19,7 @@ function widget:GetInfo()
     date      = "Jun 15, 2007",
     license   = "GNU GPL, v2 or later",
     layer     = 0,
-    enabled   = false  --  loaded by default?
+    enabled   = true  --  loaded by default?
   }
 end
 
@@ -33,7 +33,32 @@ local spSetShockFrontFactors = Spring.SetShockFrontFactors
 
 
 --------------------------------------------------------------------------------
+----------------------------Configuration---------------------------------------
+options_path = 'Settings/Camera'
+options_order = { 'camShake', 'camShakeMax'}
+options = {
+	camShake = {
+		name = 'Camera Shake (when explosions occur)',
+		type = "number",
+		value = 0.5,
+		min = 0,
+		max = 1,
+		step = 0.01,
+		simpleMode = true,
+		everyMode = true,
+	},
+	camShakeMax = {
+		name = 'Camera Shake Limit',
+		type = "number",
+		value = 0.3,
+		min = 0,
+		max = 2,
+		step = 0.01,
+	},
+}
 --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 
 local exps = 0
 local shake = 0
@@ -72,6 +97,9 @@ function widget:ShockFront(power, dx, dy, dz)
   shake = shake + power
 end
 
+function WG.ShakeCamera(power)
+  shake = shake + power
+end
 
 local function birand(val)
   return val * (1.0 - (0.002 * math.random(1000)))
@@ -79,9 +107,15 @@ end
 
 
 function widget:Update(dt)
+  if options.camShake.value == 0 then
+    return
+  end
   local t = widgetHandler:GetHourTimer()
-  local pShake = shake * 0.1
-  local tShake = shake * 0.025
+  if shake > options.camShakeMax.value then
+    shake = options.camShakeMax.value
+  end
+  local pShake = shake * 0.2 * options.camShake.value
+  local tShake = shake * 0.05 * options.camShake.value
   local px, py, pz, tx, ty, tz =
     birand(pShake),
     birand(pShake),

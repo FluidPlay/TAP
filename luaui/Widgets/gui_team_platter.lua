@@ -1,3 +1,6 @@
+-- see http://springrts.com/phpbb/viewtopic.php?f=23&t=21244&start=60 for opt
+-- http://code.google.com/p/zero-k/source/browse/trunk/mods/zk/LuaUI/Widgets/unit_shapes.lua?spec=svn647&r=647
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
@@ -15,23 +18,25 @@ function widget:GetInfo()
   return {
     name      = "TeamPlatter",
     desc      = "Shows a team color platter above all visible units",
-    author    = "Floris (original: trepan)",
+    author    = "trepan, tweaked by Sphiloth",
     date      = "Apr 16, 2007",
     license   = "GNU GPL, v2 or later",
     layer     = 5,
-    enabled   = false  --  loaded by default?
+    enabled   = false,  --  loaded by default?
   }
 end
 
-local drawDonuts = false
-local spotterOpacity = 0.3
-local highlightOpacity = 0.25
-local skipOwnTeam  = false
-local useSelections = true
-local noOverlap = true
+local widgetName = widget:GetInfo().name
 
+
+local SafeWGCall = function(fnName, param1) if fnName then return fnName(param1) else return nil end end
+local GetUnitUnderCursor = function(onlySelectable) return SafeWGCall(WG.PreSelection_GetUnitUnderCursor, onlySelectable) end
+local IsSelectionBoxActive = function() return SafeWGCall(WG.PreSelection_IsSelectionBoxActive) end
+local GetUnitsInSelectionBox = function() return SafeWGCall(WG.PreSelection_GetUnitsInSelectionBox) end
+local IsUnitInSelectionBox = function(unitID) return SafeWGCall(WG.PreSelection_IsUnitInSelectionBox, unitID) end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+
 
 -- Automatically generated local definitions
 
@@ -46,245 +51,210 @@ local glDrawListAtUnit       = gl.DrawListAtUnit
 local glLineWidth            = gl.LineWidth
 local glPolygonOffset        = gl.PolygonOffset
 local glVertex               = gl.Vertex
-local spGetVisibleUnits      = Spring.GetVisibleUnits
+local spDiffTimers           = Spring.DiffTimers
+local spGetAllUnits          = Spring.GetAllUnits
+local spGetGroundNormal      = Spring.GetGroundNormal
 local spGetSelectedUnits     = Spring.GetSelectedUnits
 local spGetTeamColor         = Spring.GetTeamColor
+local spGetTimer             = Spring.GetTimer
+local spGetUnitPosition      = Spring.GetUnitPosition
+local spGetUnitDefDimensions = Spring.GetUnitDefDimensions
 local spGetUnitDefID         = Spring.GetUnitDefID
+--local spGetUnitRadius        = Spring.GetUnitRadius --not used
 local spGetUnitTeam          = Spring.GetUnitTeam
+local spGetUnitViewPosition  = Spring.GetUnitViewPosition
+local spGetUnitNoDraw        = Spring.GetUnitNoDraw
+local spIsUnitSelected       = Spring.IsUnitSelected
+local spIsUnitVisible        = Spring.IsUnitVisible
 local spSendCommands         = Spring.SendCommands
-local spGetMyTeamID          = Spring.GetMyTeamID
-local spGetCameraPosition	 = Spring.GetCameraPosition
-local spGetGameFrame	     = Spring.GetGameFrame
-local spGetAllyTeamList      = Spring.GetAllyTeamList
-local spIsGUIHidden          = Spring.IsGUIHidden
-local spGetTeamList          = Spring.GetTeamList
+local spGetVisibleUnits      = Spring.GetVisibleUnits
 
-local gaiaTeamID = Spring.GetGaiaTeamID()
 
-local spotterImg = ":n:LuaUI/Images/enemyspotter.dds"
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-local unitConf = {}
-local lastUpdatedFrame		= 0
-local drawUnits				= {}
+-- Manual optimizations
+
+local spIsGUIHidden = Spring.IsGUIHidden
+local abs = math.abs
+local acos = math.acos
+local cos = math.cos
+local sin = math.sin
+local pi = math.pi
+local radInDeg = 180/pi
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- Memoization tables
+
+local realRadii = {}
 
 local teamColors = {}
-local platterCircleList  = 0
-local platterSquareList  = 0
-local platterTriangleList  = 0
-local circleDivs   = 36
-local circleOffset = 0
-
-
-local prevCam = {}
-prevCam[1],prevCam[2],prevCam[3] = spGetCameraPosition()
-
-local isSpec = Spring.GetSpectatingState()
-
-
-local ignoreUnits = {}
-for udefID,def in ipairs(UnitDefs) do
-  if def.customParams['nohealthbars'] then
-    ignoreUnits[udefID] = true
-  end
-end
-
-local myTeamID = spGetMyTeamID()
-
-local singleTeams = false
-if #Spring.GetTeamList()-1  ==  #Spring.GetAllyTeamList()-1 then
-  singleTeams = true
-end
-
-local sameTeamColors = false
-if WG['playercolorpalette'] ~= nil and WG['playercolorpalette'].getSameTeamColors() then
-  sameTeamColors = WG['playercolorpalette'].getSameTeamColors()
-end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-
 
 local function SetupCommandColors(state)
-  local alpha = state and 1 or 0
-  local f = io.open('cmdcolors.tmp', 'w+')
-  if (f) then
-    f:write('unitBox  0 1 0 ' .. alpha)
-    f:close()
-    spSendCommands({'cmdcolors cmdcolors.tmp'})
-  end
-  os.remove('cmdcolors.tmp')
-end
+	if state then
+		WG.widgets_handling_selection = (WG.widgets_handling_selection or 1) - 1
+		if WG.widgets_handling_selection > 0 then
+			return
+		end
+	else
+		WG.widgets_handling_selection = (WG.widgets_handling_selection or 0) + 1
+	end
 
-
-function SetUnitConf()
-  -- preferred to keep these values the same as fancy unit selections widget
-  local scaleFactor = 2.6
-  local rectangleFactor = 3.25
-
-  for udid, unitDef in pairs(UnitDefs) do
-    local xsize, zsize = unitDef.xsize, unitDef.zsize
-    local scale = scaleFactor*( xsize^2 + zsize^2 )^0.5
-    local xscale, zscale, shape
-
-    if (unitDef.isBuilding or unitDef.isFactory or unitDef.speed==0) then
-      shape = 'square'
-      xscale, zscale = rectangleFactor * xsize, rectangleFactor * zsize
-    elseif (unitDef.isAirUnit) then
-      shape = 'triangle'
-      xscale, zscale = scale*1.07, scale*1.07
-    elseif (unitDef.modCategories["ship"]) then
-      shape = 'circle'
-      xscale, zscale = scale*0.82, scale*0.82
-    else
-      shape = 'circle'
-      xscale, zscale = scale, scale
-    end
-
-    local radius = Spring.GetUnitDefDimensions(udid).radius
-    xscale = (xscale*0.7) + (radius/5)
-    zscale = (zscale*0.7) + (radius/5)
-
-    unitConf[udid] = {scale=(xscale+zscale)*1.5, shape=shape}
-  end
+	local alpha = state and 1 or 0
+	local f = io.open('cmdcolors.tmp', 'w+')
+	if (f) then
+		f:write('unitBox  0 1 0 ' .. alpha)
+		f:close()
+		spSendCommands({'cmdcolors cmdcolors.tmp'})
+	end
+	os.remove('cmdcolors.tmp')
 end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function DrawTriangleSolid(size)
+options_path = 'Settings/Interface/Selection/Team Platters'
+options = {
+  outlineOpacity = {
+      name = "Outline opacity (0 boosts performance)",
+      type = 'number',
+      value = 0, min = 0, max = 1, step = 0.05,
+      --desc = "How much can be seen through the circle outline. The outline can removed completely by " ..
+      --"setting this to 1, significantly enhancing performance",
+  },
+  fillOpacity = {
+      name = "Fill opacity",
+      type = 'number',
+      value = 0.4, min = 0, max = 1, step = 0.05,
+      --desc = "How much can be seen through the circle fill",
+  },
+  extraRadius = {
+      name = "Platter size",
+      type = 'number',
+      value = 6, min = 0, max = 10, step = 0.5,
+      --desc = "How much additional padding should be added to the circle radius in pixels",
+  },
+}
 
-  gl.BeginEnd(GL.TRIANGLE_FAN, function()
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-    local width, a1,a2,a2_2
-    local radstep = (2.0 * math.pi) / 3
+local teamColors = {}
 
-    for i = 1, 3 do
-      -- straight piece
-      width = 0.75
-      i = i + 0.625
-      a1 = (i * radstep)
-      a2 = ((i+width) * radstep)
+local trackSlope = true
 
-      gl.Vertex(0, 0, 0)
-      gl.Vertex(math.sin(a2)*size, 1, math.cos(a2)*size)
-      gl.Vertex(math.sin(a1)*size, 1, math.cos(a1)*size)
+local circleLines  = 0
+local circlePolys  = 0
+local circleDivs   = 32
+local circleOffset = 0
+local lineWidth = 3
+local noOutlineMakeUp = lineWidth/2
 
-      -- corner piece
-      width = 0.35
-      i = i + 3
-      a1 = (i * radstep)
-      a2 = ((i+width) * radstep)
-      i = i -0.6
-      a2_2 = ((i+width) * radstep)
+local startTimer = spGetTimer()
 
-      gl.Vertex(0, 0, 0)
-      gl.Vertex(math.sin(a2_2)*size, 1, math.cos(a2_2)*size)
-      gl.Vertex(math.sin(a1)*size, 1, math.cos(a1)*size)
-    end
 
-  end)
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+local function ClearColorMemoization()
+  teamColors = {}
 end
 
-local function DrawSquareSolid(size)
-  gl.BeginEnd(GL.TRIANGLE_FAN, function()
-    local width, a1,a2,a2_2
-    local radstep = (2.0 * math.pi) / 4
 
-    for i = 1, 4 do
-      --straight piece
-      width = 0.7
-      i = i + 0.65
-      a1 = (i * radstep)
-      a2 = ((i+width) * radstep)
-
-      gl.Vertex(0, 0, 0)
-      gl.Vertex(math.sin(a2)*size, 1, math.cos(a2)*size)
-      gl.Vertex(math.sin(a1)*size, 1, math.cos(a1)*size)
-
-      --corner piece
-      width = 0.3
-      i = i + 3
-      a1 = (i * radstep)
-      a2 = ((i+width) * radstep)
-      i = i -0.6
-      a2_2 = ((i+width) * radstep)
-
-      gl.Vertex(0, 0, 0)
-      gl.Vertex(math.sin(a2_2)*size, 1, math.cos(a2_2)*size)
-      gl.Vertex(math.sin(a1)*size, 1, math.cos(a1)*size)
-    end
-
-  end)
-end
 
 function widget:Initialize()
-  platterCircleList = glCreateList(function()
-    local radius = 0.6
-    glBeginEnd(GL_TRIANGLE_FAN, function()
-      local radstep = (2.0 * math.pi) / circleDivs
-      for i = 1, circleDivs do
-        local a = (i * radstep)
-        glVertex(radius*math.sin(a), circleOffset, radius*math.cos(a))
-      end
-    end)
+
+  circleLines = glCreateList(function()
     glBeginEnd(GL_LINE_LOOP, function()
-      local radstep = (2.0 * math.pi) / circleDivs
+      local radstep = (2.0 * pi) / circleDivs
       for i = 1, circleDivs do
         local a = (i * radstep)
-        glVertex(radius*math.sin(a), circleOffset+0.05, radius*math.cos(a))
+        glVertex(sin(a), circleOffset, cos(a))
       end
     end)
   end)
 
-  platterSquareList = glCreateList(function()
-    local radius = 0.6
-    DrawSquareSolid(radius)
-  end)
-
-  platterTriangleList = glCreateList(function()
-    local radius = 0.6
-    DrawTriangleSolid(radius)
-  end)
-
-
-  spotterList = gl.CreateList(function()
-    gl.TexRect(-1, 1, 1, -1)
+  circlePolys = glCreateList(function()
+    glBeginEnd(GL_TRIANGLE_FAN, function()
+      local radstep = (2.0 * pi) / circleDivs
+      for i = 1, circleDivs do
+        local a = (i * radstep)
+        glVertex(sin(a), circleOffset, cos(a))
+      end
+    end)
   end)
 
   SetupCommandColors(false)
-  SetUnitConf()
 
-  WG['teamplatter'] = {}
-  WG['teamplatter'].getOpacity = function()
-    return spotterOpacity
-  end
-  WG['teamplatter'].setOpacity = function(value)
-    spotterOpacity = value
-    teamColors = {}
-  end
-  WG['teamplatter'].getSkipOwnTeam = function()
-    return skipOwnTeam
-  end
-  WG['teamplatter'].setSkipOwnTeam = function(value)
-    skipOwnTeam = value
-  end
+  self:LocalColorRegister()
 end
 
 
 function widget:Shutdown()
-  glDeleteList(platterCircleList)
-  glDeleteList(platterSquareList)
-  glDeleteList(platterTriangleList)
-  glDeleteList(spotterList)
-  if WG['highlightselunits'] == nil and WG['fancyselectedunits'] == nil then
-    SetupCommandColors(true)
+  glDeleteList(circleLines)
+  glDeleteList(circlePolys)
+
+  SetupCommandColors(true)
+
+  self:LocalColorUnregister()
+end
+
+function widget:LocalColorRegister()
+  if WG.LocalColor and WG.LocalColor.RegisterListener then
+    WG.LocalColor.RegisterListener(widgetName, ClearColorMemoization)
   end
-  WG['teamplatter'] = nil
+end
+
+function widget:LocalColorUnregister()
+  if WG.LocalColor and WG.LocalColor.UnregisterListener then
+    WG.LocalColor.UnregisterListener(widgetName)
+  end
 end
 
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+
+
+
+
+local function GetUnitDefRealRadius(udid)
+	local radius = realRadii[udid]
+	if (radius) then
+		return radius
+	end
+
+	local ud = UnitDefs[udid]
+	if (ud == nil) then
+		return nil
+	end
+
+	local dims = spGetUnitDefDimensions(udid)
+	if (dims == nil) then
+		return nil
+	end
+
+	local scale = ud.hitSphereScale -- missing in 0.76b1+
+	scale = ((scale == nil) or (scale == 0.0)) and 1.0 or scale
+	radius = dims.radius / scale
+	realRadii[udid] = radius
+	if ud.customParams and ud.customParams.selection_scale then
+		local factor = (tonumber(ud.customParams.selection_scale) or 1)
+		realRadii[udid] = realRadii[udid] * factor
+	end
+	return radius
+end
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
 
 
 local function GetTeamColorSet(teamID)
@@ -294,157 +264,126 @@ local function GetTeamColorSet(teamID)
   end
   local r,g,b = spGetTeamColor(teamID)
   
-  colors = {r, g, b, spotterOpacity}
+  colors = { r, g, b }
   teamColors[teamID] = colors
   return colors
 end
 
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-
-
-local visibleUnits = {}
-local visibleUnitsCount = 0
-function checkAllUnits()
-  drawUnits = {}
-  visibleUnits = spGetVisibleUnits(-1, 50, false)
-  visibleUnitsCount = #visibleUnits
-  for i=1, visibleUnitsCount do
-    checkUnit(visibleUnits[i])
-  end
-end
-
-function checkUnit(unitID)
-  local teamID = spGetUnitTeam(unitID)
-  local unitDefID = spGetUnitDefID(unitID)
-  if ignoreUnits[unitDefID] ~= nil then
-    return
-  end
-  if (unitDefID) then
-    if drawUnits[teamID] == nil then
-      drawUnits[teamID] = {}
-    end
-    drawUnits[teamID][unitID] = unitConf[unitDefID].scale
-  end
-end
-
-
-function widget:PlayerChanged(playerID)
-  isSpec = Spring.GetSpectatingState()
-end
-
-
-local sec = 0
-local sceduledCheck = false
-local updateTime = 1
-function widget:Update(dt)
-  sec=sec+dt
-  local camX, camY, camZ = spGetCameraPosition()
-  if camX ~= prevCam[1] or  camY ~= prevCam[2] or  camZ ~= prevCam[3] then
-    sceduledCheck = true
-  end
-  if (sec>1/updateTime and lastUpdatedFrame ~= spGetGameFrame() or (sec>1/(updateTime*5) and sceduledCheck)) then
-    sec = 0
-
-    if WG['playercolorpalette'] ~= nil then
-      if WG['playercolorpalette'].getSameTeamColors and sameTeamColors ~= WG['playercolorpalette'].getSameTeamColors() then
-        sameTeamColors = WG['playercolorpalette'].getSameTeamColors()
-        teamColors = {}
-      end
-    elseif sameTeamColors == true then
-      sameTeamColors = false
-      teamColors = {}
-    end
-    if not singleTeams and WG['playercolorpalette'] ~= nil and WG['playercolorpalette'].getSameTeamColors() then
-      if myTeamID ~= Spring.GetMyTeamID() then
-        -- old
-        teamColors[myTeamID] = nil
-        -- new
-        myTeamID = Spring.GetMyTeamID()
-        teamColors[myTeamID] = nil
-      end
-    end
-    checkAllUnits()
-    lastUpdatedFrame = spGetGameFrame()
-    sceduledCheck = false
-    updateTime = Spring.GetFPS() / 15
-    if updateTime < 0.66 then
-      updateTime = 0.66
-    end
-  end
-  prevCam[1],prevCam[2],prevCam[3] = camX,camY,camZ
-end
-
 
 function widget:DrawWorldPreUnit()
-  if spIsGUIHidden() then return end
+if not spIsGUIHidden() then
+  local extraRadius = options.extraRadius.value
+  local fillOpacity = options.fillOpacity.value
+  local outlineOpacity = options.outlineOpacity.value
+  local showOutline = (outlineOpacity > 0)
+  local noOutlineExtraRadius = extraRadius + noOutlineMakeUp
+  
+  glLineWidth(lineWidth)
 
-  glLineWidth(3.0)
-  glDepthTest(true)
-  glPolygonOffset(-100, -2)
+  glDepthTest(false)
+  
+  glPolygonOffset(-50, -2)
 
-  if drawDonuts then
-    gl.Texture(spotterImg)
-  end
-  for _, allyID in ipairs(spGetAllyTeamList()) do
-    for _, teamID in ipairs(spGetTeamList(allyID)) do
-      if teamID ~= gaiaTeamID and drawUnits[teamID] ~= nil and (not skipOwnTeam or skipOwnTeam and teamID ~= myTeamID)then
-        glColor(GetTeamColorSet(teamID))
-        for unitID, unitScale in pairs(drawUnits[teamID]) do
-          if drawDonuts then
-            glDrawListAtUnit(unitID, spotterList, false,  unitScale, unitScale, unitScale, 90, 1,0,0)
-          else
-            --if unitConf[Spring.GetUnitDefID(unitID)].shape == 'square' then
-            --  glDrawListAtUnit(unitID, platterSquareList, false,  unitScale, 1.0, unitScale)
-            --elseif unitConf[Spring.GetUnitDefID(unitID)].shape == 'triangle' then
-            --  glDrawListAtUnit(unitID, platterTriangleList, false,  unitScale, 1.0, unitScale)
-            --else
-              glDrawListAtUnit(unitID, platterCircleList, false,  unitScale, 1.0, unitScale)
-            --end
+  --local lastColorSet = nil
+  local visUnits = spGetVisibleUnits(-1, nil, false)
+
+  --for _,unitID in ipairs(spGetAllUnits()) do
+  if visUnits then
+    for i = 1, #visUnits do
+      --if (spIsUnitVisible(visUnits[i])) then
+      if (not spGetUnitNoDraw(visUnits[i])) then
+        local teamID = spGetUnitTeam(visUnits[i])
+        if (teamID) then
+          local udid = spGetUnitDefID(visUnits[i])
+          local radius = GetUnitDefRealRadius(udid)
+          if (radius) then
+            if showOutline then
+              radius = radius + extraRadius
+            else
+              radius = radius + noOutlineExtraRadius
+            end
+            local colorSet  = GetTeamColorSet(teamID)
+            if (trackSlope and (not UnitDefs[udid].canFly)) then
+              local x, y, z = spGetUnitPosition(visUnits[i])
+              local gx, gy, gz = spGetGroundNormal(x, z)
+              local degrot = acos(gy) * radInDeg
+              colorSet[4] = fillOpacity
+              glColor(colorSet)
+              glDrawListAtUnit(visUnits[i], circlePolys, false,
+                               radius, 1.0, radius,
+                               degrot, gz, 0, -gx)
+              if showOutline then
+                colorSet[4] = outlineOpacity
+                glColor(colorSet)
+                glDrawListAtUnit(visUnits[i], circleLines, false,
+                                 radius, 1.0, radius,
+                                 degrot, gz, 0, -gx)
+              end
+            else
+              colorSet[4] = fillOpacity
+              glColor(colorSet)
+              glDrawListAtUnit(visUnits[i], circlePolys, false,
+                               radius, 1.0, radius)
+              if showOutline then
+                colorSet[4] = outlineOpacity
+                glColor(colorSet)
+                glDrawListAtUnit(visUnits[i], circleLines, false,
+                                 radius, 1.0, radius)
+              end
+            end
           end
         end
       end
     end
   end
 
-  -- mark selected units
-  if useSelections then
-    glColor(1, 1, 1, highlightOpacity)
-    for _,unitID in ipairs(spGetSelectedUnits()) do
-      local udefid = spGetUnitDefID(unitID)
-      if udefid then
-        local unitScale = unitConf[udefid].scale
-        if drawDonuts then
-          glDrawListAtUnit(unitID, spotterList, false,  unitScale, unitScale, unitScale, 90, 1,0,0)
+  glPolygonOffset(false)
+
+  --
+  -- Blink the selected units
+  --
+
+  --glDepthTest(false)
+
+  local diffTime = spDiffTimers(spGetTimer(), startTimer)
+  local alpha = 1.8 * abs(0.5 - (diffTime * 3.0 % 1.0))
+  glColor(1, 1, 1, alpha)
+
+  -- for _,unitID in ipairs(spGetSelectedUnits()) do
+  for i=1, #visUnits do
+    local unitID = visUnits[i]
+    if IsUnitInSelectionBox(unitID) or (GetUnitUnderCursor() == unitID and not spIsUnitSelected(unitID)) then
+      glColor(1, 1, 1, 0.5)
+    else
+      glColor(1, 1, 1, alpha)
+    end
+    
+    if (spIsUnitSelected(unitID) or IsUnitInSelectionBox(unitID) or GetUnitUnderCursor(false) == unitID) and not spGetUnitNoDraw(unitID) then
+      local udid = spGetUnitDefID(unitID)
+      local radius = GetUnitDefRealRadius(udid)
+      if (radius) then
+        radius = radius + extraRadius
+        if (trackSlope and (not UnitDefs[udid].canFly)) then
+          local x, y, z = spGetUnitPosition(unitID)
+          local gx, gy, gz = spGetGroundNormal(x, z)
+          local degrot = acos(gy) * radInDeg
+          glDrawListAtUnit(unitID, circleLines, false,
+                           radius, 1.0, radius,
+                           degrot, gz, 0, -gx)
         else
-          --if unitConf[Spring.GetUnitDefID(unitID)].shape == 'square' then
-          --  glDrawListAtUnit(unitID, platterSquareList, false,  unitScale, 1.0, unitScale)
-          --elseif unitConf[Spring.GetUnitDefID(unitID)].shape == 'triangle' then
-          --  glDrawListAtUnit(unitID, platterTriangleList, false,  unitScale, 1.0, unitScale)
-          --else
-            glDrawListAtUnit(unitID, platterCircleList, false,  unitScale, 1.0, unitScale)
-          --end
+          glDrawListAtUnit(unitID, circleLines, false,
+                           radius, 1.0, radius)
         end
       end
     end
   end
-
-  glPolygonOffset(false)
+  glColor(1, 1, 1,1)
   glLineWidth(1.0)
 end
-
-
-function widget:GetConfigData(data)
-  savedTable = {}
-  savedTable.skipOwnTeam			= skipOwnTeam
-  savedTable.spotterOpacity			= spotterOpacity
-  return savedTable
 end
+              
 
-function widget:SetConfigData(data)
-  skipOwnTeam = data.skipOwnTeam or skipOwnTeam
-  spotterOpacity = data.spotterOpacity or spotterOpacity
-end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

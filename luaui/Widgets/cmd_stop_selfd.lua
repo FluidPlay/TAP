@@ -1,16 +1,17 @@
 function widget:GetInfo()
   return {
-    name      = "Stop means Stop",
-    desc      = "Cancels Self D orders when unit is given a stop command",
-    author    = "enotseulB",
+    name      = "Stop Self-D",
+    desc      = "Stop orders cancel self destruct commands",
+    author    = "Bluestone",
     date      = "GPL v3 or later",
     license   = "Feb 2015",
     layer     = 0,
-    enabled   = true  
+    enabled   = true
   }
 end
 
 local CMD_STOP = CMD.STOP
+local EMPTY_TABLE = {}
 
 function widget:UnitCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
     if cmdID ~= CMD_STOP then return end
@@ -18,6 +19,6 @@ function widget:UnitCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOpti
     if teamID ~= Spring.GetMyTeamID() then return end
 
     if (Spring.GetUnitSelfDTime(unitID) > 0) then
-        Spring.GiveOrderToUnit(unitID, CMD.SELFD, {}, {})
-    end 
+        Spring.GiveOrderToUnit(unitID, CMD.SELFD, EMPTY_TABLE, 0)
+    end
 end

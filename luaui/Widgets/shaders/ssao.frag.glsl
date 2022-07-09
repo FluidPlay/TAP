@@ -3,12 +3,6 @@
 uniform sampler2D viewPosTex;
 uniform sampler2D viewNormalTex;
 
-#define USE_MATERIAL_INDICES ###USE_MATERIAL_INDICES###
-
-#if (USE_MATERIAL_INDICES == 1)
-	uniform sampler2D miscTex;
-#endif
-
 uniform vec2 viewPortSize;
 
 uniform float shadowDensity;
@@ -46,14 +40,6 @@ uniform vec3 samplingKernel[SSAO_KERNEL_SIZE];
 // generally follow https://github.com/McNopper/OpenGL/blob/master/Example28/shader/ssao.frag.glsl
 void main() {
 	vec2 uv = gl_FragCoord.xy / viewPortSize;
-
-	#if (USE_MATERIAL_INDICES == 1)
-		#define TREEMAT_INDEX_B 128
-		#define TREEMAT_INDEX_E 130
-		int matIndex = int(texture(miscTex, uv).r * 255.0);
-		if (matIndex >= TREEMAT_INDEX_B && matIndex <= TREEMAT_INDEX_E)
-			discard;
-	#endif
 
 	vec4 viewPosition = vec4( texture(viewPosTex, uv).xyz, 1.0 );
 	vec3 viewNormal = texture(viewNormalTex, uv).xyz;

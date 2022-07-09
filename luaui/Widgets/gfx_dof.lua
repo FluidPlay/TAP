@@ -1,50 +1,128 @@
 function widget:GetInfo()
-    return {
-        name	  = "Depth of Field",
-        version	  = 2.0,
-        desc	  = "Blurs far away objects.",
-        author	= "aeonios, Shadowfury333 (with some code from Kleber Garcia)",
-        date	  = "Feb. 2019",
-        license   = "GPL, MIT",
-        layer	 = -100000, --To run after gfx_deferred_rendering.lua
-        enabled   = false
-    }
+	return {
+		name      = "Depth of Field Shader",
+		version	  = 2.0,
+		desc      = "Blurs far away objects.",
+		author    = "aeonios, Shadowfury333 (with some code from Kleber Garcia)",
+		date      = "Feb. 2019",
+		license   = "GPL, MIT",
+		layer     = -100000, --To run after gfx_deferred_rendering.lua
+		enabled   = true
+	}
 end
 
-local highQuality = true		-- doesnt seem to do anything
-local autofocus = false --true
-local mousefocus = not autofocus
-local focusDepth = 300
-local fStop = 2
+options_path = 'Settings/Graphics/Effects/Depth of Field'
 
-local autofocusInFocusMultiplier = fStop/2	-- Autofocus Minimum In-Focus region size
-local autofocusPower = 2 --6				-- Autofocus Power (lower = blurrier at range)
-local autofocusFocalLength = 0.06 --0.03		-- Autofocus Focal Length
+options_order = {'useDoF', 'highQuality', 'autofocus', 'mousefocus',  'autofocusLabel', 'autofocusInFocusMultiplier', 'autofocusPower',
+'autofocusFocalLength', 'manualfocusLabel', 'focusDepth', 'fStop'}
+
+options = {
+	useDoF =
+	{
+		type='bool',
+		name='Apply Depth of Field Effect',
+		value=false,
+		advanced = false,
+	},
+	highQuality =
+	{
+		type='bool',
+		name='High Quality',
+		value=false,
+		advanced=false,
+		OnChange = function(self) InitTextures() end,
+	},
+	autofocus =
+	{
+		type='bool',
+		name='Automatically Set Focus',
+		value=true,
+	},
+	mousefocus =
+	{
+		type='bool',
+		name='Focus on Mouse Position',
+		value=false,
+	},
+	autofocusLabel =
+	{
+		type='label',
+		name='Autofocus Parameters'
+	},
+	autofocusInFocusMultiplier =
+	{
+		type='number',
+		name='Autofocus Minimum In-Focus region size',
+		min = 0.05, max = 10.0, step = 0.05,
+		value = 0.4,
+	},
+	autofocusPower =
+	{
+		type='number',
+		name='Autofocus Power (lower = blurrier at range)',
+		min = 0.05, max = 50.0, step = 0.05,
+		value = 6.0,
+	},
+	autofocusFocalLength =
+	{
+		type='number',
+		name='Autofocus Focal Length',
+		min = 0.005, max = 1.0, step = 0.005,
+		value = 0.03,
+	},
+	manualfocusLabel =
+	{
+		type='label',
+		name='Manual Focus Parameters'
+	},
+	focusDepth =
+	{
+		type='number',
+		name='Focus Depth (Manual & Non-Mouse Focus)',
+		min = 0.0, max = 2000.0, step = 0.1,
+		value = 300.0,
+	},
+	fStop =
+	{
+		type='number',
+		name='F-Stop (Manual Focus Only)',
+		min = 1.0, max = 80.0, step = 0.1,
+		value = 16.0,
+	},
+}
+
+local function onChangeFunc()
+	if options.useDoF.value then
+		widget:Initialize()
+	else
+		if glDeleteTexture then
+			CleanupTextures()
+		end
+	end
+end
+
+options.useDoF.OnChange = onChangeFunc
 
 -----------------------------------------------------------------
 -- Engine Functions
 -----------------------------------------------------------------
 
-local spGetCameraPosition   = Spring.GetCameraPosition
-local spGetMouseState       = Spring.GetMouseState
-local spTraceScreenRay      = Spring.TraceScreenRay
+local spGetCameraPosition    = Spring.GetCameraPosition
 
-local math_max = math.max
-local math_log = math.log
-local math_sqrt = math.sqrt
-
-local glCopyToTexture = gl.CopyToTexture
-local glCreateShader = gl.CreateShader
-local glCreateTexture = gl.CreateTexture
-local glDeleteShader = gl.DeleteShader
-local glDeleteTexture = gl.DeleteTexture
-local glTexture	= gl.Texture
-local glTexRect	= gl.TexRect
-local glRenderToTexture = gl.RenderToTexture
-local glUseShader = gl.UseShader
-local glUniform = gl.Uniform
-local glUniformInt = gl.UniformInt
-local glUniformMatrix = gl.UniformMatrix
+local glCopyToTexture        = gl.CopyToTexture
+local glCreateShader         = gl.CreateShader
+local glCreateTexture        = gl.CreateTexture
+local glDeleteShader         = gl.DeleteShader
+local glDeleteTexture        = gl.DeleteTexture
+local glGetShaderLog         = gl.GetShaderLog
+local glTexture              = gl.Texture
+local glTexRect              = gl.TexRect
+local glRenderToTexture		 = gl.RenderToTexture
+local glUseShader            = gl.UseShader
+local glGetUniformLocation   = gl.GetUniformLocation
+local glUniform				 = gl.Uniform
+local glUniformInt				 = gl.UniformInt
+local glUniformMatrix		 = gl.UniformMatrix
 
 local GL_DEPTH_COMPONENT   = 0x1902
 local GL_DEPTH_COMPONENT16 = 0x81A5
@@ -56,36 +134,30 @@ local GL_COLOR_ATTACHMENT1_EXT = 0x8CE1
 local GL_COLOR_ATTACHMENT2_EXT = 0x8CE2
 local GL_COLOR_ATTACHMENT3_EXT = 0x8CE3
 
-local GL_RGBA16F_ARB = 0x881A
-
-local baseBlurTex, baseNearBlurTex, intermediateBlurTex0, intermediateBlurTex1, intermediateBlurTex2, intermediateBlurTex3, finalBlurTex, finalNearBlurTex
-local screenTex, depthTex, intermediateBlurFBO, baseBlurFBO
-local chobbyInterface
-
 -----------------------------------------------------------------
 
 
 local function CleanupTextures()
-    glDeleteTexture(baseBlurTex or "")
-    glDeleteTexture(baseNearBlurTex or "")
-    glDeleteTexture(intermediateBlurTex0 or "")
-    glDeleteTexture(intermediateBlurTex1 or "")
-    glDeleteTexture(intermediateBlurTex2 or "")
-    glDeleteTexture(intermediateBlurTex3 or "")
-    glDeleteTexture(finalBlurTex or "")
-    glDeleteTexture(finalNearBlurTex or "")
-    glDeleteTexture(screenTex or "")
-    glDeleteTexture(depthTex or "")
-    gl.DeleteFBO(intermediateBlurFBO)
-    gl.DeleteFBO(baseBlurFBO)
-    baseBlurTex, baseNearBlurTex, intermediateBlurTex0, intermediateBlurTex1,
-    intermediateBlurTex2, intermediateBlurTex3, finalBlurTex, finalNearBlurTex,
-    screenTex, depthTex =
-    nil, nil, nil, nil,
-    nil, nil, nil, nil,
-    nil, nil
-    intermediateBlurFBO = nil
-    baseBlurFBO = nil
+	glDeleteTexture(baseBlurTex or "")
+	glDeleteTexture(baseNearBlurTex or "")
+	glDeleteTexture(intermediateBlurTex0 or "")
+	glDeleteTexture(intermediateBlurTex1 or "")
+	glDeleteTexture(intermediateBlurTex2 or "")
+	glDeleteTexture(intermediateBlurTex3 or "")
+	glDeleteTexture(finalBlurTex or "")
+	glDeleteTexture(finalNearBlurTex or "")
+	glDeleteTexture(screenTex or "")
+	glDeleteTexture(depthTex or "")
+	gl.DeleteFBO(intermediateBlurFBO)
+	gl.DeleteFBO(baseBlurFBO)
+	baseBlurTex, baseNearBlurTex, intermediateBlurTex0, intermediateBlurTex1,
+	intermediateBlurTex2, intermediateBlurTex3, finalBlurTex, finalNearBlurTex,
+	screenTex, depthTex =
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil
+	intermediateBlurFBO = nil
+	baseBlurFBO = nil
 end
 -----------------------------------------------------------------
 -- Global Vars
@@ -111,7 +183,7 @@ local finalNearBlurTex = nil
 
 -- shader uniform handles
 local eyePosLoc = nil
-local projectionMatLoc = nil
+local viewProjectionLoc = nil
 local resolutionLoc = nil
 local distanceLimitsLoc = nil
 local autofocusLoc = nil
@@ -128,382 +200,318 @@ local passLoc = nil
 -- shader uniform enums
 local shaderPasses =
 {
-    filterSize = 0,
-    initialBlur = 1,
-    finalBlur = 2,
-    initialNearBlur = 3,
-    finalNearBlur = 4,
-    composition = 5,
+	filterSize = 0,
+	initialBlur = 1,
+	finalBlur = 2,
+	initialNearBlur = 3,
+	finalNearBlur = 4,
+	composition = 5,
 }
 
+-----------------------------------------------------------------
 
 function InitTextures()
-    vsx, vsy = gl.GetViewSizes()
-    local blurTexSizeX, blurTexSizeY = vsx/2, vsy/2;
+	vsx, vsy = gl.GetViewSizes()
+	local blurTexSizeX, blurTexSizeY = vsx/2, vsy/2;
 
-    CleanupTextures()
+	CleanupTextures()
+	
+	screenTex = glCreateTexture(vsx, vsy, {
+		fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
 
-    screenTex = glCreateTexture(vsx, vsy, {
-        fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
+	depthTex = gl.CreateTexture(vsx,vsy, {
+		border = false,
+		format = GL_DEPTH_COMPONENT24,
+		min_filter = GL.NEAREST,
+		mag_filter = GL.NEAREST,
+	})
 
-    depthTex = gl.CreateTexture(vsx,vsy, {
-        border = false,
-        format = GL_DEPTH_COMPONENT24,
-        min_filter = GL.NEAREST,
-        mag_filter = GL.NEAREST,
-    })
+	baseBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+		min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
+	if options.highQuality.value then
+		baseNearBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+			min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+			format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+		})
+	end
+	
+	intermediateBlurTex0 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+		min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
+	
+	intermediateBlurTex1 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+		 min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
+	
+	intermediateBlurTex2 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+		 min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
+	
+	if options.highQuality.value then
+		intermediateBlurTex3 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+			 min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+			format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+		})
+	end
+	
+	finalBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+		fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+		wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+	})
+	if options.highQuality.value then
+		finalNearBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
+			fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+			wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
+		})
+	end
 
-    baseBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-        min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
-    if highQuality then
-        baseNearBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-            min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-            format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-        })
-    end
+	if options.highQuality.value then
+		baseBlurFBO = gl.CreateFBO({
+			color0 = baseBlurTex,
+			color1 = baseNearBlurTex,
+			drawbuffers = {
+				GL_COLOR_ATTACHMENT0_EXT,
+				GL_COLOR_ATTACHMENT1_EXT
+			}
+		})
 
-    intermediateBlurTex0 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-        min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
+		intermediateBlurFBO = gl.CreateFBO({
+			color0 = intermediateBlurTex0,
+			color1 = intermediateBlurTex1,
+			color2 = intermediateBlurTex2,
+			color3 = intermediateBlurTex3,
+			drawbuffers = {
+				GL_COLOR_ATTACHMENT0_EXT,
+				GL_COLOR_ATTACHMENT1_EXT,
+				GL_COLOR_ATTACHMENT2_EXT,
+				GL_COLOR_ATTACHMENT3_EXT
+			}
+		})
+	else
+		baseBlurFBO = gl.CreateFBO({
+			color0 = baseBlurTex,
+			drawbuffers = {
+				GL_COLOR_ATTACHMENT0_EXT
+			}
+		})
+		
+		intermediateBlurFBO = gl.CreateFBO({
+			color0 = intermediateBlurTex0,
+			color1 = intermediateBlurTex1,
+			color2 = intermediateBlurTex2,
+			drawbuffers = {
+				GL_COLOR_ATTACHMENT0_EXT,
+				GL_COLOR_ATTACHMENT1_EXT,
+				GL_COLOR_ATTACHMENT2_EXT
+			}
+		})
+	end
 
-    intermediateBlurTex1 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-        min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
-
-    intermediateBlurTex2 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-        min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
-
-    if highQuality then
-        intermediateBlurTex3 = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-            min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-            format = GL_RGBA16F_ARB, wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-        })
-    end
-
-    finalBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-        fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-        wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-    })
-    if highQuality then
-        finalNearBlurTex = glCreateTexture(blurTexSizeX, blurTexSizeY, {
-            fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
-            wrap_s = GL.CLAMP_TO_EDGE, wrap_t = GL.CLAMP_TO_EDGE,
-        })
-    end
-
-    if highQuality then
-        baseBlurFBO = gl.CreateFBO({
-            color0 = baseBlurTex,
-            color1 = baseNearBlurTex,
-            drawbuffers = {
-                GL_COLOR_ATTACHMENT0_EXT,
-                GL_COLOR_ATTACHMENT1_EXT
-            }
-        })
-
-        intermediateBlurFBO = gl.CreateFBO({
-            color0 = intermediateBlurTex0,
-            color1 = intermediateBlurTex1,
-            color2 = intermediateBlurTex2,
-            color3 = intermediateBlurTex3,
-            drawbuffers = {
-                GL_COLOR_ATTACHMENT0_EXT,
-                GL_COLOR_ATTACHMENT1_EXT,
-                GL_COLOR_ATTACHMENT2_EXT,
-                GL_COLOR_ATTACHMENT3_EXT
-            }
-        })
-    else
-        baseBlurFBO = gl.CreateFBO({
-            color0 = baseBlurTex,
-            drawbuffers = {
-                GL_COLOR_ATTACHMENT0_EXT
-            }
-        })
-
-        intermediateBlurFBO = gl.CreateFBO({
-            color0 = intermediateBlurTex0,
-            color1 = intermediateBlurTex1,
-            color2 = intermediateBlurTex2,
-            drawbuffers = {
-                GL_COLOR_ATTACHMENT0_EXT,
-                GL_COLOR_ATTACHMENT1_EXT,
-                GL_COLOR_ATTACHMENT2_EXT
-            }
-        })
-    end
-
-    if not intermediateBlurTex0 or not intermediateBlurTex1 or not intermediateBlurTex2
-            or not finalBlurTex or not baseBlurTex or not screenTex or not depthTex
-            or (highQuality and (not baseNearBlurTex or not intermediateBlurTex3 or not finalNearBlurTex)) then
-        Spring.Echo("Depth of Field: Failed to create textures!")
-        widgetHandler:RemoveWidget()
-        return
-    end
+	if not intermediateBlurTex0 or not intermediateBlurTex1 or not intermediateBlurTex2
+		 or not finalBlurTex or not baseBlurTex or not screenTex or not depthTex
+		 or (options.highQuality.value and (not baseNearBlurTex or not intermediateBlurTex3 or not finalNearBlurTex))
+		  then
+		Spring.Echo("Depth of Field: Failed to create textures!")
+		widgetHandler:RemoveWidget()
+		return
+	end
 end
 
 function widget:ViewResize(x, y)
-    InitTextures()
-end
-
-function init()
-    reset()
-
-    if (glCreateShader == nil) then
-        Spring.Echo("[Depth of Field::Initialize] removing widget, no shader support")
-        widgetHandler:RemoveWidget()
-        return
-    end
-
-    dofShader = dofShader or glCreateShader({
-        defines = {
-            "#version 150 compatibility\n",
-            "#define DEPTH_CLIP01 " .. (Platform.glSupportClipSpaceControl and "1" or "0") .. "\n",
-
-            "#define FILTER_SIZE_PASS " .. shaderPasses.filterSize .. "\n",
-            "#define INITIAL_BLUR_PASS " .. shaderPasses.initialBlur .. "\n",
-            "#define FINAL_BLUR_PASS " .. shaderPasses.finalBlur .. "\n",
-            "#define INITIAL_NEAR_BLUR_PASS " .. shaderPasses.initialNearBlur .. "\n",
-            "#define FINAL_NEAR_BLUR_PASS " .. shaderPasses.finalNearBlur .. "\n",
-            "#define COMPOSITION_PASS " .. shaderPasses.composition .. "\n",
-
-            "#define BLUR_START_DIST " .. maxBlurDistance .. "\n",
-
-            "#define LOW_QUALITY 0 \n",
-            "#define HIGH_QUALITY 1 \n"
-        },
-        fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\dof.fs", VFS.RAW_FIRST),
-
-        uniformInt = {origTex = 0, blurTex0 = 1, blurTex1 = 2, blurTex2 = 3, blurTex3 = 4},
-    })
-
-    if not dofShader then
-        Spring.Echo("Depth of Field: Failed to create shader!")
-        Spring.Echo(gl.GetShaderLog())
-        widgetHandler:RemoveWidget()
-        return
-    end
-
-    eyePosLoc = gl.GetUniformLocation(dofShader, "eyePos")
-    projectionMatLoc = gl.GetUniformLocation(dofShader, "projectionMat")
-    resolutionLoc = gl.GetUniformLocation(dofShader, "resolution")
-    distanceLimitsLoc = gl.GetUniformLocation(dofShader, "distanceLimits")
-    autofocusLoc = gl.GetUniformLocation(dofShader, "autofocus")
-    autofocusFudgeFactorLoc = gl.GetUniformLocation(dofShader, "autofocusFudgeFactor")
-    autofocusPowerLoc = gl.GetUniformLocation(dofShader, "autofocusPower")
-    autofocusFocalLengthLoc = gl.GetUniformLocation(dofShader, "autofocusFocalLength")
-    mousefocusLoc = gl.GetUniformLocation(dofShader, "mousefocus")
-    focusDepthLoc = gl.GetUniformLocation(dofShader, "manualFocusDepth")
-    mouseDepthCoordLoc = gl.GetUniformLocation(dofShader, "mouseDepthCoord")
-    fStopLoc = gl.GetUniformLocation(dofShader, "fStop")
-    qualityLoc = gl.GetUniformLocation(dofShader, "quality")
-    passLoc = gl.GetUniformLocation(dofShader, "pass")
-
-    widget:ViewResize()
+	InitTextures()
 end
 
 function widget:Initialize()
-    init()
-    WG['dof'] = {}
-    WG['dof'].getFocusDepth = function()
-        return focusDepth
-    end
-    WG['dof'].setFocusDepth = function(value)
-        focusDepth = value
-    end
-    WG['dof'].getFstop = function()
-        return fStop
-    end
-    WG['dof'].setFstop = function(value)
-        fStop = value
-        autofocusInFocusMultiplier = fStop/2
-    end
-    WG['dof'].getHighQuality = function()
-        return highQuality
-    end
-    WG['dof'].setHighQuality = function(value)
-        highQuality = value
-        InitTextures()
-    end
-    WG['dof'].getAutofocus = function()
-        return autofocus
-    end
-    WG['dof'].setAutofocus = function(value)
-        autofocus = value
-        mousefocus = not autofocus
-    end
-end
+	if (glCreateShader == nil) then
+		Spring.Echo("[Depth of Field::Initialize] removing widget, no shader support")
+		widgetHandler:RemoveWidget()
+		return
+	end
+	
+	if not options.useDoF.value then
+		return
+	end
 
-function reset()
-    if (glDeleteShader and dofShader) then
-        glDeleteShader(dofShader)
-    end
+	dofShader = dofShader or glCreateShader({
+		defines = {"#version 120\n",
+			"#define DEPTH_CLIP01 " .. (Platform.glSupportClipSpaceControl and "1" or "0") .. "\n",
 
-    if glDeleteTexture then
-        CleanupTextures()
-    end
-    dofShader = nil
+			"#define FILTER_SIZE_PASS " .. shaderPasses.filterSize .. "\n",
+			"#define INITIAL_BLUR_PASS " .. shaderPasses.initialBlur .. "\n",
+			"#define FINAL_BLUR_PASS " .. shaderPasses.finalBlur .. "\n",
+			"#define INITIAL_NEAR_BLUR_PASS " .. shaderPasses.initialNearBlur .. "\n",
+			"#define FINAL_NEAR_BLUR_PASS " .. shaderPasses.finalNearBlur .. "\n",
+			"#define COMPOSITION_PASS " .. shaderPasses.composition .. "\n",
+
+			"#define BLUR_START_DIST " .. maxBlurDistance .. "\n",
+
+			"#define LOW_QUALITY 0 \n",
+			"#define HIGH_QUALITY 1 \n"
+		},
+		fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\dof.fs", VFS.ZIP),
+		
+		uniformInt = {origTex = 0, blurTex0 = 1, blurTex1 = 2, blurTex2 = 3, blurTex3 = 4},
+	})
+	
+	if not dofShader then
+		Spring.Echo("Depth of Field: Failed to create shader!")
+		Spring.Echo(gl.GetShaderLog())
+		widgetHandler:RemoveWidget()
+		return
+	end
+	
+	eyePosLoc = gl.GetUniformLocation(dofShader, "eyePos")
+	viewProjectionLoc = gl.GetUniformLocation(dofShader, "viewProjection")
+	resolutionLoc = gl.GetUniformLocation(dofShader, "resolution")
+	distanceLimitsLoc = gl.GetUniformLocation(dofShader, "distanceLimits")
+	autofocusLoc = gl.GetUniformLocation(dofShader, "autofocus")
+	autofocusFudgeFactorLoc = gl.GetUniformLocation(dofShader, "autofocusFudgeFactor")
+	autofocusPowerLoc = gl.GetUniformLocation(dofShader, "autofocusPower")
+	autofocusFocalLengthLoc = gl.GetUniformLocation(dofShader, "autofocusFocalLength")
+	mousefocusLoc = gl.GetUniformLocation(dofShader, "mousefocus")
+	focusDepthLoc = gl.GetUniformLocation(dofShader, "manualFocusDepth")
+	mouseDepthCoordLoc = gl.GetUniformLocation(dofShader, "mouseDepthCoord")
+	fStopLoc = gl.GetUniformLocation(dofShader, "fStop")
+	qualityLoc = gl.GetUniformLocation(dofShader, "quality")
+	passLoc = gl.GetUniformLocation(dofShader, "pass")
+	
+	widget:ViewResize()
 end
 
 function widget:Shutdown()
-    reset()
-    WG['dof'] = nil
+	if (glDeleteShader and dofShader) then
+		glDeleteShader(dofShader)
+	end
+	
+	if glDeleteTexture then
+		CleanupTextures()
+	end
+	dofShader = nil
 end
 
 local function FilterCalculation()
-    local cpx, cpy, cpz = spGetCameraPosition()
-    local gmin, gmax = Spring.GetGroundExtremes()
-    local effectiveHeight = cpy - math_max(0, gmin)
-    cpy = 3.5 * math_sqrt(effectiveHeight) * math_log(effectiveHeight)
-    glUniform(eyePosLoc, cpx, cpy, cpz)
-    glUniformInt(passLoc, shaderPasses.filterSize)
-    glTexture(0, screenTex)
-    glTexture(1, depthTex)
+	local cpx, cpy, cpz = spGetCameraPosition()
+	local gmin, gmax = Spring.GetGroundExtremes()
+	local effectiveHeight = cpy - math.max(0, gmin)
+	cpy = 3.5 * math.sqrt(effectiveHeight) * math.log(effectiveHeight)
+	glUniform(eyePosLoc, cpx, cpy, cpz)
+	glUniformInt(passLoc, shaderPasses.filterSize)
+	glTexture(0, screenTex)
+	glTexture(1, depthTex)
 
-    -- glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
-    glTexRect(0, 0, vsx, vsy, false, true)
-    --
-    glTexture(0, false)
-    glTexture(1, false)
+  -- glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
+	glTexRect(0, 0, vsx, vsy, false, true)
+	--
+	glTexture(0, false)
+	glTexture(1, false)
 end
 
 local function InitialBlur()
-    glUniform(resolutionLoc, vsx/2, vsy/2)
-    glUniformInt(passLoc, shaderPasses.initialBlur)
-    glTexture(0, baseBlurTex)
-    glTexRect(0, 0, vsx, vsy, false, true)
-    glTexture(0, false)
+	glUniform(resolutionLoc, vsx/2, vsy/2)
+	glUniformInt(passLoc, shaderPasses.initialBlur)
+	glTexture(0, baseBlurTex)
+	glTexRect(0, 0, vsx, vsy, false, true)
+	glTexture(0, false)
 end
 
 local function FinalBlur()
-    glUniform(resolutionLoc, vsx/2, vsy/2)
-    glUniformInt(passLoc, shaderPasses.finalBlur)
-    glTexture(0, baseBlurTex)
-    glTexture(1, intermediateBlurTex0) --R
-    glTexture(2, intermediateBlurTex1) --G
-    glTexture(3, intermediateBlurTex2) --B
-    glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
-    glTexture(0, false)
-    glTexture(1, false)
-    glTexture(2, false)
-    glTexture(3, false)
+	glUniform(resolutionLoc, vsx/2, vsy/2)
+	glUniformInt(passLoc, shaderPasses.finalBlur)
+	glTexture(0, baseBlurTex)
+	glTexture(1, intermediateBlurTex0) --R
+	glTexture(2, intermediateBlurTex1) --G
+	glTexture(3, intermediateBlurTex2) --B
+  glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
+	glTexture(0, false)
+	glTexture(1, false)
+	glTexture(2, false)
+	glTexture(3, false)
 end
 
 local function InitialNearBlur()
-    glUniform(resolutionLoc, vsx/2, vsy/2)
-    glUniformInt(passLoc, shaderPasses.initialNearBlur)
-    glTexture(0, baseNearBlurTex)
-    glTexRect(0, 0, vsx, vsy, false, true)
-    glTexture(0, false)
+	glUniform(resolutionLoc, vsx/2, vsy/2)
+	glUniformInt(passLoc, shaderPasses.initialNearBlur)
+	glTexture(0, baseNearBlurTex)
+	glTexRect(0, 0, vsx, vsy, false, true)
+	glTexture(0, false)
 end
 
 local function FinalNearBlur()
-    glUniform(resolutionLoc, vsx/2, vsy/2)
-    glUniformInt(passLoc, shaderPasses.finalNearBlur)
-    glTexture(0, baseNearBlurTex)
-    glTexture(1, intermediateBlurTex0) --R
-    glTexture(2, intermediateBlurTex1) --G
-    glTexture(3, intermediateBlurTex2) --B
-    glTexture(4, intermediateBlurTex3) --A
-    glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
-    glTexture(0, false)
-    glTexture(1, false)
-    glTexture(2, false)
-    glTexture(3, false)
-    glTexture(4, false)
+	glUniform(resolutionLoc, vsx/2, vsy/2)
+	glUniformInt(passLoc, shaderPasses.finalNearBlur)
+	glTexture(0, baseNearBlurTex)
+	glTexture(1, intermediateBlurTex0) --R
+	glTexture(2, intermediateBlurTex1) --G
+	glTexture(3, intermediateBlurTex2) --B
+	glTexture(4, intermediateBlurTex3) --A
+  glTexRect(-1-0.5/vsx,1+0.5/vsy,1+0.5/vsx,-1-0.5/vsy)
+	glTexture(0, false)
+	glTexture(1, false)
+	glTexture(2, false)
+	glTexture(3, false)
+	glTexture(4, false)
 end
 
 local function Composition()
-    glUniformInt(passLoc, shaderPasses.composition)
-    glTexture(0, screenTex)
-    glTexture(1, finalBlurTex)
-    if (highQuality) then
-        glTexture(2, finalNearBlurTex)
-    end
+	glUniformInt(passLoc, shaderPasses.composition)
+	glTexture(0, screenTex)
+	glTexture(1, finalBlurTex)
+	if (options.highQuality.value) then
+		glTexture(2, finalNearBlurTex)
+	end
 
-    glTexRect(0, 0, vsx, vsy, false, true)
-    glTexture(0, false)
-    glTexture(1, false)
-    glTexture(2, false)
-end
-
-function widget:RecvLuaMsg(msg, playerID)
-    if msg:sub(1,18) == 'LobbyOverlayActive' then
-        chobbyInterface = (msg:sub(1,19) == 'LobbyOverlayActive1')
-    end
+	glTexRect(0, 0, vsx, vsy, false, true)
+	glTexture(0, false)
+	glTexture(1, false)
+	glTexture(2, false)
 end
 
 function widget:DrawWorld()
-    if chobbyInterface then return end
-    gl.ActiveShader(dofShader, function() glUniformMatrix(projectionMatLoc, "projection") end)
+	if not options.useDoF.value then
+		return -- if the option is disabled don't set any uniforms.
+	end
+		gl.ActiveShader(dofShader, function() glUniformMatrix(viewProjectionLoc, "projection") end)
 end
 
 function widget:DrawScreenEffects()
-    if chobbyInterface then return end
-    gl.Blending(false)
-    glCopyToTexture(screenTex, 0, 0, 0, 0, vsx, vsy) -- the original screen image
-    glCopyToTexture(depthTex, 0, 0, 0, 0, vsx, vsy) -- the original screen image
+	if not options.useDoF.value then
+		return -- if the option is disabled don't draw anything.
+	end
 
-    local mx, my = Spring.GetMouseState()
+	gl.Blending(false)
+	glCopyToTexture(screenTex, 0, 0, 0, 0, vsx, vsy) -- the original screen image
+	glCopyToTexture(depthTex, 0, 0, 0, 0, vsx, vsy) -- the original screen image
 
-    glUseShader(dofShader)
-    glUniform(distanceLimitsLoc, gl.GetViewRange())
+	local mx, my = Spring.GetMouseState()
+	
+	glUseShader(dofShader)
+		glUniform(distanceLimitsLoc, gl.GetViewRange())
 
-    glUniformInt(autofocusLoc, autofocus and 1 or 0)
-    glUniformInt(mousefocusLoc, mousefocus and 1 or 0)
-    glUniform(autofocusFudgeFactorLoc, autofocusInFocusMultiplier)
-    glUniform(autofocusPowerLoc, autofocusPower)
-    glUniform(autofocusFocalLengthLoc, autofocusFocalLength)
-    glUniform(mouseDepthCoordLoc, mx/vsx, my/vsy)
-    glUniform(focusDepthLoc, focusDepth / maxBlurDistance)
-    glUniform(fStopLoc, fStop)
-    glUniformInt(qualityLoc, highQuality and 1 or 0)
+		glUniformInt(autofocusLoc, options.autofocus.value and 1 or 0)
+		glUniform(autofocusFudgeFactorLoc, options.autofocusInFocusMultiplier.value)
+		glUniform(autofocusPowerLoc, options.autofocusPower.value)
+		glUniform(autofocusFocalLengthLoc, options.autofocusFocalLength.value)
+		glUniformInt(mousefocusLoc, options.mousefocus.value and 1 or 0)
+		glUniform(mouseDepthCoordLoc, mx/vsx, my/vsy)
+		glUniform(focusDepthLoc, options.focusDepth.value / maxBlurDistance)
+		glUniform(fStopLoc, options.fStop.value)
+		glUniformInt(qualityLoc, options.highQuality.value and 1 or 0)
+		
+		gl.ActiveFBO(baseBlurFBO, FilterCalculation)
+		gl.ActiveFBO(intermediateBlurFBO, InitialBlur)
+		glRenderToTexture(finalBlurTex, FinalBlur)
+		if options.highQuality.value then
+			gl.ActiveFBO(intermediateBlurFBO, InitialNearBlur)
+			glRenderToTexture(finalNearBlurTex, FinalNearBlur)
+		end
+		Composition()
 
-    gl.ActiveFBO(baseBlurFBO, FilterCalculation)
-    gl.ActiveFBO(intermediateBlurFBO, InitialBlur)
-    glRenderToTexture(finalBlurTex, FinalBlur)
-    if highQuality then
-        gl.ActiveFBO(intermediateBlurFBO, InitialNearBlur)
-        glRenderToTexture(finalNearBlurTex, FinalNearBlur)
-    end
-    Composition()
-
-    glUseShader(0)
-end
-
-function widget:GetConfigData()
-    return {
-        highQuality = highQuality,
-        autofocus = autofocus,
-        focusDepth = focusDepth,
-        fStop = fStop,
-        autofocusInFocusMultiplier = autofocusInFocusMultiplier,
-        autofocusPower = autofocusPower,
-        autofocusFocalLength = autofocusFocalLength,
-    }
-end
-
-function widget:SetConfigData(data)
-    if data.highQuality ~= nil then
-        highQuality = data.highQuality
-        autofocus = data.autofocus
-        mousefocus = not autofocus
-        focusDepth = data.focusDepth
-        fStop = data.fStop
-        autofocusInFocusMultiplier = fStop/2
-
-        --if data.autofocusInFocusMultiplier then
-        --	autofocusInFocusMultiplier = data.autofocusInFocusMultiplier
-        --	autofocusPower = data.autofocusPower
-        --	autofocusFocalLength = data.autofocusFocalLength
-        --end
-    end
+	glUseShader(0)
 end

@@ -20,7 +20,7 @@ function widget:GetInfo()
     date      = "Jan 8, 2007",
     license   = "GNU GPL, v2 or later",
     layer     = 0,
-    enabled   = true  --  loaded by default?
+    enabled   = false  --  loaded by default?
   }
 end
 
@@ -42,7 +42,7 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-include("colors.h.lua")
+include("colors.lua")
 
 
 local unloadUnitCmdID = 4576
@@ -79,7 +79,7 @@ local rectMaxY = 0
 
 local function SortedTransportedUnits()
   local selUnits = Spring.GetSelectedUnits()
-  if (selUnits.n ~= 1) then
+  if (#selUnits ~= 1) then
     return { n = 0 }
   end
   local units = Spring.GetUnitIsTransporting(selUnits[1])
@@ -123,7 +123,7 @@ function widget:DrawScreen()
   local mouseIcon = MouseOverIcon(x, y)
 
   -- draw the buildpics
-  unitCounts.n = nil  
+  unitCounts.n = nil
   local icon = 0
   for udid,count in pairs(unitCounts) do
     DrawUnitDefIcon(udid, icon, count)
@@ -155,7 +155,7 @@ end
 
 
 function CenterUnitDef(unitDefID)
-  local ud = UnitDefs[unitDefID] 
+  local ud = UnitDefs[unitDefID]
   if (not ud) then
     return
   end
@@ -197,7 +197,7 @@ end
 
 
 local function SetupModelDrawing()
-  gl.DepthTest(true) 
+  gl.DepthTest(true)
   gl.DepthMask(true)
   --gl.Culling(GL.FRONT)
   gl.Lighting(true)
@@ -225,9 +225,9 @@ local function SetupBackgroundColor(ud)
   local alpha = 0.95
   if (ud.canFly) then
     gl.Color(0.5, 0.5, 0.0, alpha)
-  elseif (ud.floater) then
+  elseif (ud.floatOnWater) then
     gl.Color(0.0, 0.0, 0.5, alpha)
-  elseif (ud.builder) then
+  elseif (ud.isBuilder) then
     gl.Color(0.0, 0.5, 0.0, alpha)
   else
     gl.Color(.5, .5, .5, alpha)
@@ -245,7 +245,7 @@ function DrawUnitDefIcon(unitDefID, iconPos, count)
   local xmid = (xmin + xmax) * 0.5
   local ymid = (ymin + ymax) * 0.5
 
-  local ud = UnitDefs[unitDefID] 
+  local ud = UnitDefs[unitDefID]
 
   -- draw background quad
 --  gl.Color(0.3, 0.3, 0.3, 1.0)
@@ -352,7 +352,6 @@ function widget:MouseRelease(x, y, button)
   if (units.n ~= unitTypes) then
     return -1  -- discard this click
   end
-  units.n = nil
 
   local unitDefID = -1
   local index = 0
@@ -406,7 +405,7 @@ function widget:GetTooltip(x, y)
   if (not ud) then
     return ''
   end
-  return ud.humanName .. ' ' .. ud.tooltip
+  return Spring.Utilities.GetHumanName(ud) .. ' - ' .. Spring.Utilities.GetDescription(ud)
 end
 
 
