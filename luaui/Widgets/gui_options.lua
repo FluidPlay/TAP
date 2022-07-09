@@ -487,8 +487,8 @@ local selecthoverclick = 'LuaUI/Sounds/hover.wav'
 local toggleonclick = 'LuaUI/Sounds/switchon.wav'
 local toggleoffclick = 'LuaUI/Sounds/switchoff.wav'
 
-local fontfile = "fonts/" .. Spring.GetConfigString("bar_font", "Kelson Sans Regular.otf") --Poppins-Regular.otf")
-local fontfile2 = "fonts/" .. Spring.GetConfigString("bar_font2", "WatchtowerMiddle-LM6Z.otf") --Exo2-SemiBold.otf")
+local fontfile = "fonts/" .. Spring.GetConfigString("bar_font", "GeogrotesqueCompMedium.otf") --Kelson Sans Regular.otf") --Poppins-Regular.otf")
+local fontfile2 = "fonts/" .. Spring.GetConfigString("bar_font2", "Geogrotesque-Bold.ttf") --WatchtowerMiddle-LM6Z.otf") --Exo2-SemiBold.otf")
 
 local vsx, vsy = Spring.GetViewGeometry()
 local fontfileScale = (0.5 + (vsx * vsy / 5700000))
@@ -4680,7 +4680,7 @@ function init()
 
         options[getOptionByID('font')].options = fonts
         options[getOptionByID('font')].optionsFont = fontsFull
-        local fname = Spring.GetConfigString("bar_font", "Kelson Sans Regular.otf"):lower() --Poppins-Regular.otf
+        local fname = Spring.GetConfigString("bar_font", "GeogrotesqueCompMedium.otf"):lower() --"Kelson Sans Regular.otf"):lower() --Poppins-Regular.otf
         options[getOptionByID('font')].value = getSelectKey(getOptionByID('font'), string.sub(fname, 1, string.len(fname) - 4))
 
         options[getOptionByID('font2')].options = fonts
