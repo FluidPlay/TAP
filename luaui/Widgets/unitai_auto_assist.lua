@@ -540,6 +540,7 @@ local automatedFunctions = {
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "harvest"
                         and automatedState[ud.unitID] ~= "reclaim"
+                        and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
             end,
             action = function(ud)
                 --Spring.Echo("[3] Reclaim check")
@@ -681,7 +682,9 @@ local function automateCheck(unitID, unitDef, caller)
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
-    local radius = (unitDef.buildDistance or 1) * 1.8
+    local radius = (unitDef.isBuilding or unitDef.speed==0)
+            and (unitDef.buildDistance or 1)
+            or (unitDef.buildDistance or 1) * 1.8
     --if unitDef.canFly then               -- Air units need that extra oomph || obsolete, now uses "2D" range
     --    radius = radius * 1.3
     --end

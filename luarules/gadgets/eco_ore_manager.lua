@@ -64,9 +64,10 @@ if gadgetHandler:IsSyncedCode() then
     local spawnIterMult = 0.03   -- every global spawning iteration, this is multiplied by the iter and subtracted from baseChunkMult
     local minChunkMult = 0.2     -- minimum chunk multiplier, per spot
     local spawnRadius = 55       -- starting spawn radius from oreSpot's center
-    local spawnIter = 0          -- how many times the global spawning ("pandore rain") has occured
+    local spawnIter = 0          -- how many times the global spawning of pandore has occured
     local chunks = {} --{ unitID = { pos = {x=x, y=y, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}),
                       --             idxInSpot = n}
+    local forceChunkRespawnThreshold = 1.24
 
     -- currently unused/obsolete, we're using the health of the chunk. 1 hp = 1 ore
     --local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
@@ -342,11 +343,16 @@ if gadgetHandler:IsSyncedCode() then
             -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 1 => ceil(2 * (1 - 1 * 0.11) => round (2 * 0.89) = 2
             -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 2 => ceil(2 * (1 - 2 * 0.11) => round (2 * 0.78) = 2
             -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 3 => ceil(2 * (1 - 3 * 0.11) => round (2 * 0.67) = 1
-
             -- eg: 1 chunk,  baseChunkMult 1, spawnIterChunkMult 0.75, iteration 1 => ceil(1 * 1 * ( 0.75 / 1)) => ceil (0.75) = 1
             local chunkTypeToSpawn, sprawlerMult = chunkToSpawn(i)
-            local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)
-            local chunksToSpawnHere = math_clamp( ((existingCount > 0) and 1 or 0), maxChunkCount - existingCount, targetNewChunks)
+            local chunksToSpawnHere = 0
+            if existingCount > 0 then
+                local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)
+                chunksToSpawnHere = math_clamp( ((existingCount > 0) and 1 or 0), maxChunkCount - existingCount, targetNewChunks)
+            else
+                if chunkTypeToSpawn == "uber" or chunkTypeToSpawn == "moho"
+                    then chunksToSpawnHere = 1 end
+            end
             --Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * baseChunkMult .."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)
             for j = 1, chunksToSpawnHere do
                 SpawnChunk (x, y, z, spawnRadius, deadZone, i, chunkTypeToSpawn, { value=1 }) --baseOreKind

@@ -47,8 +47,10 @@ if gadgetHandler:IsSyncedCode() then
     local defaultOreTowerRange = 330
 
     local harvesters = {} -- { unitID = unitDef.customparams.maxorestorage, ... }
-    local partialLoadHarvesters = {} --{ unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
+    --local partialLoadHarvesters = {} --{ unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
     local loadedHarvesters = {}
+    local featureRemainingMetal = {}
+    local previousHarvestStorage = {}
     local oreTowers = {}
     local harvestersInAction = {} -- Harvesters "in action"
 
@@ -105,6 +107,7 @@ if gadgetHandler:IsSyncedCode() then
         harvesters[unitID] = nil
         oreTowers[unitID] = nil
         loadedHarvesters[unitID] = nil
+        previousHarvestStorage[unitID] = nil
 
         --chunksToSprawl[unitID] = nil
         --local chunk = spawnedChunks[unitID]
@@ -115,6 +118,10 @@ if gadgetHandler:IsSyncedCode() then
         --    spSetUnitHarvestStorage ( attackerID, oreValue[chunk.type])
         --end
         --spawnedChunks[unitID] = nil
+    end
+
+    function gadget:FeatureDestroyed(featureID)
+        featureRemainingMetal[featureID] = nil
     end
 
     -----Returns nearestTowerID (or nil if none found within 999 range) & nearestDeployPos
@@ -164,42 +171,48 @@ if gadgetHandler:IsSyncedCode() then
         return false
     end
 
-    --TODO: Fix
+    --- Fires up any time a feature is being reclaimed, so we use to store the current Harvest Storage
+    --- which is later processed in gameFrame, so the reclaim is instantaneous as in non-harvest units
     function gadget:AllowFeatureBuildStep(builderID, builderTeam, featureID, featureDefID, part)
         --Spring.Echo("damager: "..builderID.." damage: "..part.." isharvester: "..( harvesters[builderID] and "true" or "false"))
-        --if not IsValidUnit(builderID) or not harvesters[builderID] then
-        --    return true end
-        if part < 0 then
-            local curStorage = spGetUnitHarvestStorage(builderID) or 0
+        if not IsValidUnit(builderID) or not harvesters[builderID] then
+            return true end
+        if part < 0 then    -- it's a reclaim
             -- Can't reclaim if the harvester is fully loaded, sorry
-            if loadedHarvesters[builderID] then
-                return false
-            end
-            local reclaimPerc = -part
-            local harvesterTeam = spGetUnitTeam(builderID)
-            local remMetal, maxMetal, remEnergy, maxEnergy, reclaimLeft, reclaimTime = Spring.GetFeatureResources(featureID)
-            local reclaimedMetal = math.min(remMetal, maxMetal*reclaimPerc)-- eg: remMetal = 20, partMetal = 30  =>  20
-
-            --" curStorg: "..(curStorage or "nil")..
-            Spring.Echo("reclaimPerc: "..(reclaimPerc or "nil").." remMetal, maxMetal: "..(remMetal or "nil")..", "..(maxMetal or "nil").." recMetal: "..(reclaimedMetal or "nil")
-                    .." reclaimLeft: "..(reclaimLeft or "nil").." reclaimTime: "..(reclaimTime or "nil"))
-            spSetUnitHarvestStorage (builderID, math.max(curStorage - reclaimedMetal, 0))
+            --if loadedHarvesters[builderID] then
+            --    return false
+            --end
+            previousHarvestStorage[builderID] = spGetUnitHarvestStorage(builderID) or 0
+            spEcho("Previous harvestStorage: "..(spGetUnitHarvestStorage(builderID) or 0))
         end
+
+        --if part < 0 then
+        --    local curStorage = spGetUnitHarvestStorage(builderID) or 0
+        --    -- Can't reclaim if the harvester is fully loaded, sorry
+        --    if loadedHarvesters[builderID] then
+        --        return false
+        --    end
+        --    local reclaimPerc = -part
+        --    local harvesterTeam = spGetUnitTeam(builderID)
+        --    local remMetal, maxMetal, remEnergy, maxEnergy, reclaimLeft, reclaimTime = Spring.GetFeatureResources(featureID)
+        --    local step = 1 + reclaimPerc - reclaimLeft
+        --    local reclaimedMetal = math.min(remMetal, maxMetal*step)-- eg: remMetal = 20, partMetal = 30  =>  20
+        --
+        --    --" curStorg: "..(curStorage or "nil")..
+        --    Spring.Echo("step: "..(step or "nil").." remMetal, maxMetal: "..(remMetal or "nil")
+        --            ..", "..(maxMetal or "nil")
+        --            .." reclaimLeft: "..(reclaimLeft or "nil").." reclaimTime: "..(reclaimTime or "nil")
+        --            .." part: "..(reclaimPerc or "nil")
+        --            .." | recMetal: "..(reclaimedMetal or "nil"))
+        --    spSetUnitHarvestStorage (builderID, math.max(curStorage - reclaimedMetal, 0))
+        --end
         return true
     end
-
-    --local reclaimedEnergy = math.min(remEnergy, maxEnergy*reclaimperc)
-    --spAddTeamResource (harvesterTeam, "metal", reclaimedMetal)
-    --spAddTeamResource (harvesterTeam, "energy", reclaimedEnergy)
-
-    --spSetUnitHarvestStorage (builderID, 0)
 
     local function DeliverResources(harvesterID)
         if not IsValidUnit(harvesterID) then
             return end
         local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-        --local weaponDef = WeaponDefNames[unitDef.name.."_harvest_weapon"]
-        --local harvestWeapDefID = weaponDef.id    -- eg: armck_harvest_weapon
         local harvestWeaponDef = WeaponDefNames[unitDef.name.."_harvest_weapon"] --WeaponDefs[harvestWeapDefID]
         --Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
 
@@ -251,27 +264,30 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.UnitWeaponHoldFire ( harvesterID, 1) --WeaponDefNames["armck_harvest_weapon"].id )
             spCallCOBScript(harvesterID, "BlockWeapon", 0)
             spEcho("unit ".. harvesterID .." is loaded!!")
-            loadedHarvesters[harvesterID] = true             --spSetUnitRulesParam(unitID, "loadedHarvester", 1)
+            loadedHarvesters[harvesterID] = true
+            spSetUnitRulesParam(unitID, "loadedHarvester", 1)
             --@ unitai_auto_assist: move it to be in range of closest ore tower
             SendToUnsynced(LoadedHarvesterEvent, attackerTeam, harvesterID)
-
         end
     end
 
     function gadget:GameFrame(gf)
+        --- Since by default harvesters don't deliver reclaimed resources directly, we do it manually
+        for harvesterID, previousStorage in pairs(previousHarvestStorage) do
+            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+            spEcho("This harvestStorage: "..(spGetUnitHarvestStorage(harvesterID) or 0))
+            spAddTeamResource (spGetUnitTeam(harvesterID), "metal", curStorage)
+            spSetUnitHarvestStorage (harvesterID, previousStorage)
+            previousHarvestStorage[harvesterID] = nil
+        end
+
         if gf % CHECK_FREQ > 0.001 then
             return
         end
 
-        --- Verify if harvesters are partially loaded or not
+        --- If in tower range, deliver resources
         for harvesterID, maxStorage in pairs(harvesters) do
-            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-            --spEcho("harv id "..(harvesterID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
-            --if curStorage >= maxStorage then
-            --    partialLoadHarvesters[harvesterID] = nil
-            --elseif curStorage > 0 then
-            --    partialLoadHarvesters[harvesterID] = true
-            --end
+            --local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
             if inTowerRange(harvesterID) then
                 DeliverResources(harvesterID)
             end
@@ -280,10 +296,6 @@ if gadgetHandler:IsSyncedCode() then
         for unitID, _ in pairs(loadedHarvesters) do
             --spEcho("load harv id "..(unitID or "nil"))
             if IsValidUnit(unitID) then
-                --spEcho("intowerrange: "..tostring(inTowerRange(unitID)))
-                    --if inTowerRange(unitID) then --not isHarvesting(unitID) and
-                    --    DeliverResources(unitID)
-                    --end
                 local unitDefID = spGetUnitDefID(unitID)
                 local uDef = UnitDefs[unitDefID]
                 local maxStorage = uDef and (tonumber(uDef.customParams.maxorestorage) or defaultMaxStorage)
@@ -291,6 +303,7 @@ if gadgetHandler:IsSyncedCode() then
                 spEcho("harv id "..(unitID or "nil").." curStorage: "..curStorage.." maxStorage: "..maxStorage)
                 if (curStorage < maxStorage) then --< maxStorage
                     loadedHarvesters[unitID] = nil
+                    spSetUnitRulesParam(unitID, "loadedHarvester", 0)
                     spCallCOBScript(unitID, "UnblockWeapon", 0)
                     spEcho("unit ".. unitID .." is no longer loaded")
                     ---TODO: Cache original weapon ranges by unitDefID
@@ -321,11 +334,6 @@ else
     end
 
     function gadget:Initialize()
-        --if not (SYNCED.OreTowers) then
-        --    Spring.Echo("Ore Towers Global Table not found")
-        --else
-        --    Spring.Echo("Ore Towers Global Table FOUND!")
-        --end
         gadgetHandler:AddSyncAction(LoadedHarvesterEvent, handleLoadedHarvesterEvent)
     end
 

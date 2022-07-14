@@ -373,6 +373,8 @@ local automatedFunctions = {
     [7] = { id="idle",
             condition = function(ud) -- if full and no parent or nearby oreTower
                 local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, oretowerShortScanRange)
+                local nearestChunkID = getNearestChunkID(ud)
+                ud.nearestChunkID = nearestChunkID
                 return  harvestState[ud.unitID] == "returningandstuck"
                         or
                         (harvestState[ud.unitID] == "attacking" and
@@ -385,6 +387,10 @@ local automatedFunctions = {
                         (
                             (harvestState[ud.unitID] == "delivering" or harvestState[ud.unitID] == "unloading")
                             and (not ud.parentOreTowerID and not nearestOreTowerID )
+                        )
+                        or
+                        (
+                            harvestState[ud.unitID] == "returned" and not ud.nearestChunkID
                         )
             end,
             action = function(ud)

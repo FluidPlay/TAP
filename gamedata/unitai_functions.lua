@@ -64,7 +64,8 @@ function getOreTowerCollectRange(parentOreTowerID, oreTowers)
 end
 
 function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
-    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange or false
+    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange-20 or false
+    --TODO: refactor the 'buffer' (20 units now)
 end
 
 --function getFarFromOreTower (ud)
