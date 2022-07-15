@@ -110,22 +110,24 @@ function widget:DrawScreen()
     gl_Color( 1.0, 1.0, 1.0, 1.0)
 
     for unitID in pairs(outOfAmmoPlanes) do
-        gl.PushMatrix()
-        --local cx,cy,cz = Spring.GetCameraPosition()
+        if IsValidUnit(unitID) then
+            gl.PushMatrix()
+            --local cx,cy,cz = Spring.GetCameraPosition()
 
-        gl.Texture(0,"luaui/icons/outofammo.png")
-        -- [[ for DrawScreen only, disable Billboard then: ]] local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-        local x,y,z = Spring.GetUnitViewPosition(unitID)
-        --gl.Translate(x, y, z)
-        local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-        gl.Translate(sx, sy, sz)
+            gl.Texture(0,"luaui/icons/outofammo.png")
+            -- [[ for DrawScreen only, disable Billboard then: ]] local sx, sy, sz = spWorldToScreenCoords(x, y, z)
+            local x,y,z = Spring.GetUnitViewPosition(unitID)
+            --gl.Translate(x, y, z)
+            local sx, sy, sz = spWorldToScreenCoords(x or 0, y or 0, z or 0)
+            gl.Translate(sx, sy, sz)
 
-        --gl.Billboard()
+            --gl.Billboard()
 
-        gl.TexRect( -12, -12, 12, 12)
-        --gl.TexRect(-1-0.25/vsx,1+0.25/vsy,1+0.25/vsx,-1-0.25/vsy)
+            gl.TexRect( -12, -12, 12, 12)
+            --gl.TexRect(-1-0.25/vsx,1+0.25/vsy,1+0.25/vsx,-1-0.25/vsy)
 
-        gl.PopMatrix()
+            gl.PopMatrix()
+        end
     end
 
     --gl.MatrixMode(GL.MODELVIEW)
