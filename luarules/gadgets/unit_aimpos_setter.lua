@@ -53,15 +53,15 @@ local unitsToEdit = { [UnitDefNames.armllt.id] = {bpo = {x=0,y=13,z=0}},
                       [UnitDefNames.corerad.id] = {bpo = {x=0,y=13,z=0}},
                       [UnitDefNames.armmercury.id] = {bpo = {x=0,y=13,z=0}},
                       [UnitDefNames.corscreamer.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armpw.id] = {bpo = {x=0,y=15,z=0}},
-                      [UnitDefNames.corak.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.armoutpost.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armoutpost2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armoutpost3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.armoutpost4.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.coroutpost.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.coroutpost2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.coroutpost3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.coroutpost4.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.armtech.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech1.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.armtech4.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.cortech.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech1.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.cortech4.id] = {bpo = {x=0,y=15,z=0}},
                       [UnitDefNames.armgmm.id] = {bpo = {x=0,y=20,z=0}}, --Prude
                       --- Model middle position offset fixes
-                      [UnitDefNames.armflash.id] = {bpo = {x=0,y=0,z=0}},
+                      --[UnitDefNames.armflash.id] = {bpo = {x=0,y=0,z=0}},
+                      --[UnitDefNames.armpw.id] = {bpo = {x=0,y=15,z=0}},
+                      --[UnitDefNames.corak.id] = {bpo = {x=0,y=15,z=0}},
 }
 
 --SYNCED
@@ -93,8 +93,11 @@ if (gadgetHandler:IsSyncedCode()) then
         local apo = { x = 0, y = 0, z = 0}
         local mpo = { x = 0, y = 0, z = 0}
 
+        local applyOffset
+
         if isVehicle(unitDefID) then
             apo.y = apo.y + vehicleBaseYOffset
+            applyOffset = true
         end
 
         if unitsToEdit[unitDefID] and istable(unitsToEdit[unitDefID]) then
@@ -107,20 +110,22 @@ if (gadgetHandler:IsSyncedCode()) then
             if istable(unitPosOffsets.mpo) then
                 mpo = { x = unitPosOffsets.mpo.x or 0, y = unitPosOffsets.mpo.y or 0, z = unitPosOffsets.mpo.z or 0, }
             end
-
+            applyOffset = true
         end
 
         --Spring.SetUnitMidAndAimPos (number unitID, number mpX, number mpY, number mpZ, number apX, number apY, number apZ [, bool relative ] )
         --mpx, mpy, mpz: New middle position of unit
         --apx, apy, apz: New position that enemies aim at on this unit
         --relative: Are the new coordinates relative to world or unit coordinates?
-        spSetUnitMidAndAimPos(unitID,
-                mpx+tonumber(mpo.x),
-                mpy+tonumber(mpo.y),
-                mpz+tonumber(mpo.z), --was: mpx, mpy, bpz
-                bpx+tonumber(apo.x),
-                bpy+tonumber(apo.y), --bpy, since offset is from base
-                bpz+tonumber(apo.z), false)
+        if applyOffset then
+            spSetUnitMidAndAimPos(unitID,
+                    mpx+tonumber(mpo.x),
+                    mpy+tonumber(mpo.y),
+                    mpz+tonumber(mpo.z), --was: mpx, mpy, bpz
+                    bpx+tonumber(apo.x),
+                    bpy+tonumber(apo.y), --bpy, since offset is from base
+                    bpz+tonumber(apo.z), false)
+        end
     end
 
 else -- UNSYNCED
