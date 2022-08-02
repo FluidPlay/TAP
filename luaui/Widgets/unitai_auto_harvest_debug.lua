@@ -32,17 +32,20 @@ local gl_Color = gl.Color
 --    font:SetTextColor(r,g,b,a)
 --end
 
+local harvesters = WG.harvesters
+
 function widget:Initialize()
     if not WG.harvestState then
         Spring.Echo("<AI Harvester Brain> This widget requires the 'AI Builder Brain' widget to run.")
         widgetHandler:RemoveWidget(self)
     end
+    harvesters = WG.harvesters
 end
 
 function widget:DrawScreen()
     if not localDebug or spIsGUIHidden() then
         return end
-    local textSize = 22
+    local textSize = 17 --22
 
     gl.PushMatrix()
     gl.Translate(50, -50, 0)
@@ -51,7 +54,9 @@ function widget:DrawScreen()
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-            local text = state
+            local parentOreTowerID = harvesters[unitID].parentOreTowerID or "nil"
+            local returnPosX = harvesters[unitID].returnPos and harvesters[unitID].returnPos.x or "nil"
+            local text = state .." | "..parentOreTowerID.." | "..returnPosX
             gl.Text(text, sx, sy, textSize, "ocd")
         end
     end

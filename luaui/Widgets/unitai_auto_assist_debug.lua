@@ -34,7 +34,7 @@ end
 
 function widget:Initialize()
     if not WG.automatedStates then
-        Spring.Echo("<AI Builder Brain> This widget requires the 'AI Builder Brain' widget to run.")
+        Spring.Echo("<unitai auto assist> This widget requires the 'UnitAI Auto Assist' widget to run.")
         widgetHandler:RemoveWidget(self)
     end
 end
@@ -42,7 +42,7 @@ end
 function widget:DrawScreen()
     if not localDebug or spIsGUIHidden() then
         return end
-    local textSize = 22
+    local textSize = 20 --22
 
     gl.PushMatrix()
     gl.Translate(50, 50, 0)
@@ -51,7 +51,7 @@ function widget:DrawScreen()
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-            local text = state
+            local text = state or "nil"
             --local substate = ""
             --if (state == "harvest") then
             --    substate = WG.harvestSubStates[unitID]

@@ -326,16 +326,6 @@ end
 --    harvesters[unitID].returnPos = { x = rpx, y = rpy, z = rpz }
 --end
 
-function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
-    -- If unit just created is a mobile unit, add it to array
-    local uDef = UnitDefs[unitDefID]
-    if not uDef then
-        return end
-    if not uDef.isImmobile then
-        WIPmobileUnits[unitID] = true
-    end
-end
-
 local function getOreTowerRange(oreTowerID, unitDef)
     if not oreTowerID and not unitDef then
         return defaultOreTowerRange end
@@ -349,14 +339,39 @@ local function getOreTowerRange(oreTowerID, unitDef)
     return unitDef.buildDistance
 end
 
+local function isOreTower(unitDef)
+    return oreTowerDefNames[unitDef.name]
+end
+
+function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
+    -- If unit just created is a mobile unit, add it to array
+    local uDef = UnitDefs[unitDefID]
+    if not uDef then
+        return end
+    if not uDef.isImmobile then
+        WIPmobileUnits[unitID] = true
+    end
+end
+
 function widget:UnitFinished(unitID, unitDefID, unitTeam)
     if myTeamID ~= unitTeam then					--check if unit is mine
         return end
     local unitDef = UnitDefs[unitDefID]
     if not unitDef then
         return end
-    if oreTowerDefNames[unitDef.name] then
-        oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
+    if isOreTower(unitDef) then
+        oreTowers[unitID] = getOreTowerRange(nil, unitDef)
+        -- go through harvesters and see if a new parentOreTower should be assigned
+        for harvesterID,data in pairs(harvesters) do
+            if IsValidUnit(harvesterID) and data.parentOreTowerID == nil then
+                local x,y,z = spGetUnitPosition(harvesterID)
+                local ud = { unitID = harvesterID, pos = {x=x,y=y,z=z}, unitDef=uDef }
+                local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, maxOreTowerScanRange)
+                harvesters[harvesterID].parentOreTowerID = nearestOreTowerID
+                --newOreTowerAssigned = true
+            end
+        end
+    end
     if not unitDef.isBuilding then
         WIPmobileUnits[unitID] = false end
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
@@ -367,8 +382,9 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
         local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"]   -- eg: armck_harvest_weapon
         local harvestRange = harvestWeapon and (harvestWeapon.range * harvestLeashMult)
                                             or (160 * harvestLeashMult)
+        --loadPercent = (spGetUnitHarvestStorage(unitID) or 1)/maxorestorage,
         harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
-                               recheckFrame = spGetGameFrame() + recheckLatency, loadPercent = 0,
+                               recheckFrame = spGetGameFrame() + recheckLatency,
                                harvestWeapon = harvestWeapon, harvestRange = harvestRange,
                                unitDef = UnitDefs[unitDefID]
                              }
@@ -395,6 +411,13 @@ function widget:UnitDestroyed(unitID)
     deautomatedUnits[unitID] = nil
     automatedState[unitID] = nil
     harvesters[unitID] = nil
+
+    -- If parentOreTower has been destroyed, clear it up within the harvesters table
+    for harvesterID,data in pairs(harvesters) do
+        if data.parentOreTowerID == unitID then
+            harvesters[harvesterID].parentOreTowerID = nil
+        end
+    end
 
     oreTowers[unitID] = nil
 end
@@ -480,6 +503,13 @@ local function isFullHealth(unitID)
     return health >= maxHealth
 end
 
+local function getLoadPercentage(unitID, unitDef)
+    if not unitDef.customParams or not unitDef.customParams.maxorestorage then
+        return 0 end
+    local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+    return (spGetUnitHarvestStorage(unitID) or 1) / maxorestorage
+end
+
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
 --- 1. If is not harvesting and there's a chunk nearby, set it to 'harvest' (from there on, ai_harvester_brain takes control, until it's deautomated)
 --- 2. If has no weapon (outpost, FARK, etc), reclaim enemy units;
@@ -518,8 +548,10 @@ local automatedFunctions = {
                         parentOreTowerID = getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
                         harvesters[ud.unitID].parentOreTowerID = parentOreTowerID
                     end
-                    if (nearestChunkID and harvesters[ud.unitID].loadPercent < 1)
-                            or (parentOreTowerID and harvesters[ud.unitID].loadPercent >= 1) then
+                    local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
+                    if (nearestChunkID and loadPercent < 1)
+                       or (parentOreTowerID and loadPercent > 0)
+                       or (harvesters[ud.unitID].returnPos and harvesters[ud.unitID].returnPos.x) then
                         return true end
                 end
             end,
@@ -530,8 +562,8 @@ local automatedFunctions = {
                 if nearestChunkID then
                     spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
                     --automatableUnits[ud.unitID] = nearestChunkID
-                    return "harvest"
                 end
+                return "harvest"
             end
     },
     [3] = { id="reclaim",
