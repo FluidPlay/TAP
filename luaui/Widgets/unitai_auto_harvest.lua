@@ -351,7 +351,7 @@ local automatedFunctions = {
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
-                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 280) --was: 140
+                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140) --was: 140
                 return (harvestState[ud.unitID] == "returning") and hasReturned  -- distance to returnPos <= 40 (sqr)
             end,
             action = function(ud)
