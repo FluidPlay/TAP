@@ -323,6 +323,7 @@ local automatedFunctions = {
                spEcho("**3** Returning Actions")
                local rp = ud.returnPos
                if rp.x then
+                   ---TODO: Check if it's valid position, otherwise pick another recursively, closer to the oreTower
                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
                    --Spring.Echo("HARVESTER: Issued Command: MOVE")
                    return "returning"
@@ -350,11 +351,12 @@ local automatedFunctions = {
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
-                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
+                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 280) --was: 140
                 return (harvestState[ud.unitID] == "returning") and hasReturned  -- distance to returnPos <= 40 (sqr)
             end,
             action = function(ud)
                 spEcho("**4** Returned Actions")
+                harvesters[ud.unitID].returnPos = nil
                 return "returned"
             end
     },
