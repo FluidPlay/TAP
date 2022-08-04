@@ -352,7 +352,7 @@ local function updateRejoin()
         glTexRect((barArea[1]+(catchup * barWidth))+(glowSize*2), barArea[2] - glowSize, barArea[1]+(catchup * barWidth), barArea[4] + glowSize)
 
         -- Text
-        local fontsize = 12*widgetScale
+        local fontsize = 12*widgetScale --12*
         font:Print('\255\225\255\225Catching up', area[1]+((area[3]-area[1])/2), area[2]+barHeight*2+fontsize, fontsize, 'cor')
 
     end)
@@ -374,9 +374,9 @@ local function updateButtons()
     if (WG['options'] ~= nil) then text = text..'Options     ' end
     text = text..'Quit  '
 
-    local fontsize = totalWidth / glGetTextWidth(text)
+    local fontsize = totalWidth / glGetTextWidth(text) * 1.25 --24
     if fontsize > (height*widgetScale)/3 then
-        fontsize = (height*widgetScale)/3
+        fontsize = (height*widgetScale)/3 * 1.25
     end
 
     if dlistButtons1 ~= nil then
@@ -407,35 +407,35 @@ local function updateButtons()
             if (WG['teamstats'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('   Stats    ') * fontsize
+                width = glGetTextWidth(' Stats  ') * fontsize
                 buttonsArea['buttons']['stats'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4] }
             end
             if (WG['commands'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Cmd   ') * fontsize
+                width = glGetTextWidth('  Cmd  ') * fontsize
                 buttonsArea['buttons']['commands '] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['keybinds'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Keys    ') * fontsize
+                width = glGetTextWidth('  Keys  ') * fontsize
                 buttonsArea['buttons']['keybinds'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['changelog'] ~= nil) then
                 button = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Changes   ') * fontsize
+                width = glGetTextWidth(' Changes ') * fontsize
                 buttonsArea['buttons']['changelog'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             if (WG['options'] ~= nil) then
                 buttons = buttons + 1
                 if buttons > 1 then offset = offset+width end
-                width = glGetTextWidth('  Options      ') * fontsize
+                width = glGetTextWidth(' Options ') * fontsize
                 buttonsArea['buttons']['options'] = {area[1]+offset, area[2]+margin, area[1]+offset+width, area[4]}
             end
             offset = offset+width
-            width = glGetTextWidth(' Quit   ') * fontsize
+            width = glGetTextWidth(' Quit ') * fontsize
             buttonsArea['buttons']['quit'] = {area[1]+offset, area[2]+margin, area[3], area[4]}
         end
     end)

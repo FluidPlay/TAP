@@ -54,9 +54,11 @@ function widget:DrawScreen()
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-            local parentOreTowerID = harvesters[unitID].parentOreTowerID or "nil"
-            local returnPosX = harvesters[unitID].returnPos and harvesters[unitID].returnPos.x or "nil"
-            local text = state .." | "..parentOreTowerID.." | "..returnPosX
+            local text = state
+            local harvester = harvesters[unitID]
+            if harvesters[unitID] then
+                text = text .." | "..(harvester.parentOreTowerID or "nil").." | "..(harvester.returnPos and harvester.returnPos.x or "nil")
+            end
             gl.Text(text, sx, sy, textSize, "ocd")
         end
     end

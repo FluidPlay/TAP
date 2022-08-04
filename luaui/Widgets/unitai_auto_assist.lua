@@ -204,7 +204,7 @@ local function DeautomateUnit(unitID, caller)
     spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
 end
 
-local function setAutomateState(unitID, state, caller)
+function setAutomateState(unitID, state, caller)
     if state == "deautomated" then
         DeautomateUnit(unitID, caller)
     else
@@ -272,6 +272,7 @@ function widget:Initialize()
 
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
     WG.harvesters = harvesters              --- Read by unitai_auto_harvest.lua
+    WG.setAutomateState = setAutomateState
 
     --WG.SetAutomateState = setAutomateState --TODO: Set automatedFunctions here
     ---
@@ -412,6 +413,13 @@ function widget:UnitDestroyed(unitID)
     automatedState[unitID] = nil
     harvesters[unitID] = nil
 
+    --Clean up the target of any automatedUnit, if it was destroyed
+    for automatedUnit,targetID in pairs(automatableUnits) do
+        if targetID == unitID then
+            automatableUnits[automatedUnit] = nil
+        end
+    end
+
     -- If parentOreTower has been destroyed, clear it up within the harvesters table
     for harvesterID,data in pairs(harvesters) do
         if data.parentOreTowerID == unitID then
@@ -448,18 +456,22 @@ local function resourcesCheck(resourceType, flood)
 end
 
 local function isReallyIdle(unitID)
-    local result = true
+    local result = false
     if automatedState[unitID] == "harvest" and WG.harvestState[unitID] == "idle" then
         result = true
     end
     -- commandqueue with guard => not idle
     --TODO: Cache last command and check cmdDone callin
-    if hasBuildQueue(unitID) or hasCommandQueue(unitID) then --or automatedState[unitID] == "harvest" then
-        result = false
+    if (not hasBuildQueue(unitID)) and (not hasCommandQueue(unitID)) then
+        result = true
     end
-    --Spring.Echo("IsReallyIdle: "..tostring(result))
+    --spEcho("IsReallyIdle: "..tostring(result).." | has command queue: "..hasCommandQueue(unitID))
     return result
 end
+
+--function widget:UnitIdle(unitID, unitDefID, unitTeam)
+--    idledUnits[unitID] = true
+--end
 
 local function targetIsInRange(unitID, targetID)
     if not IsValidUnit(unitID) then --or not isnumber(targetID)
@@ -747,19 +759,19 @@ local function automateCheck(unitID, unitDef, caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-    --spEcho("CommandID registered: "..(cmdID or "nil"))
+    spEcho("CommandID registered: "..(cmdID or "nil"))
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
     for _, unitID in ipairs(selUnits) do
-        if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
-            spEcho("CMD_ATTACK, params #: "..#params)
-            if #params == 1 then -- and isOreChunk(params[1]) then
-                setAutomateState(unitID, "harvest", "CommandNotify")
-                automatableUnits[unitID] = params[1]    -- set Target
-            end
-        end
         if automatableUnits[unitID] and IsValidUnit(unitID) then
+            if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
+                spEcho("CMD_ATTACK, params #: "..#params)
+                if #params == 1 then -- and isOreChunk(params[1]) then
+                    --setAutomateState(unitID, "harvest", "CommandNotify")
+                    automatableUnits[unitID] = params[1]    -- set Target
+                end
+            end
             if automatedState[unitID] ~= "deautomated" then -- if it's working, don't touch it
                 --guardingUnits[unitID] then --options.shift and
                 setAutomateState(unitID, "deautomated", "CommandNotify")

@@ -314,7 +314,21 @@ local automatedFunctions = {
               return "unloading"
             end
     },
-    [4] = { id="returning", -- Going back to returnPos (the start position before delivering)
+    [4] = { id="unloadingandpushed",
+            condition = function(ud) -- delivering => unloading
+                checkParentOreTowerID(ud)
+                local farFromOreTower = getFarFromOreTower(ud.unitID, oreTowers[ud.parentOreTowerID], ud.parentOreTowerID)--(ud)
+                return harvestState[ud.unitID] == "unloading"
+                        and ud.parentOreTowerID and farFromOreTower
+            end,
+            action = function(ud)
+                spEcho("**2** Move back to range Actions")
+                local x,y,z = spGetUnitPosition(ud.parentOreTowerID)
+                spGiveOrderToUnit(ud.unitID, CMD_MOVE, {x, y, z}, { "" })
+                return "delivering"
+            end
+    },
+    [5] = { id="returning", -- Going back to returnPos (the start position before delivering)
             condition = function(ud)
                        return harvestState[ud.unitID] == "unloading" -- has no resources & has return pos
                                and spGetUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
@@ -330,7 +344,7 @@ local automatedFunctions = {
                end
             end
     },
-    [5] = { id="returningandstuck",
+    [6] = { id="returningandstuck",
             condition = function(ud)
                 local rp = ud.returnPos
                 local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
@@ -347,7 +361,7 @@ local automatedFunctions = {
                 return "returning"
             end
     },
-    [6] = { id="returned",
+    [7] = { id="returned",
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
@@ -360,7 +374,7 @@ local automatedFunctions = {
                 return "returned"
             end
     },
-    [7] = { id="attacking",
+    [8] = { id="attacking",
             condition = function(ud)
                         --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." can harvest: "..tostring(canharvest[ud.unitDef.name]).." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
                         local nearestChunkID = getNearestChunkID(ud)
@@ -389,7 +403,7 @@ local automatedFunctions = {
                 end
             end
     },
-    [8] = { id="idle",
+    [9] = { id="idle",
             condition = function(ud) -- if full and no parent or nearby oreTower
                 local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, oretowerShortScanRange)
                 local nearestChunkID = getNearestChunkID(ud)
@@ -417,6 +431,10 @@ local automatedFunctions = {
                 spEcho("**6** Idle actions")
                 harvesters[ud.unitID].parentOreTowerID = nil
                 harvesters[ud.unitID].returnPos = nil
+                if WG.automatedStates[ud.unitID] ~= "deautomated" then
+--                    WG.automatedStates[ud.unitID] = "deautomated"
+                    WG.setAutomateState(ud.unitID, "deautomated", "autoHarvest")
+                end
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
             end

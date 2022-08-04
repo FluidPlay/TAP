@@ -21,7 +21,7 @@ local widgetScale = (0.5 + (vsx*vsy / 5700000)) * customScale
 WG.uiScale = widgetScale
 
 local fontfileScale = (0.5 + (vsx*vsy / 5700000))
-local fontfileSize = 40 --36
+local fontfileSize = 44 --40 --36
 local fontfileOutlineSize = 9
 local fontfileOutlineStrength = 2 --1.4
 local font = gl.LoadFont(fontfile, fontfileSize*fontfileScale, fontfileOutlineSize*fontfileScale, fontfileOutlineStrength)

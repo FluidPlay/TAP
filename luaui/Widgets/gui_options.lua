@@ -492,7 +492,7 @@ local fontfile2 = "fonts/" .. Spring.GetConfigString("bar_font2", "Geogrotesque-
 
 local vsx, vsy = Spring.GetViewGeometry()
 local fontfileScale = (0.5 + (vsx * vsy / 5700000))
-local fontfileSize = 36
+local fontfileSize = 42 --36
 local fontfileOutlineSize = 7
 local fontfileOutlineStrength = 1
 local fontfileScale2 = fontfileScale * 1.2
