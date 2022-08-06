@@ -357,9 +357,9 @@ local function DefCost(paramName, udSrc, udDst)
 
   local morphPenalty = morphPenaltyUnits
   -- buildtime cost is unaffected by unit time
-  --if isStructure(udSrc) and paramName ~= 'buildTime' then
-  --    morphPenalty = morphPenaltyStructures end
+
   local cost = pTgt - pSrc
+
   if isStructure(udSrc) then
       if paramName ~= 'buildTime' then
           morphPenalty = morphPenaltyStructures
@@ -423,8 +423,10 @@ local function BuildMorphDef(udSrc, morphData)
     --        .." (calc) "..DefCost('buildTime', udSrc, udDst)/MorphWorkerTime[reqTier+1].." reqTier: "..reqTier)
     newData.time = morphTime
     newData.increment = (1 / (30 * newData.time))
+    --Spring.Echo("morph to: "..morphData.into.." metal: "..(morphData.metal or "nil").." | energy: "..(morphData.energy or "nil"))
     newData.metal  = morphData.metal  or DefCost('metalCost',  udSrc, udDst)
     newData.energy = morphData.energy or DefCost('energyCost', udSrc, udDst)
+    --Spring.Echo(" metal: "..newData.metal.." | energy: "..newData.energy.." | m-inc: "..newData.increment * newData.metal.." | e-inc: "..newData.increment * newData.energy)
     newData.resTable = {
       m = (newData.increment * newData.metal),
       e = (newData.increment * newData.energy)
@@ -1162,13 +1164,16 @@ local function AddCustomMorphDefs()
         -- Below params can be defined directly into unitdef customParams. Tables may be decoded in alldefs_post (from UnitDefsData)
         if unitDef.customParams.morphdef__into then
             local customMorphDef = {
-                text = unitDef.customParams.morphdef__text,
                 into = unitDef.customParams.morphdef__into,
-                require = unitDef.customParams.morphdef__require,
-                cmdname = unitDef.customParams.morphdef__cmdname,
                 time = tonumber(unitDef.customParams.morphdef__time),
+                require = unitDef.customParams.morphdef__require,
+                metal = tonumber(unitDef.customParams.morphdef__metal),
+                energy = tonumber(unitDef.customParams.morphdef__energy),
+                --TODO: xp, rank, tech, texture
+                cmdname = unitDef.customParams.morphdef__cmdname,
                 isfactory = tobool(unitDef.customParams.morphdef__isfactory),   -- Will enable buildOptions according to the target unit;
                                                                                 -- will also update the morphdef once morph is done
+                text = unitDef.customParams.morphdef__text,
             }
             morphDefs[unitDef.name] = customMorphDef
         end
