@@ -45,7 +45,6 @@ local groupDefs = { }
 local builderOf = { }  -- maps unitID -> builderID (factory/mobile builder)
 local builders  = { }  -- keep track of builders
 local AllUnits = Spring.GetAllUnits()
---local unitDefsData = VFS.Include("gamedata/unitdefs_data.lua")
 
 function gadget:Initialize()
 	groupDefs = include("luarules/configs/group_defs.lua")
