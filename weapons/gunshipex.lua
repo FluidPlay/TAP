@@ -16,6 +16,6 @@ return {
 		damage = {
 			default = 25,
 		},
-		customparams = { damagetype = "homing"},
+		customParams = { damagetype = "pierce"},
 	},
 }

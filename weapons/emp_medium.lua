@@ -23,6 +23,6 @@ return {
 		damage = {
 			default = 4000,
 		},
-		customparams = { damagetype = "emp"},
+		customParams = { damagetype = "emp"},
 	},
 }

@@ -19,5 +19,6 @@ return {
 			crawlingbombs = 199,
 			default = 7500,
 		},
+        customParams = { damagetype = "omni"},
 	},
 }

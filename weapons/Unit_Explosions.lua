@@ -38,12 +38,13 @@ unitDeaths = {
         damage = {
             default = 4000,
         },
-        customparams = {
+        customParams = {
             expl_light_radius_mult = 1.15,
             expl_light_mult = 1,
             expl_light_color = "0.5 0.5 1",
             expl_light_life_mult = 1.3,
             expl_light_heat_radius_mult = 1.15,
+            damagetype = "emp",
         },
     },
 
@@ -59,12 +60,13 @@ unitDeaths = {
         damage = {
             default = 50,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.5 0.2",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
             expl_light_life_mult = 1.1,
             expl_light_heat_radius_mult = 1.15,
+            damagetype = "thermo",
         },
     },
     pyroselfd = {
@@ -80,12 +82,13 @@ unitDeaths = {
         damage = {
             default = 1000,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.5 0.2",
             expl_light_mult = 1.15,
             expl_light_radius_mult = 1.15,
             expl_light_life_mult = 1.15,
             expl_light_heat_radius_mult = 1.25,
+            damagetype = "thermo",
         },
     },
 
@@ -101,12 +104,13 @@ unitDeaths = {
         damage = {
             default = 35,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.5 0.2",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
             expl_light_life_mult = 1.1,
             expl_light_heat_radius_mult = 1.15,
+            damagetype = "thermo",
         },
     },
     flamethrowerSelfd = {
@@ -122,12 +126,13 @@ unitDeaths = {
         damage = {
             default = 650,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.5 0.2",
             expl_light_mult = 1.15,
             expl_light_radius_mult = 1.15,
             expl_light_life_mult = 1.15,
             expl_light_heat_radius_mult = 1.25,
+            damagetype = "thermo",
         },
     },
 
@@ -181,9 +186,9 @@ unitDeaths = {
 		explosiongenerator = "custom:genericbuildingexplosion-nano",
 		damage = {
 			default = 10,
-			nanos = 480,
+			--nanos = 480,
 		},
-        customparams = {
+        customParams = {
             expl_light_color = "0.8 1 0.3",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -203,9 +208,9 @@ unitDeaths = {
 		explosiongenerator = "custom:genericbuildingexplosion-nano",
 		damage = {
 			default = 10,
-			nanos = 140,
+			--nanos = 140,
 		},
-        customparams = {
+        customParams = {
             expl_light_color = "0.8 1 0.3",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -226,7 +231,7 @@ unitDeaths = {
         damage = {
             default = 25,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.3",
             expl_light_mult = 1.03,
             expl_light_radius_mult = 1.03,
@@ -246,7 +251,7 @@ unitDeaths = {
         damage = {
             default = 350,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.3",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -268,7 +273,7 @@ unitDeaths = {
 		damage = {
 			default = 80,
 		},
-        customparams = {
+        customParams = {
             expl_light_heat_radius_mult = 1.1,
         },
 	},
@@ -285,7 +290,7 @@ unitDeaths = {
         damage = {
             default = 590,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.3",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -305,7 +310,7 @@ unitDeaths = {
         damage = {
             default = 950,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.3",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -324,10 +329,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator = "custom:genericbuildingexplosion-advmetalmaker",
         damage = {
-            commanders = 900,
+            --commanders = 900,
             default = 1100,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.3",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -345,10 +350,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator = "custom:genericbuildingexplosion-advmetalmakerselfd",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.3",
             expl_light_mult = 1.2,
             expl_light_radius_mult = 1.2,
@@ -369,7 +374,7 @@ unitDeaths = {
         damage = {
             default = 880,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -389,7 +394,7 @@ unitDeaths = {
         damage = {
             default = 1280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.16,
             expl_light_radius_mult = 1.16,
@@ -409,7 +414,7 @@ unitDeaths = {
         damage = {
             default = 880,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -428,7 +433,7 @@ unitDeaths = {
         damage = {
             default = 1280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.16,
             expl_light_radius_mult = 1.16,
@@ -446,10 +451,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.16,
             expl_light_radius_mult = 1.16,
@@ -467,10 +472,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-gigantic",
         damage = {
-            commanders = 2200,
+            --commanders = 2200,
             default = 7500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.2,
             expl_light_radius_mult = 1.2,
@@ -488,10 +493,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge-uw",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.16,
             expl_light_radius_mult = 1.16,
@@ -508,10 +513,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-gigantic-uw",
         damage = {
-            commanders = 2200,
+            --commanders = 2200,
             default = 7500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.2,
             expl_light_radius_mult = 1.2,
@@ -531,7 +536,7 @@ unitDeaths = {
         damage = {
             default = 1280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -550,10 +555,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2500,
+            --commanders = 2500,
             default = 9500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.5",
             expl_light_mult = 1.2,
             expl_light_radius_mult = 1.2,
@@ -572,10 +577,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_life_mult = 1.25,
             expl_light_heat_radius_mult = 1.2,
@@ -591,10 +596,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2500,
+            --commanders = 2500,
             default = 9500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_life_mult = 1.25,
             expl_light_heat_radius_mult = 1.3,
@@ -613,7 +618,7 @@ unitDeaths = {
         damage = {
             default = 880,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.75",
             expl_light_life_mult = 1.15,
             expl_light_heat_radius_mult = 1.15,
@@ -631,7 +636,7 @@ unitDeaths = {
         damage = {
             default = 1280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.6 0.75",
             expl_light_life_mult = 1.2,
             expl_light_heat_radius_mult = 1.25,
@@ -648,10 +653,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator = "custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1250,
+            --commanders = 1250,
             default = 3500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.22,
             expl_light_radius_mult = 1.22,
@@ -669,10 +674,10 @@ unitDeaths = {
         soundstart = "misicbm1",
         explosiongenerator = "custom:genericbuildingexplosion-gigantic",
         damage = {
-            commanders = 2000,
+            --commanders = 2000,
             default = 4500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.25,
             expl_light_radius_mult = 1.25,
@@ -690,10 +695,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2500,
+            --commanders = 2500,
             default = 9500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.2,
             expl_light_radius_mult = 1.22,
@@ -711,10 +716,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2700,
+            --commanders = 2700,
             default = 11500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.25,
             expl_light_radius_mult = 1.25,
@@ -732,11 +737,11 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator = "custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 900,
-            crawlingbombs = 99,
+            --commanders = 900,
+            --crawlingbombs = 99,
             default = 1800,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.22,
             expl_light_radius_mult = 1.22,
@@ -754,11 +759,11 @@ unitDeaths = {
         soundstart = "misicbm1",
         explosiongenerator = "custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1250,
-            crawlingbombs = 199,
+            --commanders = 1250,
+            --crawlingbombs = 199,
             default = 3000,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.88 0.6",
             expl_light_mult = 1.25,
             expl_light_radius_mult = 1.25,
@@ -777,10 +782,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_mult = 1.22,
             expl_light_radius_mult = 1.22,
             expl_light_life_mult = 1.4,
@@ -797,10 +802,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1900,
+            --commanders = 1900,
             default = 5000,
         },
-        customparams = {
+        customParams = {
             expl_light_mult = 1.25,
             expl_light_radius_mult = 1.25,
             expl_light_life_mult = 1.5,
@@ -821,14 +826,14 @@ unitDeaths = {
         damage = {
             default = 18,
         },
-        customparams = {
+        customParams = {
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
             expl_light_life_mult = 1.15,
             expl_light_heat_radius_mult = 1.05,
         },
     },
-    decoycommanderSelfd = {
+    decoycommanderselfd = {
         weaponType = "Cannon",
         AreaOfEffect = 96,
         cameraShake = 96,
@@ -840,7 +845,7 @@ unitDeaths = {
         damage = {
             default = 280,
         },
-        customparams = {
+        customParams = {
             expl_light_mult = 1.13,
             expl_light_radius_mult = 1.13,
             expl_light_life_mult = 1.2,
@@ -858,10 +863,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.5,
             expl_light_radius_mult = 1.4,
@@ -879,10 +884,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-gigantic",
         damage = {
-            commanders = 2200,
+            --commanders = 2200,
             default = 7500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.55,
             expl_light_radius_mult = 1.45,
@@ -901,10 +906,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-huge-uw",
         damage = {
-            commanders = 1400,
+            --commanders = 1400,
             default = 2400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.3,
             expl_light_radius_mult = 1.35,
@@ -921,10 +926,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:genericbuildingexplosion-gigantic-uw",
         damage = {
-            commanders = 2200,
+            --commanders = 2200,
             default = 7500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.35,
             expl_light_radius_mult = 1.4,
@@ -942,10 +947,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2500,
+            --commanders = 2500,
             default = 9500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.3,
             expl_light_radius_mult = 1.25,
@@ -963,10 +968,10 @@ unitDeaths = {
         soundstart = "largegun",
         explosiongenerator="custom:nukedatbewm",
         damage = {
-            commanders = 2700,
+            --commanders = 2700,
             default = 11500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 1 0.66",
             expl_light_mult = 1.33,
             expl_light_radius_mult = 1.3,
@@ -998,7 +1003,7 @@ unitDeaths = {
 		damage = {
 			default = 50000,
 		},
-        customparams = {
+        customParams = {
             damagetype = "omni",
             expl_light_color = "1 0.85 0.44",
             expl_light_mult = 1.66,
@@ -1028,7 +1033,7 @@ unitDeaths = {
         damage = {
             default = 75000,
         },
-        customparams = {
+        customParams = {
             damagetype = "omni",
             expl_light_color = "1 0.85 0.44",
             expl_light_mult = 1.66,
@@ -1058,7 +1063,7 @@ unitDeaths = {
         damage = {
             default = 900000,
         },
-        customparams = {
+        customParams = {
             damagetype = "omni",
             expl_light_color = "1 0.85 0.44",
             expl_light_mult = 1.66,
@@ -1088,7 +1093,7 @@ unitDeaths = {
         damage = {
             default = 100000,
         },
-        customparams = {
+        customParams = {
             damagetype = "omni",
             expl_light_color = "1 0.85 0.44",
             expl_light_mult = 1.66,
@@ -1112,7 +1117,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.03,
             expl_light_radius_mult = 1.03,
@@ -1132,7 +1137,7 @@ unitDeaths = {
         damage = {
             default = 30,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -1152,7 +1157,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.03,
             expl_light_radius_mult = 1.03,
@@ -1171,7 +1176,7 @@ unitDeaths = {
         damage = {
             default = 30,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -1191,7 +1196,7 @@ unitDeaths = {
         damage = {
             default = 80,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -1211,7 +1216,7 @@ unitDeaths = {
         damage = {
             default = 900,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.07,
             expl_light_radius_mult = 1.07,
@@ -1231,7 +1236,7 @@ unitDeaths = {
         damage = {
             default = 80,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.05,
@@ -1250,7 +1255,7 @@ unitDeaths = {
         damage = {
             default = 900,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.07,
             expl_light_radius_mult = 1.07,
@@ -1270,7 +1275,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.07,
             expl_light_radius_mult = 1.07,
@@ -1290,7 +1295,7 @@ unitDeaths = {
         damage = {
             default = 1400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.09,
             expl_light_radius_mult = 1.09,
@@ -1310,7 +1315,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.07,
             expl_light_radius_mult = 1.07,
@@ -1329,7 +1334,7 @@ unitDeaths = {
         damage = {
             default = 1400,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.09,
             expl_light_radius_mult = 1.09,
@@ -1349,7 +1354,7 @@ unitDeaths = {
         damage = {
             default = 600,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.09,
             expl_light_radius_mult = 1.09,
@@ -1369,7 +1374,7 @@ unitDeaths = {
         damage = {
             default = 1800,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.11,
             expl_light_radius_mult = 1.11,
@@ -1389,7 +1394,7 @@ unitDeaths = {
         damage = {
             default = 600,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.09,
             expl_light_radius_mult = 1.09,
@@ -1408,7 +1413,7 @@ unitDeaths = {
         damage = {
             default = 1800,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.11,
             expl_light_radius_mult = 1.11,
@@ -1428,7 +1433,7 @@ unitDeaths = {
         damage = {
             default = 1200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.11,
             expl_light_radius_mult = 1.11,
@@ -1448,7 +1453,7 @@ unitDeaths = {
         damage = {
             default = 2800,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.45 0.25",
             expl_light_mult = 1.13,
             expl_light_radius_mult = 1.13,
@@ -1472,7 +1477,7 @@ unitDeaths = {
         damage = {
             default = 5,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.03,
@@ -1492,7 +1497,7 @@ unitDeaths = {
         damage = {
             default = 50,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.06,
@@ -1512,7 +1517,7 @@ unitDeaths = {
         damage = {
             default = 5,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.05,
             expl_light_radius_mult = 1.03,
@@ -1532,7 +1537,7 @@ unitDeaths = {
         damage = {
             default = 50,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.06,
@@ -1552,7 +1557,7 @@ unitDeaths = {
         damage = {
             default = 5,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1,
             expl_light_radius_mult = 1,
@@ -1571,7 +1576,7 @@ unitDeaths = {
         damage = {
             default = 50,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.02,
             expl_light_radius_mult = 1.02,
@@ -1590,7 +1595,7 @@ unitDeaths = {
         damage = {
             default = 5,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.02,
             expl_light_radius_mult = 1.02,
@@ -1610,7 +1615,7 @@ unitDeaths = {
         damage = {
             default = 50,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1631,7 +1636,7 @@ unitDeaths = {
         damage = {
             default = 5,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1652,7 +1657,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1672,7 +1677,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1692,7 +1697,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1712,7 +1717,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1732,7 +1737,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1751,7 +1756,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1770,7 +1775,7 @@ unitDeaths = {
         damage = {
             default = 10,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.04,
             expl_light_radius_mult = 1.04,
@@ -1790,7 +1795,7 @@ unitDeaths = {
         damage = {
             default = 200,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1811,7 +1816,7 @@ unitDeaths = {
         damage = {
             default = 18,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1831,7 +1836,7 @@ unitDeaths = {
         damage = {
             default = 280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -1851,7 +1856,7 @@ unitDeaths = {
         damage = {
             default = 18,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1871,7 +1876,7 @@ unitDeaths = {
         damage = {
             default = 280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -1891,7 +1896,7 @@ unitDeaths = {
         damage = {
             default = 18,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1910,7 +1915,7 @@ unitDeaths = {
         damage = {
             default = 280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -1929,7 +1934,7 @@ unitDeaths = {
         damage = {
             default = 18,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.06,
             expl_light_radius_mult = 1.06,
@@ -1949,7 +1954,7 @@ unitDeaths = {
         damage = {
             default = 280,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -1970,7 +1975,7 @@ unitDeaths = {
         damage = {
             default = 25,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -1990,7 +1995,7 @@ unitDeaths = {
         damage = {
             default = 350,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2010,7 +2015,7 @@ unitDeaths = {
         damage = {
             default = 25,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -2030,7 +2035,7 @@ unitDeaths = {
         damage = {
             default = 350,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2050,7 +2055,7 @@ unitDeaths = {
         damage = {
             default = 25,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -2069,7 +2074,7 @@ unitDeaths = {
         damage = {
             default = 350,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2088,7 +2093,7 @@ unitDeaths = {
         damage = {
             default = 25,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.08,
             expl_light_radius_mult = 1.08,
@@ -2108,7 +2113,7 @@ unitDeaths = {
         damage = {
             default = 350,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2129,7 +2134,7 @@ unitDeaths = {
         damage = {
             default = 35,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2149,7 +2154,7 @@ unitDeaths = {
         damage = {
             default = 500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -2169,7 +2174,7 @@ unitDeaths = {
         damage = {
             default = 35,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2189,7 +2194,7 @@ unitDeaths = {
         damage = {
             default = 500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -2209,7 +2214,7 @@ unitDeaths = {
         damage = {
             default = 35,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2228,7 +2233,7 @@ unitDeaths = {
         damage = {
             default = 500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,
@@ -2247,7 +2252,7 @@ unitDeaths = {
         damage = {
             default = 35,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.1,
             expl_light_radius_mult = 1.1,
@@ -2267,7 +2272,7 @@ unitDeaths = {
         damage = {
             default = 500,
         },
-        customparams = {
+        customParams = {
             expl_light_color = "1 0.52 0.33",
             expl_light_mult = 1.12,
             expl_light_radius_mult = 1.12,

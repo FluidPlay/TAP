@@ -16,6 +16,6 @@ return {
 			default = 12500,
 			--mines = 0.5,
 		},
-		customparams = { damagetype = "neutron"},
+		customParams = { damagetype = "pierce"},
 	},
 }

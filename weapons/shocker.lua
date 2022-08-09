@@ -26,6 +26,6 @@ return {
 			default = 1100,
 			--subs = 5,
 		},
-		customparams = { damagetype = "thermo"},
+		customParams = { damagetype = "thermo"},
 	},
 }

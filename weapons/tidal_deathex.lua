@@ -16,6 +16,6 @@ return {
 		damage = {
 			default = 150,
 		},
-		customparams = { damagetype = "explosive"},
+		customParams = { damagetype = "omni"},
 	},
 }

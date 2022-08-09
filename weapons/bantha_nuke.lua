@@ -32,6 +32,6 @@ return {
 			commander = 2000,	----commanders
 			default = 4500,
 		},
-		customparams = { damagetype = "explosive"},
+		customParams = { damagetype = "omni"},
 	},
 }

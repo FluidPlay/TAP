@@ -15,17 +15,18 @@ return {
 		turret = 1,
 		weaponvelocity = 250,
 		damage = {
-			commanders = 2.5,
-			crawlingbombs = 2.5,
+			--commanders = 2.5,
+			--crawlingbombs = 2.5,
 			default = 2.5,
 		},
-		customparams = {
+		customParams = {
 			expl_light_color = "1 0.33 0.07",
 			expl_light_mult = 1.5,
 			expl_light_radius_mult = 1.4,
 			expl_light_life_mult = 2.2,
 			expl_light_heat_radius_mult = 2,
 			expl_light_heat_life_mult = 4.5,
+            damagetype = "thermo",
 		},
 	},
 	treefire_small = {
@@ -44,17 +45,18 @@ return {
 		turret = 1,
 		weaponvelocity = 250,
 		damage = {
-			commanders = 3,
-			crawlingbombs = 3,
+			--commanders = 3,
+			--crawlingbombs = 3,
 			default = 3,
 		},
-		customparams = {
+		customParams = {
 			expl_light_color = "1 0.33 0.07",
 			expl_light_mult = 1.5,
 			expl_light_radius_mult = 1.4,
 			expl_light_life_mult = 2.2,
 			expl_light_heat_radius_mult = 2,
 			expl_light_heat_life_mult = 4.5,
+            damagetype = "thermo",
 		},
 	},
 	treefire_medium = {
@@ -73,17 +75,18 @@ return {
 		turret = 1,
 		weaponvelocity = 250,
 		damage = {
-			commanders = 3.5,
-			crawlingbombs = 3.5,
+			--commanders = 3.5,
+			--crawlingbombs = 3.5,
 			default = 3.5,
 		},
-		customparams = {
+		customParams = {
 			expl_light_color = "1 0.33 0.07",
 			expl_light_mult = 1.5,
 			expl_light_radius_mult = 1.4,
 			expl_light_life_mult = 2.2,
 			expl_light_heat_radius_mult = 2,
 			expl_light_heat_life_mult = 4.5,
+            damagetype = "thermo",
 		},
 	},
 	treefire_large = {
@@ -102,8 +105,8 @@ return {
 		turret = 1,
 		weaponvelocity = 250,
 		damage = {
-			commanders = 4,
-			crawlingbombs = 4,
+			--commanders = 4,
+			--crawlingbombs = 4,
 			default = 4,
 		},
 		customparams = {
@@ -113,6 +116,7 @@ return {
 			expl_light_life_mult = 2.2,
 			expl_light_heat_radius_mult = 2,
 			expl_light_heat_life_mult = 4.5,
-		},
+            damagetype = "thermo",
+        },
 	},
 }

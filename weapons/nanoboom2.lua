@@ -18,6 +18,6 @@ return {
 			default = 10,
 			--nanos = 500,
 		},
-		customparams = { damagetype = "explosive"},
+		customParams = { damagetype = "omni"},
 	},
 }

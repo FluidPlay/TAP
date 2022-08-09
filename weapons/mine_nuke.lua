@@ -19,6 +19,6 @@ return {
 			default = 7500,
 			--mines = 20,
 		},
-		customparams = { damagetype = "explosive"},
+		customParams = { damagetype = "omni"},
 	},
 }

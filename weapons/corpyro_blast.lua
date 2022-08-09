@@ -17,6 +17,6 @@ return {
 		damage = {
 			default = 1000,
 		},
-		customparams = { damagetype = "thermo"},
+		customParams = { damagetype = "thermo"},
 	},
 }

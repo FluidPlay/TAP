@@ -17,6 +17,6 @@ return {
 			default = 6000, --400,
 			--mines = 0.5,
 		},
-		customparams = { damagetype = "bullet"},
+		customParams = { damagetype = "laser"},
 	},
 }
