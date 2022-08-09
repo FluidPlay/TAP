@@ -50,7 +50,6 @@ local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSetUnitSensorRadius = Spring.SetUnitSensorRadius
 local spGetUnitPosition = Spring.GetUnitPosition
 --local unitDefs -- = DEFS.unitDefs
---local unitDefsData = VFS.Include("gamedata/unitdefs_data.lua")
 --local myTeamID = Spring.GetMyTeamID
 --local allyTeamVec = Spring.GetAllyTeamList
 
