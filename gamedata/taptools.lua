@@ -101,6 +101,7 @@ function ipairs_remove(t, value)
 	end
 end
 
+---OBSOLETE: this is redundant with table.remove, according to the lua docs
 function ipairs_removeIdx(t, index)
 	local size = #t
 	t[index] = t[size]      -- replace it with last item

@@ -209,6 +209,8 @@ function WeaponDef_Post(name, wDef, udName)
 		return
 	end
 
+    --Spring.Echo("Weapon: "..name.." | udName: "..(udName or "NIL"))
+
     if (not wDef.damage or not wDef.damage.default) then
         Spring.Echo("error: damage/default damage not found for "..(udName or "N/A").." weapon name "..(name or "N/A") )
         return
@@ -241,14 +243,14 @@ function WeaponDef_Post(name, wDef, udName)
 	wDef.damage = {}
 	wDef.damage.default = baseDamage
  
-	local unitName = udName or "undefined"
+	--local unitName = udName or "undefined"
 	--local damages = "unit: "..unitName.." weapon: "..wDef.name.."; default: "..baseDamage.." "
 	if (damageType and damageMults[damageType]) then
 		for armorClass, armorMultiplier in pairs(damageMults[damageType]) do
 			wDef.damage[armorClass] = baseDamage * armorMultiplier
 		end
 	else
-		Spring.Echo(" damagePerArmor error: couldn't find setting for "..udName
+		Spring.Echo(" damagePerArmor error: couldn't find setting for "..(udName or "NIL")
 					..", damageType "..(damageType or " nil ")..", damageMults "..(damageMults[damageType] and "found" or "not found") .. " - wrong weapon name in weapondamagetypes? unit assigned to 'none' in damagemultipliers.lua?")
 	end
 	--DebugTableKeys(wDef.damage)

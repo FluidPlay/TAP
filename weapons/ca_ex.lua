@@ -17,6 +17,6 @@ return {
 			default = 25,
 			--vtol = 50,
 		},
-		customParams = { damagetype = "homing"},
+		customParams = { damagetype = "pierce"},
 	},
 }

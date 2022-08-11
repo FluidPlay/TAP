@@ -258,7 +258,7 @@ local weaponDamageTypes = {
 	armmanni = { ["ATAM"] = "pierce", },
 	armdfly = { ["Paralyzer"] = "emp", },
 	corvroc = { ["Rocket"] = "plasma", },
-    corvrad = { ["neutronstriketagger"] = "thermo", },
+    corvrad = { ["neutronstriketagger"] = "thermo", ["Shield"] = "omni", },
 	corjugg = { ["GaussCannon"] = "omni", ["LightLaser"] = "laser", },
 	
 	["else"] = {},

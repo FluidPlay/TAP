@@ -18,6 +18,6 @@ return {
 			commander = 1250,	--commanders
 			default = 3500,
 		},
-		customParams = { damagetype = "explosive"},
+		customParams = { damagetype = "omni"},
 	},
 }

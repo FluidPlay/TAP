@@ -34,13 +34,13 @@ local spSetUnitSonarStealth = Spring.SetUnitSonarStealth
 local spSetUnitBlocking = Spring.SetUnitBlocking
 local spSetUnitNeutral = Spring.SetUnitNeutral
 local spGetGameFrame = Spring.GetGameFrame
-local minSpawnDelay = 1.25 * 30 -- n seconds in frames  --TODO: Make static
-local maxSpawnDelay = 2 * 30    -- n seconds in frames
+local minSpawnDelay = 1.25 * 30 -- 1.25 --n seconds in frames  --TODO: Make static
+local maxSpawnDelay = 2 * 30    -- 2 --n seconds in frames
 
 local meteoriteDefID =  UnitDefNames["meteorite"].id
---local METEOR_EXPLOSION = WeaponDefNames["meteorite_weapon"].id
+local neutronHailWeapon = WeaponDefNames.neutronhail.id
 
-local meteroiteSpawnRadius = 250
+local meteoriteSpawnRadius = 250
 local rnd = math.random
 
 VFS.Include("gamedata/taptools.lua")
@@ -55,7 +55,7 @@ function gadget:Initialize()
 end
 
 function gadget:Explosion(w, x, y, z, attackerID)
-    if w == trackedWeapon and attackerID then
+    if w == trackedWeapon then --and attackerID then
         --local y2 = Spring.GetGroundHeight(x,z)+100
         --if not Spring.GetGroundBlocked(x,z) then
         local thisSpawnDelay = lerp(minSpawnDelay, maxSpawnDelay, rnd())
@@ -67,23 +67,39 @@ function gadget:Explosion(w, x, y, z, attackerID)
     return false
 end
 
+--function gadget:ProjectileCreated(proID, proOwnerID, weaponDefID)
+--    Spring.Echo("Projectile created id: "..(proID or "nil").." weaponDefID: "..(weaponDefID or "nil"))
+--end
+
 function gadget:GameFrame(f)
-    for i, data in pairs(spawnList) do
-        if data.spawnTime >= f then
-            local rand1 = (rnd() - 0.5) * meteroiteSpawnRadius
-            local rand2 = (rnd() - 0.5) * meteroiteSpawnRadius
-            local unitID = spCreateUnit(meteoriteDefID, data.x + rand1, data.y, data.z + rand2, "north", spGetUnitTeam(data.attackerID))
-            --Spring.Echo("Spawned "..unitID.." at: "..c.x..", "..c.y..", "..c.z)
-            spSetUnitNoDraw(unitID, true)
-            spSetUnitStealth(unitID, true)
-            spSetUnitSonarStealth(unitID, true)
-            spSetUnitBlocking(unitID, false, false, false, false, false, false, false)
-            spSetUnitNeutral(unitID, true)
+    --for i, data in pairs(spawnList) do
+    for i, data in ipairs(spawnList) do
+        if f > data.spawnTime then
+            local rand1 = (rnd() - 0.5) * meteoriteSpawnRadius
+            local rand2 = (rnd() - 0.5) * meteoriteSpawnRadius
+            Spring.SpawnProjectile(neutronHailWeapon,
+                    {   pos = {data.x + rand1, data.y+400, data.z + rand2},
+                                        ["end"] = {data.x + rand1, data.y, data.z + rand2},
+                                     owner = spGetUnitTeam(data.attackerID),
+                                     ttl = 3000,
+                                     gravity = -Game.gravity/20,
+                                    --    startAlpha = number, --TODO: Play with those to fade the meteors in
+                                    --    endAlpha = number,
+                                     --900
+                                   })
+
+                --local unitID = spCreateUnit(meteoriteDefID, data.x + rand1, data.y, data.z + rand2, "north", spGetUnitTeam(data.attackerID))
+                ----Spring.Echo("Spawned "..unitID.." at: "..c.x..", "..c.y..", "..c.z)
+                --spSetUnitNoDraw(unitID, true)
+                --spSetUnitStealth(unitID, true)
+                --spSetUnitSonarStealth(unitID, true)
+                --spSetUnitBlocking(unitID, false, false, false, false, false, false, false)
+                --spSetUnitNeutral(unitID, true)
             table.remove(spawnList, i)
         end
         --spawnList[i]=nil
     end
-    ---TODO: Spawn projectile instead of Unit:
+
     ---Spring.SpawnProjectile ( number weaponDefID, table projectileParams )
     --return: nil | number projectileID
     --
