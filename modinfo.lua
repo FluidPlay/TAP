@@ -2,7 +2,7 @@ return {
   name='Total Atomic Power',
   description='Retro Sci-fi RTS with advanced tech trees and a modern rock-paper-scissors countering system',
   shortname='TAP',
-  version="3.0$VERSION",
+  version="3.1.6",
   mutator='Official',
   game='Total Atomic Power',
   shortgame='TAP',
