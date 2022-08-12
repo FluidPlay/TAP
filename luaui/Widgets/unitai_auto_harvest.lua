@@ -228,12 +228,13 @@ local function GetNearestSpotPos(x, z)
     return bestSpot
 end
 
-local function removeCommands(unitID)
-    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
+local function removeAttack(unitID)
+    Spring.Echo("unitai_auto_harvest: removing Cmds")
+    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
 end
 
 local function deautomateUnit(unitID)
-    removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
+    removeAttack(unitID)  -- removes Guard, Patrol, Fight and Repair commands
     --spEcho("Deharvesting Unit: "..unitID)
     --harvestersInAction[unitID] = nil
     automatedHarvesters[unitID] = nil

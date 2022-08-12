@@ -48,6 +48,7 @@ local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
 local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
+local spGetUnitCommands = Spring.GetUnitCommands
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
@@ -91,6 +92,7 @@ local automatableUnits = {} -- All units which can be automated // { [unitID] = 
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
 local automatedUnits = {}   -- All units currently automated    // { [unitID] = frameToRecheckAutomation, ... }
 local deautomatedUnits = {} -- Post deautomation (direct order) // { [unitID] = frameToTryReautomation, ... }
+local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
 local automatedState = {}   -- This is the automated state. It's always there for automatableUnits, after the initial latency period
@@ -192,17 +194,21 @@ local function unitIsBeingBuilt(unitID)
 end
 
 local function removeCommands(unitID)
+    Spring.Echo("unitai_autoassist: removing cmds")
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
 end
 
 local function DeautomateUnit(unitID, caller)
-    removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
+    ---TODO: Below should only be called if a build order was issued
+    if caller == "CommandNotifyBuild" then
+        removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
+    end
     automatedUnits[unitID] = nil
     --- It'll only get out of deautomated if it's idle, that's only the delay to recheck idle
     deautomatedUnits[unitID] = spGetGameFrame() + deautomatedRecheckLatency
     spEcho("Autoassist: Deautomating Unit: "..unitID..", try re-automation in: "..spGetGameFrame() + deautomatedRecheckLatency)
     spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
-end
+    end
 
 function setAutomateState(unitID, state, caller)
     if state == "deautomated" then
@@ -215,15 +221,31 @@ function setAutomateState(unitID, state, caller)
     spEcho("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
+--function widget.UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
+--    executingCmd[unitID] = cmdID
+--    Spring.Echo("Started executing: "..cmdID)
+--end
+--
+--function widget.UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
+--    --if executingCmd[unitID] == cmdID then
+--        Spring.Echo("Finished executing: "..cmdID)
+--        executingCmd[unitID] = nil
+--    --end
+--end
+
 local function hasCommandQueue(unitID)
-    local commandQueue = spGetCommandQueue(unitID, 0)
+    --local commandQueue = spGetCommandQueue(unitID, 0)
+    local unitCommands = spGetUnitCommands(unitID, 20)
+
     --spEcho("command queue size: "..(commandQueue or "N/A"))
-    --Spring.Echo("command queue size: "..(commandQueue or "N/A"))
-    if commandQueue then
-        return commandQueue > 0
-    else
+    --Spring.Echo("has command queue: "..((unitCommands and #unitCommands > 0) and "YES" or "NO"))
+    if executingCmd[unitID] then
         return false
     end
+    if unitCommands then
+        return #unitCommands > 0
+    end
+    return false
 end
 
 ----- We use this to make sure patrol works, issuing two nearby patrol points
@@ -773,8 +795,13 @@ function widget:CommandNotify(cmdID, params, options)
                 end
             end
             if automatedState[unitID] ~= "deautomated" then -- if it's working, don't touch it
-                --guardingUnits[unitID] then --options.shift and
-                setAutomateState(unitID, "deautomated", "CommandNotify")
+                ---We do this to check if remove commands should be issued or not, down the pipe
+                --if options and options.shift then
+                if cmdID and cmdID < 0 then
+                    setAutomateState(unitID, "deautomated", "CommandNotifyBuild")
+                else
+                    setAutomateState(unitID, "deautomated", "CommandNotify")
+                end
             end
         end
     end

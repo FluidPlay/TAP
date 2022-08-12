@@ -39,6 +39,7 @@ local maxSpawnDelay = 2 * 30    -- 2 --n seconds in frames
 
 local meteoriteDefID =  UnitDefNames["meteorite"].id
 local neutronHailWeapon = WeaponDefNames.neutronhail.id
+local updateRate = 2
 
 local meteoriteSpawnRadius = 250
 local rnd = math.random
@@ -72,6 +73,8 @@ end
 --end
 
 function gadget:GameFrame(f)
+    if f % updateRate > 0.00001 then
+        return end
     --for i, data in pairs(spawnList) do
     for i, data in ipairs(spawnList) do
         if f > data.spawnTime then
