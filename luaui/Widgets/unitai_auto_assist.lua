@@ -194,7 +194,7 @@ local function unitIsBeingBuilt(unitID)
 end
 
 local function removeCommands(unitID)
-    Spring.Echo("unitai_autoassist: removing cmds")
+    --Spring.Echo("unitai_autoassist: removing cmds")
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
 end
 
@@ -208,11 +208,12 @@ local function DeautomateUnit(unitID, caller)
     deautomatedUnits[unitID] = spGetGameFrame() + deautomatedRecheckLatency
     spEcho("Autoassist: Deautomating Unit: "..unitID..", try re-automation in: "..spGetGameFrame() + deautomatedRecheckLatency)
     spSendLuaUIMsg("unitDeautomated_"..unitID, "allies") --(message, mode)
-    end
+end
 
 function setAutomateState(unitID, state, caller)
     if state == "deautomated" then
         DeautomateUnit(unitID, caller)
+        --Spring.Echo("Deautomated by "..(caller or "nil"))
     else
         deautomatedUnits[unitID] = nil
         automatedUnits[unitID] = spGetGameFrame() + automationLatency

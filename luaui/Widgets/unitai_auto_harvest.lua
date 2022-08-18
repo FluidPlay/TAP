@@ -229,7 +229,7 @@ local function GetNearestSpotPos(x, z)
 end
 
 local function removeAttack(unitID)
-    Spring.Echo("unitai_auto_harvest: removing Cmds")
+    --Spring.Echo("unitai_auto_harvest: removing Cmds")
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
 end
 
