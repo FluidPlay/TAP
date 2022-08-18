@@ -199,8 +199,8 @@ local function removeCommands(unitID)
 end
 
 local function DeautomateUnit(unitID, caller)
-    ---TODO: Below should only be called if a build order was issued
-    if caller == "CommandNotifyBuild" then
+    ---TODO: Below should only be called if a build order was issued, or if issued by unitai_auto_harvest
+    if caller == "CommandNotifyBuild" or caller == "autoHarvest" then
         removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
     end
     automatedUnits[unitID] = nil
