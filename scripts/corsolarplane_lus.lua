@@ -18,6 +18,7 @@ local SolarLeafBotS = piece('SolarLeafBotS');
 local SolarLeafBotSTip = piece('SolarLeafBotSTip');
 local SolarTop = piece('SolarTop');
 local paperplane = piece('paperplane');
+local Scene = piece('Scene');
 
 local scriptEnv = {	   Base = Base,
                        NWRoot = NWRoot;
@@ -30,6 +31,7 @@ local scriptEnv = {	   Base = Base,
                        SolarLeafBotSTip = SolarLeafBotSTip,
                        SolarTop = SolarTop,
                        paperplane = paperplane,
+                       Scene = Scene,
     --                       test_upspring_pivots.s3o.SpringHeight = test_upspring_pivots.s3o.SpringHeight,
     --                       test_upspring_pivots.s3o.SpringRadius = test_upspring_pivots.s3o.SpringRadius,
                        x_axis = x_axis,
@@ -41,7 +43,7 @@ local scriptEnv = {	   Base = Base,
 local Animations = {};
 Animations['open'] = VFS.Include("scripts/animations/corsolarplane_anim.lua", scriptEnv)
 
-function constructSkeleton(unit, piece, offset)
+local function constructSkeleton(unit, piece, offset)
     if (offset == nil) then
         offset = {0,0,0};
     end
@@ -78,16 +80,16 @@ local function PlayAnimation(animname)
         local commands = anim[i].commands;
         for j = 1,#commands do
             local cmd = commands[j];
-            Spring.Echo("Has cmd: "..(cmd and "yes" or "no").." | cmd,piece,axis,time,s: "..(cmd.c or "nil").." "
-                    ..(cmd.p or "nil").." "..(cmd.a or "nil").." "..(cmd.t or "nil").." "..(cmd.s or "nil"))
+            --Spring.Echo("Has cmd: "..(cmd and "yes" or "no").." | cmd,piece,axis,time,s: "..(cmd.c or "nil").." "
+            --        ..(cmd.p or "nil").." "..(cmd.a or "nil").." "..(cmd.t or "nil").." "..(cmd.s or "nil"))
             local t = cmd.t
-            if cmd.a == x_axis then
-                t = -t
+            --if cmd.a == x_axis then
+            --    t = -t
             --elseif cmd.a == y_axis then --else
             --    t = -2*t
-            elseif cmd.a == z_axis then
-                t = -t
-            end
+            --elseif cmd.a == z_axis then
+            --    t = -t
+            --end
             animCmd[cmd.c](cmd.p,cmd.a,t,cmd.s);
         end
         if(i < #anim) then
@@ -214,23 +216,23 @@ local function RequestState(requestedstate, currentstate)
 end
 
 function script.Create()
-    --- Anarchid's setup
-    local map = Spring.GetUnitPieceMap(unitID);
-    local offsets = constructSkeleton(unitID,map.Scene, {0,0,0});
-
-    for a,anim in pairs(Animations) do
-        for i,keyframe in pairs(anim) do
-            local commands = keyframe.commands;
-            for k,command in pairs(commands) do
-                -- commands are described in (c)ommand,(p)iece,(a)xis,(t)arget,(s)peed format
-                -- the t attribute needs to be adjusted for move commands from blender's absolute values
-                if (command.c == "move") then
-                    local adjusted =  command.t - (offsets[command.p][command.a]);
-                    Animations[a][i]['commands'][k].t = command.t - (offsets[command.p][command.a]);
-                end
-            end
-        end
-    end
+    --- Anarchid's setup [requires a 'Scene' piece at the model, for the offset]
+    --local map = Spring.GetUnitPieceMap(unitID);
+    --local offsets = constructSkeleton(unitID, map.Scene, {0,0,0});
+    --
+    --for a,anim in pairs(Animations) do
+    --    for i,keyframe in pairs(anim) do
+    --        local commands = keyframe.commands;
+    --        for k,command in pairs(commands) do
+    --            -- commands are described in (c)ommand,(p)iece,(a)xis,(t)arget,(s)peed format
+    --            -- the t attribute needs to be adjusted for move commands from blender's absolute values
+    --            if (command.c == "move") then
+    --                local adjusted =  command.t - (offsets[command.p][command.a]);
+    --                Animations[a][i]['commands'][k].t = command.t - (offsets[command.p][command.a]);
+    --            end
+    --        end
+    --    end
+    --end
     --- End-of Anarchid's setup
 
     --local unitDefID = UnitDefs[unitDefID].name
