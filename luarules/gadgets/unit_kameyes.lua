@@ -8,8 +8,8 @@
 
 function gadget:GetInfo()
     return {
-        name      = "Unit Kameyes Self-D",
-        desc      = "Self-Ds kameyes after some time",
+        name      = "Unit Scout Drones Self-D",
+        desc      = "Self-Ds Scout Drones after some time",
         author    = "MaDDoX",
         date      = "Jul, 2021",
         license   = "GNU GPL, v2 or later",
@@ -50,7 +50,7 @@ if (gadgetHandler:IsSyncedCode()) then
             return end
         for unitID, fuel in pairs(trackedUnits) do
             local _,_,_,unitMoveSpeed = spGetUnitVelocity(unitID)
-            if unitMoveSpeed > 0.1 then
+            if unitMoveSpeed > 1 then --1
                 local newFuel = fuel-1
                 trackedUnits[unitID] = newFuel
                 if newFuel <= 0 then

@@ -256,7 +256,7 @@ end
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
     if automatableUnits[unitID] then
-        Spring.Echo("Unit idle: "..unitID.." automatable? "..tostring(automatableUnits[unitID]))
+        --Spring.Echo("Unit idle: "..unitID.." automatable? "..tostring(automatableUnits[unitID]))
         unitIdleEvent[unitID] = true
     end
 end
@@ -503,7 +503,7 @@ local function isReallyIdle(unitID)
     if hasBuildQueue(unitID) or hasCommandQueue(unitID) then
         result = false
     end
-    Spring.Echo(unitID.." idleEvent: "..tostring(unitIdleEvent[unitID]).." | has queue: "..tostring(hasBuildQueue(unitID)) or (hasCommandQueue(unitID)))
+    --Spring.Echo(unitID.." idleEvent: "..tostring(unitIdleEvent[unitID]).." | has queue: "..tostring(hasBuildQueue(unitID)) or (hasCommandQueue(unitID)))
     return result
 end
 
@@ -728,8 +728,8 @@ local automatedFunctions = {
             condition = function(ud) --unitData
                 local recheckFrame = deautomatedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
-                if automatedState[ud.unitID] == "repair" then
-                    Spring.Echo("TargetID: "..(targetID or "nil").." valid: "..(IsValidUnit(targetID) and "true" or "false")) end
+                --if automatedState[ud.unitID] == "repair" then
+                --    Spring.Echo("TargetID: "..(targetID or "nil").." valid: "..(IsValidUnit(targetID) and "true" or "false")) end
 
                 return automatedState[ud.unitID] ~= "deautomated" and
                        (
