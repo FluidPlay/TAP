@@ -8,8 +8,8 @@
 
 function gadget:GetInfo()
     return {
-        name      = "Unit Scout Drones Self-D",
-        desc      = "Self-Ds Scout Drones after some time",
+        name      = "Unit Scout Drones Fuel and Self-D",
+        desc      = "Tracks fuel and self-Ds Scout Drones after some time",
         author    = "MaDDoX",
         date      = "Jul, 2021",
         license   = "GNU GPL, v2 or later",
@@ -20,7 +20,7 @@ end
 
 local updateRate = 2
 local trackedUnits = {} -- { [unitID]=frameToDestroy, ... }
-local fuelPerDrone = 25 * 30 --25s
+local fuelPerDrone = 30 * 30 --was 25s
 
 local spGetUnitVelocity = Spring.GetUnitVelocity
 local spDestroyUnit = Spring.DestroyUnit
@@ -50,7 +50,8 @@ if (gadgetHandler:IsSyncedCode()) then
             return end
         for unitID, fuel in pairs(trackedUnits) do
             local _,_,_,unitMoveSpeed = spGetUnitVelocity(unitID)
-            if unitMoveSpeed > 1 then --1
+            -- Spring.Echo("unit move speed: "..unitMoveSpeed)
+            if unitMoveSpeed > 3 then --1
                 local newFuel = fuel-1
                 trackedUnits[unitID] = newFuel
                 if newFuel <= 0 then
