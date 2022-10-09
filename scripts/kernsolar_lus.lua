@@ -325,10 +325,8 @@ end
 
 local function StopTopSpin()
     --Turn(Top, z_axis, 0.000000, 0.3 )
-    tweenPiece("Top", "turn", z_axis, math.rad(0), 1.25, inOutCubic)
     --LerpPiece("turn", "Top", z_axis, math.rad(0), 0.5) -- final angle, interpolator (t)
-    --WaitForTurn (Top, z_axis)
-    --StopSpin ( Top, z_axis, 256 )
+    tweenPiece("Top", "turn", z_axis, math.rad(0), 1.25, inOutCubic)
 end
 
 local function RequestState(requestedstate, currentstate)
