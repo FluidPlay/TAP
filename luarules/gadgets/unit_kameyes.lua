@@ -28,60 +28,64 @@ local spSetUnitRulesParam = Spring.SetUnitRulesParam
 
 --SYNCED
 
-if (gadgetHandler:IsSyncedCode()) then
+if not (gadgetHandler:IsSyncedCode()) then
+    return end
 
-    local unitsToEdit = {
-        [UnitDefNames.armkameyes.id] = true,
-        [UnitDefNames.corkameyes.id] = true,
-    }
+local unitsToEdit = {
+    [UnitDefNames.armkameyes.id] = true,
+    [UnitDefNames.corkameyes.id] = true,
+}
 
-    -- When a unit is completed
-    function gadget:UnitFinished(unitID, unitDefID, teamID)
-        if unitsToEdit[unitDefID] == nil or type(unitsToEdit[unitDefID]) == nil then
-            return end
+-- When a unit is completed
+function gadget:UnitFinished(unitID, unitDefID, teamID)
+    if unitsToEdit[unitDefID] == nil or type(unitsToEdit[unitDefID]) == nil then
+        return end
 
-        trackedUnits[unitID] = fuelPerDrone --Spring.GetGameFrame() + delayInFrames
-        spSetUnitRulesParam(unitID, "fuelperc", 1)  -- 100% at time of creation
-        --Spring.Echo("Unit to Destroy: "..unitID.." with fuel: "..fuelPerDrone.." fuelPerc: "..1)
-    end
+    trackedUnits[unitID] = fuelPerDrone --Spring.GetGameFrame() + delayInFrames
+    spSetUnitRulesParam(unitID, "fuelperc", 1)  -- 100% at time of creation
+    --Spring.Echo("Unit to Destroy: "..unitID.." with fuel: "..fuelPerDrone.." fuelPerc: "..1)
+end
 
-    function gadget:GameFrame(gf)
-        if gf % updateRate > 0.0001 then
-            return end
-        for unitID, fuel in pairs(trackedUnits) do
-            local _,_,_,unitMoveSpeed = spGetUnitVelocity(unitID)
-            -- Spring.Echo("unit move speed: "..unitMoveSpeed)
-            if unitMoveSpeed > 3 then --1
-                local newFuel = fuel-1
-                trackedUnits[unitID] = newFuel
-                if newFuel <= 0 then
-                    --TODO: If it's not cloaked, blow it up instead
-                    spDestroyUnit(unitID, false, true)
-                else
-                    spSetUnitRulesParam(unitID, "fuelperc", newFuel/fuelPerDrone)
-                end
+function gadget:GameFrame(gf)
+    if gf % updateRate > 0.0001 then
+        return end
+    for unitID, fuel in pairs(trackedUnits) do
+        local _,_,_,unitMoveSpeed = spGetUnitVelocity(unitID)
+        -- Spring.Echo("unit move speed: "..unitMoveSpeed)
+        if unitMoveSpeed > 3 then --1
+            local newFuel = fuel-1
+            trackedUnits[unitID] = newFuel
+            if newFuel <= 0 then
+                --TODO: If it's not cloaked, blow it up instead
+                spDestroyUnit(unitID, false, true)
+            else
+                spSetUnitRulesParam(unitID, "fuelperc", newFuel/fuelPerDrone)
             end
         end
     end
-
-    function gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
-        trackedUnits[unitID] = nil
-    end
-
-    --- Below code is probably unneeded.
-    --function gadget:UnitGiven(unitID, unitDefID, newTeamID, teamID)
-    --    mexBuilder[unitID] = mexBuilderDefs[unitDefID]
-    --    if mexDefID[unitDefID] then
-    --        local done = select(5, spGetUnitHealth(unitID))
-    --        if done == 1 then
-    --            widget:UnitFinished(unitID, unitDefID,unitDefID)
-    --        end
-    --    end
-    --end
-    --
-    --function gadget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
-    --    gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
-    --end
-
-    --else -- UNSYNCED
 end
+
+--function gadget:StartMoving ( )
+--end
+--
+--function gadget:StopMoving ( )
+--end
+
+function gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+    trackedUnits[unitID] = nil
+end
+
+--- Below code is probably unneeded.
+--function gadget:UnitGiven(unitID, unitDefID, newTeamID, teamID)
+--    mexBuilder[unitID] = mexBuilderDefs[unitDefID]
+--    if mexDefID[unitDefID] then
+--        local done = select(5, spGetUnitHealth(unitID))
+--        if done == 1 then
+--            widget:UnitFinished(unitID, unitDefID,unitDefID)
+--        end
+--    end
+--end
+--
+--function gadget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
+--    gadget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+--end
