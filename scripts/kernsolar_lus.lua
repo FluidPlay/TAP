@@ -235,17 +235,17 @@ local function SpinTop()
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(topSpinAngle),
                          axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                        },
-                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
-                        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
-                       },
+                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
+                --        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
+                --       },
                 } )
     initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(-topSpinAngle),
                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                 },
-                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
-                        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
-                       },
+                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
+                --        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
+                --       },
                 } )
 
     SpinTop()
