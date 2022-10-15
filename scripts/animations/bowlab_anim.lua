@@ -10,101 +10,153 @@ local Animations = {};
 
 --- open_default
 local function anim1()
-    -- Frame:1
-    Turn(left_cover1, x_axis, -0.002830, 0.084886 )
-    Turn(right_back_cover1, x_axis, -0.002830, 0.084886 )
-    Sleep(32)
-    -- Frame:32
-    Turn(left_cover1, x_axis, -0.026996, 0.026125 )
-    Turn(left_cover1, x_axis, -1.546749, 1.494116 )
-    Turn(right_back_cover1, x_axis, -0.026996, 0.026125 )
-    Turn(right_back_cover1, x_axis, -1.546749, 1.494116 )
-    Sleep(1022)
-    -- Frame:40
-    Turn(left_arm2, z_axis, -0.552920, 2.073451 )
-    Turn(left_arm3, z_axis, -0.368614, 1.382301 )
-    Turn(left_cover1, x_axis, -1.891990, 1.294651 )
-    Turn(right_arm2, z_axis, 0.552920, 2.073451 )
-    Turn(right_arm3, z_axis, 0.368614, 1.382301 )
-    Turn(right_back_cover1, x_axis, -1.891990, 1.294651 )
-    Sleep(263)
-    -- Frame:52
-    Turn(left_arm2, z_axis, -0.027416, 0.068539 )
-    Turn(left_arm2, z_axis, -1.570796, 2.544690 )
-    Turn(left_arm3, z_axis, -0.018277, 0.045693 )
-    Turn(left_arm3, z_axis, -1.047198, 1.696460 )
-    Turn(left_cover1, x_axis, -0.036531, 0.023838 )
-    Turn(left_cover1, x_axis, -2.093080, 0.502726 )
-    Turn(left_head, z_axis, -0.013708, 0.034269 )
-    Turn(left_head, z_axis, -0.785398, 1.963495 )
-    Turn(right_arm2, z_axis, 0.027416, 0.068539 )
-    Turn(right_arm2, z_axis, 1.570796, 2.544690 )
-    Turn(right_arm3, z_axis, 0.018277, 0.045693 )
-    Turn(right_arm3, z_axis, 1.047198, 1.696460 )
-    Turn(right_back_cover1, x_axis, -0.036531, 0.023838 )
-    Turn(right_back_cover1, x_axis, -2.093080, 0.502726 )
-    Turn(right_head, z_axis, 0.013708, 0.034269 )
-    Turn(right_head, z_axis, 0.785398, 1.963495 )
-    Sleep(395)
+    initTween({ finalEndFrame = 52, --sleepTime = sleepTime,
+                [1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
+                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,
+                },
+                [2] = { pieceID = left_cover1, cmd = "turn", axis = x_axis,
+                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,
+                },
+                [3] = { pieceID = right_arm2, cmd = "turn", axis = z_axis,
+                        targetValue = rad(90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+                [4] = { pieceID = left_arm2, cmd = "turn", axis = z_axis,
+                        targetValue = rad(-90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+                [5] = { pieceID = right_arm3, cmd = "turn", axis = z_axis,
+                        targetValue = rad(60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+                [6] = { pieceID = left_arm3, cmd = "turn", axis = z_axis,
+                        targetValue = rad(-60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+                [7] = { pieceID = right_head, cmd = "turn", axis = z_axis,
+                        targetValue = rad(45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+                [8] = { pieceID = left_head, cmd = "turn", axis = z_axis,
+                        targetValue = rad(-45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",
+                },
+    })
+    ---- Frame:1
+    --Turn(left_cover1, x_axis, -0.002830, 0.084886 )
+    --Turn(right_back_cover1, x_axis, -0.002830, 0.084886 )
+    --Sleep(32)
+    ---- Frame:32
+    --Turn(left_cover1, x_axis, -0.026996, 0.026125 )
+    --Turn(left_cover1, x_axis, -1.546749, 1.494116 )
+    --Turn(right_back_cover1, x_axis, -0.026996, 0.026125 )
+    --Turn(right_back_cover1, x_axis, -1.546749, 1.494116 )
+    --Sleep(1022)
+    ---- Frame:40
+    --Turn(left_arm2, z_axis, -0.552920, 2.073451 )
+    --Turn(left_arm3, z_axis, -0.368614, 1.382301 )
+    --Turn(left_cover1, x_axis, -1.891990, 1.294651 )
+    --Turn(right_arm2, z_axis, 0.552920, 2.073451 )
+    --Turn(right_arm3, z_axis, 0.368614, 1.382301 )
+    --Turn(right_back_cover1, x_axis, -1.891990, 1.294651 )
+    --Sleep(263)
+    ---- Frame:52
+    --Turn(left_arm2, z_axis, -0.027416, 0.068539 )
+    --Turn(left_arm2, z_axis, -1.570796, 2.544690 )
+    --Turn(left_arm3, z_axis, -0.018277, 0.045693 )
+    --Turn(left_arm3, z_axis, -1.047198, 1.696460 )
+    --Turn(left_cover1, x_axis, -0.036531, 0.023838 )
+    --Turn(left_cover1, x_axis, -2.093080, 0.502726 )
+    --Turn(left_head, z_axis, -0.013708, 0.034269 )
+    --Turn(left_head, z_axis, -0.785398, 1.963495 )
+    --Turn(right_arm2, z_axis, 0.027416, 0.068539 )
+    --Turn(right_arm2, z_axis, 1.570796, 2.544690 )
+    --Turn(right_arm3, z_axis, 0.018277, 0.045693 )
+    --Turn(right_arm3, z_axis, 1.047198, 1.696460 )
+    --Turn(right_back_cover1, x_axis, -0.036531, 0.023838 )
+    --Turn(right_back_cover1, x_axis, -2.093080, 0.502726 )
+    --Turn(right_head, z_axis, 0.013708, 0.034269 )
+    --Turn(right_head, z_axis, 0.785398, 1.963495 )
+    --Sleep(395)
 end
 
 --- Close_default
 local function anim2()
-    -- Frame:56
-    Sleep(131)
-    -- Frame:68
-    Turn(left_arm2, z_axis, -0.986506, 1.460727 )
-    Turn(left_arm3, z_axis, -0.657670, 0.973818 )
-    Turn(left_head, z_axis, -0.282760, 1.256595 )
-    Turn(right_arm2, z_axis, 0.986506, 1.460727 )
-    Turn(right_arm3, z_axis, 0.657670, 0.973818 )
-    Turn(right_head, z_axis, 0.282760, 1.256595 )
-    Sleep(395)
-    -- Frame:70
-    Turn(left_arm2, z_axis, -0.826006, 2.407493 )
-    Turn(left_arm3, z_axis, -0.550671, 1.604996 )
-    Turn(left_cover1, x_axis, -2.075239, 0.267624 )
-    Turn(left_head, z_axis, -0.003372, 0.155042 )
-    Turn(left_head, z_axis, -0.193183, 1.343657 )
-    Turn(right_arm2, z_axis, 0.826006, 2.407493 )
-    Turn(right_arm3, z_axis, 0.550671, 1.604996 )
-    Turn(right_back_cover1, x_axis, -2.075239, 0.267624 )
-    Turn(right_head, z_axis, 0.003372, 0.155042 )
-    Turn(right_head, z_axis, 0.193183, 1.343657 )
-    Sleep(65)
-    -- Frame:85
-    Turn(left_arm2, z_axis, -0.000000, 0.054831 )
-    Turn(left_arm2, z_axis, -0.000000, 1.652012 )
-    Turn(left_arm3, z_axis, -0.000000, 0.036554 )
-    Turn(left_arm3, z_axis, -0.000000, 1.101341 )
-    Turn(left_cover1, x_axis, -1.279441, 1.591596 )
-    Turn(left_head, z_axis, -0.000000, 0.006743 )
-    Turn(left_head, z_axis, -0.000000, 0.386366 )
-    Turn(right_arm2, z_axis, -0.000000, 0.054831 )
-    Turn(right_arm2, z_axis, -0.000000, 1.652012 )
-    Turn(right_arm3, z_axis, -0.000000, 0.036554 )
-    Turn(right_arm3, z_axis, -0.000000, 1.101341 )
-    Turn(right_back_cover1, x_axis, -1.279441, 1.591596 )
-    Turn(right_head, z_axis, -0.000000, 0.006743 )
-    Turn(right_head, z_axis, -0.000000, 0.386366 )
-    Sleep(494)
-    -- Frame:104
-    Turn(left_cover1, x_axis, -0.000000, 0.057681 )
-    Turn(left_cover1, x_axis, -0.000000, 2.020170 )
-    Turn(right_back_cover1, x_axis, -0.000000, 0.057681 )
-    Turn(right_back_cover1, x_axis, -0.000000, 2.020170 )
-    Sleep(626)
-    -- Frame:108
-    Turn(left_cover1, x_axis, -1.046136, 7.846019 )
-    Turn(right_back_cover1, x_axis, -1.046136, 7.846019 )
-    Turn(right_head_advanced, z_axis, 0.017498, 0.131232 )-- Failed to find previous position for boneright_head_advancedaxisrotation_euler1
-    Sleep(131)
-    -- Frame:111
-    Turn(left_cover1, x_axis, -2.002834, 9.566982 )
-    Turn(left_head_advanced, z_axis, -0.229863, 2.298634 )
-    Turn(right_back_cover1, x_axis, -2.002834, 9.566982 )
-    Turn(right_head_advanced, z_axis, 1.223433, 2.208933 )
-    Sleep(98)
+    initTween({ finalEndFrame = 48,
+                [1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
+                        targetValue = 0, firstFrame = 12, lastFrame = 48,
+                },
+                [2] = { pieceID = left_cover1, cmd = "turn", axis = x_axis,
+                        targetValue = 0, firstFrame = 12, lastFrame = 48,
+                },
+                [3] = { pieceID = right_arm2, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+                [4] = { pieceID = left_arm2, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+                [5] = { pieceID = right_arm3, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+                [6] = { pieceID = left_arm3, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+                [7] = { pieceID = right_head, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+                [8] = { pieceID = left_head, cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                },
+    })
+    ---- Frame:56
+    --Sleep(131)
+    ---- Frame:68
+    --Turn(left_arm2, z_axis, -0.986506, 1.460727 )
+    --Turn(left_arm3, z_axis, -0.657670, 0.973818 )
+    --Turn(left_head, z_axis, -0.282760, 1.256595 )
+    --Turn(right_arm2, z_axis, 0.986506, 1.460727 )
+    --Turn(right_arm3, z_axis, 0.657670, 0.973818 )
+    --Turn(right_head, z_axis, 0.282760, 1.256595 )
+    --Sleep(395)
+    ---- Frame:70
+    --Turn(left_arm2, z_axis, -0.826006, 2.407493 )
+    --Turn(left_arm3, z_axis, -0.550671, 1.604996 )
+    --Turn(left_cover1, x_axis, -2.075239, 0.267624 )
+    --Turn(left_head, z_axis, -0.003372, 0.155042 )
+    --Turn(left_head, z_axis, -0.193183, 1.343657 )
+    --Turn(right_arm2, z_axis, 0.826006, 2.407493 )
+    --Turn(right_arm3, z_axis, 0.550671, 1.604996 )
+    --Turn(right_back_cover1, x_axis, -2.075239, 0.267624 )
+    --Turn(right_head, z_axis, 0.003372, 0.155042 )
+    --Turn(right_head, z_axis, 0.193183, 1.343657 )
+    --Sleep(65)
+    ---- Frame:85
+    --Turn(left_arm2, z_axis, -0.000000, 0.054831 )
+    --Turn(left_arm2, z_axis, -0.000000, 1.652012 )
+    --Turn(left_arm3, z_axis, -0.000000, 0.036554 )
+    --Turn(left_arm3, z_axis, -0.000000, 1.101341 )
+    --Turn(left_cover1, x_axis, -1.279441, 1.591596 )
+    --Turn(left_head, z_axis, -0.000000, 0.006743 )
+    --Turn(left_head, z_axis, -0.000000, 0.386366 )
+    --Turn(right_arm2, z_axis, -0.000000, 0.054831 )
+    --Turn(right_arm2, z_axis, -0.000000, 1.652012 )
+    --Turn(right_arm3, z_axis, -0.000000, 0.036554 )
+    --Turn(right_arm3, z_axis, -0.000000, 1.101341 )
+    --Turn(right_back_cover1, x_axis, -1.279441, 1.591596 )
+    --Turn(right_head, z_axis, -0.000000, 0.006743 )
+    --Turn(right_head, z_axis, -0.000000, 0.386366 )
+    --Sleep(494)
+    ---- Frame:104
+    --Turn(left_cover1, x_axis, -0.000000, 0.057681 )
+    --Turn(left_cover1, x_axis, -0.000000, 2.020170 )
+    --Turn(right_back_cover1, x_axis, -0.000000, 0.057681 )
+    --Turn(right_back_cover1, x_axis, -0.000000, 2.020170 )
+    --Sleep(626)
+    ---- Frame:108
+    --Turn(left_cover1, x_axis, -1.046136, 7.846019 )
+    --Turn(right_back_cover1, x_axis, -1.046136, 7.846019 )
+    --Turn(right_head_advanced, z_axis, 0.017498, 0.131232 )-- Failed to find previous position for boneright_head_advancedaxisrotation_euler1
+    --Sleep(131)
+    ---- Frame:111
+    --Turn(left_cover1, x_axis, -2.002834, 9.566982 )
+    --Turn(left_head_advanced, z_axis, -0.229863, 2.298634 )
+    --Turn(right_back_cover1, x_axis, -2.002834, 9.566982 )
+    --Turn(right_head_advanced, z_axis, 1.223433, 2.208933 )
+    --Sleep(98)
 end
 
 --- open_advanced

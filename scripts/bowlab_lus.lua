@@ -57,6 +57,10 @@ local right_pointer2 = piece 'right_pointer2'
 local left_pointer1 = piece 'left_pointer1'
 local left_pointer2 = piece 'left_pointer2'
 
+local pointer = { left_pointer, right_pointer }
+
+VFS.Include("scripts/include/springtweener.lua")
+
 local scriptEnv = { back_connection     = back_connection    ,
                     left_back_base      = left_back_base     ,
                     left_back_wall      = left_back_wall     ,
@@ -88,7 +92,8 @@ local scriptEnv = { back_connection     = back_connection    ,
                     right_front_sign    = right_front_sign   ,
                     right_head          = right_head         ,
                     right_head_advanced = right_head_advanced,
-    -- rad = math.rad
+
+                    rad = math.rad,
                     x_axis = x_axis,
                     y_axis = y_axis,
                     z_axis = z_axis,
@@ -96,6 +101,8 @@ local scriptEnv = { back_connection     = back_connection    ,
                     Turn = Turn,
                     Move = Move,
                     Sleep = Sleep,
+
+                    initTween = initTween,
 }
 
 local PlayAnimation = VFS.Include("scripts/animations/bowlab_anim.lua", scriptEnv)
@@ -303,7 +310,9 @@ function script.QueryNanoPiece(piecenum)
     if isAdvanced then
         piecenum = left_pointer1
     else
-        piecenum = left_pointer
+        --piecenum = left_pointer
+        piecenum = pointer[math.random(1,2)]
+        --local pointer = { "left_pointer", "right_pointer" }
     end
 	return piecenum
 end
