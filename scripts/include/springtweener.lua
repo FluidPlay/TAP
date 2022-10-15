@@ -1,9 +1,8 @@
---- Created by Breno.
+--- Created by Breno "MaDDoX" Azevedo
 --- DateTime: 15-Oct-22 3:12 AM
----
+--- License: GPLv3
 
 local easingFunctions = VFS.Include("scripts/include/easing.lua")
---local inOutCubic = easingFunctions.inOutCubic
 
 local functionFromString = {
     ["linear"] = easingFunctions.linear,
@@ -101,7 +100,6 @@ end
 ---This function recurses the tween until it's (fully) done, then returns to the caller (tweenPiece)
 ---pieceID, cmd, axis, startValue, valueDelta, prevValue, startTime, duration, easingFunction
 local function tweenPieces(tweenData)
-    --local tweenDeltaTime = spGetGameFrame()*0.03 - tweenData.startTime
     local currentFrame = spGetGameFrame()
     local tweenDeltaFrame = currentFrame - tweenData.startFrame
 
@@ -113,9 +111,7 @@ local function tweenPieces(tweenData)
         local durationInS = pieceData.durationInS
         local firstFrame = pieceData.firstFrame
         local pieceDeltaFrame = tweenDeltaFrame - firstFrame   -- eg: tweenDF 32, firstFrame 28 => tweenDF = 2
-        --Spring.Echo("pieceDeltaFrame: "..pieceDeltaFrame.." firstFrame: "..firstFrame.." tweenDeltaFrame: "..tweenDeltaFrame.." last: "..pieceData.lastFrame)
         if pieceDeltaFrame >= 0 and tweenDeltaFrame <= pieceData.lastFrame then
-            --if fullTweenDeltaFrame <= duration then
             local pieceID = pieceData.pieceID
             local cmd = pieceData.cmd
             local valueDelta = pieceData.valueDelta
@@ -164,14 +160,6 @@ function initTween (tweenData)
         local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
                               ["turn"] = {[x_axis] = dirX, [y_axis] = dirY, [z_axis] = dirZ,},
         }
-        --Spring.Echo("start dir x,y,z: "..tostring(startPosDir["turn"][x_axis]..", "..tostring(startPosDir["turn"][y_axis])..", "..tostring(startPosDir["turn"][z_axis])) )
-        --local thisPieceValue = pieceValue[pieceID]
-        --if not thisPieceValue[cmd] or not thisPieceValue[cmd][axis] then
-        --    Spring.Echo("Couldn't find cmd or axis for piece: "..pieceID.." axis: "..axis)
-        --    return end
-
-        -- Spring.Echo("Value Delta: "..valueDelta", Start Time: "..startTime)
-
         --- Gotta normalize the current piece angle, 'coz GetPieceTrans/Rot doesn't do it (results in not-shortest rotations)
         local startValue = normalizeAngle(startPosDir[cmd][axis])
 
@@ -181,9 +169,8 @@ function initTween (tweenData)
         pieceData.durationInS = pieceData.lastFrame <= pieceData.firstFrame and 0
                 or ((pieceData.lastFrame - pieceData.firstFrame) / 30)
     end
-    --at start, prevValue == startValue
-    tweenPieces(tweenData)
 
+    tweenPieces(tweenData)
     --Spring.Echo("Done Tweening!")
 end
 
