@@ -377,19 +377,18 @@ local function SpinTop()
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(topSpinAngle),
                          axis = z_axis, easingFunction = inOutCubic, duration = 5,
                        },
-                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
-                        axis = y_axis, easingFunction = inOutCubic, duration = 2,
-                       },
-                })
+                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
+                --        axis = y_axis, easingFunction = inOutCubic, duration = 2,
+                --       },
+                } )
     initTween({ totalDuration = 5,
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(-topSpinAngle),
                         axis = z_axis, easingFunction = inOutCubic, duration = 5,
                 },
-                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
-                        axis = y_axis, easingFunction = inOutCubic, duration = 2,
-                       },
-    })
-
+                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
+                --        axis = y_axis, easingFunction = inOutCubic, duration = 2,
+                --       },
+                } )
 
     SpinTop()
 end
