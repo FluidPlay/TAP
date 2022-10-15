@@ -4,7 +4,6 @@ local justcreated = false
 local statechg_DesiredState, statechg_StateChanging
 local level = 1
 
-local spGetGameFrame = Spring.GetGameFrame
 local Explode = Spring.UnitScript.Explode
 local sfxShatter = SFX.SHATTER
 local sfxBITMAPONLY = 32    --https://github.com/Balanced-Annihilation/Balanced-Annihilation/blob/master/scripts/exptype.h
@@ -24,11 +23,9 @@ local sleepTime = sleepPerFrame * keyframeDelta		-- 133.3333 == 4 frames (1f = 0
 
 local pieceValue = {}
 
-local TWO_PI = 2*math.pi
-
 VFS.Include("gamedata/taptools.lua")
-local easingFunctions = VFS.Include("scripts/include/easing.lua")
-local inOutCubic = easingFunctions.inOutCubic
+VFS.Include("scripts/include/springtweener.lua")
+
 local topSpinAngle = 35
 
 --- Animations-begin =======================================
@@ -224,145 +221,6 @@ local function SmokeUnit(healthpercent, sleeptime, smoketype)
 	end
 end
 
-
-local function LerpPiece(pieceID, cmd, axis, targetValue, t)
-    --TODO: Move ;; if cmd == "turn" then
-    -- pieceValue.Top = { move = {x = 0, y = 0, z = 0}, turn = {x = 0, y = 0, z = 0},}
-    local thisPieceValue = pieceValue[pieceID]
-    if not thisPieceValue[cmd] or not thisPieceValue[cmd][axis] then
-        Spring.Echo(" Couldn't find cmd or axis for piece: "..pieceID.." axis: "..axis)
-    return end
-
-    --local speedMult = 1.4
-    local curValue = thisPieceValue[cmd][axis]
-    local newValue = lerp(curValue, targetValue, t) --*speedMult)
-
-    -- If reached target value (given a toleration delta), stop lerping
-    --if (newValue - curValue < 0.01) then
-    --    Spring.Echo("Done Lerping!")
-    --    return end
-
-    local speed = math.abs(newValue - curValue) / sleepTime --TODO: 0.25 is speed mult * 0.25
-
-    if (speed < 0.1) then
-        Spring.Echo("Done Lerping!")
-        return end
-
-    Turn(pieceID, axis, newValue, speed )
-
-    Sleep(sleepTime * 1000) --133.3333
-    Spring.Echo("f: "..spGetGameFrame().." oldValue: "..curValue.." newValue: "..newValue.." delta: "..(newValue - curValue).." speed: "..speed.." sleepTime: "..sleepTime)
-
-    -- Update piece value and recurse
-    pieceValue[pieceID][cmd][axis] = newValue
-    LerpPiece(pieceID, cmd, axis, targetValue, t)
-end
-
--- Normalize between -PI and PI (to prevent unwanted longest-angle rotations)
-local function normalizeAngle(angle)
-    --return math.atan2(math.sin(angle), math.cos(angle)) ---slower ver, below is faster
-    return angle - TWO_PI * math.floor((angle + math.pi) / TWO_PI)
-end
-
--- inOutCubic = easingFunctions.inOutCubic
------ t = time     should go from 0 to duration
----- b = begin    value of the property being ease.
----- c = change   (delta) ending value of the property - beginning value of the property
----- d = duration
---
---beginVal = 0
---endVal = 1
---change = endVal - beginVal
---duration = 1
---
---print(inOutCubic(0             , beginVal, change, duration)) --> 0
---print(inOutCubic(duration / 4  , beginVal, change, duration)) --> 0.3828125
---print(inOutCubic(duration / 2  , beginVal, change, duration)) --> 0.5
---print(inOutCubic(duration / 3/4, beginVal, change, duration)) --> 0.10503472222222
---print(inOutCubic(duration      , beginVal, change, duration)) --> 1
-
----This function recurses the tween until it's (fully) done, then returns to the caller (tweenPiece)
----pieceID, cmd, axis, startValue, valueDelta, prevValue, startTime, duration, easingFunction
-local function tweenPieces(tweenData)
-    local tweenDeltaTime = spGetGameFrame()*0.03 - tweenData.startTime
-    local totalDuration = tweenData.totalDuration
-
-    --- That's the full duration of the included tweens, something like the animation duration in Blender, for instance
-    if tweenDeltaTime > totalDuration then
-        return end
-
-    for i, pieceData in ipairs(tweenData) do
-        local duration = pieceData.duration
-        if tweenDeltaTime <= duration then
-            local pieceID = pieceData.pieceID
-            local cmd = pieceData.cmd
-            local valueDelta = pieceData.valueDelta
-            local axis = pieceData.axis
-            local easingFunction = pieceData.easingFunction
-            local prevValue = pieceData.prevValue
-            local startValue = pieceData.startValue
-
-            --Actually do the Tween calculation below
-            local newValue = easingFunction(tweenDeltaTime, startValue, valueDelta, duration)
-            local speed = math.abs(newValue - prevValue) / sleepTime
-
-            if cmd == "turn" then
-                Turn(pieceID, axis, newValue, speed )
-                --Spring.Echo("Turning: "..pieceID)
-            else
-                Move(pieceID, axis, newValue, speed )
-            end
-            pieceData.prevValue = newValue
-            --Spring.Echo("time: "..(spGetGameFrame()*0.03).."f: "..spGetGameFrame().." deltaTime: "..tweenDeltaTime.." startValue: "..startValue.." newValue: "..newValue.." speed: "..speed)
-        end
-    end
-    Sleep(sleepTime * 1000)
-    tweenPieces(tweenData)
-end
-
---- Multi-piece tween
-local function initTween (tweenData)
-    --Setup tweenData with starting values (time, etc)
-    tweenData.startTime = spGetGameFrame()*0.03 --30/1000 - 30 frames per second, to miliseconds
-    for _, pieceData in ipairs(tweenData) do
-        local pieceID = pieceData.pieceID
-        local cmd = pieceData.cmd
-        local targetValue = pieceData.targetValue
-        local axis = pieceData.axis
-
-        local posX, posY, posZ = Spring.UnitScript.GetPieceTranslation (pieceID)
-        local dirX, dirY, dirZ = Spring.UnitScript.GetPieceRotation (pieceID)
-        if not posX or not dirX then
-            Spring.Echo("Tween Error: Piece info couldn't be determined for "..unitID)
-            return
-        end
-        local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
-                              ["turn"] = {[x_axis] = dirX, [y_axis] = dirY, [z_axis] = dirZ,},
-                            }
-        --Spring.Echo("start dir x,y,z: "..tostring(startPosDir["turn"][x_axis]..", "..tostring(startPosDir["turn"][y_axis])..", "..tostring(startPosDir["turn"][z_axis])) )
-        --local thisPieceValue = pieceValue[pieceID]
-        --if not thisPieceValue[cmd] or not thisPieceValue[cmd][axis] then
-        --    Spring.Echo("Couldn't find cmd or axis for piece: "..pieceID.." axis: "..axis)
-        --    return end
-
-        -- Spring.Echo("Value Delta: "..valueDelta", Start Time: "..startTime)
-
-        local startValue = normalizeAngle(startPosDir[cmd][axis])
-
-        pieceData.valueDelta = targetValue - startValue
-        pieceData.startValue = startValue
-        pieceData.prevValue = startValue                    -- initialize with startValue
-
-        ---TODO:
-        ---tweenData.startTime => tweenData.startFrame
-        ---tweenData.endFrame [new]
-    end
-    --at start, prevValue == startValue
-    tweenPieces(tweenData)
-
-    --Spring.Echo("Done Tweening!")
-end
-
 local function SpinTop()
     if not GetUnitValue(COB.ACTIVATION) then
         return
@@ -373,21 +231,21 @@ local function SpinTop()
     --tweenPiece(Top, "turn", z_axis, math.rad(topSpinAngle), 5, inOutCubic)
     --tweenPiece(Top, "turn", z_axis, math.rad(-topSpinAngle), 5, inOutCubic)
 
-    initTween({ totalDuration = 5,
+    initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(topSpinAngle),
-                         axis = z_axis, easingFunction = inOutCubic, duration = 5,
+                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                        },
-                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
-                --        axis = y_axis, easingFunction = inOutCubic, duration = 2,
-                --       },
+                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
+                        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
+                       },
                 } )
-    initTween({ totalDuration = 5,
+    initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
                 [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(-topSpinAngle),
-                        axis = z_axis, easingFunction = inOutCubic, duration = 5,
+                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                 },
-                --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
-                --        axis = y_axis, easingFunction = inOutCubic, duration = 2,
-                --       },
+                [2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
+                        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
+                       },
                 } )
 
     SpinTop()
@@ -398,9 +256,9 @@ local function StopTopSpin()
     --LerpPiece(Top, "turn", z_axis, math.rad(0), 0.5) -- final angle, interpolator (t)
 
     --tweenPiece(Top, "turn", z_axis, math.rad(0), 1.25, inOutCubic)
-    initTween({ duration = 1.5,
+    initTween({ finalEndFrame = 1.5*30, sleepTime = sleepTime,
                 [1] = { pieceID = Top, cmd = "turn", targetValue = 0,
-                        axis = z_axis, easingFunction = inOutCubic
+                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 1.5*30,
                 },
         --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
         --        axis = y_axis, easingFunction = inOutCubic
