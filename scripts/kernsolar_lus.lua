@@ -232,7 +232,7 @@ local function SpinTop()
     --tweenPiece(Top, "turn", z_axis, math.rad(-topSpinAngle), 5, inOutCubic)
 
     initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
-                [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(topSpinAngle),
+                [Top] = { cmd = "turn", targetValue = math.rad(topSpinAngle),
                          axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                        },
                 --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
@@ -240,7 +240,7 @@ local function SpinTop()
                 --       },
                 } )
     initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
-                [1] = { pieceID = Top, cmd = "turn", targetValue = math.rad(-topSpinAngle),
+                [Top] = { cmd = "turn", targetValue = math.rad(-topSpinAngle),
                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
                 },
                 --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
@@ -257,7 +257,7 @@ local function StopTopSpin()
 
     --tweenPiece(Top, "turn", z_axis, math.rad(0), 1.25, inOutCubic)
     initTween({ finalEndFrame = 1.5*30, sleepTime = sleepTime,
-                [1] = { pieceID = Top, cmd = "turn", targetValue = 0,
+                [Top] = { cmd = "turn", targetValue = 0,
                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 1.5*30,
                 },
         --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),

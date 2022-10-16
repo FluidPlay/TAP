@@ -11,29 +11,32 @@ local Animations = {};
 --- open_default
 local function anim1()
     initTween({ finalEndFrame = 52, --sleepTime = sleepTime,
-                [1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
-                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,
+                --[1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
+                --        targetValue = rad(120), firstFrame = 0, lastFrame = 52,
+                --},
+                [right_back_cover1] = { [1] = { cmd = "turn", axis = x_axis,
+                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,}
                 },
-                [2] = { pieceID = left_cover1, cmd = "turn", axis = x_axis,
-                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,
+                [left_cover1] = { [1] = { cmd = "turn", axis = x_axis,
+                        targetValue = rad(120), firstFrame = 0, lastFrame = 52,}
                 },
-                [3] = { pieceID = right_arm2, cmd = "turn", axis = z_axis,
-                        targetValue = rad(90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                [right_arm2] = { [1] = { cmd = "turn", axis = z_axis,
+                        targetValue = rad(90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
-                [4] = { pieceID = left_arm2, cmd = "turn", axis = z_axis,
-                        targetValue = rad(-90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                [left_arm2] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = rad(-90), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
-                [5] = { pieceID = right_arm3, cmd = "turn", axis = z_axis,
-                        targetValue = rad(60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                [right_arm3] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = rad(60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
-                [6] = { pieceID = left_arm3, cmd = "turn", axis = z_axis,
-                        targetValue = rad(-60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",
+                [left_arm3] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = rad(-60), firstFrame = 32, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
-                [7] = { pieceID = right_head, cmd = "turn", axis = z_axis,
-                        targetValue = rad(45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",
+                [right_head] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = rad(45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
-                [8] = { pieceID = left_head, cmd = "turn", axis = z_axis,
-                        targetValue = rad(-45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",
+                [left_head] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = rad(-45), firstFrame = 40, lastFrame = 52, easingFunction = "inOutCirc",}
                 },
     })
     ---- Frame:1
@@ -77,29 +80,32 @@ end
 --- Close_default
 local function anim2()
     initTween({ finalEndFrame = 48,
-                [1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
-                        targetValue = 0, firstFrame = 12, lastFrame = 48,
+                --[1] = { pieceID = right_back_cover1, cmd = "turn", axis = x_axis,
+                --        targetValue = 0, firstFrame = 12, lastFrame = 48,
+                --},
+                [right_back_cover1] = { [1] = {cmd = "turn", axis = x_axis,
+                        targetValue = 0, firstFrame = 12, lastFrame = 48,}
                 },
-                [2] = { pieceID = left_cover1, cmd = "turn", axis = x_axis,
-                        targetValue = 0, firstFrame = 12, lastFrame = 48,
+                [left_cover1] = { [1] = {cmd = "turn", axis = x_axis,
+                        targetValue = 0, firstFrame = 12, lastFrame = 48,}
                 },
-                [3] = { pieceID = right_arm2, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [right_arm2] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
-                [4] = { pieceID = left_arm2, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [left_arm2] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
-                [5] = { pieceID = right_arm3, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [right_arm3] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
-                [6] = { pieceID = left_arm3, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [left_arm3] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
-                [7] = { pieceID = right_head, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [right_head] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
-                [8] = { pieceID = left_head, cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,
+                [left_head] = { [1] = {cmd = "turn", axis = z_axis,
+                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
                 },
     })
     ---- Frame:56

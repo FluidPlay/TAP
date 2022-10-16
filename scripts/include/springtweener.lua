@@ -48,6 +48,29 @@ local functionFromString = {
     ["outInBounce"] = easingFunctions.outInBounce,
 }
 
+local function ipairs_sparse(t)
+    -- tmpIndex will hold sorted indices, otherwise
+    -- this iterator would be no different from pairs iterator
+    local tmpIndex = {}
+    local index, _ = next(t)
+    while index do
+        tmpIndex[#tmpIndex+1] = index
+        index, _ = next(t, index)
+    end
+    -- sort table indices
+    table.sort(tmpIndex)
+    local j = 1
+
+    return function()
+        -- get index value
+        local i = tmpIndex[j]
+        j = j + 1
+        if i then
+            return i, t[i]
+        end
+    end
+end
+
 local spGetGameFrame = Spring.GetGameFrame
 local spGetPieceTranslation = Spring.UnitScript.GetPieceTranslation
 local spGetPieceRotation = Spring.UnitScript.GetPieceRotation
@@ -106,33 +129,36 @@ local function tweenPieces(tweenData)
     --- That's the full duration of the included tweens, something like the animation duration in Blender, for instance
     if tweenDeltaFrame > tweenData.finalEndFrame then
         return end
+    for pieceID, pieceData in pairs(tweenData) do
+        if type(pieceID) == "number" then
+            for _, pieceTween in ipairs(pieceData) do
+                local durationInS = pieceTween.durationInS
+                local firstFrame = pieceTween.firstFrame
+                local pieceDeltaFrame = tweenDeltaFrame - firstFrame   -- eg: tweenDF 32, firstFrame 28 => tweenDF = 2
+                if pieceDeltaFrame >= 0 and tweenDeltaFrame <= pieceTween.lastFrame then
+                    --local pieceID = pieceTween.pieceID
+                    local cmd = pieceTween.cmd
+                    local valueDelta = pieceTween.valueDelta
+                    local axis = pieceTween.axis
+                    local strEasingFunction = pieceTween.easingFunction and pieceTween.easingFunction or "inOutCubic"
+                    local easingFunction = functionFromString[strEasingFunction]
+                    local prevValue = pieceTween.prevValue
+                    local startValue = pieceTween.startValue
 
-    for i, pieceData in ipairs(tweenData) do
-        local durationInS = pieceData.durationInS
-        local firstFrame = pieceData.firstFrame
-        local pieceDeltaFrame = tweenDeltaFrame - firstFrame   -- eg: tweenDF 32, firstFrame 28 => tweenDF = 2
-        if pieceDeltaFrame >= 0 and tweenDeltaFrame <= pieceData.lastFrame then
-            local pieceID = pieceData.pieceID
-            local cmd = pieceData.cmd
-            local valueDelta = pieceData.valueDelta
-            local axis = pieceData.axis
-            local strEasingFunction = pieceData.easingFunction and pieceData.easingFunction or "inOutCubic"
-            local easingFunction = functionFromString[strEasingFunction]
-            local prevValue = pieceData.prevValue
-            local startValue = pieceData.startValue
+                    --Actually do the Tween calculation below (1st convert frame to milliseconds)
+                    local newValue = easingFunction(pieceDeltaFrame/30, startValue, valueDelta, durationInS)
+                    local speed = math.abs(newValue - prevValue) / tweenData.sleepTime
 
-            --Actually do the Tween calculation below (1st convert frame to milliseconds)
-            local newValue = easingFunction(pieceDeltaFrame/30, startValue, valueDelta, durationInS)
-            local speed = math.abs(newValue - prevValue) / tweenData.sleepTime
-
-            if cmd == "turn" then
-                Turn(pieceID, axis, newValue, speed )
-                --Spring.Echo("Turning: "..pieceID)
-            else
-                Move(pieceID, axis, newValue, speed )
+                    if cmd == "turn" then
+                        Turn(pieceID, axis, newValue, speed )
+                        --Spring.Echo("Turning: "..pieceID)
+                    else
+                        Move(pieceID, axis, newValue, speed )
+                    end
+                    pieceTween.prevValue = newValue
+                    --Spring.Echo("tweenDeltaFrame: "..tweenDeltaFrame.." f: "..currentFrame.." deltaTime: "..pieceDeltaFrame.." startValue: "..startValue.." newValue: "..newValue.." speed: "..speed)
+                end
             end
-            pieceData.prevValue = newValue
-            --Spring.Echo("tweenDeltaFrame: "..tweenDeltaFrame.." f: "..currentFrame.." deltaTime: "..pieceDeltaFrame.." startValue: "..startValue.." newValue: "..newValue.." speed: "..speed)
         end
     end
     Sleep(tweenData.sleepTime * 1000)
@@ -145,29 +171,33 @@ function initTween (tweenData)
     if not tweenData.sleepTime then
         tweenData.sleepTime = 0.133333 -- default is 4 frames for each speed update
     end
-    for _, pieceData in ipairs(tweenData) do
-        local pieceID = pieceData.pieceID
-        local cmd = pieceData.cmd
-        local targetValue = pieceData.targetValue
-        local axis = pieceData.axis
+    for pieceID, pieceData in pairs(tweenData) do
+        if type(pieceID) == "number" then
+            --- Each piece may have multiple tweens (start/end frames) in the same full range (defined by finalEndFrame)
+            for _, pieceTween in ipairs(pieceData) do
+                local cmd = pieceTween.cmd
+                local targetValue = pieceTween.targetValue
+                local axis = pieceTween.axis
 
-        local posX, posY, posZ = spGetPieceTranslation (pieceID)
-        local dirX, dirY, dirZ = spGetPieceRotation (pieceID)
-        if not posX or not dirX then
-            Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
-            return
+                local posX, posY, posZ = spGetPieceTranslation (pieceID)
+                local dirX, dirY, dirZ = spGetPieceRotation (pieceID)
+                if not posX or not dirX then
+                    Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
+                    return
+                end
+                local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
+                                      ["turn"] = {[x_axis] = dirX, [y_axis] = dirY, [z_axis] = dirZ,},
+                }
+                --- Gotta normalize the current piece angle, 'coz GetPieceTrans/Rot doesn't do it (results in not-shortest rotations)
+                local startValue = normalizeAngle(startPosDir[cmd][axis])
+
+                pieceTween.valueDelta = targetValue - startValue
+                pieceTween.startValue = startValue
+                pieceTween.prevValue = startValue                    -- initialize with startValue
+                pieceTween.durationInS = pieceTween.lastFrame <= pieceTween.firstFrame and 0
+                        or ((pieceTween.lastFrame - pieceTween.firstFrame) / 30)
+            end
         end
-        local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
-                              ["turn"] = {[x_axis] = dirX, [y_axis] = dirY, [z_axis] = dirZ,},
-        }
-        --- Gotta normalize the current piece angle, 'coz GetPieceTrans/Rot doesn't do it (results in not-shortest rotations)
-        local startValue = normalizeAngle(startPosDir[cmd][axis])
-
-        pieceData.valueDelta = targetValue - startValue
-        pieceData.startValue = startValue
-        pieceData.prevValue = startValue                    -- initialize with startValue
-        pieceData.durationInS = pieceData.lastFrame <= pieceData.firstFrame and 0
-                or ((pieceData.lastFrame - pieceData.firstFrame) / 30)
     end
 
     tweenPieces(tweenData)

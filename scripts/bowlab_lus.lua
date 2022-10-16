@@ -52,10 +52,10 @@ local right_back_cover2   = piece 'right_back_cover2'
 local right_front_sign    = piece 'right_front_sign'
 local right_head          = piece 'right_head'
 local right_head_advanced = piece 'right_head_advanced'
-local right_pointer1 = piece 'right_pointer1'
-local right_pointer2 = piece 'right_pointer2'
-local left_pointer1 = piece 'left_pointer1'
-local left_pointer2 = piece 'left_pointer2'
+local right_pointer1      = piece 'right_pointer1'
+local right_pointer2      = piece 'right_pointer2'
+local left_pointer1       = piece 'left_pointer1'
+local left_pointer2       = piece 'left_pointer2'
 
 local pointer = { left_pointer, right_pointer }
 
