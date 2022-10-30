@@ -290,6 +290,7 @@ local function InitState()
         Hide(right_pointer)
         Hide(left_pointer)
 		isAdvanced = true
+        -- PlayAnimation.testanim()
 	end
 
 	--EnableTowers()

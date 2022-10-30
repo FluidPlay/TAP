@@ -37,10 +37,13 @@ local armorDefs = {
      --         "corsok","armintr","armmanni", "armjam",},
 
     --++++==== Air
-	air = { "corbw","armaca","armawac","armca","armcsa","armfig","armhawk","armsehak","armsfig","corawac","corca","corcsa",
-			"corhunt","corsfig","corvamp","corveng","armkam","armatlas","armbrawl","armdfly","armpeep","armsaber","armseap",
-			"corseah","corape","corcut","corfink","corseap","corvalk","armblade", },
-    armorair={"armliche","armlance","armpnix","armsb","armthund","corstil","corhurc","corsb","corshad","cortitan","corcrw","armanac","corsnap",},
+
+	air = { "armfig","armhawk","corveng","corvamp", },
+    armorair={"corbw","armaca","armawac","armca","armcsa","armsehak","armsfig","corawac","corca","corcsa",
+              "corhunt","corsfig","armkam","armatlas","armbrawl","armdfly","armpeep","armsaber","armseap",
+              "corseah","corape","corcut","corfink","corseap","corvalk","armblade","armliche","armlance",
+              "armpnix","armsb","armthund","corstil","corhurc","corsb","corshad","cortitan","corcrw","armanac",
+              "corsnap",},
 	--lightair={"corbw","armaca","armawac","armca","armcsa","armfig","armhawk","armsehak","armsfig","corawac","corca","corcsa","corhunt","corsfig","corvamp","corveng",},
 	--supportair={"armkam","armatlas","armbrawl","armdfly","armpeep","armsaber","armseap","corseah","corape","corcut","corfink","corseap","corvalk","armblade",},
 	--heavyair={"armliche","armlance","armpnix","armsb","armthund","corstil","corhurc","corsb","corshad","cortitan","corcrw",},

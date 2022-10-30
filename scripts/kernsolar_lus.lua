@@ -230,18 +230,17 @@ local function SpinTop()
 
     --tweenPiece(Top, "turn", z_axis, math.rad(topSpinAngle), 5, inOutCubic)
     --tweenPiece(Top, "turn", z_axis, math.rad(-topSpinAngle), 5, inOutCubic)
-
-    initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
-                [Top] = { cmd = "turn", targetValue = math.rad(topSpinAngle),
-                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
+    initTween({ veryLastFrame = 5*30, --sleepTime = sleepTime,
+                [Top] = { [1] = { cmd = "turn", targetValue = math.rad(topSpinAngle),
+                         axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 150,}
                        },
                 --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
                 --        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
                 --       },
                 } )
-    initTween({ finalEndFrame = 5*30, sleepTime = sleepTime,
-                [Top] = { cmd = "turn", targetValue = math.rad(-topSpinAngle),
-                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 5*30,
+    initTween({ veryLastFrame = 5*30, --sleepTime = sleepTime,
+                [Top] = { [1] = { cmd = "turn", targetValue = math.rad(-topSpinAngle),
+                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 150,}
                 },
                 --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(-90),
                 --        axis = y_axis, easingFunction = "inOutCubic", firstFrame = 2*30, lastFrame = 4*30,
@@ -256,9 +255,9 @@ local function StopTopSpin()
     --LerpPiece(Top, "turn", z_axis, math.rad(0), 0.5) -- final angle, interpolator (t)
 
     --tweenPiece(Top, "turn", z_axis, math.rad(0), 1.25, inOutCubic)
-    initTween({ finalEndFrame = 1.5*30, sleepTime = sleepTime,
-                [Top] = { cmd = "turn", targetValue = 0,
-                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 1.5*30,
+    initTween({ veryLastFrame = 1.5*30, sleepTime = sleepTime,
+                [Top] = { [1] = { cmd = "turn", targetValue = 0,
+                        axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 1.5*30,}
                 },
         --[2] = { pieceID = Base, cmd = "turn", targetValue = math.rad(90),
         --        axis = y_axis, easingFunction = inOutCubic

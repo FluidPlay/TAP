@@ -127,7 +127,7 @@ local function tweenPieces(tweenData)
     local tweenDeltaFrame = currentFrame - tweenData.startFrame
 
     --- That's the full duration of the included tweens, something like the animation duration in Blender, for instance
-    if tweenDeltaFrame > tweenData.finalEndFrame then
+    if tweenDeltaFrame > tweenData.veryLastFrame then
         return end
     for pieceID, pieceData in pairs(tweenData) do
         if type(pieceID) == "number" then
@@ -173,7 +173,7 @@ function initTween (tweenData)
     end
     for pieceID, pieceData in pairs(tweenData) do
         if type(pieceID) == "number" then
-            --- Each piece may have multiple tweens (start/end frames) in the same full range (defined by finalEndFrame)
+            --- Each piece may have multiple tweens (start/end frames) in the same full range (defined by veryLastFrame)
             for _, pieceTween in ipairs(pieceData) do
                 local cmd = pieceTween.cmd
                 local targetValue = pieceTween.targetValue

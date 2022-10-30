@@ -9,7 +9,7 @@
 --
 local damageMultipliers = {
 
-    laser = { 	robot = 1.5, vehicle = 0.5, air = 1.1, ship = 1, armorbot = 0.75, armorveh = 0.25, armorair = 0.8, armorship = 0.5,
+    laser = { 	robot = 1.5, vehicle = 0.5, air = 0.5, ship = 1, armorbot = 0.75, armorveh = 0.25, armorair = 1.5, armorship = 0.5,
                 structure = 0.6, defense = 0.2, commander = 0.4, shield = 1, superunit = 1, ore = 0.15, },
     --    laser={     lightbot = 1.72, supportbot = 1.4,  heavybot = 0.6, lightveh = 0.61,    supportveh = 0.28,  heavyveh = 0.16,
     --                lightair = 1.395,supportair = 0.5,  heavyair = 1,   lightship = 1.25,   supportship = 2,    heavyship = 0.5,
@@ -48,7 +48,7 @@ local damageMultipliers = {
     --	}
     --,
 
-    pierce = { 	robot = 0.2, vehicle = 0.5, air = 1.3, ship = 1.5, armorbot = 0.4, armorveh = 3.5, armorair = 2, armorship = 2.4,
+    pierce = { 	robot = 0.2, vehicle = 0.5, air = 1.3, ship = 1.5, armorbot = 0.4, armorveh = 3.5, armorair = 2.0, armorship = 2.4,
                 structure = 0.75, defense = 0.2, commander = 0.5, shield = 1.5, superunit = 0.5, ore = 0.1, },
     --	rocket={ 	lightbot = 0.175,supportbot = 0.75, heavybot = 0.35,lightveh = 0.65,    supportveh = 0.85,	heavyveh = 4,
     --				lightair = 0.3,  supportair = 2.55, heavyair = 0.5, lightship = 2.45,   supportship = 1,    heavyship = 1.6,
