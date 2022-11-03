@@ -210,13 +210,13 @@ function initTween (tweenData)
                         nrmTargetValue = normalizeAngle(targetValue)
                         nrmStartValue = normalizeAngle(startValue)
                     else
-                        Spring.Echo("Big delta "..pieceTween.valueDelta.."found for piece "..pieceID)
+                        -- Spring.Echo("Big delta "..pieceTween.valueDelta.."found for piece "..pieceID)
                         nrmTargetValue = normalizeAngle(targetValue + 6.2)
                         nrmStartValue = normalizeAngle(startValue + 6.2)
                     end
                     pieceTween.valueDelta = nrmTargetValue - nrmStartValue
 				end
-                spEcho("pieceID: "..pieceID.." start Val: "..startValue.." target Val: "..targetValue.." normalized Start Value: "..nrmStartValue.." normalized Target Value: "..nrmTargetValue.." value Delta: "..pieceTween.valueDelta)
+                -- spEcho("pieceID: "..pieceID.." start Val: "..startValue.." target Val: "..targetValue.." normalized Start Value: "..nrmStartValue.." normalized Target Value: "..nrmTargetValue.." value Delta: "..pieceTween.valueDelta)
 
 				pieceTween.startValue = nrmStartValue
 				pieceTween.prevValue = nrmStartValue                    -- initialize with startValue
