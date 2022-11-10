@@ -114,14 +114,14 @@ void main() {
 		occlusion *= fragDistFactor;
 
 		// No occlusion gets white, full occlusion gets black.
-		occlusion = 1.0 - occlusion / float(SSAO_KERNEL_SIZE);
+		occlusion = 1.0 - occlusion / float(6); //SSAO_KERNEL_SIZE - 6 is a good number here
 
 		float occlusionAlpha = occlusion;
 		occlusionAlpha = pow(occlusionAlpha, SSAO_ALPHA_POW);
 
 		occlusionAlpha = clamp(1.0 - occlusionAlpha, 0.0, 1.0);
-		//occlusionAlpha = 1.0;
+		//occlusionAlpha = 0.5;
 
-		gl_FragColor = vec4(vec3(shadowDensity * occlusion), occlusionAlpha);
+		gl_FragColor = vec4(vec3(shadowDensity * occlusion), occlusionAlpha); //1.15 = extra brightness
 	}
 }

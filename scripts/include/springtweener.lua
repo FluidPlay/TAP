@@ -82,6 +82,9 @@ local spGetPieceRotation = Spring.UnitScript.GetPieceRotation
 local TWO_PI = 2*math.pi
 local Turn = Spring.UnitScript.Turn
 local Move = Spring.UnitScript.Move
+local Hide = Spring.UnitScript.Hide
+local Show = Spring.UnitScript.Show
+
 local Sleep = Spring.UnitScript.Sleep
 local x_axis, y_axis, z_axis = 1, 2, 3 -- axis: number (1 = x axis, 2 = y axis, 3 = z axis)
 
@@ -128,7 +131,7 @@ end
 ---pieceID, cmd, axis, startValue, valueDelta, prevValue, startTime, duration, easingFunction
 local function tweenPieces(tweenData)
 	local currentFrame = spGetGameFrame()
-	local tweenDeltaFrame = currentFrame - tweenData.startFrame
+	local tweenDeltaFrame = currentFrame - tweenData.startFrame     -- startFrame is the initial gameFrame
 
 	--- That's the full duration of the included tweens, something like the animation duration in Blender, for instance
 	if tweenDeltaFrame > tweenData.veryLastFrame then
@@ -136,15 +139,26 @@ local function tweenPieces(tweenData)
 	for pieceID, pieceData in pairs(tweenData) do
 		if type(pieceID) == "number" then
 			for _, pieceTween in ipairs(pieceData) do
-				local durationInS = pieceTween.durationInS
-				local firstFrame = pieceTween.firstFrame
-				local pieceDeltaFrame = tweenDeltaFrame - firstFrame   -- eg: tweenDF 32, firstFrame 28 => tweenDF = 2
-				if pieceDeltaFrame >= 0 and tweenDeltaFrame <= pieceTween.lastFrame then
+				local firstFrame = pieceTween.firstFrame    -- internal tween first frame
+				local pieceDeltaFrame = tweenDeltaFrame - firstFrame   -- eg: tweenDF 32, firstFrame 28 => pieceDF = 2
+                local lastFrame = pieceTween.lastFrame      -- internal tween first frame
+                local cmd = pieceTween.cmd
+                if cmd == "hide" or cmd == "show" then
+                    if (firstFrame < tweenDeltaFrame) then
+                        --Spring.Echo("piece: "..pieceID.." first frame: "..(firstFrame or "nil").." tweenDeltaFrame: "..(tweenDeltaFrame or "nil"))
+                        if cmd == "hide" then
+                            Hide(pieceID)
+                        end
+                        if cmd == "show" then
+                            Show(pieceID)
+                        end
+                    end
+                elseif pieceDeltaFrame >= 0 and tweenDeltaFrame <= lastFrame then
 					--local pieceID = pieceTween.pieceID
-					local cmd = pieceTween.cmd
+				    local durationInS = pieceTween.durationInS  -- duration in Seconds
 					local valueDelta = pieceTween.valueDelta
 					local axis = pieceTween.axis
-					local strEasingFunction = pieceTween.easingFunction and pieceTween.easingFunction or "inOutCubic"
+					local strEasingFunction = pieceTween.easingFunction and pieceTween.easingFunction or "inOutSine"
 					local easingFunction = functionFromString[strEasingFunction]
 					local prevValue = pieceTween.prevValue
 					local startValue = pieceTween.startValue
@@ -184,44 +198,43 @@ function initTween (tweenData)
 			--- Each piece may have multiple tweens (start/end frames) in the same full range (defined by veryLastFrame)
 			for _, pieceTween in ipairs(pieceData) do
 				local cmd = pieceTween.cmd
-				local targetValue = pieceTween.targetValue --normalizeAngle(
-				local axis = pieceTween.axis
+                if cmd == "move" or cmd == "turn" then  -- hide and show require no initial setup here
+                    local targetValue = pieceTween.targetValue --normalizeAngle(
+                    local axis = pieceTween.axis
 
-				local posX, posY, posZ = spGetPieceTranslation (pieceID)
-				local rotX, rotY, rotZ = spGetPieceRotation (pieceID)
-				if not posX or not rotX then
-					Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
-					return
-				end
-				local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
-									  ["turn"] = { [x_axis] = rotX, [y_axis] = rotY, [z_axis] = rotZ,},
-				}
-				local startValue = startPosDir[cmd][axis]  --normalizeAngle(
-
-                --- Gotta normalize the current piece angle, 'coz GetPieceTrans/Rot doesn't do it (results in not-shortest rotations)
-                ---TODO: Fix, use normalizeAngle only for turn
-                local nrmTargetValue = targetValue
-                local nrmStartValue = startValue
-                pieceTween.valueDelta = targetValue - startValue   -- valueSign * math.abs(
-                if cmd == "turn" then
-					-- local nrmStartValue = normalizeAngle(startValue)
-					--local valueSign = sign(targetValue-startValue)
-                    if pieceTween.valueDelta <= 3.1399 then
-                        nrmTargetValue = normalizeAngle(targetValue)
-                        nrmStartValue = normalizeAngle(startValue)
-                    else
-                        -- Spring.Echo("Big delta "..pieceTween.valueDelta.."found for piece "..pieceID)
-                        nrmTargetValue = normalizeAngle(targetValue + 6.2)
-                        nrmStartValue = normalizeAngle(startValue + 6.2)
+                    local posX, posY, posZ = spGetPieceTranslation (pieceID)
+                    local rotX, rotY, rotZ = spGetPieceRotation (pieceID)
+                    if not posX or not rotX then
+                        Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
+                        return
                     end
-                    pieceTween.valueDelta = nrmTargetValue - nrmStartValue
-				end
-                -- spEcho("pieceID: "..pieceID.." start Val: "..startValue.." target Val: "..targetValue.." normalized Start Value: "..nrmStartValue.." normalized Target Value: "..nrmTargetValue.." value Delta: "..pieceTween.valueDelta)
+                    local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
+                                          ["turn"] = { [x_axis] = rotX, [y_axis] = rotY, [z_axis] = rotZ,},
+                    }
+                    local startValue = startPosDir[cmd][axis]  --normalizeAngle(
 
-				pieceTween.startValue = nrmStartValue
-				pieceTween.prevValue = nrmStartValue                    -- initialize with startValue
-				pieceTween.durationInS = pieceTween.lastFrame <= pieceTween.firstFrame and 0
-						or ((pieceTween.lastFrame - pieceTween.firstFrame) / 30)
+                    --- Gotta normalize the current piece angle, since GetPieceTrans/Rot always it (else it results in not-shortest rotations)
+                    local nrmTargetValue = targetValue
+                    local nrmStartValue = startValue
+                    pieceTween.valueDelta = targetValue - startValue   -- valueSign * math.abs(
+                    if cmd == "turn" then
+                        if pieceTween.valueDelta <= 3.1399 then
+                            nrmTargetValue = normalizeAngle(targetValue)
+                            nrmStartValue = normalizeAngle(startValue)
+                        else
+                            -- Spring.Echo("Big delta "..pieceTween.valueDelta.." found for piece "..pieceID)
+                            nrmTargetValue = normalizeAngle(targetValue + 6.2)
+                            nrmStartValue = normalizeAngle(startValue + 6.2)
+                        end
+                        pieceTween.valueDelta = nrmTargetValue - nrmStartValue
+                    end
+                    -- spEcho("pieceID: "..pieceID.." start Val: "..startValue.." target Val: "..targetValue.." normalized Start Value: "..nrmStartValue.." normalized Target Value: "..nrmTargetValue.." value Delta: "..pieceTween.valueDelta)
+
+                    pieceTween.startValue = nrmStartValue
+                    pieceTween.prevValue = nrmStartValue                    -- initialize with startValue
+                    pieceTween.durationInS = pieceTween.lastFrame <= pieceTween.firstFrame and 0    --duration in seconds
+                            or ((pieceTween.lastFrame - pieceTween.firstFrame) / 30)
+                end
 			end
 		end
 	end

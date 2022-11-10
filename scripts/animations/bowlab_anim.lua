@@ -90,22 +90,22 @@ local function anim2()
                         targetValue = 0, firstFrame = 12, lastFrame = 48,}
                 },
                 [right_arm2] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
                 [left_arm2] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
                 [right_arm3] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
                 [left_arm3] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
                 [right_head] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
                 [left_head] = { [1] = {cmd = "turn", axis = z_axis,
-                        targetValue = 0, firstFrame = 0, lastFrame = 29,}
+                        targetValue = 0, firstFrame = 0, lastFrame = 28,}
                 },
     })
 end
@@ -128,53 +128,53 @@ local function anim3()
                    [1]={cmd="move", axis=x_axis, targetValue=13.500000, firstFrame=12, lastFrame=52,},
                },
                [right_front_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-11.600000, firstFrame=0, lastFrame=42,},
-                   [2]={cmd="move", axis=z_axis, targetValue=11.600000, firstFrame=0, lastFrame=42,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-11.600000, firstFrame=0, lastFrame=44,},
+                   [2]={cmd="move", axis=z_axis, targetValue=11.600000, firstFrame=0, lastFrame=44,},
                },
                [left_front_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=11.600000, firstFrame=0, lastFrame=42,},
-                   [2]={cmd="move", axis=z_axis, targetValue=11.600000, firstFrame=0, lastFrame=42,},
+                   [1]={cmd="move", axis=x_axis, targetValue=11.600000, firstFrame=0, lastFrame=44,},
+                   [2]={cmd="move", axis=z_axis, targetValue=11.600000, firstFrame=0, lastFrame=44,},
                },
                [right_front_wall]={
-                   [1]={cmd="move", axis=y_axis, targetValue=3.200000, firstFrame=40, lastFrame=50,},
+                   [1]={cmd="move", axis=y_axis, targetValue=3.200000, firstFrame=40, lastFrame=52,},
                },
                [left_front_wall]={
-                   [1]={cmd="move", axis=y_axis, targetValue=3.200000, firstFrame=40, lastFrame=50,},
+                   [1]={cmd="move", axis=y_axis, targetValue=3.200000, firstFrame=40, lastFrame=52,},
                },
                [left_front_sign]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=0.233050, firstFrame=42, lastFrame=48,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=0.233050, firstFrame=40, lastFrame=48,},
                    [2]={cmd="turn", axis=x_axis, targetValue=0.002041, firstFrame=48, lastFrame=60,},
                },
                [right_front_sign]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=0.233050, firstFrame=42, lastFrame=48,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=0.233050, firstFrame=40, lastFrame=48,},
                    [2]={cmd="turn", axis=x_axis, targetValue=0.002041, firstFrame=48, lastFrame=60,},
                },
                [right_back_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-11.400000, firstFrame=0, lastFrame=42,},
-                   [2]={cmd="move", axis=z_axis, targetValue=-11.400000, firstFrame=0, lastFrame=42,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-11.400000, firstFrame=0, lastFrame=44,},
+                   [2]={cmd="move", axis=z_axis, targetValue=-11.400000, firstFrame=0, lastFrame=44,},
                },
                [left_back_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=11.400000, firstFrame=0, lastFrame=42,},
-                   [2]={cmd="move", axis=z_axis, targetValue=-11.400000, firstFrame=0, lastFrame=42,},
+                   [1]={cmd="move", axis=x_axis, targetValue=11.400000, firstFrame=0, lastFrame=44,},
+                   [2]={cmd="move", axis=z_axis, targetValue=-11.400000, firstFrame=0, lastFrame=44,},
                },
                [right_back_wall]={
-                   [1]={cmd="move", axis=y_axis, targetValue=3.300000, firstFrame=42, lastFrame=50,},
+                   [1]={cmd="move", axis=y_axis, targetValue=3.300000, firstFrame=40, lastFrame=52,},
                },
                [left_back_wall]={
-                   [1]={cmd="move", axis=y_axis, targetValue=3.130494, firstFrame=42, lastFrame=50,},
-                   [2]={cmd="move", axis=y_axis, targetValue=3.300000, firstFrame=50, lastFrame=60,},
+                   [1]={cmd="move", axis=y_axis, targetValue=3.130494, firstFrame=40, lastFrame=52,},
+                   [2]={cmd="move", axis=y_axis, targetValue=3.300000, firstFrame=52, lastFrame=60,},
                },
                [back_connection]={
-                   [1]={cmd="move", axis=z_axis, targetValue=-11.483793, firstFrame=0, lastFrame=42,},
-                   [2]={cmd="move", axis=y_axis, targetValue=0.344059, firstFrame=0, lastFrame=42,},
-                   [3]={cmd="move", axis=z_axis, targetValue=-11.725308, firstFrame=42, lastFrame=50,},
-                   [4]={cmd="move", axis=y_axis, targetValue=3.483554, firstFrame=42, lastFrame=50,},
+                   [1]={cmd="move", axis=z_axis, targetValue=-11.483793, firstFrame=0, lastFrame=44,},
+                   [2]={cmd="move", axis=y_axis, targetValue=0.344059, firstFrame=0, lastFrame=44,},
+                   [3]={cmd="move", axis=z_axis, targetValue=-11.725308, firstFrame=44, lastFrame=52,},
+                   [4]={cmd="move", axis=y_axis, targetValue=3.483554, firstFrame=44, lastFrame=52,},
                },
                [left_cover1]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-2.093080, firstFrame=0, lastFrame=30,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-2.093080, firstFrame=0, lastFrame=32,},
                },
                [right_back_cover1]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-2.094395, firstFrame=0, lastFrame=30,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-2.094395, firstFrame=0, lastFrame=32,},
                },
                [left_arm2_advanced]={
                    [1]={cmd="turn", axis=z_axis, targetValue=-2.356194, firstFrame=12, lastFrame=52,},
@@ -201,23 +201,23 @@ end
 local function anim4()
     initTween({veryLastFrame=104,
                [right_upgrade]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-0.100034, firstFrame=8, lastFrame=41,},
-                   [2]={cmd="move", axis=z_axis, targetValue=0.305976, firstFrame=8, lastFrame=41,},
-                   [3]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=41, lastFrame=58,},
-                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=41, lastFrame=58,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-0.100034, firstFrame=8, lastFrame=40,},
+                   [2]={cmd="move", axis=z_axis, targetValue=0.305976, firstFrame=8, lastFrame=40,},
+                   [3]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=40, lastFrame=60,},
+                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=40, lastFrame=60,},
                },
                [left_upgrade]={
-                   [1]={cmd="move", axis=x_axis, targetValue=0.100034, firstFrame=8, lastFrame=41,},
-                   [2]={cmd="move", axis=z_axis, targetValue=0.305976, firstFrame=8, lastFrame=41,},
-                   [3]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=41, lastFrame=58,},
-                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=41, lastFrame=58,},
+                   [1]={cmd="move", axis=x_axis, targetValue=0.100034, firstFrame=8, lastFrame=40,},
+                   [2]={cmd="move", axis=z_axis, targetValue=0.305976, firstFrame=8, lastFrame=40,},
+                   [3]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=40, lastFrame=60,},
+                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=40, lastFrame=60,},
                },
                [right_arm1_advanced]={
                    [1]={cmd="move", axis=x_axis, targetValue=-0.254169, firstFrame=0, lastFrame=44,},
-                   [2]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=44, lastFrame=58,},
+                   [2]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=44, lastFrame=60,},
                },
                [left_arm1_advanced]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=0, lastFrame=60,},
                },
                [right_front_base]={
                    [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=4, lastFrame=48,},
@@ -234,20 +234,20 @@ local function anim4()
                    [1]={cmd="move", axis=y_axis, targetValue=0.289492, firstFrame=4, lastFrame=20,},
                },
                [left_front_sign]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-0.264369, firstFrame=6, lastFrame=16,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-0.264369, firstFrame=8, lastFrame=16,},
                    [2]={cmd="turn", axis=x_axis, targetValue=-0.037476, firstFrame=16, lastFrame=24,},
                },
                [right_front_sign]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-0.264369, firstFrame=6, lastFrame=16,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-0.264369, firstFrame=8, lastFrame=16,},
                    [2]={cmd="turn", axis=x_axis, targetValue=-0.037476, firstFrame=16, lastFrame=24,},
                },
                [right_back_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=4, lastFrame=58,},
-                   [2]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=4, lastFrame=58,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=4, lastFrame=60,},
+                   [2]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=4, lastFrame=60,},
                },
                [left_back_base]={
-                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=4, lastFrame=58,},
-                   [2]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=4, lastFrame=58,},
+                   [1]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=4, lastFrame=60,},
+                   [2]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=4, lastFrame=60,},
                },
                [right_back_wall]={
                    [1]={cmd="move", axis=y_axis, targetValue=0.300000, firstFrame=12, lastFrame=20,},
@@ -259,35 +259,35 @@ local function anim4()
                },
                [back_connection]={
                    [1]={cmd="move", axis=z_axis, targetValue=-8.312860, firstFrame=4, lastFrame=20,},
-                   [2]={cmd="move", axis=y_axis, targetValue=3.247269, firstFrame=4, lastFrame=11,},
-                   [3]={cmd="move", axis=y_axis, targetValue=0.272874, firstFrame=11, lastFrame=20,},
-                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=20, lastFrame=54,},
-                   [5]={cmd="move", axis=y_axis, targetValue=0.000000, firstFrame=20, lastFrame=54,},
+                   [2]={cmd="move", axis=y_axis, targetValue=3.247269, firstFrame=4, lastFrame=12,},
+                   [3]={cmd="move", axis=y_axis, targetValue=0.272874, firstFrame=12, lastFrame=20,},
+                   [4]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=20, lastFrame=56,},
+                   [5]={cmd="move", axis=y_axis, targetValue=0.000000, firstFrame=20, lastFrame=56,},
                },
                [left_cover1]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-0.000000, firstFrame=58, lastFrame=104,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-0.000000, firstFrame=60, lastFrame=104,},
                },
                [right_back_cover1]={
-                   [1]={cmd="turn", axis=x_axis, targetValue=-0.000000, firstFrame=58, lastFrame=104,},
+                   [1]={cmd="turn", axis=x_axis, targetValue=-0.000000, firstFrame=60, lastFrame=104,},
                },
                [left_arm2_advanced]={
-                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=60,},
                },
                [left_arm3_advanced]={
-                   [1]={cmd="turn", axis=z_axis, targetValue=0.007994, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="turn", axis=z_axis, targetValue=0.007994, firstFrame=0, lastFrame=60,},
                },
                [left_head_advanced]={
                    [1]={cmd="turn", axis=z_axis, targetValue=-0.284752, firstFrame=0, lastFrame=24,},
-                   [2]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=24, lastFrame=58,},
+                   [2]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=24, lastFrame=60,},
                },
                [right_arm2_advanced]={
-                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=60,},
                },
                [right_arm3_advanced]={
-                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="turn", axis=z_axis, targetValue=-0.000000, firstFrame=0, lastFrame=60,},
                },
                [right_head_advanced]={
-                   [1]={cmd="turn", axis=z_axis, targetValue=0.181863, firstFrame=0, lastFrame=58,},
+                   [1]={cmd="turn", axis=z_axis, targetValue=0.181863, firstFrame=0, lastFrame=60,},
                },
     })
 end

@@ -749,7 +749,8 @@ end
 local function StartMorph(unitID, morphDef, teamID) --, cmdID)
 
   -- do not allow morph for unfinished units
-  if not isDone(unitID) then return true end
+  if not isDone(unitID) or not morphDef then
+      return true end
 
   --Spring.SetUnitHealth(unitID, { paralyze = 1.0e9 })    --// turns mexes and mm off (paralyze the unit)
   --Spring.SetUnitResourcing(unitID,"e",0)                --// turns solars off

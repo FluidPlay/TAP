@@ -58,6 +58,7 @@ local left_pointer1       = piece 'left_pointer1'
 local left_pointer2       = piece 'left_pointer2'
 
 local pointer = { left_pointer, right_pointer }
+local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -149,11 +150,11 @@ local function SmokeUnit(healthpercent, sleeptime, smoketype)
 	end
 end
 
-local function RestoreAfterDelay()
-	Sleep (RestoreDelay)
-	Turn (aim , y_axis, 0, Rad(100.00000))
-	WaitForTurn (aim, y_axis)
-end
+--local function RestoreAfterDelay()
+--	Sleep (RestoreDelay)
+--	Turn (aim , y_axis, 0, Rad(100.00000))
+--	WaitForTurn (aim, y_axis)
+--end
 
 local function WaitOneFrame()
 	Sleep (1)
@@ -309,11 +310,10 @@ end
 
 function script.QueryNanoPiece(piecenum)
     if isAdvanced then
-        piecenum = left_pointer1
+        -- piecenum = left_pointer1
+        piecenum = advpointer[math.random(1,4)]
     else
-        --piecenum = left_pointer
         piecenum = pointer[math.random(1,2)]
-        --local pointer = { "left_pointer", "right_pointer" }
     end
 	return piecenum
 end
