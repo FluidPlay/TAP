@@ -60,59 +60,59 @@ local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer
 VFS.Include("scripts/include/springtweener.lua")
 
 local scriptEnv = { base = base,
-                    right_arm1 = right_arm1,
-                    right_arm2 = right_arm2,
-                    right_arm3 = right_arm3,
-                    right_head = right_head,
-                    right_pointer = right_pointer,
-                    right_arm1_advanced = right_arm1_advanced,
-                    right_arm2_advanced = right_arm2_advanced,
-                    right_arm3_advanced = right_arm3_advanced,
-                    right_head_advanced = right_head_advanced,
-                    right_pointer1 = right_pointer1,
-                    right_pointer2 = right_pointer2,
-                    left_arm1_advanced = left_arm1_advanced,
-                    left_arm2_advanced = left_arm2_advanced,
-                    left_arm3_advanced = left_arm3_advanced,
-                    left_head_advanced = left_head_advanced,
-                    left_pointer1 = left_pointer1,
-                    left_pointer2 = left_pointer2,
-                    right_base = right_base,
-                    right_wall = right_wall,
-                    right_back_extension = right_back_extension,
-                    right_back_upgrade = right_back_upgrade,
-                    right_front_extension = right_front_extension,
-                    right_sign = right_sign,
-                    right_cover5 = right_cover5,
-                    right_cover4 = right_cover4,
-                    right_cover3 = right_cover3,
-                    right_cover2 = right_cover2,
-                    right_cover1 = right_cover1,
-                    back_wall_top = back_wall_top,
-                    left_base = left_base,
-                    left_wall = left_wall,
-                    left_cover5 = left_cover5,
-                    left_cover4 = left_cover4,
-                    left_cover3 = left_cover3,
-                    left_cover2 = left_cover2,
-                    left_cover1 = left_cover1,
-                    left_back_extension = left_back_extension,
-                    left_back_upgrade = left_back_upgrade,
-                    left_front_extension = left_front_extension,
-                    left_sign = left_sign,
-                    left_arm1 = left_arm1,
-                    left_arm2 = left_arm2,
-                    left_arm3 = left_arm3,
-                    left_head = left_head,
-                    left_pointer = left_pointer,
-                    rad = math.rad,
-                    x_axis = x_axis,
-                    y_axis = y_axis,
-                    z_axis = z_axis,
-                    Turn = Turn,
-                    Move = Move,
-                    Sleep = Sleep,
-                    initTween = initTween,
+					right_arm1 = right_arm1,
+					right_arm2 = right_arm2,
+					right_arm3 = right_arm3,
+					right_head = right_head,
+					right_pointer = right_pointer,
+					right_arm1_advanced = right_arm1_advanced,
+					right_arm2_advanced = right_arm2_advanced,
+					right_arm3_advanced = right_arm3_advanced,
+					right_head_advanced = right_head_advanced,
+					right_pointer1 = right_pointer1,
+					right_pointer2 = right_pointer2,
+					left_arm1_advanced = left_arm1_advanced,
+					left_arm2_advanced = left_arm2_advanced,
+					left_arm3_advanced = left_arm3_advanced,
+					left_head_advanced = left_head_advanced,
+					left_pointer1 = left_pointer1,
+					left_pointer2 = left_pointer2,
+					right_base = right_base,
+					right_wall = right_wall,
+					right_back_extension = right_back_extension,
+					right_back_upgrade = right_back_upgrade,
+					right_front_extension = right_front_extension,
+					right_sign = right_sign,
+					right_cover5 = right_cover5,
+					right_cover4 = right_cover4,
+					right_cover3 = right_cover3,
+					right_cover2 = right_cover2,
+					right_cover1 = right_cover1,
+					back_wall_top = back_wall_top,
+					left_base = left_base,
+					left_wall = left_wall,
+					left_cover5 = left_cover5,
+					left_cover4 = left_cover4,
+					left_cover3 = left_cover3,
+					left_cover2 = left_cover2,
+					left_cover1 = left_cover1,
+					left_back_extension = left_back_extension,
+					left_back_upgrade = left_back_upgrade,
+					left_front_extension = left_front_extension,
+					left_sign = left_sign,
+					left_arm1 = left_arm1,
+					left_arm2 = left_arm2,
+					left_arm3 = left_arm3,
+					left_head = left_head,
+					left_pointer = left_pointer,
+					rad = math.rad,
+					x_axis = x_axis,
+					y_axis = y_axis,
+					z_axis = z_axis,
+					Turn = Turn,
+					Move = Move,
+					Sleep = Sleep,
+					initTween = initTween,
 }
 
 local PlayAnimation = VFS.Include("scripts/animations/bowvp_anim.lua", scriptEnv)
@@ -139,23 +139,23 @@ local sfxSmoke = SFX.SMOKE
 local sfxExplodeOnHit = SFX.EXPLODE_ON_HIT
 
 local function SmokeUnit(healthpercent, sleeptime, smoketype)
-    while GetUnitValue(COB.BUILD_PERCENT_LEFT) do
-        Sleep (400)
-    end
-    while true do
-        local healthpercent = GetUnitValue(COB.HEALTH)
-        if  healthpercent < 66  then
-            smoketype = 258 --256 | 2
-            if Rand (1, 66) < healthpercent  then
-                smoketype = 257 end
-            EmitSfx ( aim, smoketype )
-        end
-        sleeptime = healthpercent * 50
-        if  sleeptime < 200  then
-            sleeptime = 200
-        end
-        Sleep (sleeptime)
-    end
+	while GetUnitValue(COB.BUILD_PERCENT_LEFT) do
+		Sleep (400)
+	end
+	while true do
+		local healthpercent = GetUnitValue(COB.HEALTH)
+		if  healthpercent < 66  then
+			smoketype = 258 --256 | 2
+			if Rand (1, 66) < healthpercent  then
+				smoketype = 257 end
+			EmitSfx ( aim, smoketype )
+		end
+		sleeptime = healthpercent * 50
+		if  sleeptime < 200  then
+			sleeptime = 200
+		end
+		Sleep (sleeptime)
+	end
 end
 
 --local function RestoreAfterDelay()
@@ -165,203 +165,230 @@ end
 --end
 
 local function WaitOneFrame()
-    Sleep (1)
+	Sleep (1)
 end
 
 local function Stop()
-    Spring.UnitScript.Signal(SIG_STATECHG)
-    Spring.UnitScript.SetSignalMask(SIG_STATECHG)
-    SetUnitValue(COB.INBUILDSTANCE, 0)	--set INBUILDSTANCE to 0
-    WaitOneFrame()
-    ---StartThread(RestoreAfterDelay)
-    if isAdvanced then
-        PlayAnimation.closeadv()
-    else
-        PlayAnimation.closestd()
-    end
+	--Spring.UnitScript.Signal(SIG_STATECHG)
+	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
+	SetUnitValue(COB.INBUILDSTANCE, 0)	--set INBUILDSTANCE to 0
+	--WaitOneFrame()
+	---StartThread(RestoreAfterDelay)
+	if isAdvanced then
+		PlayAnimation.closeadv()
+	else
+		PlayAnimation.closestd()
+	end
 end
 
 local function Go()
-    Spring.UnitScript.Signal(SIG_STATECHG)
-    Spring.UnitScript.SetSignalMask(SIG_STATECHG)
-    WaitOneFrame()
-    if isAdvanced then
-        PlayAnimation.openadv() --'closestd, openadv, closeadv'
-    else
-        PlayAnimation.openstd() --'closestd, openadv, closeadv'
-    end
-    SetUnitValue(COB.INBUILDSTANCE, 1)
+	--Spring.UnitScript.Signal(SIG_STATECHG)
+	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
+	--WaitOneFrame()
+	if isAdvanced then
+		PlayAnimation.openadv() --'closestd, openadv, closeadv'
+	else
+		PlayAnimation.openstd() --'closestd, openadv, closeadv'
+	end
+	SetUnitValue(COB.INBUILDSTANCE, 1)
 end
 
 local function RequestState(requestedstate, currentstate)
-    Spring.UnitScript.Signal(SIG_REQSTATE)
-    Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
-    if  statechg_StateChanging  then
-        statechg_DesiredState = requestedstate
-        return (0)
-    end
-    statechg_StateChanging = true
-    currentstate = statechg_DesiredState
-    statechg_DesiredState = requestedstate
-    while statechg_DesiredState ~= currentstate  do
-        if statechg_DesiredState == state.build then
-            StartThread(Go)
-            currentstate = state.build
-        elseif statechg_DesiredState == state.stop then
-            --Spring.Echo("Stop now")
-            StartThread(Stop)
-            currentstate = 1
-        end
-    end
-    statechg_StateChanging = false
+	--Spring.Echo("Requesting State: "..(requestedstate==0 and "build" or "stop"))
+--	Spring.UnitScript.Signal(SIG_REQSTATE)
+--	Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
+	if  statechg_StateChanging  then
+		statechg_DesiredState = requestedstate
+		return (0)
+	end
+	statechg_StateChanging = true
+	currentstate = statechg_DesiredState
+	statechg_DesiredState = requestedstate
+	while statechg_DesiredState ~= currentstate  do
+		if statechg_DesiredState == state.build then
+			--Spring.Echo("bowvp_lus: Go now")
+			Go()
+			currentstate = state.build
+		elseif statechg_DesiredState == state.stop then
+			--Spring.Echo("bowvp_lus: Stop now")
+			Stop()
+			currentstate = state.stop
+		end
+	end
+	statechg_StateChanging = false
 end
 
 local function InitState()
-    HeadingAngle = nil
-    PitchAngle = nil
-    RestoreDelay = 5000
-    justcreated = true
-    statechg_DesiredState = 1
-    statechg_StateChanging = false
-    local unitDefID = UnitDefs[unitDefID].name
-    if (unitDefID == "armvp") then
-        isAdvanced = false
-        Hide(left_back_upgrade)
-        Hide(right_back_upgrade)
+	HeadingAngle = nil
+	PitchAngle = nil
+	RestoreDelay = 5000
+	justcreated = true
+	statechg_DesiredState = 1
+	statechg_StateChanging = false
+	local unitDefID = UnitDefs[unitDefID].name
+	if (unitDefID == "armvp") then
+		isAdvanced = false
+		Hide(left_back_upgrade)
+		Hide(right_back_upgrade)
 
-        Hide(left_arm1_advanced)
-        Hide(left_arm2_advanced)
-        Hide(left_arm3_advanced)
-        Hide(right_arm1_advanced)
-        Hide(right_arm2_advanced)
-        Hide(right_arm3_advanced)
+		Hide(left_arm1_advanced)
+		Hide(left_arm2_advanced)
+		Hide(left_arm3_advanced)
+		Hide(right_arm1_advanced)
+		Hide(right_arm2_advanced)
+		Hide(right_arm3_advanced)
 
-        Hide(left_head_advanced)
-        Hide(right_head_advanced)
+		Hide(left_head_advanced)
+		Hide(right_head_advanced)
 
-        Hide(right_pointer1)
-        Hide(right_pointer2)
-        Hide(left_pointer1)
-        Hide(left_pointer2)
+		Hide(right_pointer1)
+		Hide(right_pointer2)
+		Hide(left_pointer1)
+		Hide(left_pointer2)
 
-    elseif (unitDefID == "armavp") then
-        Show(left_back_upgrade)
-        Show(right_back_upgrade)
+	elseif (unitDefID == "armavp") then
+		Show(left_back_upgrade)
+		Show(right_back_upgrade)
 
-        Show(left_arm1_advanced)
-        Show(left_arm2_advanced)
-        Show(left_arm3_advanced)
-        Show(right_arm1_advanced)
-        Show(right_arm2_advanced)
-        Show(right_arm3_advanced)
+		Show(left_arm1_advanced)
+		Show(left_arm2_advanced)
+		Show(left_arm3_advanced)
+		Show(right_arm1_advanced)
+		Show(right_arm2_advanced)
+		Show(right_arm3_advanced)
 
-        Show(left_head_advanced)
-        Show(right_head_advanced)
+		Show(left_head_advanced)
+		Show(right_head_advanced)
 
-        Show(right_pointer1)
-        Show(right_pointer2)
-        Show(left_pointer1)
-        Show(left_pointer2)
+		Show(right_pointer1)
+		Show(right_pointer2)
+		Show(left_pointer1)
+		Show(left_pointer2)
 
-        Hide(left_arm1)
-        Hide(left_arm2)
-        Hide(left_arm3)
-        Hide(right_arm1)
-        Hide(right_arm3)
-        Hide(right_arm2)
-        Hide(right_head)
-        Hide(left_head)
+		Hide(left_arm1)
+		Hide(left_arm2)
+		Hide(left_arm3)
+		Hide(right_arm1)
+		Hide(right_arm3)
+		Hide(right_arm2)
+		Hide(right_head)
+		Hide(left_head)
 
-        Hide(right_pointer)
-        Hide(left_pointer)
-        isAdvanced = true
-        -- PlayAnimation.testanim()
-    end
+		Hide(right_pointer)
+		Hide(left_pointer)
+		isAdvanced = true
+		-- PlayAnimation.testanim()
+	end
 
-    --EnableTowers()
+	--EnableTowers()
 end
 
-function script.StartBuilding(heading, pitch)
-    HeadingAngle = heading
-    --Spring.Echo("Source pitch: "..pitch)
-    PitchAngle = pitch --  -math.max(minPitch, math.min(pitch, maxPitch))
-    StartThread(RequestState, state.build)
-end
-
-function script.StopBuilding()
-    StartThread(RequestState, state.stop)
-end
+--function script.StartBuilding(heading, pitch)
+--	HeadingAngle = heading
+--	PitchAngle = pitch --  -math.max(minPitch, math.min(pitch, maxPitch))
+--	--Spring.Echo("Source pitch: "..pitch)
+--	StartThread(RequestState, state.build)
+--end
+--
+--function script.StopBuilding()
+--	StartThread(RequestState, state.stop)
+--end
 
 function script.QueryNanoPiece(piecenum)
-    if isAdvanced then
-        --piecenum = left_pointer1
-        piecenum = advpointer[math.random(1,4)]
-    else
-        --piecenum = left_pointer
-        piecenum = pointer[math.random(1,2)]
-        --local pointer = { "left_pointer", "right_pointer" }
-    end
-    return piecenum
+	if isAdvanced then
+		--piecenum = left_pointer1
+		piecenum = advpointer[math.random(1,4)]
+	else
+		--piecenum = left_pointer
+		piecenum = pointer[math.random(1,2)]
+		--local pointer = { "left_pointer", "right_pointer" }
+	end
+	return piecenum
 end
 
 local function SweetSpot(piecenum)
-    piecenum = arm_botlab
+	piecenum = base
 end
 
 function script.Create()
-    StartThread(SmokeUnit)
-    InitState()
+	StartThread(SmokeUnit)
+	InitState()
 end
 
 function script.Activate()
-    HeadingAngle = 0
-    StartThread(RequestState, state.build)
+	HeadingAngle = 0
+	StartThread(RequestState, state.build)
 end
 
 function script.Deactivate()
-    StartThread(RequestState, state.stop)
+	StartThread(RequestState, state.stop)
+end
+
+function open_yard()
+	UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+	while (UnitScript.GetUnitValue(COB.YARD_OPEN) == 0) do
+		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+		Sleep(1500);
+		UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+	end
+	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
+function close_yard()
+	UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+	while(UnitScript.GetUnitValue(COB.YARD_OPEN) ~= 0) do
+		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+		Sleep(1500);
+		UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+	end
+	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
+local function getKilledFx(severity)
+	local corpsetype = 3
+
+	-- Maximum damage (severity > 99) effects
+	local explosionFx1 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP1
+	local explosionFx2 = sfxShatter + sfxExplodeOnHit + sfxBITMAP3
+
+	if severity <= 25  then
+		corpsetype = 1
+		explosionFx1 = sfxBITMAPONLY + sfxBITMAP1
+		explosionFx2 = sfxBITMAPONLY + sfxBITMAP3
+		return corpsetype, explosionFx1, explosionFx2 end
+	if  severity <= 50  then
+		corpsetype = 2
+		explosionFx1 = sfxFall + sfxBITMAP1
+		explosionFx2 = sfxFall + sfxBITMAP3
+		return corpsetype, explosionFx1, explosionFx2 end
+	if  severity <= 99  then
+		corpsetype = 3
+		explosionFx1 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP1
+		explosionFx2 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3
+		return corpsetype, explosionFx1, explosionFx2 end
+	-- > 99:
+	return corpsetype, explosionFx1, explosionFx2
 end
 
 function script.Killed(recentDamage, maxHealth)
-    local corpsetype = 3
-    local severity = recentDamage / maxHealth * 100
+	local severity = recentDamage / maxHealth * 100
 
-    if  severity <= 25  then
-        corpsetype = 1
-        Explode( back_connection, sfxBITMAPONLY + sfxBITMAP1)
-        Explode( left_cover1, sfxBITMAPONLY + sfxBITMAP3)
-        Explode( left_cover2, sfxBITMAPONLY + sfxBITMAP3)
-        Explode( left_cover3, sfxBITMAPONLY + sfxBITMAP3)
-        Explode( right_back_cover1, sfxBITMAPONLY + sfxBITMAP3)
-        Explode( right_back_cover2, sfxBITMAPONLY + sfxBITMAP3)
-        return (corpsetype)
-    end
-    if  severity <= 50  then
-        corpsetype = 2
-        Explode( back_connection, sfxFall + sfxBITMAP1)
-        Explode( left_cover1, sfxFall + sfxBITMAP3)
-        Explode( left_cover2, sfxFall + sfxBITMAP3)
-        Explode( left_cover3, sfxFall + sfxBITMAP3)
-        Explode( right_back_cover1, sfxFall + sfxBITMAP3)
-        Explode( right_back_cover2, sfxFall + sfxBITMAP3)
-        return (corpsetype)
-    end
-    if  severity <= 99  then
-        corpsetype = 3
-        Explode( back_connection, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP1)
-        Explode( left_cover1, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3)
-        Explode( left_cover2, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3)
-        Explode( left_cover3, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3)
-        Explode( right_back_cover1, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3)
-        Explode( right_back_cover2, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3)
-        return (corpsetype)
-    end
-    Explode( back_connection, sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP1)
-    Explode( left_cover1, sfxShatter + sfxExplodeOnHit + sfxBITMAP3)
-    Explode( left_cover2, sfxShatter + sfxExplodeOnHit + sfxBITMAP3)
-    Explode( left_cover3, sfxShatter + sfxExplodeOnHit + sfxBITMAP3)
-    Explode( right_back_cover1, sfxShatter + sfxExplodeOnHit + sfxBITMAP3)
-    Explode( right_back_cover2, sfxShatter + sfxExplodeOnHit + sfxBITMAP3)
+	local corpsetype, explosionFx1, explosionFx2 = getKilledFx(severity)
 
-    return (corpsetype)
+	Explode( left_sign			, explosionFx1)
+	Explode( right_sign			, explosionFx2)
+	Explode( back_wall_top		, explosionFx2)
+	Explode( left_cover4		, explosionFx2)
+	if not isAdvanced then
+		Explode( left_head	, explosionFx1)
+		Explode( right_head	, explosionFx2)
+		Explode( left_arm2	, explosionFx2)
+		Explode( right_arm2	, explosionFx2)
+	else
+		Explode( left_head_advanced		, explosionFx1)
+		Explode( right_head_advanced	, explosionFx2)
+		Explode( left_arm2_advanced		, explosionFx2)
+		Explode( right_arm2_advanced	, explosionFx2)
+	end
+	return (corpsetype)
 end
