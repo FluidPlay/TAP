@@ -5,7 +5,7 @@
 
 piece base, nano, pad;
 
-static-var  statechg_DesiredState, statechg_StateChanging;
+static-var  statechg_DesiredState, statechg_StateChanging, Static_Var_2;
 
 // Signal definitions
 #define SIG_ACTIVATE 2
@@ -40,10 +40,12 @@ SmokeUnit(healthpercent, sleeptime, smoketype)
 
 Create()
 {
-	start-script SmokeUnit();
+	Static_Var_2 = 0;
+	set ARMORED to 1;	
 	statechg_DesiredState = TRUE;
 	statechg_StateChanging = FALSE;	
 	return (0);
+	start-script SmokeUnit();	
 }
 
 //==============
@@ -54,6 +56,56 @@ QueryNanoPiece(piecenum)
 {
 	piecenum = nano;
 	return (0);
+}
+
+activatescr()
+{
+	//activation anim goes here
+	set ARMORED to 0;
+}
+
+deactivatescr()
+{
+	//deactivation anim goes here
+	set ARMORED to 1;
+}
+
+OpenYard()
+{
+	set YARD_OPEN to 1;
+	while( !get YARD_OPEN )
+	{
+		set BUGGER_OFF to 1;
+		sleep 1500;
+		set YARD_OPEN to 1;
+	}
+	set BUGGER_OFF to 0;
+}
+
+CloseYard()
+{
+	set YARD_OPEN to 0;
+	while( get YARD_OPEN )
+	{
+		set BUGGER_OFF to 1;
+		sleep 1500;
+		set YARD_OPEN to 0;
+	}
+	set BUGGER_OFF to 0;
+}
+
+Go()
+{
+	call-script activatescr();
+	call-script OpenYard();
+	set INBUILDSTANCE to 1;
+}
+
+Stop()
+{
+	set INBUILDSTANCE to 0;
+	call-script CloseYard();
+	call-script deactivatescr();
 }
 
 RequestState(requestedstate, currentstate)
@@ -70,14 +122,12 @@ RequestState(requestedstate, currentstate)
 	{
 		if( statechg_DesiredState )
 		{
-			set YARD_OPEN to 0;
-			set INBUILDSTANCE to 0;
+			call-script Stop();
 			currentstate = 1;
 		}
 		else
 		{
-			set YARD_OPEN to 1;
-			set INBUILDSTANCE to 1;
+			call-script Go();
 			currentstate = 0;
 		}
 	}
@@ -88,36 +138,35 @@ Activate()
 {
 	signal SIG_ACTIVATE;
 	start-script RequestState(0);
-	return (0);	
 }
 
 Deactivate()
 {
 	signal SIG_ACTIVATE;
 	set-signal-mask SIG_ACTIVATE;
-	set-signal-mask 0;
+	if( !Static_Var_2 )
+	{
+		sleep 5000;
+	}	
 	start-script RequestState(1);
-	return (0);	
 }
 
-StartBuilding()
-{
+//StartBuilding()
+//{
 	//spin pad around y-axis speed <0.000000>;
-	start-script RequestState(0);
-	return (0);
-}
+//	start-script RequestState(0);
+//}
 
-StopBuilding()
-{
+//StopBuilding()
+//{
 	//stop-spin pad around y-axis;
-	start-script RequestState(1);
-	return (0);	
-}
+//	start-script RequestState(1);
+//	return (0);	
+//}
 
 QueryBuildInfo(piecenum)
 {
 	piecenum = pad;
-	return (0);
 }
 
 //================
@@ -125,7 +174,6 @@ QueryBuildInfo(piecenum)
 SweetSpot(piecenum)
 {
 	piecenum = base;
-	return (0);
 }
 
 Killed(severity, corpsetype)

@@ -27,6 +27,7 @@ local left_pointer1 = piece 'left_pointer1'
 local left_pointer2 = piece 'left_pointer2'
 local right_base = piece 'right_base'
 local right_wall = piece 'right_wall'
+local right_wall_extension = piece 'right_wall_extension'	-- only used by bowvp
 local right_back_extension = piece 'right_back_extension'
 local right_back_upgrade = piece 'right_back_upgrade'
 local right_front_extension = piece 'right_front_extension'
@@ -39,6 +40,7 @@ local right_cover1 = piece 'right_cover1'
 local back_wall_top = piece 'back_wall_top'
 local left_base = piece 'left_base'
 local left_wall = piece 'left_wall'
+local left_wall_extension = piece 'left_wall_extension' 	-- only used by bowvp
 local left_cover5 = piece 'left_cover5'
 local left_cover4 = piece 'left_cover4'
 local left_cover3 = piece 'left_cover3'
@@ -158,6 +160,26 @@ local function SmokeUnit(healthpercent, sleeptime, smoketype)
 	end
 end
 
+local function open_yard()
+	UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+	while (UnitScript.GetUnitValue(COB.YARD_OPEN) == 0) do
+		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+		Sleep(1500);
+		UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+	end
+	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
+local function close_yard()
+	UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+	while(UnitScript.GetUnitValue(COB.YARD_OPEN) ~= 0) do
+		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+		Sleep(1500);
+		UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+	end
+	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
 --local function RestoreAfterDelay()
 --	Sleep (RestoreDelay)
 --	Turn (aim , y_axis, 0, Rad(100.00000))
@@ -179,6 +201,7 @@ local function Stop()
 	else
 		PlayAnimation.closestd()
 	end
+	close_yard()
 end
 
 local function Go()
@@ -190,6 +213,7 @@ local function Go()
 	else
 		PlayAnimation.openstd() --'closestd, openadv, closeadv'
 	end
+	open_yard()
 	SetUnitValue(COB.INBUILDSTANCE, 1)
 end
 
@@ -228,8 +252,6 @@ local function InitState()
 	local unitDefID = UnitDefs[unitDefID].name
 	if (unitDefID == "armvp") then
 		isAdvanced = false
-		Hide(left_back_upgrade)
-		Hide(right_back_upgrade)
 
 		Hide(left_arm1_advanced)
 		Hide(left_arm2_advanced)
@@ -246,7 +268,22 @@ local function InitState()
 		Hide(left_pointer1)
 		Hide(left_pointer2)
 
+		--	=> Once bowlab is built insta-move (right/)left_wall_extension to final pos and hide them;
+		Move(left_wall_extension, x_axis, 15.6373)	-- starts at local -15.63, to hide it
+		Move(right_wall_extension, x_axis, -15.6373)
+		Hide(left_wall_extension)
+		Hide(right_wall_extension)
+
+		--	=> Then move (right/)left_back_upgrade to final pos and hide them; (will be shown after upgrade)
+		Move(left_back_upgrade, x_axis, 33.7314)	-- starts at local -23.0491, to hide it
+		Move(right_back_upgrade, x_axis, -33.7314) --56.7805 -23.0491
+		Hide(left_back_upgrade)
+		Hide(right_back_upgrade)
+
 	elseif (unitDefID == "armavp") then
+		--- Showing pieces at start is actually not needed; remove this after morphing tests are complete
+		Show(left_wall_extension)
+		Show(right_wall_extension)
 		Show(left_back_upgrade)
 		Show(right_back_upgrade)
 
@@ -322,26 +359,6 @@ end
 
 function script.Deactivate()
 	StartThread(RequestState, state.stop)
-end
-
-function open_yard()
-	UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
-	while (UnitScript.GetUnitValue(COB.YARD_OPEN) == 0) do
-		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
-		Sleep(1500);
-		UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
-	end
-	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
-end
-
-function close_yard()
-	UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
-	while(UnitScript.GetUnitValue(COB.YARD_OPEN) ~= 0) do
-		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
-		Sleep(1500);
-		UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
-	end
-	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
 end
 
 local function getKilledFx(severity)

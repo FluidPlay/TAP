@@ -1,10 +1,10 @@
 local armorDefs = {
 	robot = { "armack","armch","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
 			"coramph","corch","corck","cornecro","corspy","corsub","corvoyr","armfast", "corsktl", "corpyro",
-			"armaak","armaser","armah","armjeth","armsptk","armmh","armrock","coraak","corhrk","corah","corcrash",
-			"cormort","corstorm","cortermite", "cordefiler","armsnipe", },
+			"armaak","armaser","armah","armjeth","armsptk","armmh","armrock","coraak","corah","corcrash",
+			"corstorm","cortermite", "cordefiler","armsnipe", },
     armorbot={"armmark", "armzeus", "corsumo","armfboy","armham","armvader","armwar","corcan","corroach","corthud",
-              "cormando","armmav","armspid",},
+              "cormando","armmav","armspid","cormort","corhrk",},
     --lightbot={"armack","armch","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
     --          "coramph","corch","corck","cornecro","corspy","corsub","corvoyr","armfast", "corsktl", "corpyro",},
     --supportbot={"armaak","armaser","armah","armjeth","armsptk","armmh","armrock","coraak","corhrk","corah","corcrash",
