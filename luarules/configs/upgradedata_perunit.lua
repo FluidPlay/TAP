@@ -44,6 +44,7 @@ UnitResearchers = {
     [UnitDefNames["coravp"].id] = "nanobooster",
     [UnitDefNames["coraap"].id] = "nanobooster",
     [UnitDefNames["corasy"].id] = "nanobooster",
+	---TODO: [UnitDefNames["armvp"].id] = "techupgrade",
 }
 
 local CMD_CAPTURE = CMD.CAPTURE
@@ -80,7 +81,12 @@ CMD_UPG_HOVER = CMD.UPG_HOVER
 CMD.UPG_NANOBOOSTER = 41991
 CMD_UPG_NANOBOOSTER = CMD.UPG_NANOBOOSTER
 
+CMD.UPG_TECHUPGRADE = 41990
+CMD_UPG_TECHUPGRADE = CMD.UPG_TECHUPGRADE
+
 UnitUpgradeCommands = {
+	[41990] = true,
+	[41991] = true,
     [41992] = true, 
     [41993] = true, 
     [41994] = true, 
@@ -327,6 +333,38 @@ UnitUpgrades = {
                              [UnitDefNames["corasy"].id] = true,
         },
     },
+	techupgrade = {     -- >> Core Informer Resurrect (Per Unit)
+		id = "techupgrade",
+		UpgradeCmdDesc = {
+			id      = CMD_UPG_TECHUPGRADE,
+			name    = 'Advanced Tech Upgrade',
+			action  = 'techupgrade',
+			cursor  = 'Morph',
+			type    = CMDTYPE.ICON,
+			tooltip = 'Advanced Tech Upgrade: unlocks advanced units [per unit]\n',
+					-- TODO: Must edit tooltip to add this info
+					-- ..GreenStr..'time:6\n'..CyanStr..'metal: 300\n'..YellowStr..'energy: 1880',
+			texture = 'luaui/images/upgrades/techupgrade.dds',
+			onlyTexture = true,
+			showUnique = false, --required by gui_chili_buildordermenu to show button as 'upgrading'
+		},
+		prereq = "AdvancedTech",
+		metalCost = 300,		--TODO: Read from morph metalcost
+		energyCost = 1880,		--TODO: Read from morph energycost
+		upgradeTime = 6 * 15,	--TODO: Read from morph buildtime
+		type = "perunit",
+		buttonToUnlock = nil, --CMD_TECHUPGRADE, 	--TODO: Read from morph target
+		buttonToUnlockTooltip = "",
+		upgradableDefIDs = { [UnitDefNames["armvp"].id] = true,
+							 --[UnitDefNames["armlab"].id] = true,
+							 --[UnitDefNames["armap"].id] = true,
+							 --[UnitDefNames["armsy"].id] = true,
+							 --[UnitDefNames["corlab"].id] = true,
+							 --[UnitDefNames["corvp"].id] = true,
+							 --[UnitDefNames["corap"].id] = true,
+							 --[UnitDefNames["corsy"].id] = true,
+		},
+	},
 }
 
 ---- Which units can research what

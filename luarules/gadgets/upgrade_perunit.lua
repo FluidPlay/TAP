@@ -37,7 +37,7 @@ PerUnitUpgrades [made by unit]
 		* Locomotor Switcher (switches into whatever is defined into the targetLocomotor table)
 ]]
 
-include("LuaRules/colors.h.lua")
+VFS.Include("LuaRules/colors.h.lua")
 VFS.Include("gamedata/taptools.lua")
 VFS.Include("LuaRules/Configs/upgradedata_perunit.lua")
 
