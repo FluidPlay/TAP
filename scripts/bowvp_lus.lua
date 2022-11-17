@@ -242,6 +242,41 @@ local function RequestState(requestedstate, currentstate)
 	statechg_StateChanging = false
 end
 
+local function Upgrade()
+	--- Showing pieces at start is actually not needed; remove this after morphing tests are complete
+	Show(left_wall_extension)
+	Show(right_wall_extension)
+	Show(left_back_upgrade)
+	Show(right_back_upgrade)
+
+	Show(left_arm1_advanced)
+	Show(left_arm2_advanced)
+	Show(left_arm3_advanced)
+	Show(right_arm1_advanced)
+	Show(right_arm2_advanced)
+	Show(right_arm3_advanced)
+
+	Show(left_head_advanced)
+	Show(right_head_advanced)
+
+	Show(right_pointer1)
+	Show(right_pointer2)
+	Show(left_pointer1)
+	Show(left_pointer2)
+
+	Hide(left_arm1)
+	Hide(left_arm2)
+	Hide(left_arm3)
+	Hide(right_arm1)
+	Hide(right_arm3)
+	Hide(right_arm2)
+	Hide(right_head)
+	Hide(left_head)
+
+	Hide(right_pointer)
+	Hide(left_pointer)
+end
+
 local function InitState()
 	HeadingAngle = nil
 	PitchAngle = nil
@@ -281,38 +316,7 @@ local function InitState()
 		Hide(right_back_upgrade)
 
 	elseif (unitDefID == "armavp") then
-		--- Showing pieces at start is actually not needed; remove this after morphing tests are complete
-		Show(left_wall_extension)
-		Show(right_wall_extension)
-		Show(left_back_upgrade)
-		Show(right_back_upgrade)
-
-		Show(left_arm1_advanced)
-		Show(left_arm2_advanced)
-		Show(left_arm3_advanced)
-		Show(right_arm1_advanced)
-		Show(right_arm2_advanced)
-		Show(right_arm3_advanced)
-
-		Show(left_head_advanced)
-		Show(right_head_advanced)
-
-		Show(right_pointer1)
-		Show(right_pointer2)
-		Show(left_pointer1)
-		Show(left_pointer2)
-
-		Hide(left_arm1)
-		Hide(left_arm2)
-		Hide(left_arm3)
-		Hide(right_arm1)
-		Hide(right_arm3)
-		Hide(right_arm2)
-		Hide(right_head)
-		Hide(left_head)
-
-		Hide(right_pointer)
-		Hide(left_pointer)
+		-- Upgrade()
 		isAdvanced = true
 		-- PlayAnimation.testanim()
 	end
