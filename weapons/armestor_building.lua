@@ -10,7 +10,7 @@ return {
 		name = "Smallbuilding",
 		range = 580,
 		reloadtime = 3.5999999046326,
-		soundhit = "xplolrg4",
+		soundhit = "xplolrg2",
 		soundstart = "largegun",
 		turret = 1,
 		weaponvelocity = 900, --250
