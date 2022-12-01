@@ -244,7 +244,7 @@ end
 function initTween (tweenData)
 	tweenData.startGameFrame = spGetGameFrame()
 	if not tweenData.sleepTime then
-		tweenData.sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.133333 for 'every frame'
+		tweenData.sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
 	end
 	for pieceID, pieceData in pairs(tweenData) do
 		if type(pieceID) == "number" then

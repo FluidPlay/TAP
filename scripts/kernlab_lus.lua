@@ -281,6 +281,9 @@ local function InitState()
 		Hide(left_pointer1)
 		Hide(left_pointer2)
 
+		Hide(right_upgrade)
+		Hide(left_upgrade)
+
 		----	=> Once bowlab is built insta-move (right/)left_wall_extension to final pos and hide them;
 		--Move(left_wall_extension, x_axis, 15.6373)	-- starts at local -15.63, to hide it
 		--Move(right_wall_extension, x_axis, -15.6373)
