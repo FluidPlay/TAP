@@ -17,6 +17,6 @@ return {
 			default = 25,
 			--fighters = 10,
 		},
-		customParams = { damagetype = "omni"},
+		customParams = { damagetype = "explosion"},
 	},
 }

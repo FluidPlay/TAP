@@ -110,6 +110,9 @@ local damageMultipliers = {
     omni = { 	robot = 1, vehicle = 0.65, air = 1.5, ship = 1.25, armorbot = 1.1, armorveh = 2, armorair = 2, armorship = 2.5,
                 structure = 0.5, defense = 0.75, commander = 0.75, shield = 1, superunit = 1.5, ore = 0.08, }, --commander 0.4
 
+	explosion = { 	robot = 1.2,  vehicle = 0.55, air = 1, ship = 3, armorbot = 0.85, armorveh = 0.7, armorair = 0.5, armorship = 3,
+					structure = 1.25, defense = 0.55, commander = 0.18, shield = 1, superunit = 2, ore = 0.08,},
+
     --	omni={ 	    lightbot = 1.01, supportbot = 0.95, heavybot = 1.1, lightveh = 1,       supportveh = 1.5,   heavyveh = 2,
     --				lightair = 2, 	 supportair = 2, 	heavyair = 2,   lightship = 1.25,   supportship = 0.75, heavyship = 2.5,
     --                structure = 1,   resource = 1, 		defense = 0.5, 	defenseaa = 0.5, 	commander = 1.5,    superunit = 1.5,

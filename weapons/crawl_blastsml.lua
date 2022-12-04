@@ -19,6 +19,6 @@ return {
 			--crawlingbombs = 99,
 			default = 1800,
 		},
-		customParams = { damagetype = "omni"},
+		customParams = { damagetype = "explosion"},
 	},
 }

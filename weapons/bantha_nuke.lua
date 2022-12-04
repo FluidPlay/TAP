@@ -29,9 +29,8 @@ return {
 		weapontimer = 8,
 		weaponvelocity = 1600,
 		damage = {
-			commander = 2000,	----commanders
 			default = 4500,
 		},
-		customParams = { damagetype = "omni"},
+		customParams = { damagetype = "explosion"},
 	},
 }

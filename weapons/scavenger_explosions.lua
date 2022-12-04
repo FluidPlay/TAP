@@ -21,7 +21,7 @@ unitDeaths = {
 		damage = {
 			default            = 0,
 		},
-        customParams = { damagetype = "omni"},
+        customParams = { damagetype = "explosion"},
 	},
 	
 	mediumScavengerExplosionNuke = {
@@ -33,7 +33,7 @@ unitDeaths = {
 		damage = {
 			default            = 5000,
 		},
-        customParams = { damagetype = "omni"},
+        customParams = { damagetype = "explosion"},
 	},
 	
 	bossScavengerExplosionNuke    = {
