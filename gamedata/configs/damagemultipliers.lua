@@ -80,7 +80,7 @@ local damageMultipliers = {
     --			structure = 1,   resource = 1, 		defense = 0.275,defenseaa = 0.6,    commander = 1.15,   superunit = 1.15,
     --},
 
-    photon = { 	robot = 0.9, vehicle = 0.6, air = 1.5, ship = 2, armorbot = 0.75, armorveh = 0.25, armorair = 0.25, armorship = 0.25,
+    photon = { 	robot = 0.9, vehicle = 0.6, air = 3, ship = 2, armorbot = 0.75, armorveh = 0.25, armorair = 2, armorship = 0.25,
                 structure = 1.2, defense = 1.4, commander = 0.25, shield = 1, superunit = 1, ore = 0.15, },
     --	siege={ 	lightbot = 0.4,  supportbot = 0.85, heavybot = 1.2,	lightveh = 1, 	    supportveh = 0.6,   heavyveh = 0.25,
     --				lightair = 0.5,  supportair = 1.5, 	heavyair = 0.25,lightship = 3,      supportship = 0.75, heavyship = 0.25,

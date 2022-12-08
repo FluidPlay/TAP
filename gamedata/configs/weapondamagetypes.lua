@@ -126,7 +126,7 @@ local weaponDamageTypes = {
     meteorite = { ["Meteorite"] = "pierce", },
 	corcan = { ["HighEnergyLaser"] = "pierce", },
 	corlevlr = { ["RiotCannon"] = "explosion", },
-	armwar = { ["MediumLaser"] = "laser", },
+	armwar = { ["MediumLaser"] = "laser", ["MediumLaserAA"] = "laser",},
 	corshark = { ["AdvancedTorpedo"] = "cannon", },
 	armdecom = { ["Disintegrator"] = "omni", ["J7Laser"] = "omni", },
 	corbuzz = { ["RapidfireLRPC"] = "plasma", },

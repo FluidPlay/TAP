@@ -273,13 +273,14 @@ if gadgetHandler:IsSyncedCode() then
 
     function gadget:GameFrame(gf)
         --- Since by default harvesters don't deliver reclaimed resources directly, we do it manually
-        for harvesterID, previousStorage in pairs(previousHarvestStorage) do
-            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
-            spEcho("This harvestStorage: "..(spGetUnitHarvestStorage(harvesterID) or 0))
-            spAddTeamResource (spGetUnitTeam(harvesterID), "metal", curStorage)
-            spSetUnitHarvestStorage (harvesterID, previousStorage)
-            previousHarvestStorage[harvesterID] = nil
-        end
+        ---TODO: Fix exploit
+        --for harvesterID, previousStorage in pairs(previousHarvestStorage) do
+        --    local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+        --    spEcho("This harvestStorage: "..(spGetUnitHarvestStorage(harvesterID) or 0))
+        --    spAddTeamResource (spGetUnitTeam(harvesterID), "metal", curStorage)
+        --    spSetUnitHarvestStorage (harvesterID, previousStorage)
+        --    previousHarvestStorage[harvesterID] = nil
+        --end
 
         if gf % CHECK_FREQ > 0.001 then
             return
