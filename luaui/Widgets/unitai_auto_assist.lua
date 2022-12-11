@@ -36,7 +36,6 @@ local spGetFeatureResources = Spring.GetFeatureResources
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
-local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
 local spGetUnitsInSphere = Spring.GetUnitsInSphere
@@ -557,7 +556,7 @@ local function getLoadPercentage(unitID, unitDef)
     if not unitDef.customParams or not unitDef.customParams.maxorestorage then
         return 0 end
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
-    return (spGetUnitHarvestStorage(unitID) or 1) / maxorestorage
+    return (getUnitHarvestStorage(unitID) or 1) / maxorestorage
 end
 
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
@@ -573,15 +572,19 @@ local automatedFunctions = {
     [1] = { id="enemyreclaim",
             condition = function(ud)  -- Commanders shouldn't prioritize enemy-reclaiming
                 return automatedState[ud.unitID] ~= "enemyreclaim"
+                        and ud.unitDef.canMove
                         and not ud.unitDef.customParams.iscommander
             end,
             action = function(ud) --unitData
                 --Spring.Echo("[1] Enemy-reclaim check")
                 local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
                 if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
-                    spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
-                    automatableUnits[ud.unitID] = nearestEnemy
-                    return "enemyreclaim"
+                    local neDefID = UnitDefs[spGetUnitDefID(nearestEnemy)]
+                    if not neDefID.canFly then
+                        spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
+                        automatableUnits[ud.unitID] = nearestEnemy
+                        return "enemyreclaim"
+                    end
                 end
                 return nil
             end

@@ -390,68 +390,38 @@ MotionControl(Func_Var_1, Func_Var_2)
 Go()
 {
 	turn lflap to z-axis <0.000000> now;
-	turn lflap to z-axis <97.016484> speed <350.000000>;
+	turn lflap to z-axis <175.000000> speed <300.000000>;
 	turn rflap to z-axis <0.000000> now;
-	turn rflap to z-axis <-97.016484> speed <350.000000>;
-	sleep 300;
+	turn rflap to z-axis <-175.000000> speed <300.000000>;
+	wait-for-turn lflap around z-axis;
+	wait-for-turn rflap around z-axis;
 
-	turn guncover to x-axis <126.027473> speed <350.000000>;
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	sleep 300;
-
-	//move nozzle to z-axis [0.000000] speed [0.000000];
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	turn arms to x-axis <90.016484> speed <350.000000>;
-	turn nanobody2 to x-axis <-90.016484> speed <350.000000>;
-	sleep 100;
-
-	//move nozzle to z-axis [4.400000] speed [18.000000];
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	turn arms to x-axis <90.016484> speed <0.000000>;
-	turn nanobody2 to x-axis <-90.016484> speed <0.000000>;
+	turn arms to x-axis <60.000000> speed <350.000000>; //90
+	turn nanobody to x-axis <-60.000000> speed <350.000000>; //was: nanobody2
 	sleep 100;
 }
 
 Stop()
 {
 	set INBUILDSTANCE to 0;
-	turn turret to y-axis <0.000000> speed <350.000000>;
+	turn turret to y-axis <0.000000> speed <250.000000>;
 	wait-for-turn turret around y-axis;
 
-	//move nozzle to z-axis [4.400000] now;
-	//move nozzle to z-axis [-0.200000] speed [18.000000];
-	turn guncover to x-axis <126.923077> speed <1513.901762>;
-	turn lflap to z-axis <180.923077> now;
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.923077> now;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	turn arms to x-axis <90.016484> now;
-	turn arms to x-axis <90.016484> speed <0.000000>;
-	turn nanobody2 to x-axis <-90.016484> speed <1073.690592>;
-	sleep 50;
+	turn lflap to z-axis <0.000000> speed <250.000000>;
+	turn rflap to z-axis <0.000000> speed <250.000000>;
+	
+	turn arms to x-axis <0.000000> speed <250.000000>;
+	turn arms to y-axis <0.000000> speed <250.000000>;	
+	turn nanobody to x-axis <0.000000> speed <250.000000>;	
+	turn nanobody2 to x-axis <0.000000> speed <250.000000>;
+	
+	wait-for-turn arms around y-axis; //nanobody
+	wait-for-turn nanobody2 around x-axis;
+	
+	sleep 100;
 
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	turn arms to x-axis <0.000000> speed <350.000000>;
-	turn nanobody2 to x-axis <-40.005495> speed <350.000000>;
-	sleep 50;
-
-	turn guncover to x-axis <126.027473> speed <0.000000>;
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn nanobody to x-axis <0.000000> speed <350.000000>;
-	turn nanobody2 to x-axis <0.000000> speed <350.000000>;
-	sleep 50;
-
-	turn guncover to x-axis <0.000000> speed <350.000000>;
-	turn lflap to z-axis <180.016484> speed <0.000000>;
-	turn rflap to z-axis <-180.016484> speed <0.000000>;
-	sleep 50;
-
-	turn lflap to z-axis <0.000000> speed <350.000000>;
-	turn rflap to z-axis <0.000000> speed <350.000000>;
+	turn lflap to z-axis <0.000000> speed <250.000000>;
+	turn rflap to z-axis <0.000000> speed <250.000000>;
 	sleep 50;
 }
 
@@ -562,11 +532,18 @@ StartBuilding(heading, pitch)
 	start-script RequestState(0);
 	while( notBuilding ) sleep 100;
 	signal SIG_BUILD;
-	turn turret to y-axis heading speed <400.000000>; //turrent
-	wait-for-turn nanobody around y-axis;
-	newpitch = pitch - <90.016484>;
-	turn nanobody2 to x-axis newpitch speed <400.000000>; //turrent
-	wait-for-turn nanobody2 around x-axis;
+	
+	turn arms to y-axis heading speed <400.000000>;
+	wait-for-turn arms around y-axis; //nanobody
+	newpitch = <0.000000>-pitch;	
+	turn nanobody2 to x-axis newpitch speed <400.000000>;	//<0.000000> - 
+	wait-for-turn nanobody2 around x-axis;	
+
+//	turn turret to y-axis heading speed <400.000000>; //turrent
+//	wait-for-turn nanobody around y-axis;
+//	newpitch = pitch - <90.016484>;
+//	turn nanobody2 to x-axis newpitch speed <400.000000>; //turrent
+//	wait-for-turn nanobody2 around x-axis;
 	set INBUILDSTANCE to 1;
 }
 
@@ -608,15 +585,15 @@ TargetHeading(Func_Var_1)
 
 AimPrimary(heading, pitch)
 {
-//	if (blockWeaponFlag)
-//		return (0);
+	if (blockWeaponFlag)
+		return (0);
 
 	signal SIG_BUILD;
 
 	start-script RequestState(0);
-	turn nanobody to y-axis heading speed <400.000000>;
-	turn nanobody2 to x-axis <0.000000> - pitch speed <400.000000>;	
-	wait-for-turn nanobody around y-axis;
+	turn arms to y-axis heading speed <400.000000>;
+	wait-for-turn arms around y-axis; //nanobody	
+	turn nanobody2 to x-axis <0.000000>-pitch speed <400.000000>;	//<0.000000> - 
 	wait-for-turn nanobody2 around x-axis;
 
 	return (1);
@@ -630,7 +607,7 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = nozzle; //turret;
+	piecenum = nanobody2; //turret;
 }
 
 QueryPrimary(piecenum)

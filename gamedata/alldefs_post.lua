@@ -42,7 +42,7 @@ local minimumbuilddistancerange = 155
 -------------------------
 
 local function ApplyGroupCosts(name, uDef)
-    if not uDef.customparams then
+    if not uDef.customParams then
         return  end
     local groupSize = tonumber(uDef.customparams.groupdef__size)
 	if not groupSize then

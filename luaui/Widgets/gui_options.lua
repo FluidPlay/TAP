@@ -2738,29 +2738,29 @@ function init()
           end,
         },
 
-        --{id="nanoeffect", group="gfx", name="Nano effect", type="select", options={'beam','particles'}, value=tonumber(Spring.GetConfigInt("NanoEffect",1) or 1), description='Sets nano effect\n\nBeams more expensive than particles',
-        -- onload = function(i) end,
-        -- onchange = function(i, value)
-        --	 Spring.SetConfigInt("NanoEffect",value)
-        --	 if value == 1 then
-        --		 Spring.SetConfigInt("MaxNanoParticles",0)
-        --	 else
-        --		 Spring.SetConfigInt("MaxNanoParticles",maxNanoParticles)
-        --	 end
-        -- end,
-        --},
-        --{id="lighteffects_nanolaser", group="gfx", name=widgetOptionColor.."   beam light  (needs 'Lights')", type="bool", value=true, description='Shows a light for every build/reclaim nanolaser',
-        --		 onload = function(i) loadWidgetData("Light Effects", "lighteffects_nanolaser", {'enableNanolaser'}) end,
-        --		 onchange = function(i, value) saveOptionValue('Light Effects', 'lighteffects', 'setNanolaser', {'enableNanolaser'}, value) end,
-        --		},
-        --{id="nanobeamicon", group="gfx", name=widgetOptionColor.."   beam when uniticon", type="bool", value=tonumber(Spring.GetConfigInt("NanoLaserIcon",0) or 0) == 1, description='Shows nano beams when unit is displayed as icon',
-        --		 onload = function(i) end,
-        --		 onchange = function(i, value) Spring.SendCommands("luarules uniticonlasers "..value) end,
-        --		},
-        --{id="nanobeamamount", group="gfx", name=widgetOptionColor.."   beam amount", type="slider", min=6, max=40, step=1, value=tonumber(Spring.GetConfigInt("NanoBeamAmount",10) or 10), description='Not number of total beams (but total of new beams per gameframe)\n\nBeams aren\'t cheap so lower this setting for better performance',
-        -- onload = function(i) end,
-        -- onchange = function(i, value) Spring.SetConfigInt("NanoBeamAmount",value) end,
-        --},
+        {id="nanoeffect", group="gfx", name="Nano effect", type="select", options={'beam','particles'}, value=tonumber(Spring.GetConfigInt("NanoEffect",1) or 1), description='Sets nano effect\n\nBeams more expensive than particles',
+         onload = function(i) end,
+         onchange = function(i, value)
+        	 Spring.SetConfigInt("NanoEffect",value)
+        	 if value == 1 then
+        		 Spring.SetConfigInt("MaxNanoParticles",0)
+        	 else
+        		 Spring.SetConfigInt("MaxNanoParticles",maxNanoParticles)
+        	 end
+         end,
+        },
+        {id="lighteffects_nanolaser", group="gfx", name=widgetOptionColor.."   beam light  (needs 'Lights')", type="bool", value=true, description='Shows a light for every build/reclaim nanolaser',
+        		 onload = function(i) loadWidgetData("Light Effects", "lighteffects_nanolaser", {'enableNanolaser'}) end,
+        		 onchange = function(i, value) saveOptionValue('Light Effects', 'lighteffects', 'setNanolaser', {'enableNanolaser'}, value) end,
+        		},
+        {id="nanobeamicon", group="gfx", name=widgetOptionColor.."   beam when uniticon", type="bool", value=tonumber(Spring.GetConfigInt("NanoLaserIcon",0) or 0) == 1, description='Shows nano beams when unit is displayed as icon',
+        		 onload = function(i) end,
+        		 onchange = function(i, value) Spring.SendCommands("luarules uniticonlasers "..value) end,
+        		},
+        {id="nanobeamamount", group="gfx", name=widgetOptionColor.."   beam amount", type="slider", min=6, max=40, step=1, value=tonumber(Spring.GetConfigInt("NanoBeamAmount",10) or 10), description='Not number of total beams (but total of new beams per gameframe)\n\nBeams aren\'t cheap so lower this setting for better performance',
+         onload = function(i) end,
+         onchange = function(i, value) Spring.SetConfigInt("NanoBeamAmount",value) end,
+        },
         { id = "nanoparticles", group = "gfx", name = texts.option.nanoparticles, type = "slider", min = 3000, max = 20000, step = 1000, value = maxNanoParticles, description = '',
           onload = function(i)
           end,

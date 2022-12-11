@@ -12,7 +12,7 @@ local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitDefID = Spring.GetUnitDefID
-local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 local function sqrDistance(x1,z1,x2,z2)
     local dx,dz = x1-x2,z1-z2
@@ -134,11 +134,21 @@ function getParentOreTowerID (ud, harvesters)
     return harvesters[ud.unitID] and harvesters[ud.unitID].parentOreTowerID
 end
 
+
+--- returns nil (not a harvester or current amount not initialized) or a given amount from 0 to max
+function getUnitHarvestStorage(unitID)
+    local oreLoad = spGetUnitRulesParam(unitID, "oreLoad")
+    if not isnumber(oreLoad) then
+        return 0
+    end
+    return oreLoad
+end
+
 function getLoadPercentage(unitID, unitDef)
     if not unitDef.customParams or not unitDef.customParams.maxorestorage then
         return 0 end
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
-    return math_clamp(spGetUnitHarvestStorage(unitID) / maxorestorage, 0,1)
+    return math_clamp(getUnitHarvestStorage(unitID) / maxorestorage, 0,1)
 end
 
 

@@ -57,7 +57,13 @@ function widget:DrawScreen()
             local text = state
             local harvester = harvesters[unitID]
             if harvesters[unitID] then
-                text = text .." | "..(harvester.parentOreTowerID or "nil").." | "..(harvester.returnPos and harvester.returnPos.x or "nil")
+                local secondItem = (harvester.parentOreTowerID or "nil")
+                local thirdItem = (harvester.returnPos and harvester.returnPos.x or "nil")
+                if text == "attacking" then
+                    secondItem = (harvester.targetChunkID or "nil")
+                    thirdItem = ""
+                end
+                text = text .." | "..secondItem.." | "..thirdItem
             end
             gl.Text(text, sx, sy, textSize, "ocd")
         end
