@@ -515,12 +515,22 @@ local function targetIsInRange(unitID, targetID, isFeature)
     --    return false end
     local unitDef = UnitDefs[spGetUnitDefID(unitID)]
     local x, y, z = spGetUnitPosition(unitID)
+    local buildDistance = unitDef.buildDistance
+    if not isnumber(buildDistance) then
+        return false
+    end
 
     if isFeature and IsValidFeature(targetID) then
         local x2, y2, z2 = spGetFeaturePosition(targetID)
-        return distance(x,y,z,x2,y2,z2) <= unitDef.buildDistance
+        return distance(x,y,z,x2,y2,z2) <= buildDistance
     elseif IsValidUnit(targetID) then
-        return spGetUnitSeparation(unitID, targetID) <= unitDef.buildDistance
+        --return spGetUnitSeparation(unitID, targetID) <= unitDef.buildDistance
+        local px, _, pz = spGetUnitPosition(targetID)
+        --local volScales = UnitDefs[spGetUnitDefID(targetID)].collisionvolumescales
+        local unitRadius = UnitDefs[spGetUnitDefID(unitID)].collisionVolume.boundingRadius
+        local tgtRadius = UnitDefs[spGetUnitDefID(targetID)].collisionVolume.boundingRadius --tonumber(Split(volScales," ")[1]) or 0
+        --Spring.Echo("taptools::In Range check, dist: "..distance(x,nil,z,px,nil,pz).."; build Dist:"..buildDistance..", radius: ".. tgtRadius)
+        return distance(x,nil,z,px,nil,pz) <= (buildDistance*1.1 + tgtRadius + unitRadius)
     end
 end
 
@@ -731,8 +741,8 @@ local automatedFunctions = {
             condition = function(ud) --unitData
                 local recheckFrame = deautomatedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
-                --if automatedState[ud.unitID] == "repair" then
-                --    Spring.Echo("TargetID: "..(targetID or "nil").." valid: "..(IsValidUnit(targetID) and "true" or "false")) end
+                if automatedState[ud.unitID] == "repair" then
+                    Spring.Echo("TargetID: "..(targetID or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false")) end
 
                 return automatedState[ud.unitID] ~= "deautomated" and
                        (
@@ -749,8 +759,8 @@ local automatedFunctions = {
                              (automatedState[ud.unitID] == "assist" and
                                      (not hasBuildQueue(targetID) or (not targetIsInRange(ud.unitID, targetID, false))))
                              or
-                             (automatedState[ud.unitID] == "repair" and
-                                     (not IsValidUnit(targetID) or isFullHealth(targetID) or (not targetIsInRange(ud.unitID, targetID, false))) ) -- target unit destroyed or full health
+                             (automatedState[ud.unitID] == "repair" and --not IsValidUnit(targetID) or
+                                     (isFullHealth(targetID) or (not targetIsInRange(ud.unitID, targetID, false))) ) -- target unit destroyed or full health
                              or
                              (automatedState[ud.unitID] == "enemyreclaim" and (not IsValidUnit(targetID)) ) -- reclaimed enemy unit destroyed
                              or
