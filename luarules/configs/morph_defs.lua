@@ -14,7 +14,9 @@ local morphDefs = {		--begining of morphDefs
 		cmdname = 'Ascend',		--if ommited will default to "Upgrade"
 		texture = 'MyIcon.dds',		--if ommited will default to [newunitname] buildpic, textures should be in "LuaRules/Images/Morph"
 		text = 'Description',		--if ommited will default to "Upgrade into a [newunitname]", else it's "Description"
-						--you may use "$$unitname" and "$$into" in 'text', both will be replaced with human readable unit names 
+						--you may use "$$unitname" and "$$into" in 'text', both will be replaced with human readable unit names
+		animationonly = 1,     --if 1, will not replace the original model, it'll only run a 'MorphUp' methods in the unit's LUS script
+		                --TODO: And enable 'advanced' buttons
 	},
 }				--end of morphDefs
 --]]

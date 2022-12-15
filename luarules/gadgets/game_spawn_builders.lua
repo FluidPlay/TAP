@@ -73,10 +73,10 @@ if gadgetHandler:IsSyncedCode() then
             builderID = armckid
         end
 
-        spCreateUnit(builderID, x+50, y, z+50, 0, teamID)
-        spCreateUnit(builderID, x+50, y, z-50, 0, teamID)
-        spCreateUnit(builderID, x-50, y, z+50, 0, teamID)
-        spCreateUnit(builderID, x-50, y, z-50, 0, teamID)
+        spCreateUnit(builderID, x+50, y, z, 0, teamID)
+        spCreateUnit(builderID, x+100, y, z, 0, teamID)
+        spCreateUnit(builderID, x-50, y, z, 0, teamID)
+        spCreateUnit(builderID, x-100, y, z, 0, teamID)
 
     end
 

@@ -419,12 +419,9 @@ function init()
             local fxType = fx.fxtype
             local fxSettings = fx
 
-            if (fxType)and
-                    ((fxType:lower()=="nanolasers")or
-                            (fxType:lower()=="nanoparticles"))and
-                    (fxSupported(fxType))and
-                    (fxSettings)
-            then
+            if (fxType) and
+                    ((fxType:lower()=="nanolasers") or (fxType:lower()=="nanoparticles")) and
+                    (fxSupported(fxType)) and (fxSettings) then
                 NanoFx.default = fxSettings
             end
         end
@@ -444,9 +441,8 @@ function init()
 end
 
 function gadget:Update()
-  if (spGetGameFrame()<1) then 
-    return
-  end
+    if (spGetGameFrame()<1) then
+        return end
 
     if initialized then
         --// enable particle effect?
@@ -457,15 +453,15 @@ function gadget:Update()
         end
         return
     end
-  --gadgetHandler:RemoveCallIn("Update")
+    --gadgetHandler:RemoveCallIn("Update")
 
-  Lups = GG['Lups']
-  if (Lups) then
-      maxNewNanoEmitters = (Spring.GetConfigInt("NanoBeamAmount", 6) or 6)
-      currentNanoEffect = (Spring.GetConfigInt("NanoEffect",1) or 1)
-      init()
-    initialized=true
-  end
+    Lups = GG['Lups']
+    if (Lups) then
+        maxNewNanoEmitters = (Spring.GetConfigInt("NanoBeamAmount", 6) or 6)
+        currentNanoEffect = (Spring.GetConfigInt("NanoEffect",1) or 1)
+        init()
+        initialized=true
+    end
 
 end
 
@@ -474,9 +470,19 @@ end
 
 local registeredBuilders = {}
 
+local canharvest = {
+    armck = true, corck = true, armca = true, corca = true,
+    armaca = true, coraca = true,
+    armack = true, corack = true,
+    armcv = true, corcv = true,
+    armacv = true, coracv = true,
+    --armcs = true, corcs = true,
+    --armacsub = true, coracsub = true,
+}
+
 function gadget:UnitFinished(uid, udid)
     if currentNanoEffect == NanoFxNone then return end
-	if (UnitDefs[udid].isBuilder) and not registeredBuilders[uid] then
+	if canharvest[UnitDefs[udid].name] and not registeredBuilders[uid] then --(UnitDefs[udid].isBuilder)
 		BuilderFinished(uid)
 		registeredBuilders[uid] = nil
 	end
@@ -484,7 +490,7 @@ end
 
 function gadget:UnitDestroyed(uid, udid)
     if currentNanoEffect == NanoFxNone then return end
-	if (UnitDefs[udid].isBuilder) and registeredBuilders[uid] then
+	if canharvest[UnitDefs[udid].name]  and registeredBuilders[uid] then --UnitDefs[udid].isBuilder
 		BuilderDestroyed(uid)
 		registeredBuilders[uid] = nil
 	end

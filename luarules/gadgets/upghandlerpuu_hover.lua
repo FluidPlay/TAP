@@ -66,7 +66,7 @@ end
 local function Update()
     for unitID, unitDefID in pairs(trackedUnits) do
         if spGetUnitRulesParam(unitID, unitRulesCompletedParamName) == "1" then
-            Spring.Echo("Hover upgrade detected")
+            --Spring.Echo("Hover upgrade detected")
             ApplyHover(unitID, unitDefID, false)
             trackedUnits[unitID] = nil
         end

@@ -44,7 +44,7 @@ UnitResearchers = {
     [UnitDefNames["coravp"].id] = "nanobooster",
     [UnitDefNames["coraap"].id] = "nanobooster",
     [UnitDefNames["corasy"].id] = "nanobooster",
-	---TODO: [UnitDefNames["armvp"].id] = "techupgrade",
+	[UnitDefNames["armvp"].id] = "techupgrade",
 }
 
 local CMD_CAPTURE = CMD.CAPTURE
@@ -353,7 +353,7 @@ UnitUpgrades = {
 		energyCost = 1880,		--TODO: Read from morph energycost
 		upgradeTime = 6 * 15,	--TODO: Read from morph buildtime
 		type = "perunit",
-		buttonToUnlock = nil, --CMD_TECHUPGRADE, 	--TODO: Read from morph target
+		buttonToUnlock = nil, --CMD_TECHUPGRADE,
 		buttonToUnlockTooltip = "",
 		upgradableDefIDs = { [UnitDefNames["armvp"].id] = true,
 							 --[UnitDefNames["armlab"].id] = true,

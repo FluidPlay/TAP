@@ -45,8 +45,8 @@ local right_head = piece 'right_head'
 local right_pointer = piece 'right_pointer'
 local right_boxcover = piece 'right_boxcover'
 
-local pointer = { left_pointer, right_pointer }
-local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
+local nanoPieces = { left_pointer, right_pointer }
+local advNanoPieces = { left_pointer1, left_pointer2, right_pointer1, right_pointer2 }
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -93,6 +93,8 @@ local scriptEnv = { base = base,
 					z_axis = z_axis,
 					Turn = Turn,
 					Move = Move,
+					WaitForMove = WaitForMove,
+					WaitForTurn = WaitForTurn,
 					Sleep = Sleep,
 					initTween = initTween,
 }
@@ -170,6 +172,39 @@ local function WaitOneFrame()
 	Sleep (1)
 end
 
+local function morphAnimSetup()
+
+	isAdvanced = true
+
+	Show(left_upgrade)
+	Show(right_upgrade)
+
+	Show(left_arm_advanced)
+		Show(left_head_advanced)
+			Show(left_pointer1)
+			Show(left_pointer2)
+
+	Show(right_arm_advanced)
+		Show(right_head_advanced)
+			Show(right_pointer1)
+			Show(right_pointer2)
+
+	Hide(left_arm)
+		Hide(left_head)
+			Hide(left_pointer)
+	Hide(right_arm)
+		Hide(right_head)
+			Hide(right_pointer)
+
+	PlayAnimation.morphup()
+end
+
+-- This is called by unit_morph, when the 'animationonly' tag is set in the morphData
+function MorphUp()
+	Spring.SetUnitNanoPieces(unitID, advNanoPieces)
+	StartThread(morphAnimSetup)
+end
+
 local function Stop()
 	--Spring.UnitScript.Signal(SIG_STATECHG)
 	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
@@ -177,11 +212,11 @@ local function Stop()
 	--WaitOneFrame()
 	---StartThread(RestoreAfterDelay)
 
-	--if isAdvanced then
-	--	PlayAnimation.closeadv()
-	--else
-	PlayAnimation.closestd()
-	--end
+	if isAdvanced then
+		PlayAnimation.stopbuildadv()
+	else
+		PlayAnimation.stopbuildstd()
+	end
 	close_yard()
 end
 
@@ -190,11 +225,11 @@ local function Go()
 	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
 	--WaitOneFrame()
 
-	--if isAdvanced then
-	--	PlayAnimation.openadv() --'closestd, openadv, closeadv'
-	--else
-	PlayAnimation.openstd() --'closestd, openadv, closeadv'
-	--end
+	if isAdvanced then
+		PlayAnimation.buildadv() --'closestd, openadv, closeadv'
+	else
+		PlayAnimation.buildstd() --'closestd, openadv, closeadv'
+	end
 	open_yard()
 	SetUnitValue(COB.INBUILDSTANCE, 1)
 end
@@ -224,41 +259,6 @@ local function RequestState(requestedstate, currentstate)
 	statechg_StateChanging = false
 end
 
---local function Upgrade()
---	--- Showing pieces at start is actually not needed; remove this after morphing tests are complete
---	Show(left_wall_extension)
---	Show(right_wall_extension)
---	Show(left_back_upgrade)
---	Show(right_back_upgrade)
---
---	Show(left_arm1_advanced)
---	Show(left_arm2_advanced)
---	Show(left_arm3_advanced)
---	Show(right_arm1_advanced)
---	Show(right_arm2_advanced)
---	Show(right_arm3_advanced)
---
---	Show(left_head_advanced)
---	Show(right_head_advanced)
---
---	Show(right_pointer1)
---	Show(right_pointer2)
---	Show(left_pointer1)
---	Show(left_pointer2)
---
---	Hide(left_arm1)
---	Hide(left_arm2)
---	Hide(left_arm3)
---	Hide(right_arm1)
---	Hide(right_arm3)
---	Hide(right_arm2)
---	Hide(right_head)
---	Hide(left_head)
---
---	Hide(right_pointer)
---	Hide(left_pointer)
---end
-
 local function InitState()
 	HeadingAngle = nil
 	PitchAngle = nil
@@ -269,6 +269,7 @@ local function InitState()
 	local unitDefID = UnitDefs[unitDefID].name
 	if (unitDefID == "corlab") then
 		isAdvanced = false
+		Spring.SetUnitNanoPieces(unitID, nanoPieces)
 
 		Hide(left_arm_advanced)
 		Hide(right_arm_advanced)
@@ -281,8 +282,8 @@ local function InitState()
 		Hide(left_pointer1)
 		Hide(left_pointer2)
 
-		Hide(right_upgrade)
-		Hide(left_upgrade)
+		--Hide(right_upgrade)
+		--Hide(left_upgrade)
 
 		----	=> Once bowlab is built insta-move (right/)left_wall_extension to final pos and hide them;
 		--Move(left_wall_extension, x_axis, 15.6373)	-- starts at local -15.63, to hide it
@@ -297,10 +298,10 @@ local function InitState()
 		--Hide(right_back_upgrade)
 
 		---TODO
-	--elseif (unitDefID == "coralab") then
-	--	-- Upgrade()
-	--	isAdvanced = true
-	--	-- PlayAnimation.testanim()
+	elseif (unitDefID == "coralab") then
+		-- Upgrade()
+		isAdvanced = true
+		Spring.SetUnitNanoPieces(unitID, advNanoPieces)
 	end
 
 	--EnableTowers()
@@ -317,17 +318,18 @@ end
 --	StartThread(RequestState, state.stop)
 --end
 
-function script.QueryNanoPiece(piecenum)
-	if isAdvanced then
-		--piecenum = left_pointer1
-		piecenum = advpointer[math.random(1,4)]
-	else
-		--piecenum = left_pointer
-		piecenum = pointer[math.random(1,2)]
-		--local pointer = { "left_pointer", "right_pointer" }
-	end
-	return piecenum
-end
+--- Replaced by Spring.SetUnitNanoPieces
+--function script.QueryNanoPiece(piecenum)
+--	if isAdvanced then
+--		--piecenum = left_pointer1
+--		piecenum = advNanoPieces[math.random(1,4)]
+--	else
+--		--piecenum = left_pointer
+--		piecenum = nanoPieces[math.random(1,2)]
+--		--local pointer = { "left_pointer", "right_pointer" }
+--	end
+--	return piecenum
+--end
 
 local function SweetSpot(piecenum)
 	piecenum = base

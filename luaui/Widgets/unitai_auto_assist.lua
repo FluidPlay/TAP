@@ -741,8 +741,8 @@ local automatedFunctions = {
             condition = function(ud) --unitData
                 local recheckFrame = deautomatedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
-                if automatedState[ud.unitID] == "repair" then
-                    Spring.Echo("TargetID: "..(targetID or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false")) end
+                --if automatedState[ud.unitID] == "repair" then
+                --    Spring.Echo("TargetID: "..(targetID or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false")) end
 
                 return automatedState[ud.unitID] ~= "deautomated" and
                        (
