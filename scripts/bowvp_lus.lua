@@ -186,9 +186,10 @@ end
 --	WaitForTurn (aim, y_axis)
 --end
 
-local function WaitOneFrame()
-	Sleep (1)
-end
+--
+--local function WaitOneFrame()
+--	Sleep (1)
+--end
 
 local function Stop()
 	--Spring.UnitScript.Signal(SIG_STATECHG)
@@ -330,7 +331,7 @@ end
 --	--Spring.Echo("Source pitch: "..pitch)
 --	StartThread(RequestState, state.build)
 --end
---
+
 --function script.StopBuilding()
 --	StartThread(RequestState, state.stop)
 --end

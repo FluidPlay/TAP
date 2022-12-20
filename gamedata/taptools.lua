@@ -596,6 +596,9 @@ function Distance2D(unitID, px, pz)
 end
 
 function Split(s, separator)
+	if s == nil then
+		return nil
+	end
     local results = {}
     for part in s:gmatch("[^" .. separator .. "]+") do
         results[#results + 1] = part

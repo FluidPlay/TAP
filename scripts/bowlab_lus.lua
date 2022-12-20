@@ -189,9 +189,29 @@ end
 --    end
 --end
 
+local function open_yard()
+    UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+    while (UnitScript.GetUnitValue(COB.YARD_OPEN) == 0) do
+        UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+        Sleep(1500);
+        UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
+    end
+    UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
+local function close_yard()
+    UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+    while(UnitScript.GetUnitValue(COB.YARD_OPEN) ~= 0) do
+        UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
+        Sleep(1500);
+        UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
+    end
+    UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
+end
+
 local function Stop()
-    Spring.UnitScript.Signal(SIG_STATECHG)
-    Spring.UnitScript.SetSignalMask(SIG_STATECHG)
+    --Spring.UnitScript.Signal(SIG_STATECHG)
+    --Spring.UnitScript.SetSignalMask(SIG_STATECHG)
     --Spring.Echo("armoutpost_lus: Stopping")
     SetUnitValue(COB.INBUILDSTANCE, 0)	--set INBUILDSTANCE to 0
 	--DisableTowers() :: Removed to prevent 'bouncing towers' after building etc
@@ -202,11 +222,12 @@ local function Stop()
     else
         PlayAnimation.closestd()
     end
+    close_yard()
 end
 
 local function Go()
-    Spring.UnitScript.Signal(SIG_STATECHG)
-    Spring.UnitScript.SetSignalMask(SIG_STATECHG)
+    --Spring.UnitScript.Signal(SIG_STATECHG)
+    --Spring.UnitScript.SetSignalMask(SIG_STATECHG)
     --if PitchAngle == nil or HeadingAngle == nil then
     --    Stop() end
     --Spring.Echo("armoutpost_lus: Going")
@@ -222,12 +243,13 @@ local function Go()
     else
         PlayAnimation.openstd() --'closestd, openadv, closeadv'
     end
+    open_yard()
     SetUnitValue(COB.INBUILDSTANCE, 1)
 end
 
 local function RequestState(requestedstate, currentstate)
-    Spring.UnitScript.Signal(SIG_REQSTATE)
-    Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
+    --Spring.UnitScript.Signal(SIG_REQSTATE)
+    --Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
 	if  statechg_StateChanging  then
 		statechg_DesiredState = requestedstate
 		return (0)
@@ -237,11 +259,11 @@ local function RequestState(requestedstate, currentstate)
 	statechg_DesiredState = requestedstate
 	while statechg_DesiredState ~= currentstate  do
 		if statechg_DesiredState == state.build then
-			StartThread(Go)
+			Go()
 			currentstate = state.build
 		elseif statechg_DesiredState == state.stop then
-      --Spring.Echo("Stop now")
-			StartThread(Stop)
+            --Spring.Echo("Stop now")
+			Stop()
 			currentstate = 1
 		end
 	end
@@ -297,14 +319,16 @@ local function InitState()
 	--EnableTowers()
 end
 
-function script.StartBuilding(heading, pitch)
-	HeadingAngle = heading
+function script.Activate()
+--function script.StartBuilding(heading, pitch)
+	HeadingAngle = 0 --heading
     --Spring.Echo("Source pitch: "..pitch)
-    PitchAngle = pitch --  -math.max(minPitch, math.min(pitch, maxPitch))
+    --PitchAngle = pitch --  -math.max(minPitch, math.min(pitch, maxPitch))
 	StartThread(RequestState, state.build)
 end
 
-function script.StopBuilding()
+function script.Deactivate()
+--function script.StopBuilding()
 	StartThread(RequestState, state.stop)
 end
 

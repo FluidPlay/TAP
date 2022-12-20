@@ -75,7 +75,7 @@ local options = {
 		name = 'Immediate Mode',
 		desc = 'Units built/resurrected/received are added to autogroups immediately instead of waiting them to be idle.',
 		type = 'bool',
-		value = false,
+		value = true,	--false
 	},
 	groupnumbers = {
 		name = 'Display Group Numbers',

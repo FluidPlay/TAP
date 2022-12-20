@@ -278,7 +278,12 @@ if gadgetHandler:IsSyncedCode() then
         --DebugTable(oreSpots)
     end
 
-    function gadget:UnitDestroyed(unitID) --, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
+    function gadget:UnitDestroyed(unitID, unitDefID) --, teamID, attackerID, attackerDefID, attackerTeam)
+        local uDef = UnitDefs[unitDefID]
+        if not uDef.customParams.isorechunk then
+            return end
+        SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, unitID) --should be 'gaiaAllyTeam' (irrelevant here)
+        --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
         local chunk = chunks[unitID]
         if chunk then
             local spotIdx = chunk.spotIdx
@@ -288,9 +293,8 @@ if gadgetHandler:IsSyncedCode() then
             if (oreSpots[spotIdx].chunks)[unitID] then
                 (oreSpots[spotIdx].chunks)[unitID] = nil
                 chunks[unitID] = nil
-                spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
+                --spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
                 --_G.oreSpots = oreSpots;
-                SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, spotIdx, unitID) --should be 'gaiaAllyTeam' (irrelevant here)
                 --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
             else
                 spEcho("WARNING: Destroyed chunk "..(unitID or "nil").." not found in list of spot# "..spotIdx)
@@ -368,6 +372,7 @@ else
     ---- Here we'll make the 'capture' cursor the default action on top of ore chunks
     ---- for commanders and capture-enabled builders
 
+    local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGetMouseState = Spring.GetMouseState
     local spTraceScreenRay = Spring.TraceScreenRay
     --local spAreTeamsAllied = Spring.AreTeamsAllied
@@ -394,22 +399,9 @@ else
         [UnitDefNames["oreuber"].id] = true,
     }
 
-    local function handleChunkDestroyedEvent(cmd, allyTeam, spotIdx, destroyedUnitID)
-        --oreSpots = SYNCED.oreSpots;
-        --Spring.Echo("<destroy> Message received. Spots #: "..(oreSpots and #oreSpots or "nil"))
-        --DebugTable(oreSpots)
-        --if not oreSpots[spotIdx] then
-        --    Spring.Echo("[unsync]Ore Spot "..spotIdx.." not found")
-        --end
-        --if not oreSpots[spotIdx].chunks then
-        --    oreSpots[spotIdx].chunks = {}
-        --end
-        --if (oreSpots[spotIdx].chunks)[chunkIdx] then
-        --    table.remove(oreSpots[spotIdx].chunks, chunkIdx )
-        --    Spring.Echo("Removed: i: "..spotIdx.." j: "..chunkIdx)
-        --else
-        --    Spring.Echo("Couldn't remove: i: "..spotIdx.." j: "..chunkIdx)
-        --end
+    local function handleChunkDestroyedEvent(cmd, allyTeam, destroyedUnitID)
+        spSendLuaUIMsg("chunkDestroyed_"..destroyedUnitID, "allies") --(message, mode)
+        --Spring.Echo("Sending chunk destroyed message: "..destroyedUnitID)
     end
 
     local function handleChunkSpawnedEvent(cmd, allyTeam, gaiaTeamID, i, spawnedUnitID, kind) --i = spotIdx

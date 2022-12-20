@@ -253,6 +253,8 @@ local disarmUnits = {};
 local onFireUnits = {};
 local UnitMorphs  = {};
 
+local harvesterStorageTbl = {}
+
 local barShader;
 local barDList;
 local barFeatureDList;
@@ -297,6 +299,8 @@ function widget:Initialize()
     --if not harvestEcoEnabled == 1 then
     --end
     --WG.InitializeTranslation (languageChanged, GetInfo().name)
+
+    --harvesterStorageTbl = _G.HarvesterStorageTbl
 
     --// catch f9
     Spring.SendCommands({"showhealthbars 0"})
@@ -643,7 +647,6 @@ do
     local GetUnitViewPosition  = Spring.GetUnitViewPosition
     local GetUnitStockpile     = Spring.GetUnitStockpile
     local GetUnitRulesParam    = Spring.GetUnitRulesParam
-    local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 
     local fullText
     local ux, uy, uz
@@ -776,7 +779,8 @@ do
         end
 
         --local oreLoad = harvestEcoEnabled and spGetUnitHarvestStorage(unitID) or false
-        local oreLoad = spGetUnitHarvestStorage(unitID) or false
+        local oreLoad = GetUnitRulesParam(unitID, "oreLoad")
+        --Spring.Echo("healthbars :: oreLoad="..(oreLoad or "nil"))
 
         --//=====================================================================================
         --// BARS //-----------------------------------------------------------------------------

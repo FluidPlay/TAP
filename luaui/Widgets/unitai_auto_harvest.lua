@@ -47,21 +47,21 @@ local localDebug = false --|| Enables text state debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
-local spGetFeatureDefID = Spring.GetFeatureDefID
-local spValidFeatureID = Spring.ValidFeatureID
+--local spGetFeatureDefID = Spring.GetFeatureDefID
+--local spValidFeatureID = Spring.ValidFeatureID
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetMyTeamID     = Spring.GetMyTeamID
 local spGetMyAllyTeamID     = Spring.GetMyAllyTeamID
-local spGetUnitAllyTeam     = Spring.GetUnitAllyTeam
-local spGetFeaturePosition = Spring.GetFeaturePosition
-local spGetSelectedUnits = Spring.GetSelectedUnits
+--local spGetUnitAllyTeam     = Spring.GetUnitAllyTeam
+--local spGetFeaturePosition = Spring.GetFeaturePosition
+--local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
-local spSetUnitRulesParam = Spring.SetUnitRulesParam
-local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
-local spGetTeamResources = Spring.GetTeamResources
+--local spSetUnitRulesParam = Spring.SetUnitRulesParam
+--local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
+--local spGetTeamResources = Spring.GetTeamResources
 local spGetUnitTeam    = Spring.GetUnitTeam
-local spGetUnitsInSphere = Spring.GetUnitsInSphere
-local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
+--local spGetUnitsInSphere = Spring.GetUnitsInSphere
+--local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
@@ -87,7 +87,7 @@ local widgetScale = (0.50 + (vsx*vsy / 5000000))
 ---=== Harvest-system related
 
 -- ALERT: uDef.harvestStorage is not working (up to Spring 105)
-local harvesters = {} -- { unitID = uDef.customparams.maxorestorage, parentOreTowerID, targetChunkID
+local harvesters = {} -- { unitID = uDef.customParams.maxorestorage, parentOreTowerID, targetChunkID
                       --   returnPos = { x = rpx, y = rpy, z = rpz }, recheckFrame = spGetGameFrame + idleRecheckLatency }
 --- Attack: actually harvesting; Deliver: going to the nearest ore tower; Unloading: in range of an ore tower, stopped and unloading;
 --- Resume: returning to the previous harvest position, after delivery
@@ -199,6 +199,8 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 end
 
 function widget:UnitDestroyed(unitID)
+    --if not IsValidUnit(unitID) then
+    --    return end
     orphanHarvesters[unitID] = nil
     --- if an Ore Tower is destroyed, must go through all harvesters and clear their nearest/parentOreTower
     if oreTowers[unitID] then
@@ -332,7 +334,7 @@ local automatedFunctions = {
     [5] = { id="returning", -- Going back to returnPos (the start position before delivering)
             condition = function(ud)
                        return harvestState[ud.unitID] == "unloading" -- has no resources & has return pos
-                               and spGetUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
+                               and getUnitHarvestStorage(ud.unitID) <= 0 and ud.returnPos
                        end,
             action = function(ud) --unitData
                spEcho("**3** Returning Actions")
@@ -410,10 +412,13 @@ local automatedFunctions = {
                 local nearestChunkID = getNearestChunkID(ud)
                 ud.nearestChunkID = nearestChunkID
                 local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
+                spEcho("target Chunk: "..(ud.targetChunkID or "nil"))
                 return  harvestState[ud.unitID] == "returningandstuck"
                         or
                         (harvestState[ud.unitID] == "attacking" and
                             (   ud.targetChunkID == nil
+                                or
+                                (not IsValidUnit(ud.targetChunkID))
                                 or
                                 (loadPercent >= 1 and (not ud.parentOreTowerID and not nearestOreTowerID))
                             )
@@ -533,7 +538,7 @@ function widget:GameFrame(f)
     if f % updateRate < 0.001 then
         for harvesterID, data in pairs(harvesters) do
             local maxStorage = data.maxorestorage
-            local curStorage = spGetUnitHarvestStorage(harvesterID) or 0
+            local curStorage = getUnitHarvestStorage(harvesterID) or 0
             --Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
             if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
                 --- Check/Update harvest Automation
