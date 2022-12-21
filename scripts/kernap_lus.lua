@@ -8,42 +8,41 @@ local SIG_STATECHG = {}
 local SIG_REQSTATE = {}
 
 local base = piece 'base'
-local left_base = piece 'left_base'
-local left_wall = piece 'left_wall'
-local left_upgrade = piece 'left_upgrade'
-local left_back_expansion = piece 'left_back_expansion'
-local left_frontal_expension = piece 'left_frontal_expension'
-local left_box = piece 'left_box'
-local left_boxcover = piece 'left_boxcover'
-local left_elevator = piece 'left_elevator'
-local left_arm_advanced = piece 'left_arm_advanced'
-local left_head_advanced = piece 'left_head_advanced'
-local left_pointer1 = piece 'left_pointer1'
-local left_pointer2 = piece 'left_pointer2'
-local left_arm = piece 'left_arm'
-local left_head = piece 'left_head'
-local left_pointer = piece 'left_pointer'
-local back_base = piece 'back_base'
-local back_wall = piece 'back_wall'
-local conver = piece 'conver'
-local cover_extension = piece 'cover_extension'
-local right_barrier = piece 'right_barrier'
-local left_barrier = piece 'left_barrier'
-local right_base = piece 'right_base'
-local right_wall = piece 'right_wall'
-local right_back_expansion = piece 'right_back_expansion'
-local right_upgrade = piece 'right_upgrade'
-local right_frontal_expansion = piece 'right_frontal_expansion'
+local right_back_base = piece 'right_back_base'
+local right_back_protection = piece 'right_back_protection'
 local right_box = piece 'right_box'
+local right_cover = piece 'right_cover'
 local right_elevator = piece 'right_elevator'
+local right_arm = piece 'right_arm'
+local right_head = piece 'right_head'
+local right_pointer = piece 'right_pointer'
 local right_arm_advanced = piece 'right_arm_advanced'
 local right_head_advanced = piece 'right_head_advanced'
 local right_pointer2 = piece 'right_pointer2'
 local right_pointer1 = piece 'right_pointer1'
-local right_arm = piece 'right_arm'
-local right_head = piece 'right_head'
-local right_pointer = piece 'right_pointer'
-local right_boxcover = piece 'right_boxcover'
+local right_frontal_base = piece 'right_frontal_base'
+local right_frontal_protection = piece 'right_frontal_protection'
+local right_frontal_upgrade = piece 'right_frontal_upgrade'
+local building_plate_base = piece 'building_plate_base'
+local building_plate_expansion4 = piece 'building_plate_expansion4'
+local building_plate_expansion2 = piece 'building_plate_expansion2'
+local building_plate_expansion1 = piece 'building_plate_expansion1'
+local building_plate_expansion3 = piece 'building_plate_expansion3'
+local left_back_base = piece 'left_back_base'
+local left_back_protection = piece 'left_back_protection'
+local left_box = piece 'left_box'
+local left_elevator = piece 'left_elevator'
+local left_arm = piece 'left_arm'
+local left_head = piece 'left_head'
+local left_pointer = piece 'left_pointer'
+local left_arm_advanced = piece 'left_arm_advanced'
+local left_head_advanced = piece 'left_head_advanced'
+local left_pointer1 = piece 'left_pointer1'
+local left_pointer2 = piece 'left_pointer2'
+local left_cover = piece 'left_cover'
+local left_frontal_base = piece 'left_frontal_base'
+local left_frontal_protection = piece 'left_frontal_protection'
+local left_frontal_upgrade = piece 'left_frontal_upgrade'
 
 local nanoPieces = { left_pointer, right_pointer }
 local advNanoPieces = { left_pointer1, left_pointer2, right_pointer1, right_pointer2 }
@@ -51,42 +50,41 @@ local advNanoPieces = { left_pointer1, left_pointer2, right_pointer1, right_poin
 VFS.Include("scripts/include/springtweener.lua")
 
 local scriptEnv = { base = base,
-					left_base = left_base,
-					left_wall = left_wall,
-					left_upgrade = left_upgrade,
-					left_back_expansion = left_back_expansion,
-					left_frontal_expension = left_frontal_expension,
-					left_box = left_box,
-					left_boxcover = left_boxcover,
-					left_elevator = left_elevator,
-					left_arm_advanced = left_arm_advanced,
-					left_head_advanced = left_head_advanced,
-					left_pointer1 = left_pointer1,
-					left_pointer2 = left_pointer2,
-					left_arm = left_arm,
-					left_head = left_head,
-					left_pointer = left_pointer,
-					back_base = back_base,
-					back_wall = back_wall,
-					conver = conver,
-					cover_extension = cover_extension,
-					right_barrier = right_barrier,
-					left_barrier = left_barrier,
-					right_base = right_base,
-					right_wall = right_wall,
-					right_back_expansion = right_back_expansion,
-					right_upgrade = right_upgrade,
-					right_frontal_expansion = right_frontal_expansion,
+					right_back_base = right_back_base,
+					right_back_protection = right_back_protection,
 					right_box = right_box,
+					right_cover = right_cover,
 					right_elevator = right_elevator,
+					right_arm = right_arm,
+					right_head = right_head,
+					right_pointer = right_pointer,
 					right_arm_advanced = right_arm_advanced,
 					right_head_advanced = right_head_advanced,
 					right_pointer2 = right_pointer2,
 					right_pointer1 = right_pointer1,
-					right_arm = right_arm,
-					right_head = right_head,
-					right_pointer = right_pointer,
-					right_boxcover = right_boxcover,
+					right_frontal_base = right_frontal_base,
+					right_frontal_protection = right_frontal_protection,
+					right_frontal_upgrade = right_frontal_upgrade,
+					building_plate_base = building_plate_base,
+					building_plate_expansion4 = building_plate_expansion4,
+					building_plate_expansion2 = building_plate_expansion2,
+					building_plate_expansion1 = building_plate_expansion1,
+					building_plate_expansion3 = building_plate_expansion3,
+					left_back_base = left_back_base,
+					left_back_protection = left_back_protection,
+					left_box = left_box,
+					left_elevator = left_elevator,
+					left_arm = left_arm,
+					left_head = left_head,
+					left_pointer = left_pointer,
+					left_arm_advanced = left_arm_advanced,
+					left_head_advanced = left_head_advanced,
+					left_pointer1 = left_pointer1,
+					left_pointer2 = left_pointer2,
+					left_cover = left_cover,
+					left_frontal_base = left_frontal_base,
+					left_frontal_protection = left_frontal_protection,
+					left_frontal_upgrade = left_frontal_upgrade,
 					rad = math.rad,
 					x_axis = x_axis,
 					y_axis = y_axis,
@@ -99,7 +97,7 @@ local scriptEnv = { base = base,
 					initTween = initTween,
 }
 
-local PlayAnimation = VFS.Include("scripts/animations/kernlab_anim.lua", scriptEnv)
+local PlayAnimation = VFS.Include("scripts/animations/kernap_anim.lua", scriptEnv)
 
 local HeadingAngle, PitchAngle, RestoreDelay, statechg_StateChanging
 local state = { build = 0, stop = 1}
@@ -176,8 +174,8 @@ local function morphAnimSetup()
 
 	isAdvanced = true
 
-	Show(left_upgrade)
-	Show(right_upgrade)
+	Show(left_frontal_upgrade)
+	Show(right_frontal_upgrade)
 
 	Show(left_arm_advanced)
 		Show(left_head_advanced)
@@ -380,10 +378,10 @@ function script.Killed(recentDamage, maxHealth)
 
 	local corpsetype, explosionFx1, explosionFx2 = getKilledFx(severity)
 
-	Explode( left_back_expansion, explosionFx1)
-	Explode( right_back_expansion, explosionFx2)
-	Explode( back_wall			, explosionFx2)
-	Explode( right_boxcover		, explosionFx2)
+	Explode( left_cover, explosionFx1)
+	Explode( building_plate_base, explosionFx2)
+	Explode( left_cover			, explosionFx2)
+	Explode( right_cover		, explosionFx2)
 	if not isAdvanced then
 		Explode( left_head	, explosionFx1)
 		Explode( right_head	, explosionFx2)

@@ -412,7 +412,7 @@ local blankNormal = "unittextures/blank_normal.dds"
 for id = 1, #UnitDefs do
     local udef = UnitDefs[id]
 
-    if not cusUnitMaterials[id] and udef.modeltype == "s3o" then
+    if not cusUnitMaterials[id] and (udef.modeltype == "s3o" or udef.modeltype == "dae" ) then
 
         local udefCM = udef.customParams
         local lm = tonumber(udefCM.lumamult) or 1
