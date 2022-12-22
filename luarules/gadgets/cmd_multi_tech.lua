@@ -144,6 +144,7 @@ if (gadgetHandler:IsSyncedCode()) then
 	local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
 	local spEditUnitCmdDesc = Spring.EditUnitCmdDesc
 	local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+	local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 	local CMD_ONOFF = CMD.ONOFF
 
@@ -224,18 +225,44 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 	end
 
-	local function CheckCmd(cmdId, teamId)
-		if not cmdIdRequirements[cmdId] then
-			return true
-		else
+	local function isAdvBuildOption(cmdID)
+		if isnumber(cmdID) and cmdID > 0 then	-- must be a 'build option' (negative cmdID)
+			return false end
+		local advanced = false
+		local uDef = UnitDefs[-cmdID]
+		if uDef.customParams and uDef.customParams.tier then
+			local tier_number = tonumber(uDef.customParams.tier)
+			--Spring.Echo("Tier found: "..(tier_number or "nil"))
+			if tier_number and tier_number >= 2 then
+				advanced = true
+			end
+		end
+		return advanced
+	end
+
+	local function CheckCmd(cmdId, teamId, unitID)
+		-- If there are no requirements, always allow command
+		local hasGlobalTechReqs = true
+		if cmdIdRequirements[cmdId] then
             -- If any of the tech requirements is not met, return false
 			for _, techId in ipairs(cmdIdRequirements[cmdId]) do
 				if not CheckTech(techId, teamId) then
-					return false
+					hasGlobalTechReqs = false
+					break
 				end
 			end
-			return true
 		end
+		-- If 'localtech:animationmorph' is there and it's not 1, return false
+		local hasLocalTechReq = true
+		if IsValidUnit(unitID) then
+			--Spring.Echo("Checking buildoption local tech req, cmdID: "..(cmdId or "nil"))
+			if isAdvBuildOption(cmdId) then
+				local techAnimMorph = spGetUnitRulesParam(unitID, "localtech:animationmorph")
+				if techAnimMorph then
+					hasLocalTechReq = (techAnimMorph == 1) end
+			end
+		end
+		return hasGlobalTechReqs and hasLocalTechReq
 	end
 
 	local function EditButtons(unitID, uDefId, teamID)
@@ -258,6 +285,7 @@ if (gadgetHandler:IsSyncedCode()) then
 				end
 				ReqDesc[cmd]="\255\255\64\64Requires "..table.concat(cmdIdRequirements[cmd],", ").."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
 			end
+			Spring.Echo("cmd_mult_tech: "..(ReqDesc[cmd] or "nil"))
 			return ReqDesc[cmd]
 		end
 
@@ -285,7 +313,7 @@ if (gadgetHandler:IsSyncedCode()) then
 			local cmdDescId = spFindUnitCmdDesc(unitID, cmdId)
 			if cmdDescId then
                 local cmdDesc = spGetUnitCmdDescs(unitID, cmdDescId, cmdDescId)[1]
-				if CheckCmd(cmdId, teamID) then
+				if CheckCmd(cmdId, teamID, unitID) then
 					spEditUnitCmdDesc(unitID, cmdDescId,{ disabled=false, tooltip=UnlockedToolTip(unitID, cmdDescId, cmdId)})
 				else
                     ---- TODO: Fix this silly last-minute workaround
@@ -377,11 +405,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
 	local function isComplete(u)
 		local health,maxHealth,paralyzeDamage,captureProgress,buildProgress=Spring.GetUnitHealth(u)
-		if buildProgress and buildProgress>=1 then
-			return true
-		else
-			return false
-		end
+		return (buildProgress and buildProgress>=1)
 	end
 
 	local function UnitGained(unitId, uDefId, teamId)
@@ -448,12 +472,12 @@ if (gadgetHandler:IsSyncedCode()) then
 		end
 	end
 
-	function gadget:AllowCommand(u, ud, team, cmdId, param, opt, synced)
-		return CheckCmd(cmdId, team)
+	function gadget:AllowCommand(unitID, ud, team, cmdId, param, opt, synced)
+		return CheckCmd(cmdId, team, unitID)
 	end
 
-	function gadget:AllowUnitCreation(uDefId, builder, team, x, y, z)
-		return CheckCmd(-uDefId, team)  -- build commands are -1 * the uDefId
+	function gadget:AllowUnitCreation(uDefId, builderID, team, x, y, z)
+		return CheckCmd(-uDefId, team, builderID)  -- build commands are -1 * the uDefId
 	end
 
 	function gadget:Initialize()
@@ -472,6 +496,7 @@ if (gadgetHandler:IsSyncedCode()) then
 						table.insert(ProviderUnits[uDef.id],techname)
 					end
 				end
+				--TODO: Edit here for local upgrades support
 				if techRequired then
 					local techReqs = SplitString(techRequired)
 					cmdIdRequirements[-uDef.id] = {}

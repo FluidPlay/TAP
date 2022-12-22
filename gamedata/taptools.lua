@@ -16,6 +16,7 @@ local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetFeatureDefID = Spring.GetFeatureDefID
 local spValidFeatureID = Spring.ValidFeatureID
 local spValidUnitID = Spring.ValidUnitID
+local spGetUnitIsDead = Spring.GetUnitIsDead
 local spGetUnitDefID = Spring.GetUnitDefID
 
 local spMarkerAddPoint = Spring.MarkerAddPoint
@@ -471,7 +472,7 @@ end
 --////////////////////////
 
 function HasTech(prereq, teamID)
-	if prereq == "" or prereq == nil then
+	if prereq == "" or prereq == nil or GG.TechCheck == nil then
 		return true end
 	return GG.TechCheck(prereq, teamID)
 end
@@ -529,7 +530,7 @@ function IsValidUnit(unitID)
     if not isnumber(unitID) then
         return false end
 	local unitDefID = spGetUnitDefID(unitID)
-	if unitDefID and spValidUnitID(unitID) then
+	if unitDefID and spValidUnitID(unitID) and not spGetUnitIsDead(unitID) then
 		return true
 	end
 	return false

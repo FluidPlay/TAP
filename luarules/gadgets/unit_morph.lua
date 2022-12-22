@@ -399,7 +399,7 @@ local function BuildMorphDef(udSrc, morphData)
 	local requireDefined = -1
 	local foundAllRequires = true
 	local reqTier = 0
-	if (morphData.require) then
+	if (morphData.require and GG.TechCheck) then
 	  --require = (UnitDefNames[defNamesL[string.lower(morphData.require)] or -1] or {}).id
 	  local requires = morphData.require:split(',')
 	  -- // All required technologies must be defined, or else invalidate
@@ -516,7 +516,7 @@ local function TechReqList(teamID, reqTechs)
 	return {} end
 
   local unreachedTechs = {}
-  if (reqTechs) then
+  if (reqTechs and GG.TechCheck) then
 	local requires = reqTechs:split(',')
 
 	for i = 1, #requires do
@@ -583,11 +583,13 @@ local function GetMorphTimeBonus(unitTeam)
 	end
   end
   -- Check for Tech Boosters
-  for i = 1, 3 do
-	if GG.TechCheck(techboosters[i].id, unitTeam) then
-	  bonus = bonus * techboosters[i].bonus --1.25, 1.33, 1.5
+	if GG.TechCheck then
+		for i = 1, 3 do
+			if GG.TechCheck(techboosters[i].id, unitTeam) then
+				bonus = bonus * techboosters[i].bonus --1.25, 1.33, 1.5
+			end
+		end
 	end
-  end
   --if bonus ~= 1 then
   --  spEcho("bonus: "..bonus) end
 	if INSTAMORPH then
@@ -1009,6 +1011,7 @@ local function FinishMorph(unitID, morphData)
 		Spring.SetUnitCosts ( unitID, { metalCost = newMetalCost, energyCost = newEnergyCost, buildTime = newBuildTime })
 		SendToUnsynced("unit_morph_finished", unitID, unitID)
 		spSetUnitRulesParam(unitID, "morphedinto", 1)
+		spSetUnitRulesParam(unitID, "upgraded", 1)	--That's to be consumed by the per-unit upgrade handler ("puu")
 	else
 		--- Is it a structure?
 		if udDst.isBuilding or udDst.isFactory then
@@ -1222,33 +1225,35 @@ local function AddCustomMorphDefs()
 end
 
 function gadget:Initialize()
-  --// RankApi linking
-  if (GG.rankHandler) then
-	GetUnitRank = GG.rankHandler.GetUnitRank
-	RankToXp    = GG.rankHandler.RankToXp
-  end
+	--// RankApi linking
+	if (GG.rankHandler) then
+		GetUnitRank = GG.rankHandler.GetUnitRank
+		RankToXp    = GG.rankHandler.RankToXp
+	end
 
-  for i = 1, 3 do
-	  GG.TechInit(techboosters[i].id)
-  end
+	if GG.TechInit then
+		for i = 1, 3 do
+			GG.TechInit(techboosters[i].id)
+		end
+	end
   
-  -- self linking for planetwars
-  GG['morphHandler'] = {}
-  GG['morphHandler'].AddExtraUnitMorph = AddExtraUnitMorph
+	-- self linking for planetwars
+	GG['morphHandler'] = {}
+	GG['morphHandler'].AddExtraUnitMorph = AddExtraUnitMorph
 
-  hostName = GG.PlanetWars and GG.PlanetWars.options.hostname or nil
-  PWUnits = GG.PlanetWars and GG.PlanetWars.units or {}
-  
-  if (type(GG.UnitRanked)~="table") then GG.UnitRanked = {} end
-  table.insert(GG.UnitRanked, UnitRanked)
+	hostName = GG.PlanetWars and GG.PlanetWars.options.hostname or nil
+	PWUnits = GG.PlanetWars and GG.PlanetWars.units or {}
 
-  --// get the morphDefs
-  morphDefs = include("LuaRules/Configs/morph_defs.lua")
+	if (type(GG.UnitRanked)~="table") then GG.UnitRanked = {} end
+	table.insert(GG.UnitRanked, UnitRanked)
 
-  --// MorphDefs can now be all defined in customParams (by MaDDoX)
-  AddCustomMorphDefs()
-  morphDefs = ValidateMorphDefs(morphDefs)
-  --DebugTable(morphDefs)
+	--// get the morphDefs
+	morphDefs = include("LuaRules/Configs/morph_defs.lua")
+
+	--// MorphDefs can now be all defined in customParams (by MaDDoX)
+	AddCustomMorphDefs()
+	morphDefs = ValidateMorphDefs(morphDefs)
+	--DebugTable(morphDefs)
 
 --  if (not morphDefs)
 --    then gadgetHandler:RemoveGadget()

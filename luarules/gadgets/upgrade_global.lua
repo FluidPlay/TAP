@@ -25,7 +25,7 @@ GlobalUpgrades [made by techcenter]
 		* Morph Speedup (unit_morph.lua)
 		* Button-unlock (update from capture)
 
-PerUnitUpgrades [made by unit]
+PerUnitUpgrades [made by unit, local]
 	=> One upgrade per unit (max)
 	=> May require a team tech
 	=> UnitUpgrade Handlers: <rely on the global UnitUpgrades table>

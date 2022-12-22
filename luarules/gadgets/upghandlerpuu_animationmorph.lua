@@ -28,6 +28,7 @@ VFS.Include("gamedata/taptools.lua")
 local spGetGameFrame = Spring.GetGameFrame
 local spGetUnitTeam  = Spring.GetUnitTeam
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
 local spGetUnitDefID = Spring.GetUnitDefID
 
 local trackedUnits = {}     -- { unitID = true, ...} | who'll get the speed improved once upgrade done
@@ -38,7 +39,9 @@ local upgData = {}          -- { [UnitDefNames["armstump"].id] = true, ... }
 local updateRate = 2        -- How often to check for pending-research techs
 --local reductionFactor = 0.7
 
-local unitRulesCompletedParamName = "morphedinto"
+local unitRulesCompletedParamName = "upgraded" -- "morphedinto"
+
+local techname = "animationmorph"
 
 local animMorphLockedOptions = { "cormando", "coraak", "corcan", "corsktl", "cordefiler", }
 
@@ -56,20 +59,21 @@ end
 --    end
 --end
 
-local function SetDisableButtons(unitID, disable)
-    local cmdDescs = Spring.GetUnitCmdDescs(unitID)
-    for ct, cmdDescData in pairs(cmdDescs) do
-        --if cmdDescData.id < 0 and not hasPrint then
-        --end
-        for i = 1, #animMorphLockedOptions do
-            if cmdDescData.name == animMorphLockedOptions[i] then
-                local cmdIdx = Spring.FindUnitCmdDesc(unitID, cmdDescData.id)
-                cmdDescData.disabled = disable
-                Spring.EditUnitCmdDesc(unitID, cmdIdx, cmdDescData)
-            end
-        end
-    end
-end
+---OBSOLETE: Will be carried out by cmd_multi_tech instead, to unify the blocking/prereqs
+--local function SetDisableButtons(unitID, disable)
+--    local cmdDescs = Spring.GetUnitCmdDescs(unitID)
+--    for ct, cmdDescData in pairs(cmdDescs) do
+--        --if cmdDescData.id < 0 and not hasPrint then
+--        --end
+--        for i = 1, #animMorphLockedOptions do
+--            if cmdDescData.name == animMorphLockedOptions[i] then
+--                local cmdIdx = Spring.FindUnitCmdDesc(unitID, cmdDescData.id)
+--                cmdDescData.disabled = disable
+--                Spring.EditUnitCmdDesc(unitID, cmdIdx, cmdDescData)
+--            end
+--        end
+--    end
+--end
 
 -- Adds unit of interest to trackedUnits table
 function gadget:UnitCreated(unitID, unitDefID, unitTeam)
@@ -78,7 +82,9 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam)
         return end
     if tonumber(unitDef.customParams.morphdef__animationonly) == 1 then
         trackedUnits[unitID] = unitDef
-        SetDisableButtons(unitID, true)
+        --TODO: Generalize/Move to upgrade_perunit
+        spSetUnitRulesParam(unitID,"localtech:"..techname, 0)	--initialize, 1 == awarded
+        --SetDisableButtons(unitID, true)
     end
 end
 
@@ -87,9 +93,10 @@ local function Update()
     for unitID, unitDef in pairs(trackedUnits) do
         local completedParam = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
         if completedParam and (tonumber(completedParam) == 1) then
-            --Spring.Echo("Morph-animation upgrade detected")
             trackedUnits[unitID] = nil
-            SetDisableButtons(unitID, false)
+            spSetUnitRulesParam(unitID,"localtech:"..techname, 1)
+            Spring.Echo("Morph-animation local upgrade assigned")
+            --SetDisableButtons(unitID, false)
         end
     end
 end
