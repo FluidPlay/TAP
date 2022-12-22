@@ -9,7 +9,7 @@ return {
 		buildinggrounddecaldecayspeed = 30,
 		buildinggrounddecalsizex = 9,
 		buildinggrounddecalsizey = 9,
-		buildinggrounddecaltype = "corap_aoplane.dds",
+		buildinggrounddecaltype = "", --"corap_aoplane.dds",
 		buildpic = "CORAP.DDS",
 		buildtime = 7180,
 		canmove = true,
