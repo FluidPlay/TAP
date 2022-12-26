@@ -279,13 +279,27 @@ if (gadgetHandler:IsSyncedCode()) then
 		end
 
 		local function LockedToolTip(u,ucd,cmd)
+            -- Initialize it in the cache if needed
 			if not ReqDesc[cmd] then
-				if not OriDesc[cmd] then
-					OriDesc[cmd]=spGetUnitCmdDescs(u)[ucd].tooltip
+                local str = "\255\255\64\64Requires "
+				if not OriDesc[cmd] then    -- Store original description to local cache
+					OriDesc[cmd]=spGetUnitCmdDescs(u)[ucd].tooltip end
+				--str = str..table.concat(cmdIdRequirements[cmd],", ").."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
+				for idx, techId in ipairs(cmdIdRequirements[cmd]) do
+					Spring.Echo("techID: "..(techId or "nil"))
+					if techId == "local:advanced" then
+						str = str.."\255\50\128\255Local: Advanced Morph"
+					else
+						str = str.."\255\255\64\64"..techId
+					end
+					if idx < #cmdIdRequirements[cmd] then	-- don't add commas to the last element
+						str = str..", "
+					end
 				end
-				ReqDesc[cmd]="\255\255\64\64Requires "..table.concat(cmdIdRequirements[cmd],", ").."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
+				str = str.."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
+				ReqDesc[cmd]=str
 			end
-			Spring.Echo("cmd_mult_tech: "..(ReqDesc[cmd] or "nil"))
+			--Spring.Echo("cmd_mult_tech: "..(ReqDesc[cmd] or "nil"))
 			return ReqDesc[cmd]
 		end
 
@@ -481,6 +495,8 @@ if (gadgetHandler:IsSyncedCode()) then
 	end
 
 	function gadget:Initialize()
+		ReqDesc = {}
+		OriDesc = {}
 		for _, uDef in pairs(UnitDefs) do
 			local cparms = uDef.customParams
 			if cparms then
