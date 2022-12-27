@@ -40,7 +40,7 @@ local updateRate = 2        -- How often to check for pending-research techs
 
 local unitRulesCompletedParamName = "upgraded" -- "morphedinto"
 
-local techname = "animationmorph"
+local techname = "advanced"
 
 local animMorphLockedOptions = { "cormando", "coraak", "corcan", "corsktl", "cordefiler", }
 
@@ -82,8 +82,7 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam)
     if tonumber(unitDef.customParams.morphdef__animationonly) == 1 then
         trackedUnits[unitID] = unitDef
         --TODO: Generalize/Move to upgrade_perunit
-        spSetUnitRulesParam(unitID,"localtech:"..techname, 0)	--initialize, 1 == awarded
-        --SetDisableButtons(unitID, true)
+        spSetUnitRulesParam(unitID,"local:"..techname, 0)	-- 0 = initializes, 1 == awarded
     end
 end
 
@@ -93,8 +92,9 @@ local function Update()
         local completedParam = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
         if completedParam and (tonumber(completedParam) == 1) then
             trackedUnits[unitID] = nil
-            spSetUnitRulesParam(unitID,"localtech:"..techname, 1)
-            Spring.Echo("Morph-animation local upgrade assigned")
+            spSetUnitRulesParam(unitID,"local:"..techname, 1)
+            GG.RefreshTechReqs(unitID, unitDef)
+            --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
         end
     end

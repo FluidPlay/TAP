@@ -530,7 +530,7 @@ local function TechReqList(teamID, reqTechs)
 end
 
 local function TechReqCheck(teamID, reqTechs)
-  if (not reqTechs or reqTechs == -1) then
+  if (not reqTechs or reqTechs == -1 or not GG.TechCheck) then
 	return true end
   
   local hasAllTechs = true

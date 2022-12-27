@@ -148,6 +148,13 @@ if (gadgetHandler:IsSyncedCode()) then
 
 	local CMD_ONOFF = CMD.ONOFF
 
+    local cyanTooltipColor = "\255\50\128\255"
+    local redTooltipColor = "\255\255\64\64"
+    local humanReadableNames = {["local:advanced"] = cyanTooltipColor.."Local: Advanced Morph",
+                                ["enhancedtech"] = redTooltipColor.."Enhanced Tech",
+                                ["advancedtech"] = redTooltipColor.."Advanced Tech",
+                                ["mohotech"] = redTooltipColor.."Moho Tech", }
+
 	local function SplitString(Line)
 		local words={}
 		local str=Line
@@ -197,35 +204,9 @@ if (gadgetHandler:IsSyncedCode()) then
 		return words
 	end
 
-	local function InitTechEntry(techname)
-		if not TechTable[techname] then
-			TechTable[techname]={name=techname,ProvidedBy={},AccessTo={},ProviderCount={}}
-			for _,team in ipairs(Spring.GetTeamList()) do
-				TechTable[techname].ProviderCount[team]=0
-				spSetTeamRulesParam(team,"technology:"..techname,0)
-			end
-		end
-	end
-
-	local function CheckTech(techID, teamID)
-        if not isstring(techID) or not isnumber(teamID)then
-            return false end
-		techID = string.lower(techID)
-		if not TechTable[techID] then
-			--Spring.Echo("Check Tech: TechId=\""..techId.."\" is unknown")
-			return nil end
-
-        local providerCount = TechTable[techID].ProviderCount[teamID]
-        if not providerCount then
-            --Spring.Echo("Bad call to Check Tech (Provider Count error): TechName=\"".. techId .."\", Team=".. teamId)
-            return nil
-        else
-            --Spring.Echo("[Tech Check] Provider count: "..providerCount)
-            return providerCount >= 1
-        end
-	end
-
 	local function isAdvBuildOption(cmdID)
+		if cmdID == nil then
+			return false end
 		if isnumber(cmdID) and cmdID > 0 then	-- must be a 'build option' (negative cmdID)
 			return false end
 		local advanced = false
@@ -240,29 +221,74 @@ if (gadgetHandler:IsSyncedCode()) then
 		return advanced
 	end
 
+	local function InitTechEntry(techname)
+		if not TechTable[techname] then
+			TechTable[techname]={name=techname,ProvidedBy={},AccessTo={},ProviderCount={}}
+			for _,team in ipairs(Spring.GetTeamList()) do
+				TechTable[techname].ProviderCount[team]=0
+				spSetTeamRulesParam(team,"technology:"..techname,0)
+			end
+		end
+	end
+
+	local function CheckTech(techID, teamID, unitID, cmdID)
+        if not isstring(techID) or not isnumber(teamID)then
+            return false end
+		techID = string.lower(techID)
+
+		-- Check for local-upgrade (per-unit) requirement
+		if techID == "local:advanced" and IsValidUnit(unitID) and isAdvBuildOption(cmdID)then
+			Spring.Echo("cmdID "..(cmdID or "nil") .." is adv: "..tostring(isAdvBuildOption(cmdID)))
+			local techAnimMorph = spGetUnitRulesParam(unitID, "local:advanced")
+			if techAnimMorph == 0 or techAnimMorph == nil then
+				Spring.Echo("local advanced: FALSE")
+				return nil
+			---TEMP:
+			else
+				if techAnimMorph == 1 then
+					Spring.Echo("local advanced: TRUE")
+					return true
+				end
+			end
+		end
+
+		if not TechTable[techID] then
+			--Spring.Echo("Check Tech: TechId=\""..techId.."\" is unknown")
+			return nil end
+
+        local providerCount = TechTable[techID].ProviderCount[teamID]
+        if not providerCount then
+            --Spring.Echo("Bad call to Check Tech (Provider Count error): TechName=\"".. techId .."\", Team=".. teamId)
+            return nil
+        else
+            --Spring.Echo("[Tech Check] Provider count: "..providerCount)
+            return providerCount >= 1
+        end
+	end
+
 	local function CheckCmd(cmdId, teamId, unitID)
 		-- If there are no requirements, always allow command
-		local hasGlobalTechReqs = true
+		local hasTechReqs = true
 		if cmdIdRequirements[cmdId] then
             -- If any of the tech requirements is not met, return false
 			for _, techId in ipairs(cmdIdRequirements[cmdId]) do
-				if not CheckTech(techId, teamId) then
-					hasGlobalTechReqs = false
+				if not CheckTech(techId, teamId, unitID, cmdId) then
+					hasTechReqs = false
 					break
 				end
 			end
 		end
-		-- If 'localtech:animationmorph' is there and it's not 1, return false
-		local hasLocalTechReq = true
-		if IsValidUnit(unitID) then
-			--Spring.Echo("Checking buildoption local tech req, cmdID: "..(cmdId or "nil"))
-			if isAdvBuildOption(cmdId) then
-				local techAnimMorph = spGetUnitRulesParam(unitID, "localtech:animationmorph")
-				if techAnimMorph then
-					hasLocalTechReq = (techAnimMorph == 1) end
-			end
-		end
-		return hasGlobalTechReqs and hasLocalTechReq
+		------ If 'local:advanced' is there and it's not 1, return false
+		--local hasLocalTechReq = true
+		--if IsValidUnit(unitID) then
+		--	--Spring.Echo("Checking buildoption local tech req, cmdID: "..(cmdId or "nil"))
+		--	if isAdvBuildOption(cmdId) then
+		--		local techAnimMorph = spGetUnitRulesParam(unitID, "local:advanced")
+		--		if techAnimMorph then
+		--			hasLocalTechReq = (techAnimMorph == 1) end
+		--	end
+		--end
+		return hasTechReqs -- and hasLocalTechReq
 	end
 
 	local function EditButtons(unitID, uDefId, teamID)
@@ -286,11 +312,11 @@ if (gadgetHandler:IsSyncedCode()) then
 					OriDesc[cmd]=spGetUnitCmdDescs(u)[ucd].tooltip end
 				--str = str..table.concat(cmdIdRequirements[cmd],", ").."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
 				for idx, techId in ipairs(cmdIdRequirements[cmd]) do
-					Spring.Echo("techID: "..(techId or "nil"))
-					if techId == "local:advanced" then
-						str = str.."\255\50\128\255Local: Advanced Morph"
+					--Spring.Echo("techID: "..(techId or "nil"))
+					if humanReadableNames[techId] then
+						str = str..humanReadableNames[techId]
 					else
-						str = str.."\255\255\64\64"..techId
+						str = str..techId
 					end
 					if idx < #cmdIdRequirements[cmd] then	-- don't add commas to the last element
 						str = str..", "
@@ -299,7 +325,7 @@ if (gadgetHandler:IsSyncedCode()) then
 				str = str.."\n\255\255\255\255"..(GrantDesc[cmd] or OriDesc[cmd])
 				ReqDesc[cmd]=str
 			end
-			--Spring.Echo("cmd_mult_tech: "..(ReqDesc[cmd] or "nil"))
+			--Spring.Echo("cmd_mult_tech locked: "..(ReqDesc[cmd] or "nil"))
 			return ReqDesc[cmd]
 		end
 
@@ -307,6 +333,7 @@ if (gadgetHandler:IsSyncedCode()) then
 			if not OriDesc[cmd] then
 				OriDesc[cmd]=spGetUnitCmdDescs(u)[ucd].tooltip
 			end
+			--Spring.Echo("cmd_mult_tech unlocked: "..(OriDesc[cmd] or "nil"))
 			return GrantDesc[cmd] or OriDesc[cmd]
 		end
 
@@ -326,7 +353,7 @@ if (gadgetHandler:IsSyncedCode()) then
 		for _, cmdId in ipairs(TechLockedCmdIds) do
 			local cmdDescId = spFindUnitCmdDesc(unitID, cmdId)
 			if cmdDescId then
-                local cmdDesc = spGetUnitCmdDescs(unitID, cmdDescId, cmdDescId)[1]
+                --local cmdDesc = spGetUnitCmdDescs(unitID, cmdDescId, cmdDescId)[1]
 				if CheckCmd(cmdId, teamID, unitID) then
 					spEditUnitCmdDesc(unitID, cmdDescId,{ disabled=false, tooltip=UnlockedToolTip(unitID, cmdDescId, cmdId)})
 				else
@@ -415,6 +442,11 @@ if (gadgetHandler:IsSyncedCode()) then
 				return true
 			end
 		end
+	end
+
+	local function RefreshTechReqs(unitID, unitDef)
+		--Spring.Echo("RefreshTechReqs")
+		EditButtons(unitID, unitDef, spGetUnitTeam(unitID))
 	end
 
 	local function isComplete(u)
@@ -539,6 +571,7 @@ if (gadgetHandler:IsSyncedCode()) then
 		GG.TechCheck=CheckTech
 		GG.TechGrant=GrantTech
 		GG.TechRevoke=RevokeTech
+		GG.RefreshTechReqs=RefreshTechReqs
 
 	end
 
