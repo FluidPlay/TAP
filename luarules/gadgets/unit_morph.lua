@@ -994,7 +994,10 @@ local function FinishMorph(unitID, morphData)
 		local env = Spring.UnitScript.GetScriptEnv(unitID)
 		if env then
 			if env.MorphUp then
-				Spring.UnitScript.CallAsUnit(unitID, env.MorphUp) end
+				Spring.UnitScript.CallAsUnit(unitID, env.MorphUp)
+			else
+				Spring.Echo ("MorphUp not found in unit script environment")
+			end
 		end
 		local newBuildSpeed, newMass, newMaxHealth, newTooltip  = udDst.buildSpeed, udDst.mass, udDst.health, (udDst.humanName .." - ".. udDst.tooltip)
 		local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)

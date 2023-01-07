@@ -237,17 +237,23 @@ if (gadgetHandler:IsSyncedCode()) then
 		techID = string.lower(techID)
 
 		-- Check for local-upgrade (per-unit) requirement
-		if techID == "local:advanced" and IsValidUnit(unitID) and isAdvBuildOption(cmdID)then
-			Spring.Echo("cmdID "..(cmdID or "nil") .." is adv: "..tostring(isAdvBuildOption(cmdID)))
-			local techAnimMorph = spGetUnitRulesParam(unitID, "local:advanced")
-			if techAnimMorph == 0 or techAnimMorph == nil then
-				Spring.Echo("local advanced: FALSE")
-				return nil
-			---TEMP:
-			else
-				if techAnimMorph == 1 then
-					Spring.Echo("local advanced: TRUE")
-					return true
+
+		-- Check if the morph setting is an "anim-morph" (plays animation and unlocks adv. build options)
+		if IsValidUnit(unitID) then
+			local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+			local animationonly = unitDef.customParams and (tonumber(unitDef.customParams.morphdef__animationonly) == 1)
+			if techID == "local:advanced" and isAdvBuildOption(cmdID) and animationonly then
+				--Spring.Echo("cmdID "..(cmdID or "nil") .." is adv: "..tostring(isAdvBuildOption(cmdID)))
+				local localAdvUnitRule = spGetUnitRulesParam(unitID, "local:advanced")
+				if localAdvUnitRule == 0 or localAdvUnitRule == nil then
+					--Spring.Echo("local advanced: FALSE")
+					return nil
+					---TEMP:
+				else
+					if localAdvUnitRule == 1 then
+						--Spring.Echo("local advanced: TRUE")
+						return true
+					end
 				end
 			end
 		end
@@ -261,7 +267,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --Spring.Echo("Bad call to Check Tech (Provider Count error): TechName=\"".. techId .."\", Team=".. teamId)
             return nil
         else
-            --Spring.Echo("[Tech Check] Provider count: "..providerCount)
+            --Spring.Echo("[Tech Check] "..techID.." Provider count: "..providerCount)
             return providerCount >= 1
         end
 	end
@@ -278,17 +284,7 @@ if (gadgetHandler:IsSyncedCode()) then
 				end
 			end
 		end
-		------ If 'local:advanced' is there and it's not 1, return false
-		--local hasLocalTechReq = true
-		--if IsValidUnit(unitID) then
-		--	--Spring.Echo("Checking buildoption local tech req, cmdID: "..(cmdId or "nil"))
-		--	if isAdvBuildOption(cmdId) then
-		--		local techAnimMorph = spGetUnitRulesParam(unitID, "local:advanced")
-		--		if techAnimMorph then
-		--			hasLocalTechReq = (techAnimMorph == 1) end
-		--	end
-		--end
-		return hasTechReqs -- and hasLocalTechReq
+		return hasTechReqs
 	end
 
 	local function EditButtons(unitID, uDefId, teamID)
@@ -469,11 +465,13 @@ if (gadgetHandler:IsSyncedCode()) then
 	end
 
 	local function UnitLost(unitId, uDefId, teamId)
+        --Spring.Echo("cmd_multi_tech unit lost: "..(unitId or "nil"))
 		if isComplete(unitId) and ProviderUnits[uDefId] then
 			for _,tech in ipairs(ProviderUnits[uDefId]) do
                 local newCount = TechTable[tech].ProviderCount[teamId]-1
 				TechTable[tech].ProviderCount[teamId] = newCount
 				spSetTeamRulesParam(teamId,"technology:"..tech,newCount)
+                --Spring.Echo("cmd_multi_tech "..tech.." tech provider count: "..newCount)
 			end
 			for _, thisUnit in ipairs(spGetTeamUnits(teamId)) do
 				EditButtons(thisUnit, spGetUnitDefID(thisUnit), teamId)

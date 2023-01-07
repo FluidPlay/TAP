@@ -6,7 +6,7 @@
 function gadget:GetInfo()
     return {
         name      = "Per-unit Upgrade Handler - Animation-only Morph",
-        desc      = "Disables-enables advanced buttons of animation-morphed units",
+        desc      = "Generic local upgrades parser",
         author    = "MaDDoX",
         date      = "14 December 2022",
         license   = "GNU GPL, v2 or later",
@@ -14,6 +14,19 @@ function gadget:GetInfo()
         enabled   = true,
     }
 end
+
+--- What's this for?
+---     In some cases, you don't want the morph to replace the unit for a new one. When there are weapon changes,
+---     replacement is usually the best option. But for factories, for instance, you might get units under production
+---     stuck due different yardmaps, and/or lose whatever was being produced while the morph finished. That's what
+---     "animation-only" morphs are for, you just play an animation (defined in the script) and unlocks buildoptions
+---     if needed (usually "advanced" units)
+--- How to use it?
+---     1. To your morphdef customParams table, at the source unit, add an "animationonly = 1" entry
+---     2. For the unitdefs which should be locally (factory-specific) unlocked with morph, add a requiretech
+---        customParam with "local:advanced"
+---     3. In the unit's animation script, add a function MorphUp() (case-sensitive) which will be fired when
+---        morph is complete [handled by unit_morph.lua]
 
 if not gadgetHandler:IsSyncedCode() then
     return end
