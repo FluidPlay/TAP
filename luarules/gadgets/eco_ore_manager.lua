@@ -264,6 +264,8 @@ if gadgetHandler:IsSyncedCode() then
 
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
+        if not istable(oreSpots) then
+            return end
         spEcho("Number of ore spots found: "..#oreSpots)
         startFrame = Spring.GetGameFrame()
         for i, data in ipairs(oreSpots) do
@@ -329,6 +331,8 @@ if gadgetHandler:IsSyncedCode() then
 
 
     function gadget:GameFrame(f)
+        if not istable(oreSpots) then
+            return end
         animateChunks()
         if startFrame and f <= startFrame then
             return end
