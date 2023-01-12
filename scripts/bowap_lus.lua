@@ -131,7 +131,7 @@ local scriptEnv = { base = base,
                     SFX = SFX,
 }
 
-local buildPiece = building_plate
+local buildPiece = build_pos --building_plate
 local PlayAnimation = VFS.Include("scripts/animations/bowap_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 
