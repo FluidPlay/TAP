@@ -131,12 +131,15 @@ if (gadgetHandler:IsSyncedCode()) then
 	local cmdIdRequirements = {}-- {[cmdId]  = { techId1, ... }}  "AccessionTable"
 	local ProviderUdefIds = {}  -- {[1] = uDefId, ... }
 
+	local LocalTechProviders = {} --{ uDefID = techname, ... }
+
 	local OriDesc={}
 	local GrantDesc={}
 	local ReqDesc={}
 
 	local spGetAllUnits = Spring.GetAllUnits
 	local spSetTeamRulesParam = Spring.SetTeamRulesParam
+	local spSetUnitRulesParam = Spring.SetUnitRulesParam
 	local spGetUnitTeam = Spring.GetUnitTeam
 	local spSetUnitTooltip = Spring.SetUnitTooltip
 	local spGetTeamUnits = Spring.GetTeamUnits
@@ -440,6 +443,14 @@ if (gadgetHandler:IsSyncedCode()) then
 		end
 	end
 
+	-- Init = force initialization, useful for non-unit based allowance
+	local function GrantLocalTech(techname, unitID)
+		techname = string.lower(techname)
+		spSetUnitRulesParam(unitID,"local:"..techname, 1)
+		EditButtons(unitID,spGetUnitDefID(unitID),spGetUnitTeam(unitID))
+		return true
+	end
+
 	local function RefreshTechReqs(unitID, unitDef)
 		--Spring.Echo("RefreshTechReqs")
 		EditButtons(unitID, unitDef, spGetUnitTeam(unitID))
@@ -451,8 +462,16 @@ if (gadgetHandler:IsSyncedCode()) then
 	end
 
 	local function UnitGained(unitId, uDefId, teamId)
+		if not isComplete(unitId) then
+			return	end
 		EditButtons(unitId, uDefId, teamId)
-		if isComplete(unitId) and ProviderUnits[uDefId] then
+		-- Grant Local Tech
+		Spring.Echo("Local Tech Provision for "..unitId..": "..(LocalTechProviders[uDefId] or "Nil"))
+		if LocalTechProviders[uDefId] == "advanced" then
+			spSetUnitRulesParam(unitId,"local:".."advanced", 1) --TODO: techname
+			EditButtons(unitId, uDefId, teamId)							 -- only needs to edit its own buttons
+		end
+		if ProviderUnits[uDefId] then
 			for _,tech in ipairs(ProviderUnits[uDefId]) do
                 local newCount = TechTable[tech].ProviderCount[teamId]+1
 				TechTable[tech].ProviderCount[teamId] = newCount
@@ -537,9 +556,14 @@ if (gadgetHandler:IsSyncedCode()) then
 					ProviderUnits[uDef.id]={}
 					table.insert(ProviderUdefIds, uDef.id)
 					for _, techname in ipairs(providedTechs) do
-						InitTechEntry(techname)
-						table.insert(TechTable[techname].ProvidedBy, uDef.id)
-						table.insert(ProviderUnits[uDef.id],techname)
+						--TODO: Support different local:xxx upgrades
+						if techname == "local:advanced" then
+							LocalTechProviders[uDef.id] = techname
+						else
+							InitTechEntry(techname)
+							table.insert(TechTable[techname].ProvidedBy, uDef.id)
+							table.insert(ProviderUnits[uDef.id],techname)
+						end
 					end
 				end
 				--TODO: Edit here for local upgrades support
@@ -570,6 +594,7 @@ if (gadgetHandler:IsSyncedCode()) then
 		GG.TechGrant=GrantTech
 		GG.TechRevoke=RevokeTech
 		GG.RefreshTechReqs=RefreshTechReqs
+		GG.GrantLocalTech=GrantLocalTech
 
 	end
 

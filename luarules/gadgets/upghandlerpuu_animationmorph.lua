@@ -87,10 +87,10 @@ end
 --    end
 --end
 
--- Adds unit of interest to trackedUnits table
-function gadget:UnitCreated(unitID, unitDefID, unitTeam)
+-- Initialize local:techname unitRulesParam (with value 0) to 'animationonly' == 1 cparams/morphdef units
+function gadget:UnitFinished(unitID, unitDefID, unitTeam)
     local unitDef = UnitDefs[unitDefID]
-    if not unitDef or not unitDef.customParams or not unitDef.customParams.morphdef__animationonly then
+    if unitDef or not unitDef.customParams or not unitDef.customParams.morphdef__animationonly then
         return end
     if tonumber(unitDef.customParams.morphdef__animationonly) == 1 then
         trackedUnits[unitID] = unitDef
