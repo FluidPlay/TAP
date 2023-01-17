@@ -34,7 +34,7 @@ local GL_FUNC_REVERSE_SUBTRACT = 0x800B
 -----------------------------------------------------------------
 
 local SSAO_KERNEL_SIZE = 48 -- how many samples are used for SSAO spatial sampling
-local SSAO_RADIUS = 1 --5 -- world space maximum sampling radius
+local SSAO_RADIUS = 5 -- 1 --5 -- world space maximum sampling radius
 local SSAO_MIN = 1.0 -- minimum depth difference between fragment and sample depths to trigger SSAO sample occlusion. Absolute value in world space coords.
 local SSAO_MAX = 1.0 -- maximum depth difference between fragment and sample depths to trigger SSAO sample occlusion. Percentage of SSAO_RADIUS.
 local SSAO_ALPHA_POW = 8.0 --8.0 -- consider this as SSAO effect strength
@@ -43,7 +43,7 @@ local BLUR_HALF_KERNEL_SIZE = 4 -- (BLUR_HALF_KERNEL_SIZE + BLUR_HALF_KERNEL_SIZ
 local BLUR_PASSES = 3 -- number of blur passes
 local BLUR_SIGMA = 1.8 -- Gaussian sigma of a single blur pass, other factors like BLUR_HALF_KERNEL_SIZE, BLUR_PASSES and DOWNSAMPLE affect the end result gaussian shape too
 
-local DOWNSAMPLE = 1 -- 2 --increasing downsapling will reduce GPU RAM occupation (a little bit), increase performace (a little bit), introduce occlusion blockiness
+local DOWNSAMPLE = 0 --1 -- 2 --increasing downsapling will reduce GPU RAM occupation (a little bit), increase performace (a little bit), introduce occlusion blockiness
 
 local MERGE_MISC = false --@ivand: TRUE, for no terrain-shadows; for future material indices based SSAO evaluation
 local DEBUG_SSAO = false -- use for debug
@@ -60,11 +60,11 @@ local presets = {
         BLUR_SIGMA = 2.4,
     },
     {
-        SSAO_KERNEL_SIZE = 48,
-        DOWNSAMPLE = 2,
+        SSAO_KERNEL_SIZE = 12, --48,
+        DOWNSAMPLE = 0.75, --2, =-= Watch out, values below 1 hurt performance
         BLUR_HALF_KERNEL_SIZE = 6,
-        BLUR_PASSES = 3,
-        BLUR_SIGMA = 4.5,
+        BLUR_PASSES = 3, --3 => 1
+        BLUR_SIGMA = 4.5, --4.5 => 0.0001
     },
     --{
     --	SSAO_KERNEL_SIZE = 64,
