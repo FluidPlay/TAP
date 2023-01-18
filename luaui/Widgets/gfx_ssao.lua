@@ -45,7 +45,7 @@ local BLUR_SIGMA = 1.8 -- Gaussian sigma of a single blur pass, other factors li
 
 local DOWNSAMPLE = 0 --1 -- 2 --increasing downsapling will reduce GPU RAM occupation (a little bit), increase performace (a little bit), introduce occlusion blockiness
 
-local MERGE_MISC = false --@ivand: TRUE, for no terrain-shadows; for future material indices based SSAO evaluation
+local MERGE_MISC = true --@ivand: TRUE, for no terrain-shadows; for future material indices based SSAO evaluation
 local DEBUG_SSAO = false -- use for debug
 
 local math_sqrt = math.sqrt
@@ -60,10 +60,11 @@ local presets = {
         BLUR_SIGMA = 2.4,
     },
     {
-        SSAO_KERNEL_SIZE = 12, --48,
-        DOWNSAMPLE = 0.75, --2, =-= Watch out, values below 1 hurt performance
+        --SSAO_ALPHA_POW = 0.00001,
+        SSAO_KERNEL_SIZE = 24, --48,
+        DOWNSAMPLE = 0.5, --2, =-= Watch out, values below 1 hurt performance
         BLUR_HALF_KERNEL_SIZE = 6,
-        BLUR_PASSES = 3, --3 => 1
+        BLUR_PASSES = 1, --3 => 1
         BLUR_SIGMA = 4.5, --4.5 => 0.0001
     },
     --{

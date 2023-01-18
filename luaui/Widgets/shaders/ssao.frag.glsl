@@ -39,6 +39,8 @@ vec3 hash32(vec2 p) {
 
 #define SSAO_ALPHA_POW ###SSAO_ALPHA_POW###
 
+#define MINBLACK 0.1  // 0.1 = 10% is minimum brightness
+
 //----------------------------------------------------------------------------------------
 
 uniform vec3 samplingKernel[SSAO_KERNEL_SIZE];
@@ -117,9 +119,9 @@ void main() {
 		occlusion = 1.0 - occlusion / float(6); //SSAO_KERNEL_SIZE - 6 is a good number here
 
 		float occlusionAlpha = occlusion;
-		occlusionAlpha = pow(occlusionAlpha, SSAO_ALPHA_POW);
+		//occlusionAlpha = pow(occlusionAlpha, SSAO_ALPHA_POW);
 
-		occlusionAlpha = clamp(1.0 - occlusionAlpha, 0.0, 1.0);
+		occlusionAlpha = clamp(1.0 - occlusionAlpha, 0, 1-MINBLACK);
 		//occlusionAlpha = 0.5;
 
 		gl_FragColor = vec4(vec3(shadowDensity * occlusion), occlusionAlpha); //1.15 = extra brightness
