@@ -23,7 +23,7 @@ return {
 		name = "Dice",
 		objectname = "dice.s3o",
 		repairable = false,
-		script = "dice.lua",
+		script = "Other/dice.lua",
 		seismicsignature = 0,
 		selfdestructas = "blank",
 		sightdistance = 0,

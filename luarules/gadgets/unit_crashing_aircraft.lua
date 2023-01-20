@@ -49,10 +49,10 @@ function gadget:Initialize()
 	crashable[UnitDefNames['corbw'].id] = false
 
 	crashable[UnitDefNames['armfig'].id] = false
-	crashable[UnitDefNames['armsfig'].id] = false
+	--crashable[UnitDefNames['armsfig'].id] = false
 	crashable[UnitDefNames['armhawk'].id] = false
 	crashable[UnitDefNames['corveng'].id] = false
-	crashable[UnitDefNames['corsfig'].id] = false
+	--crashable[UnitDefNames['corsfig'].id] = false
 	crashable[UnitDefNames['corvamp'].id] = false
 end
 
