@@ -6,13 +6,13 @@ function widget:GetInfo()
 	date	= "-",
 	license	= "WTFPL and horses",
 	layer	= -math.huge,
-	enabled	= false, --true,
+	enabled	= true,
 	}
 end
 
 local spies  = {
 	[UnitDefNames.armspy.id] = true,
-	[UnitDefNames.corspy.id] = true,
+	--[UnitDefNames.corspy.id] = true,
 }
 local GetSelectedUnitsSorted = Spring.GetSelectedUnitsSorted
 local GetUnitStates = Spring.GetUnitStates
