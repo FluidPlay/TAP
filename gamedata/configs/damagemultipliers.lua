@@ -27,7 +27,7 @@ local damageMultipliers = {
     bullet  = { robot = 1.1, vehicle = 0.2, air = 0.9, ship = 0.4, armorbot = 0.4, armorveh = 0.3, armorair = 1.5, armorship = 0.25,
                 structure = 0.8, defense = 0.33, commander = 0.20, shield = 1, superunit = 0.6, ore = 0.1, },
 
-    cannon  = { robot = 0.3, vehicle = 1.2, air = 1.3, ship = 1.5, armorbot = 0.6, armorveh = 1.0, armorair = 1.3, armorship = 1.5,
+    cannon  = { robot = 0.15, vehicle = 1.2, air = 1.3, ship = 1.5, armorbot = 0.6, armorveh = 1.0, armorair = 1.3, armorship = 1.5,
                 structure = 1.2, defense = 0.33, commander = 0.75, shield = 1, superunit = 0.7, ore = 0.1, },
 
     flak    = { robot = 0.4, vehicle = 0.4, air = 1.0, ship = 1.0, armorbot = 2.0, armorveh = 0.3, armorair = 0.5, armorship = 0.75,

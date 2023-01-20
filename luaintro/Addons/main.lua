@@ -261,7 +261,7 @@ end
 local loadedFontSize = 45 --56 --70
 --gl.LoadFont( fontfile , size = 14, outlinewidth = 2, outlineweight = 15)
 -- fontName, size, outwidth, outweight
-local font = gl.LoadFont(FontPath, loadedFontSize, 16, 1.15) --glyphsize=70,size=22; FreeSansBold.otf, Rex-Bold.otf,WatchtowerMiddle-LM6Z.otf
+local font = gl.LoadFont(FontPath, loadedFontSize, 16, 1.15) --glyphsize=70,size=22; FreeSansBold.otf, WatchtowerMiddle-LM6Z.otf
 local fontSizeMult = 0.7 --0.8
 
 function DrawRectRound(px,py,sx,sy,cs)

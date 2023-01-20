@@ -57,7 +57,7 @@ local table           = table
 local displayList
 local fontHandler     = loadstring(VFS.LoadFile("LuaUI/modfonts.lua"))()
 local panelFont       = "LuaUI/Fonts/FreeSansBold_14"
-local waveFont        = "LuaUI/Fonts/Skrawl_40"
+local waveFont        = "LuaUI/Fonts/freesansboldwoutline_14" --Skrawl_40"
 local panelTexture    = ":n:LuaUI/Images/chickenpanel.tga"
 
 local viewSizeX, viewSizeY = 0,0

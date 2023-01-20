@@ -689,7 +689,7 @@ local function setEngineFont()
     Spring.SetConfigInt("FontOutlineWidth", fontfileOutlineSize * fontfileScale * relativesize * 0.85)
     Spring.SetConfigInt("FontOutlineWeight", 2)
 
-    Spring.SendCommands("font " .. Spring.GetConfigString("bar_font2", "WatchtowerMiddle-LM6Z.otf"))
+    Spring.SendCommands("font " .. Spring.GetConfigString("bar_font2", "GeogrotesqueCompMedium.otf")) --"WatchtowerMiddle-LM6Z.otf"
 
     -- set spring engine default font cause it cant thee game archive fonts on launch
     Spring.SetConfigString("SmallFontFile", "FreeSansBold.otf")
@@ -4685,7 +4685,7 @@ function init()
 
         options[getOptionByID('font2')].options = fonts
         options[getOptionByID('font2')].optionsFont = fontsFull
-        local fname = Spring.GetConfigString("bar_font2", "WatchtowerMiddle-LM6Z.otf"):lower() --Exo2-SemiBold.otf
+        local fname = Spring.GetConfigString("bar_font2", "Geogrotesque-Bold.ttf"):lower() --Exo2-SemiBold.otf  WatchtowerMiddle-LM6Z.otf
         options[getOptionByID('font2')].value = getSelectKey(getOptionByID('font2'), string.sub(fname, 1, string.len(fname) - 4))
     end
 

@@ -1,4 +1,4 @@
-function widget:GetInfo()
+ function widget:GetInfo()
 	return {
 		name = "Ecostats",
 		desc = "Display team eco",
@@ -100,8 +100,8 @@ local vsx,vsy = gl.GetViewSizes()
 local widgetScale = (1 + (vsx*vsy / 7500000))		-- only used for rounded corners atm
 	
 --To determine faction at start
-local armcomDefID = UnitDefNames.armcom.id
-local corcomDefID = UnitDefNames.corcom.id
+local bowcomDefID = UnitDefNames.armcom.id
+local kerncomDefID = UnitDefNames.corcom.id
 
 local borderPadding					= 4
 
@@ -128,15 +128,15 @@ Options["removeDead"]["On"] = false
 	
 ---------------------------------------------------------------------------------------------------
 
-local fontPath  		= "LuaUI/Fonts/ebrima.ttf" 
-local font2Path  		= "LuaUI/Fonts/ebrima.ttf"
-local myFont	 		= gl.LoadFont("FreeSansBold.otf",textsize, 1.9, 40) --gl.LoadFont(fontPath,textsize,2,20)
+local fontPath  		= "LuaUI/Fonts/GeogrotesqueCompMedium.otf" --ebrima.ttf
+local font2Path  		= "LuaUI/Fonts/ebrima.ttf" --ebrima.ttf
+local myFont	 		= gl.LoadFont("Geogrotesque-Bold.ttf",textsize, 1.9, 40) --gl.LoadFont(fontPath,textsize,2,20) --FreeSansBold.otf
 
 local bgcorner	= "LuaUI/Images/bgcorner.png"
 
 local images			= {
-	["arm"]					= "LuaUI/Images/ecostats/arm_default.png",
-	["core"]     			= "LuaUI/Images/ecostats/core_default.png",
+	["bow"]					= "LuaUI/Images/ecostats/bow_default.png",
+	["kern"]     			= "LuaUI/Images/ecostats/kern_default.png",
 	["checkboxon"]			= "LuaUI/Images/ecostats/chkBoxOn.png",
 	["checkboxoff"]			= "LuaUI/Images/ecostats/chkBoxOff.png",
 	["default"]				= "LuaUI/Images/ecostats/default.png",
@@ -1109,7 +1109,7 @@ function setTeamTable(teamID)
 	-- code from ecostats widget
 	if Spring.GetTeamRulesParam(teamID, 'startUnit') then
 		local startunit = Spring.GetTeamRulesParam(teamID, 'startUnit')
-		if startunit == armcomDefID then 
+		if startunit == bowcomDefID then
 			teamside = "bow"
 		else
 			teamside = "kern"
