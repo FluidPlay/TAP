@@ -2,7 +2,7 @@ return {
 	chip = {
 		buildcostenergy = 0,
 		buildcostmetal = 0,
-		buildpic = "CHIP.DDS",
+		buildpic = "Neutral/CHIP.DDS",
 		buildtime = 255,
 		canattack = false,
 		canrepeat = false,

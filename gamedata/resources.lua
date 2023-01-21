@@ -1,13 +1,13 @@
 local resources = {
       graphics = {
-         maps = {
-            detailtex   = 'default/detailtex2.bmp',
-            watertex	= 'default/ocean.jpg',
-         },
          groundfx = {
             groundflash = 'default/groundflash.tga',
             groundring  = 'default/groundring.tga',
             seismic     = 'default/circles.tga',
+         },
+         maps = {
+            detailtex   = 'default/detailtex2.bmp',
+            watertex	= 'default/ocean.jpg',
          },
          projectiletextures = {
             circularthingy		= 'default/circularthingy.tga',
