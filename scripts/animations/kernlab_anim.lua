@@ -88,24 +88,6 @@ local function morphup()
     --WaitForMove(right_upgrade, x_axis)
     --WaitForMove(right_upgrade, y_axis)
 	initTween({veryLastFrame=48,
-			   --TODO: check if first==lastframe works (or make it work)
-			   --[left_upgrade]={
-				--   [1]={cmd="move", axis=x_axis, targetValue=34.4777, firstFrame=0, lastFrame=4,},
-				--   [1]={cmd="move", axis=y_axis, targetValue=12.0000394, firstFrame=0, lastFrame=4,},
-			   --},
-			   --[right_upgrade]={
-				--   [1]={cmd="move", axis=x_axis, targetValue=-34.4023, firstFrame=0, lastFrame=4,},
-				--   [1]={cmd="move", axis=y_axis, targetValue=12.0000331, firstFrame=0, lastFrame=4,},
-			   --},
-			   --[left_head]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[right_head]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[left_arm]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
 			   [left_base]={
 				   [1]={cmd="move", axis=x_axis, targetValue=20.000000, firstFrame=0, lastFrame=48,},
 			   },
@@ -113,19 +95,19 @@ local function morphup()
 				   [1]={cmd="move", axis=x_axis, targetValue=-20.000000, firstFrame=0, lastFrame=48,},
 			   },
 			   [back_base]={
-				   [1]={cmd="move", axis=z_axis, targetValue=-11.500000, firstFrame=0, lastFrame=48,},
+				   [1]={cmd="move", axis=z_axis, targetValue=11.500000, firstFrame=0, lastFrame=48,},
 			   },
 			   [left_back_expansion]={
-				   [1]={cmd="move", axis=z_axis, targetValue=-11.500000, firstFrame=28, lastFrame=48,},
+				   [1]={cmd="move", axis=z_axis, targetValue=11.500000, firstFrame=28, lastFrame=48,},
 			   },
 			   [right_back_expansion]={
-				   [1]={cmd="move", axis=z_axis, targetValue=-11.500000, firstFrame=28, lastFrame=48,},
+				   [1]={cmd="move", axis=z_axis, targetValue=11.500000, firstFrame=28, lastFrame=48,},
 			   },
 			   [left_frontal_expension]={
-				   [1]={cmd="move", axis=z_axis, targetValue=10.000000, firstFrame=28, lastFrame=48,},
+				   [1]={cmd="move", axis=z_axis, targetValue=-10.000000, firstFrame=28, lastFrame=48,},
 			   },
 			   [right_frontal_expansion]={
-				   [1]={cmd="move", axis=z_axis, targetValue=10.000000, firstFrame=28, lastFrame=48,},
+				   [1]={cmd="move", axis=z_axis, targetValue=-10.000000, firstFrame=28, lastFrame=48,},
 			   },
 			   [right_barrier]={
 				   [1]={cmd="move", axis=x_axis, targetValue=-18.000000, firstFrame=24, lastFrame=48,},
@@ -134,13 +116,13 @@ local function morphup()
 				   [1]={cmd="move", axis=x_axis, targetValue=18.000000, firstFrame=24, lastFrame=48,},
 			   },
 			   [back_wall]={
-				   [1]={cmd="move", axis=y_axis, targetValue=5.000000, firstFrame=32, lastFrame=48,},
+				   [1]={cmd="move", axis=y_axis, targetValue=-5.000000, firstFrame=32, lastFrame=48,},
 			   },
 			   [left_wall]={
-				   [1]={cmd="move", axis=y_axis, targetValue=6.000000, firstFrame=32, lastFrame=48,},
+				   [1]={cmd="move", axis=y_axis, targetValue=-6.000000, firstFrame=32, lastFrame=48,},
 			   },
 			   [right_wall]={
-				   [1]={cmd="move", axis=y_axis, targetValue=6.000000, firstFrame=32, lastFrame=48,},
+				   [1]={cmd="move", axis=y_axis, targetValue=-6.000000, firstFrame=32, lastFrame=48,},
 			   },
 	})
 end

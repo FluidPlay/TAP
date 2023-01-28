@@ -115,33 +115,6 @@ local function closestd()
 end
 local function morphup()
 	initTween({veryLastFrame=60,
-			   --[right_pointer]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[right_arm1]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[right_arm2]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[right_arm3]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[right_head]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[left_arm2]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[left_arm3]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[left_head]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
-			   --[left_pointer]={
-				--   [1]={cmd="hide", firstFrame=0,},
-			   --},
 			   [right_sign]={
 				   [1]={cmd="turn", axis=x_axis, targetValue=0.261799, firstFrame=36, lastFrame=44,},
 				   [2]={cmd="turn", axis=x_axis, targetValue=0.000000, firstFrame=44, lastFrame=60,},
@@ -175,30 +148,6 @@ local function morphup()
 				   --[1]={cmd="show", firstFrame=0,},
 				   [2]={cmd="move", axis=y_axis, targetValue=0.000000, firstFrame=0, lastFrame=36,},
 			   },
-			   --[left_arm2_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[right_arm2_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[left_arm3_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[right_arm3_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[left_head_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[right_head_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[left_arm1_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
-			   --[right_arm1_advanced]={
-				--   [1]={cmd="show", firstFrame=0,},
-			   --},
 	})
 end
 local function openadv()

@@ -235,25 +235,28 @@ if (gadgetHandler:IsSyncedCode()) then
 	end
 
 	local function CheckTech(techID, teamID, unitID, cmdID)
-        if not isstring(techID) or not isnumber(teamID)then
+        if not isstring(techID) then
             return false end
 		techID = string.lower(techID)
 
-		-- Check for local-upgrade (per-unit) requirement
+		if not isnumber(teamID) then
+			teamID = spGetUnitTeam(unitID)
+		end
 
+		-- TODO: Check for other local-upgrade (per-unit) requirement
 		-- Check if the morph setting is an "anim-morph" (plays animation and unlocks adv. build options)
 		if IsValidUnit(unitID) then
-			local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-			local animationonly = unitDef.customParams and (tonumber(unitDef.customParams.morphdef__animationonly) == 1)
-			--Spring.Echo("Multi_tech: Check Tech for animationonly = "..(animationonly and "TRUE" or "FALSE"))
-			if techID == "local:advanced" and isAdvBuildOption(cmdID) and animationonly then
+			--local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+			--local animationonly = unitDef.customParams and (tonumber(unitDef.customParams.morphdef__animationonly) == 1)
+			--Spring.Echo("Multi_tech: Checking for local tech "..techID.."; "..(animationonly and "TRUE" or "FALSE"))
+			if techID == "local:advanced" and isAdvBuildOption(cmdID) then --and animationonly then
 				--Spring.Echo("cmdID "..(cmdID or "nil") .." is adv: "..tostring(isAdvBuildOption(cmdID)))
 				local localAdvUnitRule = spGetUnitRulesParam(unitID, "local:advanced")
-				if localAdvUnitRule == 0 or localAdvUnitRule == nil then
+				if tonumber(localAdvUnitRule) == 0 or localAdvUnitRule == nil then
 					-- Spring.Echo("local advanced: FALSE")
 					return nil
 				else
-					if localAdvUnitRule == 1 then
+					if tonumber(localAdvUnitRule) == 1 then
 						Spring.Echo("local advanced: TRUE")
 						return true
 					end
@@ -467,8 +470,8 @@ if (gadgetHandler:IsSyncedCode()) then
 		EditButtons(unitId, uDefId, teamId)
 		-- Grant Local Tech
 		--Spring.Echo("Local Tech Provision for "..unitId..": "..(LocalTechProviders[uDefId] or "Nil"))
-		if LocalTechProviders[uDefId] == "advanced" then
-			spSetUnitRulesParam(unitId,"local:".."advanced", 1) --TODO: techname
+		if LocalTechProviders[uDefId] == "advanced" then --TODO: techname
+			spSetUnitRulesParam(unitId,"local:"..LocalTechProviders[uDefId], 1)
 			EditButtons(unitId, uDefId, teamId)							 -- only needs to edit its own buttons
 		end
 		if ProviderUnits[uDefId] then
@@ -558,7 +561,10 @@ if (gadgetHandler:IsSyncedCode()) then
 					for _, techname in ipairs(providedTechs) do
 						--TODO: Support different local:xxx upgrades
 						if techname == "local:advanced" then
-							LocalTechProviders[uDef.id] = techname
+							Spring.Echo("local tech provision detected")
+							local _, colonPos = string.find(techname, ":") -- Returns the index
+							local localTechName = string.sub(techname, colonPos + 1) -- Takes the position after the colon
+							LocalTechProviders[uDef.id] = localTechName
 						else
 							InitTechEntry(techname)
 							table.insert(TechTable[techname].ProvidedBy, uDef.id)
