@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Stiletto",
 		nochasecategory = "VTOL",
-		objectname = "CORSTIL",
+		objectname = "Units/Kern/CORSTIL",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 390,

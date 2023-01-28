@@ -29,7 +29,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Eraser",
 		nochasecategory = "MOBILE",
-		objectname = "ARMASER",
+		objectname = "Units/Bow/ARMASER",
 		onoffable = true,
 		radardistancejam = 450,
 		seismicsignature = 0,

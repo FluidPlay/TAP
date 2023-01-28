@@ -26,7 +26,7 @@ return {
 		maxslope = 13,
 		maxwaterdepth = 0,
 		name = "Vulcan",
-		objectname = "ARMVULC",
+		objectname = "Units/Bow/ARMVULC",
 		seismicsignature = 0,
 		selfdestructas = "advancedFusionExplosionSelfd",
 		sightdistance = 700,

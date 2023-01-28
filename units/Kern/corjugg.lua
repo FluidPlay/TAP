@@ -28,7 +28,7 @@ return {
 		movementclass = "HKBOT5",
 		name = "Juggernaut",
 		nochasecategory = "VTOL",
-		objectname = "CORJUGG",
+		objectname = "Units/Kern/CORJUGG",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "juggernautSelfd",

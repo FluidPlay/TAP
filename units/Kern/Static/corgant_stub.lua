@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 800,
 		name = "Experimental Gantry",
-		objectname = "CORGANT",
+		objectname = "Units/Kern/CORGANT",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",

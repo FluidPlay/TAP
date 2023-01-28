@@ -27,7 +27,7 @@ return {
 		minwaterdepth = 2,
 		name = "Stingray",
 		nochasecategory = "MOBILE",
-		objectname = "ARMFHLT",
+		objectname = "Units/Bow/ARMFHLT",
 		script = "ARMFHLT_LUS.LUA",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

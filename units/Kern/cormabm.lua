@@ -31,7 +31,7 @@ return {
 		name = "Hedgehog",
 		nochasecategory = "ALL",
 		noAutoFire = true,
-		objectname = "CORMABM",
+		objectname = "Units/Kern/CORMABM",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

@@ -26,7 +26,7 @@ return {
 		maxwaterdepth = 0,
 		mincloakdistance = 36,
 		name = "Dragon's Eye",
-		objectname = "COREYES",
+		objectname = "Units/Kern/COREYES",
 		seismicsignature = 0,
 		sightdistance = 540,
 		stealth = true,

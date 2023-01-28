@@ -28,7 +28,7 @@ return {
 		maxvelocity = 7,
 		maxwaterdepth = 0,
 		name = "Seahook",
-		objectname = "CORSEAH",
+		objectname = "Units/Kern/CORSEAH",
 		releaseheld = true,
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",

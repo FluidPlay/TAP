@@ -26,7 +26,7 @@ return {
 		movementclass = "DBOAT66X6",
 		name = "Millennium",
 		nochasecategory = "VTOL",
-		objectname = "ARMBATS",
+		objectname = "Units/Bow/ARMBATS",
 		seismicsignature = 0,
 		selfdestructas = "hugeexplosiongenericSelfd",
 		sightdistance = 455,

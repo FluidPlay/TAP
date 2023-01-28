@@ -28,7 +28,7 @@ return {
 		movementclass = "HTANK3",
 		name = "Reaper",
 		nochasecategory = "VTOL",
-		objectname = "CORREAP",
+		objectname = "Units/Kern/CORREAP",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 462,

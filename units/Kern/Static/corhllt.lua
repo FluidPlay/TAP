@@ -29,7 +29,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "HLLT",
-		objectname = "CORHLLT",
+		objectname = "Units/Kern/CORHLLT",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 475,

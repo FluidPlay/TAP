@@ -27,7 +27,7 @@ return {
 		minwaterdepth = 1,
 		name = "Gun Platform",
 		nochasecategory = "MOBILE",
-		objectname = "ARMGPLAT",
+		objectname = "Units/Bow/ARMGPLAT",
 		script = "ARMGPLAT_LUS.LUA",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",

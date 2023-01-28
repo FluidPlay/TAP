@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 100,
 		name = "Aircraft Plant",
-		objectname = "ARMAP",
+		objectname = "Units/Bow/ARMAP",
 		radardistance = 500,
 		radaremitheight = 72,
 		seismicsignature = 0,

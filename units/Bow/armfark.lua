@@ -33,7 +33,7 @@ return {
 		metalstorage = 25,
 		movementclass = "KBOT2",
 		name = "Fark",
-		objectname = "ARMFARK",
+		objectname = "Units/Bow/ARMFARK",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "smallbuilderSelfd",

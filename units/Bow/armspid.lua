@@ -28,7 +28,7 @@ return {
 		mygravity = 10000,
 		name = "Spider",
 		nochasecategory = "ALL",
-		objectname = "ARMSPID",
+		objectname = "Units/Bow/ARMSPID",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 550,

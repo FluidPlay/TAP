@@ -39,7 +39,7 @@ return {
 		movementclass = "DBOAT67X7",
 		name = "Colossus",
 		nochasecategory = "ALL",
-		objectname = "ARMCARRY",
+		objectname = "Units/Bow/ARMCARRY",
 		radardistance = 2950,
 		radaremitheight = 56,
 		seismicsignature = 0,

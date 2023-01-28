@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 20,
 		name = "Tidal Generator",
-		objectname = "ARMTIDE",
+		objectname = "Units/Bow/ARMTIDE",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "tidalSelfd",

@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Advanced Wind Generator",
-		objectname = "CORWIN",
+		objectname = "Units/Kern/CORWIN",
 		seismicsignature = 0,
 		selfdestructas = "SMALL_BUILDING",
 		sightdistance = 273,

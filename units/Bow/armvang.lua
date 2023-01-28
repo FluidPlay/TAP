@@ -27,7 +27,7 @@ return {
 		movementclass = "HTKBOT4",
 		name = "Vanguard",
 		nochasecategory = "VTOL",
-		objectname = "ARMVANG",
+		objectname = "Units/Bow/ARMVANG",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 625,

@@ -26,7 +26,7 @@ return {
 		metalstorage = 100,
 		minwaterdepth = 30,
 		name = "Shipyard",
-		objectname = "ARMSY",
+		objectname = "Units/Bow/ARMSY",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 340,

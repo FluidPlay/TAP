@@ -31,7 +31,7 @@ return {
 		movementclass = "HTANK4",
 		name = "Banisher",
 		nochasecategory = "VTOL",
-		objectname = "CORBAN",
+		objectname = "Units/Kern/CORBAN",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 546,

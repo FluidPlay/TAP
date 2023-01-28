@@ -34,7 +34,7 @@ return {
 		movementclass = "AKBOT2",
 		name = "Commando",
 		nochasecategory = "VTOL",
-		objectname = "CORMANDO",
+		objectname = "Units/Kern/CORMANDO",
 		radardistance = 900,
 		radardistancejam = 150,
 		seismicsignature = 4,

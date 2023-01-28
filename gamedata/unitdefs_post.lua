@@ -80,7 +80,7 @@ end
 -- handle unitdefs and the weapons they contain
 
 
--- create scavenger units
+-- Apply unitdefs_data (exported from Google Sheets)
 for name,ud in pairs(UnitDefs) do
 	UnitDef_Post(name,ud)
 	if ud.weapondefs then
@@ -136,6 +136,6 @@ end
 
 
 
----- TAPrime ::
+---- TAP ::
 -- We use unitdefs_data.lua as a lua table, generated from the units gsheet, which may be easily replace-able anytime
 -- So the defs.lua should preprocess UnitDefs from whatever's in unitdefs_data (!)

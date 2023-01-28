@@ -39,7 +39,7 @@ return {
 		movementclass = "TANK2",
 		name = "Spoiler",
 		nochasecategory = "ALL",
-		objectname = "CORMLV",
+		objectname = "Units/Kern/CORMLV",
 		radardistancejam = 64,
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",

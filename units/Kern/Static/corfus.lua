@@ -29,7 +29,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 1,
 		name = "Fusion Reactor",
-		objectname = "CORFUS",
+		objectname = "Units/Kern/CORFUS",
 		seismicsignature = 0,
 		selfdestructas = "fusionExplosionSelfd",
 		sightdistance = 273,

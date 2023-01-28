@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Raider",
 		nochasecategory = "VTOL",
-		objectname = "CORRAID",
+		objectname = "Units/Kern/CORRAID",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 325,

@@ -23,7 +23,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Vamp",
 		nochasecategory = "NOTAIR",
-		objectname = "CORVAMP",
+		objectname = "Units/Kern/CORVAMP",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericAir",
 		sightdistance = 250,

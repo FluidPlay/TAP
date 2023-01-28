@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Pyro",
 		nochasecategory = "VTOL",
-		objectname = "CORPYRO",
+		objectname = "Units/Kern/CORPYRO",
 		seismicsignature = 0,
 		selfdestructas = "pyroselfd",
 		selfdestructcountdown = 1,

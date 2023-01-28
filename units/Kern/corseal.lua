@@ -30,7 +30,7 @@ return {
 		movementclass = "ATANK3",
 		name = "Croc",
 		nochasecategory = "VTOL",
-		objectname = "CORSEAL",
+		objectname = "Units/Kern/CORSEAL",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-phib",
 		sightdistance = 399,

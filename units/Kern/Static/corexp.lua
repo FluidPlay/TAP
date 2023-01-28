@@ -34,7 +34,7 @@ return {
 		metalstorage = 75,
 		name = "Exploiter",
 		nochasecategory = "MOBILE",
-		objectname = "COREXP",
+		objectname = "Units/Kern/COREXP",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructcountdown = 1,

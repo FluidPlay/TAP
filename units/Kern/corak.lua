@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT2",
 		name = "A.K.",
 		nochasecategory = "VTOL",
-		objectname = "CORAK",
+		objectname = "Units/Kern/CORAK",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 500,

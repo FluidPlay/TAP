@@ -29,7 +29,7 @@ return {
 		movementclass = "VKBOT3",
 		name = "Bantha",
 		nochasecategory = "VTOL",
-		objectname = "ARMBANTH",
+		objectname = "Units/Bow/ARMBANTH",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "banthaSelfd",

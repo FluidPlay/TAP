@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Tech Center Lvl2",
-		objectname = "ARMTARG",
+		objectname = "Units/Bow/ARMTARG",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "LARGE_BUILDING",

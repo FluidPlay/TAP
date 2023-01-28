@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Viper",
 		nochasecategory = "MOBILE",
-		objectname = "CORVIPE",
+		objectname = "Units/Kern/CORVIPE",
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",
 		sightdistance = 546,

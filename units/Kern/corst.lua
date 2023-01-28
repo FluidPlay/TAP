@@ -31,7 +31,7 @@ return {
 		movementclass = "TANK2",
 		name = "Gremlin",
 		nochasecategory = "VTOL",
-		objectname = "CORST",
+		objectname = "Units/Kern/CORST",
 		script = "BASICTANKSCRIPT.LUA",
 		seismicsignature = 4,
 		selfdestructas = "smallExplosionGenericSelfd",

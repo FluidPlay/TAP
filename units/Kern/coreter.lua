@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK3",
 		name = "Deleter",
 		nochasecategory = "MOBILE",
-		objectname = "CORETER",
+		objectname = "Units/Kern/CORETER",
 		onoffable = true,
 		radardistancejam = 450,
 		seismicsignature = 0,

@@ -30,7 +30,7 @@ return {
 		maxslope = 16,
 		minwaterdepth = 15,
 		name = "Floating Moho Energy Converter",
-		objectname = "ARMUWMMM",
+		objectname = "Units/Bow/ARMUWMMM",
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",
 		sightdistance = 156,

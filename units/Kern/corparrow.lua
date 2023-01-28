@@ -29,7 +29,7 @@ return {
 		movementclass = "ATANK3",
 		name = "Poison Arrow",
 		nochasecategory = "VTOL",
-		objectname = "CORPARROW",
+		objectname = "Units/Kern/CORPARROW",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd-phib",
 		sightdistance = 385,

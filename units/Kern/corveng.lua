@@ -23,7 +23,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Avenger",
 		nochasecategory = "NOTAIR",
-		objectname = "CORVENG",
+		objectname = "Units/Kern/CORVENG",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericAir",
 		sightdistance = 210,

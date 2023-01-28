@@ -27,7 +27,7 @@ return {
 		minwaterdepth = 15,
 		movementclass = "BOAT44X4",
 		name = "Valiant",
-		objectname = "ARMMLS",
+		objectname = "Units/Bow/ARMMLS",
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd",
 		sightdistance = 260,

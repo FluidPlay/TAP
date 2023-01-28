@@ -43,6 +43,8 @@ local left_cover = piece 'left_cover'
 local left_frontal_base = piece 'left_frontal_base'
 local left_frontal_protection = piece 'left_frontal_protection'
 local left_frontal_upgrade = piece 'left_frontal_upgrade'
+--
+local buildPiece = piece 'build_pos' --building_plate
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -146,4 +148,13 @@ end
 
 function script.Killed(recentDamage, maxHealth)
     script_killed(recentDamage, maxHealth)
+end
+
+-- Assign the desired buildpiece to the variable above
+function script.QueryBuildInfo()
+    if buildPiece then
+        return buildPiece
+    else
+        return base
+    end
 end

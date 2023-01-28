@@ -30,7 +30,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Karate Energy Storage",
-		objectname = "ARMESTOR",
+		objectname = "Units/Bow/ARMESTOR",
 		seismicsignature = 0,
 		selfdestructas = "energystorageSelfd",
 		sightdistance = 273,

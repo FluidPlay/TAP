@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Bladewing",
 		nochasecategory = "COMMANDER VTOL",
-		objectname = "CORBW",
+		objectname = "Units/Kern/CORBW",
 		seismicsignature = 0,
 		selfdestructas = "tinyExplosionGenericSelfd",
 		sightdistance = 364,

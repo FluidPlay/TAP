@@ -26,7 +26,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Banshee Turret",
 		nochasecategory = "VTOL",
-		objectname = "ARMKAM",
+		objectname = "Units/Bow/ARMKAM",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 520,

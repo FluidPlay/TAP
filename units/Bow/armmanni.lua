@@ -30,7 +30,7 @@ return {
 		movementclass = "TANK3",
 		name = "Penetrator",
 		nochasecategory = "VTOL",
-		objectname = "ARMMANNI",
+		objectname = "Units/Bow/ARMMANNI",
 		seismicsignature = 0,
 		script = "BASICTANKSCRIPT.LUA",
 		selfdestructas = "penetrator",

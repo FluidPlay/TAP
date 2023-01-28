@@ -26,7 +26,7 @@ return {
 		movementclass = "HAKBOT4",
 		name = "Shiva",
 		nochasecategory = "VTOL",
-		objectname = "CORSHIVA",
+		objectname = "Units/Kern/CORSHIVA",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd-phib",
 		sightdistance = 520,

@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Instigator",
 		nochasecategory = "VTOL",
-		objectname = "CORGATOR",
+		objectname = "Units/Kern/CORGATOR",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 273,

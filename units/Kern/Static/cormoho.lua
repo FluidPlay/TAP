@@ -33,7 +33,7 @@ return {
 		maxwaterdepth = 20,
 		metalstorage = 1000,
 		name = "Moho Mine",
-		objectname = "CORMOHO",
+		objectname = "Units/Kern/CORMOHO",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

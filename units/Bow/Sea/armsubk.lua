@@ -25,7 +25,7 @@ return {
 		movementclass = "UBOAT34X4",
 		name = "Piranha",
 		nochasecategory = "VTOL",
-		objectname = "ARMSUBK",
+		objectname = "Units/Bow/ARMSUBK",
 		script = "armsubk_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd-uw",

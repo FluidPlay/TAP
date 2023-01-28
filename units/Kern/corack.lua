@@ -32,7 +32,7 @@ return {
 		metalstorage = 100,
 		movementclass = "KBOT3",
 		name = "Advanced Construction Kbot",
-		objectname = "CORACK",
+		objectname = "Units/Kern/CORACK",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-builder",

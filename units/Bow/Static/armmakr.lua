@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Energy Converter",
-		objectname = "ARMMAKR",
+		objectname = "Units/Bow/ARMMAKR",
 		seismicsignature = 0,
 		selfdestructas = "metalmakerSelfd",
 		sightdistance = 273,

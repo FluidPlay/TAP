@@ -35,7 +35,7 @@ return {
 		floater = true,
 		movementclass = "NANO",
 		name = "Nano Turret",
-		objectname = "ARMNANOTCPLAT",
+		objectname = "Units/Bow/ARMNANOTCPLAT",
 		seismicsignature = 0,
 		selfdestructas = "nanoselfd",
 		sightdistance = 380,

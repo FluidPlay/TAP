@@ -30,7 +30,7 @@ return {
 		movementclass = "TANK3",
 		name = "Shellshocker",
 		nochasecategory = "VTOL",
-		objectname = "armart",
+		objectname = "Units/Bow/armart",
 		script = "BASICTANKSCRIPT.LUA",
 		pushresistant = true,
 		seismicsignature = 0,

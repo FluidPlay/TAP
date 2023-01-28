@@ -32,7 +32,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Overseer",
 		noautofire = true,
-		objectname = "CORGATE",
+		objectname = "Units/Kern/CORGATE",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",

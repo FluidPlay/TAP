@@ -26,7 +26,7 @@ return {
 		minwaterdepth = 15,
 		movementclass = "UBOAT33X3",
 		name = "Grim Reaper",
-		objectname = "ARMRECL",
+		objectname = "Units/Bow/ARMRECL",
 		seismicsignature = 0,
 		selfdestructas = "smallexplosiongenericSelfd-uw",
 		sightdistance = 300,

@@ -24,7 +24,7 @@ return {
 		movementclass = "UBOAT33X3",
 		name = "Snake",
 		nochasecategory = "VTOL",
-		objectname = "CORSUB",
+		objectname = "Units/Kern/CORSUB",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-uw",
 		sightdistance = 400,

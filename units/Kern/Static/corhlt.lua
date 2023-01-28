@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Gaat Gun",
 		nochasecategory = "MOBILE",
-		objectname = "CORHLT",
+		objectname = "Units/Kern/CORHLT",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 455,

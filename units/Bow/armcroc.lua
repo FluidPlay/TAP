@@ -30,7 +30,7 @@ return {
 		movementclass = "ATANK3",
 		name = "Triton",
 		nochasecategory = "VTOL",
-		objectname = "ARMCROC",
+		objectname = "Units/Bow/ARMCROC",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd-phib",
 		sightdistance = 372,

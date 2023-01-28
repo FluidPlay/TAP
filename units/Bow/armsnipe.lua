@@ -30,7 +30,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Sharpshooter",
 		nochasecategory = "VTOL",
-		objectname = "ARMSNIPE",
+		objectname = "Units/Bow/ARMSNIPE",
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 455,
 		turninplaceanglelimit = 140,

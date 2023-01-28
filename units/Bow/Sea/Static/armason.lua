@@ -30,7 +30,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 24,
 		name = "Advanced Sonar Station",
-		objectname = "ARMASON",
+		objectname = "Units/Bow/ARMASON",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd-uw",

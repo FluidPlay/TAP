@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Energy Converter",
-		objectname = "CORMAKR",
+		objectname = "Units/Kern/CORMAKR",
 		seismicsignature = 0,
 		selfdestructas = "metalmakerSelfd",
 		sightdistance = 273,

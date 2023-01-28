@@ -1,5 +1,5 @@
 
-local moveDatas = {
+local moveDefs = {
     BOSSBOT = {	--Used by Boss Commanders
         allowRawMovement = true,
         crushstrength = 50000,  -- Super units = 10000
@@ -618,7 +618,7 @@ local moveDatas = {
 --------------------------------------------------------------------------------
 local defs = {}
 
-for moveName, moveData in pairs(moveDatas) do
+for moveName, moveData in pairs(moveDefs) do
 	
 	moveData.heatmapping = (Spring.GetModOptions() and tonumber(Spring.GetModOptions().mo_heatmap) and (tonumber(Spring.GetModOptions().mo_heatmap) ~= 0))
 	moveData.name = moveName

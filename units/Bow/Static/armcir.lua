@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Chainsaw",
-		objectname = "ARMCIR",
+		objectname = "Units/Bow/ARMCIR",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 380,

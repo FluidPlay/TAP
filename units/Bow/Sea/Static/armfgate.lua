@@ -34,7 +34,7 @@ return {
 		name = "Aurora",
 		noautofire = true,
 		norestrict = 1,
-		objectname = "armfgate",
+		objectname = "Units/Bow/armfgate",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",

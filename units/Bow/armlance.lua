@@ -26,7 +26,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Lancet",
 		nochasecategory = "VTOL",
-		objectname = "ARMLANCE",
+		objectname = "Units/Bow/ARMLANCE",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 455,

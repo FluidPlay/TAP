@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK3",
 		name = "Copperhead",
 		nochasecategory = "NOTAIR",
-		objectname = "CORSENT",
+		objectname = "Units/Kern/CORSENT",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 338,

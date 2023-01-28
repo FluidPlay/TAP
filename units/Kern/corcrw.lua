@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Krow",
 		nochasecategory = "VTOL",
-		objectname = "CORCRW",
+		objectname = "Units/Kern/CORCRW",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 494,

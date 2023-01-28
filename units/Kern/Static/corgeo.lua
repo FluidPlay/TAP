@@ -31,7 +31,7 @@ return {
 		maxslope = 15,
 		maxwaterdepth = 99999,
 		name = "Geothermal Powerplant",
-		objectname = "CORGEO",
+		objectname = "Units/Kern/CORGEO",
 		seismicsignature = 0,
 		selfdestructas = "geo",
 		sightdistance = 273,

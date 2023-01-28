@@ -33,7 +33,7 @@ return {
 		mincloakdistance = 8,
 		name = 11,
 		nochasecategory = "VTOL",
-		objectname = "CORMINE1",
+		objectname = "Units/Kern/CORMINE1",
 		script = "mines_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "MINE_LIGHT",

@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		movementclass = "TANK3",
 		name = "Informer",
-		objectname = "CORVRAD",
+		objectname = "Units/Kern/CORVRAD",
 		onoffable = true,
 		radardistance = 2200,
 		selfdestructas = "smallExplosionGenericSelfd",

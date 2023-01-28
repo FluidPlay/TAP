@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Targeting Facility",
-		objectname = "CORTARG",
+		objectname = "Units/Kern/CORTARG",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",

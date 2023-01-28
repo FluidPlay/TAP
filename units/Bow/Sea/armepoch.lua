@@ -29,7 +29,7 @@ return {
 		minwaterdepth = 15,
 		movementclass = "DBOAT68X8",
 		name = "Epoch",
-		objectname = "ARMEPOCH",
+		objectname = "Units/Bow/ARMEPOCH",
 		pushresistant = true,
 		radardistance = 1530,
 		radaremitheight = 52,

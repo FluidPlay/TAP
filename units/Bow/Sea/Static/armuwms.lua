@@ -26,7 +26,7 @@ return {
 		metalstorage = 3000,
 		minwaterdepth = 31,
 		name = "Underwater Metal Storage",
-		objectname = "ARMUWMS",
+		objectname = "Units/Bow/ARMUWMS",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd-uw",
 		sightdistance = 182,

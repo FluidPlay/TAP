@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 800,
 		name = "Experimental Gantry",
-		objectname = "ARMSHLTX",
+		objectname = "Units/Bow/ARMSHLTX",
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",
 		sightdistance = 273,

@@ -39,7 +39,7 @@ return {
 		movementclass = "TANK2",
 		name = "Podger",
 		nochasecategory = "ALL",
-		objectname = "ARMMLV",
+		objectname = "Units/Bow/ARMMLV",
 		radardistancejam = 64,
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",

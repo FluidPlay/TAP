@@ -32,7 +32,7 @@ return {
 		metalstorage = 100,
 		movementclass = "KBOT2",
 		name = "Freaker",
-		objectname = "CORFAST",
+		objectname = "Units/Kern/CORFAST",
 		seismicsignature = 0,
 		selfdestructas = "smallbuilderSelfd",
 		sightdistance = 520,

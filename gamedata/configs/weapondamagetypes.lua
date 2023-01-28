@@ -216,7 +216,6 @@ local weaponDamageTypes = {
 	corflak = { ["FlakCannon"] = "flak", },
 	corptl = { ["Level1TorpedoLauncher"] = "pierce", },
 	corsumo = { ["HighEnergyLaser"] = "pierce", },
-	krogtaar = { ["KrogTaarBlaster"] = "plasma", },
 	armfflak = { ["FlakCannon"] = "flak", },
 	cortitan = { ["TorpedoLauncher"] = "pierce", },
 	corpyro = { ["FlameThrower"] = "thermo", },

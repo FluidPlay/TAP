@@ -34,7 +34,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 1,
 		name = "Air Repair Pad",
-		objectname = "ARMASP",
+		objectname = "Units/Bow/ARMASP",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

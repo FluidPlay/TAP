@@ -33,7 +33,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 200,
 		name = "Advanced Vehicle Plant",
-		objectname = "ARMAVP",
+		objectname = "Units/Bow/ARMAVP",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

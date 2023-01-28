@@ -30,7 +30,7 @@ return {
 		maxslope = 24,
 		maxwaterdepth = 0,
 		name = "Fortification Wall",
-		objectname = "ARMFORT",
+		objectname = "Units/Bow/ARMFORT",
 		repairable = false,
 		seismicsignature = 0,
 		sightdistance = 1,

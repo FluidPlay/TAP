@@ -25,7 +25,7 @@ return {
 		maxslope = 13,
 		maxwaterdepth = 0,
 		name = "Intimidator",
-		objectname = "CORINT",
+		objectname = "Units/Kern/CORINT",
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",
 		sightdistance = 273,

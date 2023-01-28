@@ -23,7 +23,7 @@ return {
 		maxdamage = 2500,
 		minwaterdepth = 12,
 		name = "Moray",
-		objectname = "ARMATL",
+		objectname = "Units/Bow/ARMATL",
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",
 		sightdistance = 585,

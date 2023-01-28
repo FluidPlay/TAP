@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Eradicator",
-		objectname = "CORERAD",
+		objectname = "Units/Kern/CORERAD",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 380,

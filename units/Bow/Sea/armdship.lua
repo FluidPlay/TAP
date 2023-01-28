@@ -29,7 +29,7 @@ return {
 		movementclass = "BOAT43X3",
 		name = "Hunter",
 		nochasecategory = "VTOL",
-		objectname = "ARMDSHIP",
+		objectname = "Units/Bow/ARMDSHIP",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 600,

@@ -27,7 +27,7 @@ return {
 		mygravity = 10000,
 		name = "Recluse",
 		nochasecategory = "VTOL",
-		objectname = "ARMSPTK",
+		objectname = "Units/Bow/ARMSPTK",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 440,

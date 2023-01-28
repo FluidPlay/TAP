@@ -27,7 +27,7 @@ return {
 		movementclass = "AKBOT2",
 		name = "Gimp",
 		nochasecategory = "VTOL",
-		objectname = "CORAMPH",
+		objectname = "Units/Kern/CORAMPH",
 		radardistance = 300,
 		script = "coramph.lua",
 		seismicsignature = 0,

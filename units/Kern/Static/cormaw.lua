@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Dragon's Maw",
 		nochasecategory = "MOBILE",
-		objectname = "CORMAW",
+		objectname = "Units/Kern/CORMAW",
 		radardistancejam = 8,
 		seismicsignature = 0,
 		selfdestructas = "flamethrowerSelfd",

@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 22,
 		movementclass = "KBOT2",
 		name = "Necro",
-		objectname = "CORNECRO",
+		objectname = "Units/Kern/CORNECRO",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "smallbuilderSelfd",

@@ -30,7 +30,7 @@ return {
 		movementclass = "AKBOTBOMB2",
 		name = "Invader",
 		nochasecategory = "VTOL",
-		objectname = "ARMVADER",
+		objectname = "Units/Bow/ARMVADER",
 		seismicsignature = 0,
 		selfdestructas = "crawl_blast",
 		selfdestructcountdown = 0,

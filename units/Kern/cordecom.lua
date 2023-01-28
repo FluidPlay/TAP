@@ -43,7 +43,7 @@ return {
 		movementclass = "COMMANDERKBOT",
 		name = "Commander",
 		nochasecategory = "VTOL",
-		objectname = "CORCOM",
+		objectname = "Units/Kern/CORCOM",
 		radardistance = 50,
 		reclaimable = false,
 		seismicsignature = 0,

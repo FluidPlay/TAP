@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Dragonfly",
 		nochasecategory = "VTOL",
-		objectname = "ARMDFLY",
+		objectname = "Units/Bow/ARMDFLY",
 		releaseheld = true,
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",

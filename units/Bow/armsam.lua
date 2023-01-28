@@ -28,7 +28,7 @@ return {
 		maxwaterdepth = 12,
 		movementclass = "TANK3",
 		name = "Samson",
-		objectname = "ARMSAM",
+		objectname = "Units/Bow/ARMSAM",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 620,

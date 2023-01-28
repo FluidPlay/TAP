@@ -32,7 +32,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Advanced Solar Collector",
-		objectname = "ARMADVSOL",
+		objectname = "Units/Bow/ARMADVSOL",
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",
 		sightdistance = 260,

@@ -29,7 +29,7 @@ return {
 		movementclass = "VKBOT5",
 		name = "Krogoth",
 		nochasecategory = "VTOL GROUNDSCOUT",
-		objectname = "CORKROG",
+		objectname = "Units/Kern/CORKROG",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "krogExplosionSelfd",

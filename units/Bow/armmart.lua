@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK3",
 		name = "Luger",
 		nochasecategory = "NOTLAND VTOL",
-		objectname = "ARMMART",
+		objectname = "Units/Bow/ARMMART",
 		seismicsignature = 0,
 		script = "BASICTANKSCRIPT.LUA",
 		selfdestructas = "mediumExplosionGenericSelfd",

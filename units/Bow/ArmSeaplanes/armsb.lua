@@ -28,7 +28,7 @@ return {
 		name = "Tsunami",
 		noautofire = true,
 		nochasecategory = "VTOL",
-		objectname = "ARMSB",
+		objectname = "Units/Bow/ARMSB",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 455,

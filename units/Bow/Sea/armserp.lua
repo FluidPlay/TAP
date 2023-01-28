@@ -25,7 +25,7 @@ return {
 		movementclass = "UBOAT33X3",
 		name = "Serpent",
 		nochasecategory = "VTOL",
-		objectname = "ARMSERP",
+		objectname = "Units/Bow/ARMSERP",
 		script = "armserp_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd-uw",

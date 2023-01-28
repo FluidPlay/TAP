@@ -27,7 +27,7 @@ return {
 		maxslope = 20,
 		maxwaterdepth = 9999,
 		name = "Hardened Energy Storage",
-		objectname = "ARMUWADVES",
+		objectname = "Units/Bow/ARMUWADVES",
 		seismicsignature = 0,
 		selfdestructas = "advenergystorageSelfd-uw",
 		sightdistance = 169,

@@ -25,8 +25,8 @@ local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
 --------------------------------------------------------------------------------
 
 local function switchToFlyMode(unitID, unitDefID)
-    if unitDefID == UnitDefNames["armfig"].id  or unitDefID == UnitDefNames["armsfig"].id or unitDefID == UnitDefNames["armhawk"].id or
-       unitDefID == UnitDefNames["corveng"].id or unitDefID == UnitDefNames["corsfig"].id or unitDefID == UnitDefNames["corvamp"].id or
+    if unitDefID == UnitDefNames["armfig"].id  or unitDefID == UnitDefNames["armhawk"].id or --or unitDefID == UnitDefNames["armsfig"].id
+       unitDefID == UnitDefNames["corveng"].id or unitDefID == UnitDefNames["corvamp"].id or --or unitDefID == UnitDefNames["corsfig"].id
        unitDefID == UnitDefNames["corbw"].id or unitDefID == UnitDefNames["armkam"].id or
        unitDefID == UnitDefNames["armbrawl"].id or unitDefID == UnitDefNames["corape"].id or
        unitDefID == UnitDefNames["corshad"].id or unitDefID == UnitDefNames["armthund"].id or

@@ -28,7 +28,7 @@ return {
 		mygravity = 10000,
 		name = "Termite",
 		nochasecategory = "VTOL",
-		objectname = "CORTERMITE",
+		objectname = "Units/Kern/CORTERMITE",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 380,

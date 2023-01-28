@@ -28,7 +28,7 @@ return {
 		movementclass = "BOAT42X2",
 		name = "Skeeter",
 		nochasecategory = "VTOL",
-		objectname = "ARMPT",
+		objectname = "Units/Bow/ARMPT",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 700,

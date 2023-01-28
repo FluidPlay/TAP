@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "LLT",
 		nochasecategory = "MOBILE",
-		objectname = "ARMLLT",
+		objectname = "Units/Bow/ARMLLT",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 494,

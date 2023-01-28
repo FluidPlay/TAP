@@ -31,7 +31,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Solar Collector",
-		objectname = "ARMSOLAR",
+		objectname = "Units/Bow/ARMSOLAR",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",

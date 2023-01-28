@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Blade",
 		nochasecategory = "VTOL",
-		objectname = "ARMBLADE",
+		objectname = "Units/Bow/ARMBLADE",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 624,

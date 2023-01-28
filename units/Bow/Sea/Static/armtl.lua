@@ -23,7 +23,7 @@ return {
 		maxdamage = 1200*1.15,
 		minwaterdepth = 12,
 		name = "Harpoon",
-		objectname = "ARMTL",
+		objectname = "Units/Bow/ARMTL",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 494,

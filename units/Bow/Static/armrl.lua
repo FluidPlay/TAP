@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Defender",
 		nochasecategory = "ALL",
-		objectname = "ARMRL",
+		objectname = "Units/Bow/ARMRL",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 455,

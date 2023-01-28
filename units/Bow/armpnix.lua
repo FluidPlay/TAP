@@ -27,7 +27,7 @@ return {
 		name = "Phoenix",
 		noautofire = true,
 		nochasecategory = "VTOL",
-		objectname = "ARMPNIX",
+		objectname = "Units/Bow/ARMPNIX",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 260,

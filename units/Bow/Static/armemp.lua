@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Detonator",
-		objectname = "ARMEMP",
+		objectname = "Units/Bow/ARMEMP",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 455,

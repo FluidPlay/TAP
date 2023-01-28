@@ -29,7 +29,7 @@ return {
 		mincloakdistance = 55,
 		name = "Pit Bull",
 		nochasecategory = "MOBILE",
-		objectname = "ARMPB",
+		objectname = "Units/Bow/ARMPB",
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",
 		sightdistance = 598,

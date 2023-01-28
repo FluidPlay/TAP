@@ -25,7 +25,7 @@ return {
 		maxvelocity = 12.5,
 		maxwaterdepth = 0,
 		name = "Peeper",
-		objectname = "ARMPEEP",
+		objectname = "Units/Bow/ARMPEEP",
 		radardistance = 1140,
 		seismicsignature = 0,
 		selfdestructas = "tinyExplosionGenericSelfd",

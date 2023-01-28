@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Behemoth",
 		nochasecategory = "MOBILE",
-		objectname = "CORBHMTH",
+		objectname = "Units/Kern/CORBHMTH",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 650,

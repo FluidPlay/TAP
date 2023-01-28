@@ -9,7 +9,7 @@ function gadget:GetInfo()
     date      = "Aug 31, 2009",
     license   = "GNU GPL, v2 or later",
     layer     = 0,
-    enabled   = true  --  loaded by default?
+    enabled   = false -- We don't have torpedo bombers for now; true  --  loaded by default?
   }
 end
 
@@ -25,8 +25,8 @@ local GetUnitBasePosition = Spring.GetUnitBasePosition
 local NO_LAND_DAMAGE = {
   [WeaponDefNames['armlance_armair_torpedo'].id] = true,
   [WeaponDefNames['cortitan_armair_torpedo'].id] = true,
-  [WeaponDefNames['armseap_armseap_weapon1'].id] = true,
-  [WeaponDefNames['corseap_armseap_weapon1'].id] = true,
+  --[WeaponDefNames['armseap_armseap_weapon1'].id] = true,
+  --[WeaponDefNames['corseap_armseap_weapon1'].id] = true,
 }
 
 function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, 

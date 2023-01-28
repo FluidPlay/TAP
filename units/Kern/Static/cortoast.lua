@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Toaster",
 		nochasecategory = "MOBILE",
-		objectname = "CORTOAST",
+		objectname = "Units/Kern/CORTOAST",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 416,

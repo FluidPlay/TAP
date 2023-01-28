@@ -410,7 +410,6 @@ categories = {
 	corint = "defence",
 	corjuno = "defence",
 	corllt = "defence",
-	cormadsam = "defence",
 	cormaw = "defence",
 	cormexp = "defence",
 	corpun = "defence",

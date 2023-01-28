@@ -42,7 +42,7 @@ return {
 		movementclass = "AKBOT2",
 		name = "Commander Lvl2",
 		nochasecategory = "ALL",
-		objectname = "ARMCOM",
+		objectname = "Units/Bow/ARMCOM",
 		pushresistant = true,
 		radardistance = 700,
 		radaremitheight = 40,

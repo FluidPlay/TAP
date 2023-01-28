@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Silencer",
-		objectname = "CORSILO",
+		objectname = "Units/Kern/CORSILO",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "nukeBuildingSelfd",

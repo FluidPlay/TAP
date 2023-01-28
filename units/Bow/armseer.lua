@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		movementclass = "TANK3",
 		name = "Seer",
-		objectname = "ARMSEER",
+		objectname = "Units/Bow/ARMSEER",
 		onoffable = true,
 		radardistance = 2300,
 		seismicsignature = 0,

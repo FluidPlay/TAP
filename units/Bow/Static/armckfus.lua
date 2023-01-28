@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		mincloakdistance = 100,
 		name = "Cloakable Fusion Reactor",
-		objectname = "ARMCKFUS",
+		objectname = "Units/Bow/ARMCKFUS",
 		seismicsignature = 0,
 		selfdestructas = "fusionExplosionSelfd",
 		sightdistance = 273,

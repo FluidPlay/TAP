@@ -29,7 +29,7 @@ return {
 		movementclass = "BOAT43X3",
 		name = "Chaser",
 		nochasecategory = "VTOL",
-		objectname = "CORDSHIP",
+		objectname = "Units/Kern/CORDSHIP",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 600,

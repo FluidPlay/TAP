@@ -29,7 +29,7 @@ return {
 		maxslope = 36,
 		maxwaterdepth = 0,
 		name = "Tracer",
-		objectname = "ARMSD",
+		objectname = "Units/Bow/ARMSD",
 		onoffable = true,
 		seismicdistance = 2000,
 		seismicsignature = 0,

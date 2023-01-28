@@ -33,7 +33,7 @@ return {
 		metalstorage = 100,
 		movementclass = "TANK3",
 		name = "Advanced Construction Vehicle",
-		objectname = "ARMACV",
+		objectname = "Units/Bow/ARMACV",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd-builder",

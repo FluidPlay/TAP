@@ -31,7 +31,7 @@ return {
 		mincloakdistance = 70,
 		name = "Ambusher",
 		nochasecategory = "MOBILE",
-		objectname = "ARMAMB",
+		objectname = "Units/Bow/ARMAMB",
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",
 		sightdistance = 442,

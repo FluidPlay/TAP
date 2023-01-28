@@ -26,7 +26,7 @@ return {
 		maxwaterdepth = 0,
 		mincloakdistance = 36,
 		name = "Dragon Kameye",
-		objectname = "ARMEYES",
+		objectname = "Units/Bow/ARMEYES",
 		seismicsignature = 0,
 		sightdistance = 560,
 		stealth = true,

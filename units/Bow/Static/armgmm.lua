@@ -30,7 +30,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Prude",
-		objectname = "ARMGMM",
+		objectname = "Units/Bow/ARMGMM",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 273,

@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Pulverizer",
 		nochasecategory = "ALL",
-		objectname = "CORRL",
+		objectname = "Units/Kern/CORRL",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 455,

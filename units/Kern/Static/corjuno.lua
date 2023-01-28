@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Core Juno",
-		objectname = "CORJUNO",
+		objectname = "Units/Kern/CORJUNO",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 494,

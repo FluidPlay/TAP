@@ -32,7 +32,7 @@ return {
 		maxwaterdepth = 20,
 		metalstorage = 50,
 		name = "Metal Extractor",
-		objectname = "ARMMEX",
+		objectname = "Units/Bow/ARMMEX",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "tinyBuildingExplosionGenericSelfd",

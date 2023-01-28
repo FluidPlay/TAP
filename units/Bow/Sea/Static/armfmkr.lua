@@ -21,7 +21,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 11,
 		name = "Floating Energy Converter",
-		objectname = "ARMFMKR",
+		objectname = "Units/Bow/ARMFMKR",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 273,

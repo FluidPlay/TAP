@@ -28,7 +28,7 @@ return {
 		movementclass = "HKBOT3",
 		name = "Sumo",
 		nochasecategory = "VTOL",
-		objectname = "CORSUMO",
+		objectname = "Units/Kern/CORSUMO",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

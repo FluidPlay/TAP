@@ -29,7 +29,7 @@ return {
 		maxslope = 20,
 		maxwaterdepth = 0,
 		name = "Mercury",
-		objectname = "ARMMERCURY",
+		objectname = "Units/Bow/ARMMERCURY",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 600,

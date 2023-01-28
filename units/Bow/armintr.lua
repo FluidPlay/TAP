@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 255,
 		movementclass = "ATANK3",
 		name = "Intruder",
-		objectname = "ARMINTR",
+		objectname = "Units/Bow/ARMINTR",
 		releaseheld = true,
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd-phib",

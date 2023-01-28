@@ -30,7 +30,7 @@ return {
 		maxvelocity = 6.9,
 		maxwaterdepth = 0,
 		name = "Atlas",
-		objectname = "ARMATLAS",
+		objectname = "Units/Bow/ARMATLAS",
 		releaseheld = true,
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",

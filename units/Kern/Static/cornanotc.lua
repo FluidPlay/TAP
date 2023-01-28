@@ -33,7 +33,7 @@ return {
 		maxwaterdepth = 0,
 		movementclass = "NANO",
 		name = "Nano Turret",
-		objectname = "CORNANOTC",
+		objectname = "Units/Kern/CORNANOTC",
 		seismicsignature = 0,
 		selfdestructas = "nanoselfd",
 		sightdistance = 380,

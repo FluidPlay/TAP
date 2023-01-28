@@ -25,7 +25,7 @@ return {
 		maxvelocity = 10.7,
 		maxwaterdepth = 0,
 		name = "Vulture",
-		objectname = "CORAWAC",
+		objectname = "Units/Kern/CORAWAC",
 		radardistance = 2400,
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",

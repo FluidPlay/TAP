@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Arm Juno",
-		objectname = "ARMJUNO",
+		objectname = "Units/Bow/ARMJUNO",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 494,

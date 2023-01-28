@@ -33,7 +33,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Annihilator",
 		nochasecategory = "MOBILE",
-		objectname = "ARMANNI",
+		objectname = "Units/Bow/ARMANNI",
 		onoffable = true,
 		radardistance = 1500,
 		radaremitheight = 72,

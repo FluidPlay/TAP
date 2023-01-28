@@ -32,7 +32,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Advanced Solar Collector",
-		objectname = "CORADVSOL",
+		objectname = "Units/Kern/CORADVSOL",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 260,

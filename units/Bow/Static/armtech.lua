@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Tech Center",
-		objectname = "ARMTECH",
+		objectname = "Units/Bow/ARMTECH",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "LARGE_BUILDING",

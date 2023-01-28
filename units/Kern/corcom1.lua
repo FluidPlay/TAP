@@ -42,7 +42,7 @@ return {
         movementclass = "COMMANDERKBOT",
         name = "Commander Lvl1",
         nochasecategory = "ALL",
-        objectname = "CORCOM1",
+        objectname = "Units/Kern/CORCOM1",
         pushresistant = true,
         radardistance = 700,
         radaremitheight = 40,

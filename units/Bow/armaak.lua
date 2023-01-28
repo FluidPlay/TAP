@@ -25,7 +25,7 @@ return {
 		movementclass = "AKBOT2",
 		name = "Archangel",
 		nochasecategory = "NOTAIR",
-		objectname = "ARMAAK",
+		objectname = "Units/Bow/ARMAAK",
 		seismicsignature = 1,
 		selfdestructas = "mediumExplosionGenericSelfd-phib",
 		sightdistance = 400,

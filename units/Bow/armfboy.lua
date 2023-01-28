@@ -28,7 +28,7 @@ return {
 		movementclass = "HKBOT3",
 		name = "Fatboy",
 		nochasecategory = "VTOL",
-		objectname = "ARMFBOY",
+		objectname = "Units/Bow/ARMFBOY",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

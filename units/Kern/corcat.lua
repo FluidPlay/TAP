@@ -26,7 +26,7 @@ return {
 		movementclass = "HKBOT4",
 		name = "Catapult",
 		nochasecategory = "VTOL",
-		objectname = "CORCAT",
+		objectname = "Units/Kern/CORCAT",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 700,

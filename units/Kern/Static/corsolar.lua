@@ -31,7 +31,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Solar Collector",
-		objectname = "CORSOLAR",
+		objectname = "Units/Kern/CORSOLAR",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd",

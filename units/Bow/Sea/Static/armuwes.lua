@@ -26,7 +26,7 @@ return {
 		maxslope = 20,
 		minwaterdepth = 30,
 		name = "Underwater Energy Storage",
-		objectname = "ARMUWES",
+		objectname = "Units/Bow/ARMUWES",
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd-uw",
 		sightdistance = 182,

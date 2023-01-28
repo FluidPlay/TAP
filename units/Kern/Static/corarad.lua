@@ -33,7 +33,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Advanced Radar Tower",
-		objectname = "CORARAD",
+		objectname = "Units/Kern/CORARAD",
 		onoffable = true,
 		radardistance = 3500,
 		radaremitheight = 87,

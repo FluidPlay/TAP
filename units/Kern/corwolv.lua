@@ -30,7 +30,7 @@ return {
 		movementclass = "TANK2",
 		name = "Wolverine",
 		nochasecategory = "VTOL",
-		objectname = "CORWOLV",
+		objectname = "Units/Kern/CORWOLV",
 		pushresistant = true,
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",

@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Can",
 		nochasecategory = "VTOL",
-		objectname = "CORCAN",
+		objectname = "Units/Kern/CORCAN",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 350,

@@ -29,7 +29,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Thud",
 		nochasecategory = "VTOL",
-		objectname = "CORTHUD",
+		objectname = "Units/Kern/CORTHUD",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 380,

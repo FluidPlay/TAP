@@ -2,7 +2,7 @@
 -- DOCUMENTATION
 -------------------------
 
--- TAPrime, like BA, contains weapondefs in its unitdef files
+-- TAP contains weapondefs in its unitdef files
 -- Standalone weapondefs are only loaded by Spring after unitdefs are loaded
 -- So, if we want to do post processing and include all the unit+weapon defs, and have the ability to bake these changes into files, we must do it after both have been loaded
 -- That means, ALL UNIT AND WEAPON DEF POST PROCESSING IS DONE HERE
@@ -44,12 +44,12 @@ local minimumbuilddistancerange = 155
 local function ApplyGroupCosts(name, uDef)
     if not uDef.customParams then
         return  end
-    local groupSize = tonumber(uDef.customparams.groupdef__size)
+    local groupSize = tonumber(uDef.customParams.groupdef__size)
 	if not groupSize then
         return end
 
 	local groupSize = groupSize or 1
-    --Spring.Echo(uDef.name .." Group Size: "..groupSize)
+    Spring.Echo(uDef.name .." Group Size: "..groupSize)
 	if (uDef.buildcostmetal ~= nil) then
 		uDef.buildcostmetal = uDef.buildcostmetal * groupSize
 	end

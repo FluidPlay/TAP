@@ -26,7 +26,7 @@ return {
 		movementclass = "KBOT2",
 		name = "Zipper",
 		nochasecategory = "VTOL",
-		objectname = "ARMFAST",
+		objectname = "Units/Bow/ARMFAST",
 		seismicsignature = 0,
 		selfdestructas = "tinyExplosionGenericSelfd",
 		sightdistance = 351,

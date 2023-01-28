@@ -26,7 +26,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Zeus",
 		nochasecategory = "VTOL",
-		objectname = "ARMZEUS",
+		objectname = "Units/Bow/ARMZEUS",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 331.5,

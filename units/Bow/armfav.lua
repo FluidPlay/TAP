@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK1",
 		name = "Jeffy",
 		nochasecategory = "VTOL",
-		objectname = "ARMFAV",
+		objectname = "Units/Bow/ARMFAV",
 		seismicsignature = 0,
 		script = "BASICTANKSCRIPT.LUA",
 		selfdestructas = "tinyExplosionGenericSelfd",

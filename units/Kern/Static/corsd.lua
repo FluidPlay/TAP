@@ -29,7 +29,7 @@ return {
 		maxslope = 36,
 		maxwaterdepth = 0,
 		name = "Nemesis",
-		objectname = "CORSD",
+		objectname = "Units/Kern/CORSD",
 		onoffable = true,
 		seismicdistance = 2000,
 		seismicsignature = 0,

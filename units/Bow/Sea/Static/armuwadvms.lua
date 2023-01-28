@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 9999,
 		metalstorage = 10000,
 		name = "Hardened Metal Storage",
-		objectname = "ARMUWADVMS",
+		objectname = "Units/Bow/ARMUWADVMS",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 195,

@@ -577,7 +577,7 @@ local posradius = 144
 	else
 SpawnRuin("cordrag", posx+(80), posy, posz+(94), 3)
 SpawnRuin("cormaw", posx+(-144), posy, posz+(46), 3)
-SpawnRuin("cormadsam", posx+(24), posy, posz+(6), 3)
+--SpawnRuin("cormadsam", posx+(24), posy, posz+(6), 3)
 SpawnRuin("corfort", posx+(112), posy, posz+(-50), 1)
 SpawnRuin("cordrag", posx+(-128), posy, posz+(14), 3)
 SpawnRuin("cormakr", posx+(-88), posy, posz+(-42), 3)

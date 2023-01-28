@@ -31,7 +31,7 @@ return {
 		movementclass = "HTANK4",
 		name = "Tremor",
 		nochasecategory = "VTOL",
-		objectname = "CORTREM",
+		objectname = "Units/Kern/CORTREM",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 351,

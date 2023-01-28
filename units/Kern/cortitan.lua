@@ -26,7 +26,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Titan",
 		nochasecategory = "VTOL",
-		objectname = "CORTITAN",
+		objectname = "Units/Kern/CORTITAN",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 455,

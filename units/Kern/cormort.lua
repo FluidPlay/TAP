@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Morty",
 		nochasecategory = "VTOL",
-		objectname = "CORMORT",
+		objectname = "Units/Kern/CORMORT",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 300,

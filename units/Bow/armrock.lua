@@ -27,7 +27,7 @@
 		movementclass = "KBOT3",
 		name = "Rocko",
 		nochasecategory = "VTOL",
-		objectname = "ARMROCK",
+		objectname = "Units/Bow/ARMROCK",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 338,

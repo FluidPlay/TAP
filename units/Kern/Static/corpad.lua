@@ -32,7 +32,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 1,
 		name = "Air Pad",
-		objectname = "CORASP",
+		objectname = "Units/Kern/CORASP",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "LARGE_BUILDING",

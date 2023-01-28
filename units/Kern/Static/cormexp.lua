@@ -36,7 +36,7 @@ return {
 		metalstorage = 500,
 		name = "Moho Exploiter",
 		nochasecategory = "MOBILE",
-		objectname = "CORMEXP",
+		objectname = "Units/Kern/CORMEXP",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",

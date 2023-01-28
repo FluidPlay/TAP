@@ -130,11 +130,6 @@ local function DamgamT1Spammer(scav, posx, posy, posz, GaiaTeamID, radiusCheck)
 			Spring.GiveOrderToUnit(scav, -(UDN.corhlt_scav.id), {posx+(0), posy, posz+(0), 1}, {"shift"})
 			Spring.GiveOrderToUnit(scav, -(UDN.corhlt_scav.id), {posx+(0), posy, posz+(-32), 2}, {"shift"})
 
-			Spring.GiveOrderToUnit(scav, -(UDN.cormadsam_scav.id), {posx+(40), posy, posz+(24), 2}, {"shift"})
-			Spring.GiveOrderToUnit(scav, -(UDN.cormadsam_scav.id), {posx+(-40), posy, posz+(24), 2}, {"shift"})
-			Spring.GiveOrderToUnit(scav, -(UDN.cormadsam_scav.id), {posx+(40), posy, posz+(-24), 2}, {"shift"})
-			Spring.GiveOrderToUnit(scav, -(UDN.cormadsam_scav.id), {posx+(-40), posy, posz+(-24), 2}, {"shift"})
-
 			Spring.GiveOrderToUnit(scav, -(UDN.corap_scav.id), {posx+(128), posy, posz+(0), 2}, {"shift"})
 			Spring.GiveOrderToUnit(scav, -(UDN.corap_scav.id), {posx+(-128), posy, posz+(0), 2}, {"shift"})
 			Spring.GiveOrderToUnit(scav, -(UDN.corap_scav.id), {posx+(0), posy, posz+(-96), 2}, {"shift"})

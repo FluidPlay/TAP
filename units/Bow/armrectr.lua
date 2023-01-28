@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 22,
 		movementclass = "KBOT2",
 		name = "Rector",
-		objectname = "ARMRECTR",
+		objectname = "Units/Bow/ARMRECTR",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "smallbuilderSelfd",

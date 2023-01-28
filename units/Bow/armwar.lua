@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Warrior",
 		nochasecategory = "VTOL",
-		objectname = "ARMWAR",
+		objectname = "Units/Bow/ARMWAR",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 350,

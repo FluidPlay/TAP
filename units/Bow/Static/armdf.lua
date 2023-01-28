@@ -30,7 +30,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Fusion Reactor",
-		objectname = "ARMFUS",
+		objectname = "Units/Bow/ARMFUS",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 210,

@@ -43,7 +43,7 @@ local right_head = piece 'right_head'
 local right_pointer = piece 'right_pointer'
 local right_front_extension = piece 'right_front_extension'
 --
-local build_pos = piece 'build_pos'
+local buildPiece = piece 'build_pos' --building_plate
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -127,7 +127,6 @@ local scriptEnv = { base = base,
                     SFX = SFX,
 }
 
-local buildPiece = build_pos --building_plate
 local PlayAnimation = VFS.Include("scripts/animations/kernvp_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 

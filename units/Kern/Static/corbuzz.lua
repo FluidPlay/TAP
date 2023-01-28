@@ -29,7 +29,7 @@ return {
 		maxslope = 13,
 		maxwaterdepth = 0,
 		name = "Buzzsaw",
-		objectname = "CORBUZZ",
+		objectname = "Units/Kern/CORBUZZ",
 		seismicsignature = 0,
 		selfdestructas = "advancedFusionExplosionSelfd",
 		sightdistance = 700,

@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 3000,
 		name = "Metal Storage",
-		objectname = "ARMMSTOR",
+		objectname = "Units/Bow/ARMMSTOR",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 273,

@@ -30,7 +30,7 @@ return {
 		maxvelocity = 6.6,
 		maxwaterdepth = 0,
 		name = "Valkyrie",
-		objectname = "CORVALK",
+		objectname = "Units/Kern/CORVALK",
 		releaseheld = true,
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",

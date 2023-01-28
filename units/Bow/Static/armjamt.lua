@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		mincloakdistance = 35,
 		name = "Sneaky Pete",
-		objectname = "ARMJAMT",
+		objectname = "Units/Bow/ARMJAMT",
 		onoffable = true,
 		radardistancejam = 500,
 		seismicsignature = 0,

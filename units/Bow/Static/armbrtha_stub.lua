@@ -25,7 +25,7 @@ return {
 		maxslope = 12,
 		maxwaterdepth = 0,
 		name = "Big Bertha",
-		objectname = "ARMBRTHA",
+		objectname = "Units/Bow/ARMBRTHA",
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",
 		sightdistance = 273,

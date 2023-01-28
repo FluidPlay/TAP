@@ -29,7 +29,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 25,
 		name = "Underwater Fusion Plant",
-		objectname = "ARMUWFUS",
+		objectname = "Units/Bow/ARMUWFUS",
 		selfdestructas = "fusionExplosionSelfd-uw",
 		sightdistance = 143,
 		usebuildinggrounddecal = true,

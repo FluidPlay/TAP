@@ -27,7 +27,7 @@ return {
 		minwaterdepth = 2,
 		name = "Sentry",
 		nochasecategory = "ALL",
-		objectname = "ARMFRT",
+		objectname = "Units/Bow/ARMFRT",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 468,

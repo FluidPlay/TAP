@@ -48,7 +48,7 @@ return {
         maxwaterdepth = 0,
         movementclass = "NANO",
         name = "Outpost",
-        objectname = "armoutpost.dae",
+        objectname = "Units/Bow/armoutpost.dae",
         seismicsignature = 0,
         selfdestructas = "TINY_BUILDINGEX",
         sightdistance = 380,

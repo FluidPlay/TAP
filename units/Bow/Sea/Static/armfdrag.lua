@@ -25,7 +25,7 @@ return {
 		maxslope = 32,
 		minwaterdepth = 1,
 		name = "Shark's Teeth",
-		objectname = "ARMFDRAG",
+		objectname = "Units/Bow/ARMFDRAG",
 		repairable = false,
 		seismicsignature = 0,
 		sightdistance = 1,

@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 10,
 		name = "Sonar Station",
-		objectname = "ARMSONAR",
+		objectname = "Units/Bow/ARMSONAR",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd-uw",

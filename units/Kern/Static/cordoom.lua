@@ -33,7 +33,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Doomsday Machine",
 		nochasecategory = "VTOL",
-		objectname = "CORDOOM",
+		objectname = "Units/Kern/CORDOOM",
 		onoffable = true,
 		radardistance = 1200,
 		radaremitheight = 80,

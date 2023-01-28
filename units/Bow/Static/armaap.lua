@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 200,
 		name = "Advanced Aircraft Plant",
-		objectname = "ARMAAP",
+		objectname = "Units/Bow/ARMAAP",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 312,

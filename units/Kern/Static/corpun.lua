@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Punisher",
 		nochasecategory = "MOBILE",
-		objectname = "CORPUN",
+		objectname = "Units/Kern/CORPUN",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 455,

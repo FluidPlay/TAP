@@ -32,7 +32,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 100,
 		name = "Aircraft Plant",
-		objectname = "CORAP",
+		objectname = "Units/Kern/CORAP",
 		radardistance = 510,
 		radaremitheight = 40,
 		seismicsignature = 0,

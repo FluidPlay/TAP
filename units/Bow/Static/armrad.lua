@@ -30,7 +30,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Radar Tower",
-		objectname = "ARMRAD",
+		objectname = "Units/Bow/ARMRAD",
 		onoffable = true,
 		radardistance = 2100,
 		radaremitheight = 66,

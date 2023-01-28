@@ -32,7 +32,7 @@ return {
 		movementclass = "AKBOTBOMB2",
 		name = "Skuttle",
 		nochasecategory = "VTOL",
-		objectname = "CORSKTL",
+		objectname = "Units/Kern/CORSKTL",
 		seismicsignature = 4,
 		selfdestructas = "corsktlSelfd",
 		selfdestructcountdown = 0,

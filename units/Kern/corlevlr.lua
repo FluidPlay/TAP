@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Leveler",
 		nochasecategory = "VTOL",
-		objectname = "CORLEVLR",
+		objectname = "Units/Kern/CORLEVLR",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 286,

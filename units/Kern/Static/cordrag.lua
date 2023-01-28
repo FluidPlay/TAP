@@ -29,7 +29,7 @@ return {
 		maxslope = 64,
 		maxwaterdepth = 0,
 		name = "Dragon's Teeth",
-		objectname = "CORDRAG.3do",
+		objectname = "Units/Kern/CORDRAG.3do",
 		repairable = false,
 		seismicsignature = 0,
 		sightdistance = 1,

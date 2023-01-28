@@ -12,11 +12,11 @@ end
 
 if gadgetHandler:IsSyncedCode() then
 	local fighters = {
-		UnitDefNames['armfig'].id,
-		UnitDefNames['armsfig'].id,
+		--UnitDefNames['armfig'].id,
+		--UnitDefNames['armsfig'].id,
 		UnitDefNames['armhawk'].id,
 		UnitDefNames['corveng'].id,
-		UnitDefNames['corsfig'].id,
+		--UnitDefNames['corsfig'].id,
 		UnitDefNames['corvamp'].id
         --UnitDefNames['armthund'].id
 	}

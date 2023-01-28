@@ -28,7 +28,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Hammer",
 		nochasecategory = "VTOL",
-		objectname = "ARMHAM",
+		objectname = "Units/Bow/ARMHAM",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 380,

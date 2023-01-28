@@ -79,14 +79,14 @@ end
 ----- Upgrade / Morph-up
 local function morphup()
 	-- Show move-hidden parts, by instantly moving them to their morphed-up position
-	Move(left_upgrade, x_axis, 34.4777)
-	Move(left_upgrade, y_axis, 12.0000394)
-	Move(right_upgrade, x_axis, -34.4023)
-	Move(right_upgrade, y_axis, 12.0000331)
-    WaitForMove(left_upgrade, x_axis)
-    WaitForMove(left_upgrade, y_axis)
-    WaitForMove(right_upgrade, x_axis)
-    WaitForMove(right_upgrade, y_axis)
+	--Move(left_upgrade, x_axis, 34.4777)
+	--Move(left_upgrade, y_axis, 12.0000394)
+	--Move(right_upgrade, x_axis, -34.4023)
+	--Move(right_upgrade, y_axis, 12.0000331)
+    --WaitForMove(left_upgrade, x_axis)
+    --WaitForMove(left_upgrade, y_axis)
+    --WaitForMove(right_upgrade, x_axis)
+    --WaitForMove(right_upgrade, y_axis)
 	initTween({veryLastFrame=48,
 			   --TODO: check if first==lastframe works (or make it work)
 			   --[left_upgrade]={
@@ -145,7 +145,7 @@ local function morphup()
 	})
 end
 
-local function buildadv()
+local function openadv()
 	initTween({veryLastFrame=44,
 			   [conver]={
 				   [1]={cmd="turn", axis=x_axis, targetValue=-2.356194, firstFrame=0, lastFrame=44,},
@@ -184,7 +184,7 @@ local function buildadv()
 	})
 end
 
-local function stopbuildadv()
+local function closeadv()
 	initTween({veryLastFrame=24,
 			   [conver]={
 				   [1]={cmd="turn", axis=x_axis, targetValue=0.000000, firstFrame=0, lastFrame=24,},
@@ -224,6 +224,6 @@ local function stopbuildadv()
 	})
 end
 
-Animations = { buildstd=openstd, stopbuildstd=closestd, morphup=morphup, buildadv=buildadv, stopbuildadv=stopbuildadv} --, openadv=anim3, closeadv=anim4, }
+Animations = { openstd=openstd, closestd=closestd, morphup=morphup, openadv=openadv, closeadv=closeadv }
 
 return Animations

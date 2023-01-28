@@ -35,7 +35,7 @@ return {
 		metalstorage = 75,
 		--mincloakdistance = 66,
 		name = "Twilight",
-		objectname = "ARMAMEX",
+		objectname = "Units/Bow/ARMAMEX",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "empblast",

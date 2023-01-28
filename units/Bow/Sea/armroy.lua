@@ -27,7 +27,7 @@ return {
 		movementclass = "BOAT44X4",
 		name = "Crusader",
 		nochasecategory = "VTOL",
-		objectname = "ARMROY",
+		objectname = "Units/Bow/ARMROY",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 500,

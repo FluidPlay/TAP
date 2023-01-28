@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Protector",
 		noAutoFire = true,
-		objectname = "ARMAMD",
+		objectname = "Units/Bow/ARMAMD",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

@@ -29,7 +29,7 @@ return {
 		movementclass = "AKBOTBOMB2",
 		name = "Roach",
 		nochasecategory = "VTOL",
-		objectname = "CORROACH",
+		objectname = "Units/Kern/CORROACH",
 		seismicsignature = 0,
 		selfdestructas = "crawl_blast",
 		selfdestructcountdown = 0,

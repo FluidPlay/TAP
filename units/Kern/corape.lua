@@ -27,7 +27,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Rapier",
 		nochasecategory = "VTOL",
-		objectname = "CORAPE",
+		objectname = "Units/Kern/CORAPE",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 550,

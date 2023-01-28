@@ -30,7 +30,7 @@ return {
 		maxslope = 15,
 		maxwaterdepth = 0,
 		name = "Moho Geothermal Powerplant",
-		objectname = "ARMAGEO",
+		objectname = "Units/Bow/ARMAGEO",
 		seismicsignature = 0,
 		selfdestructas = "advgeo",
 		sightdistance = 273,

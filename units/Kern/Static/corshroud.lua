@@ -31,7 +31,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Shroud",
-		objectname = "CORSHROUD",
+		objectname = "Units/Kern/CORSHROUD",
 		onoffable = true,
 		radardistancejam = 700,
 		seismicsignature = 0,

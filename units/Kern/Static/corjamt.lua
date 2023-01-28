@@ -31,7 +31,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Castro",
-		objectname = "CORJAMT",
+		objectname = "Units/Kern/CORJAMT",
 		onoffable = true,
 		radardistancejam = 360,
 		seismicsignature = 0,

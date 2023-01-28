@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 100,
 		name = "Kbot Lab",
-		objectname = "CORLAB",
+		objectname = "Units/Kern/CORLAB",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

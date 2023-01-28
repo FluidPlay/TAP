@@ -27,7 +27,7 @@ return {
 		movementclass = "BOAT44X4",
 		name = "Archer",
 		nochasecategory = "NOTAIR",
-		objectname = "ARMAAS",
+		objectname = "Units/Bow/ARMAAS",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd-uw",
 		sightdistance = 475,

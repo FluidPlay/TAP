@@ -27,7 +27,7 @@ return {
 		name = "Liche",
 		noautofire = false,
 		nochasecategory = "VTOL",
-		objectname = "ARMLICHE",
+		objectname = "Units/Bow/ARMLICHE",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 455,

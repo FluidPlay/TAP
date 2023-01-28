@@ -27,7 +27,7 @@ return {
 		name = "Shadow",
 		noautofire = true,
 		nochasecategory = "VTOL",
-		objectname = "CORSHAD",
+		objectname = "Units/Kern/CORSHAD",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 169,

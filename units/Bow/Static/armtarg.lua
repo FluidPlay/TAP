@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Targeting Facility",
-		objectname = "ARMTARG",
+		objectname = "Units/Bow/ARMTARG",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",

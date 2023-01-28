@@ -29,7 +29,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 5,
 		name = "Floating Radar/Sonar Tower",
-		objectname = "ARMFRAD",
+		objectname = "Units/Bow/ARMFRAD",
 		onoffable = true,
 		radardistance = 2100,
 		sonardistance = 1200, 

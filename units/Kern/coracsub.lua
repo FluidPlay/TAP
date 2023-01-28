@@ -29,7 +29,7 @@ return {
 		minwaterdepth = 20,
 		movementclass = "UBOAT34X4",
 		name = "Advanced Construction Sub",
-		objectname = "CORACSUB",
+		objectname = "Units/Kern/CORACSUB",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd-uw",

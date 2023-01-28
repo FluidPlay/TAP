@@ -25,7 +25,7 @@ return {
 		maxvelocity = 12,
 		maxwaterdepth = 0,
 		name = "Fink",
-		objectname = "CORFINK",
+		objectname = "Units/Kern/CORFINK",
 		radardistance = 1120,
 		seismicsignature = 0,
 		selfdestructas = "tinyExplosionGenericSelfd",

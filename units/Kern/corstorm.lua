@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Storm",
 		nochasecategory = "VTOL",
-		objectname = "CORSTORM",
+		objectname = "Units/Kern/CORSTORM",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 344.5,

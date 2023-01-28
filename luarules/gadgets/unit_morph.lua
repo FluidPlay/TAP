@@ -989,7 +989,6 @@ local function FinishMorph(unitID, morphData)
 	local newUnit = nil
 	local face = HeadingToFacing(h)
 
-	--Spring.Echo("Animation Only: ", morphData.def.animationonly)
 	if (morphData.def.animationonly == 1) then
 		local env = Spring.UnitScript.GetScriptEnv(unitID)
 		if env then
@@ -1013,8 +1012,9 @@ local function FinishMorph(unitID, morphData)
 		Spring.SetUnitTooltip ( unitID, newTooltip )	--"advanced bot lab - "
 		Spring.SetUnitCosts ( unitID, { metalCost = newMetalCost, energyCost = newEnergyCost, buildTime = newBuildTime })
 		SendToUnsynced("unit_morph_finished", unitID, unitID)
-		spSetUnitRulesParam(unitID, "morphedinto", 1)
-		spSetUnitRulesParam(unitID, "upgraded", 1)	--That's to be consumed by the per-unit upgrade handler ("puu")
+		spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
+		--spSetUnitRulesParam(unitID, "upgraded", 1)
+		Spring.Echo("'morphedinto' unitrulesparam for unit "..unitID.." set to 1")
 	else
 		--- Is it a structure?
 		if udDst.isBuilding or udDst.isFactory then

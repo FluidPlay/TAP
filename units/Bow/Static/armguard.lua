@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Guardian",
 		nochasecategory = "MOBILE",
-		objectname = "ARMGUARD",
+		objectname = "Units/Bow/ARMGUARD",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 455,

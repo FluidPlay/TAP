@@ -29,7 +29,7 @@ return {
 		movementclass = "ATANK3",
 		name = "Pincer",
 		nochasecategory = "VTOL",
-		objectname = "ARMPINCER",
+		objectname = "Units/Bow/ARMPINCER",
 		script = "BASICTANKSCRIPT.LUA",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-phib",

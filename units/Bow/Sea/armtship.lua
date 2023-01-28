@@ -25,7 +25,7 @@ return {
 		movementclass = "DBOAT66X6",
 		name = "Hulk",
 		nochasecategory = "ALL",
-		objectname = "ARMTSHIP",
+		objectname = "Units/Bow/ARMTSHIP",
 		pushresistant = true,
 		releaseheld = false,
 		seismicsignature = 0,

@@ -33,7 +33,7 @@ return {
 		mincloakdistance = 8,
 		name = "Mega",
 		nochasecategory = "VTOL",
-		objectname = "ARMMINE3",
+		objectname = "Units/Bow/ARMMINE3",
 		script = "mines_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "MINE_HEAVY",

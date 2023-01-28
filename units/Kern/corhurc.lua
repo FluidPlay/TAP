@@ -27,7 +27,7 @@ return {
 		name = "Hurricane",
 		noautofire = true,
 		nochasecategory = "VTOL",
-		objectname = "CORHURC",
+		objectname = "Units/Kern/CORHURC",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 221,

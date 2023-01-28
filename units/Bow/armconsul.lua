@@ -33,7 +33,7 @@ return {
 		metalstorage = 100,
 		movementclass = "TANK3",
 		name = "Consul",
-		objectname = "ARMCONSUL",
+		objectname = "Units/Bow/ARMCONSUL",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-builder",
 		sightdistance = 500,

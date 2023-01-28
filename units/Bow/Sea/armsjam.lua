@@ -26,7 +26,7 @@ return {
 		movementclass = "BOAT43X3",
 		name = "Escort",
 		nochasecategory = "MOBILE",
-		objectname = "ARMSJAM",
+		objectname = "Units/Bow/ARMSJAM",
 		onoffable = true,
 		radardistancejam = 980,
 		seismicsignature = 0,

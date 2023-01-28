@@ -30,7 +30,7 @@ return {
 		movementclass = "ATANK3",
 		name = "Garpike",
 		nochasecategory = "VTOL",
-		objectname = "CORGARP",
+		objectname = "Units/Kern/CORGARP",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-phib",
 		sightdistance = 234,

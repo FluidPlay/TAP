@@ -32,7 +32,7 @@ return {
 		maxwaterdepth = 0,
 		noautofire = true,
 		name = "Keeper",
-		objectname = "ARMGATE",
+		objectname = "Units/Bow/ARMGATE",
 		onoffable = false,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd",

@@ -28,7 +28,7 @@ return {
 		maxwaterdepth = 0,
 		movementclass = "KBOT3",
 		name = "Marky",
-		objectname = "ARMMARK",
+		objectname = "Units/Bow/ARMMARK",
 		onoffable = true,
 		radardistance = 2200,
 		selfdestructas = "smallExplosionGenericSelfd",

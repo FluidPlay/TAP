@@ -26,7 +26,7 @@ return {
 		movementclass = "BOAT55X5",
 		name = "Ranger",
 		nochasecategory = "VTOL",
-		objectname = "ARMMSHIP",
+		objectname = "Units/Bow/ARMMSHIP",
 		radardistance = 1400,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

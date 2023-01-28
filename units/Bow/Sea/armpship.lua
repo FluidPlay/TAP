@@ -28,7 +28,7 @@ return {
 		movementclass = "BOAT44X4",
 		name = "Ellysaw",
 		nochasecategory = "VTOL",
-		objectname = "ARMPSHIP",
+		objectname = "Units/Bow/ARMPSHIP",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 500,

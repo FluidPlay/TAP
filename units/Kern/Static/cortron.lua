@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Catalyst",
-		objectname = "CORTRON",
+		objectname = "Units/Kern/CORTRON",
 		seismicsignature = 0,
 		selfdestructas = "nukeBuildingSelfd",
 		sightdistance = 455,

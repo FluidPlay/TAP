@@ -160,7 +160,7 @@ StartboxDefenceStructuresT1 = {
 	"armclaw",
 	"armbeamer",
 	"armferret",
-	"cormadsam",
+--	"cormadsam",
 	"corerad",
 	"corhllt",
 	"corhlt",

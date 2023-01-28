@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		minwaterdepth = 30,
 		name = "Floating Targeting Facility",
-		objectname = "ARMFATF",
+		objectname = "Units/Bow/ARMFATF",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",

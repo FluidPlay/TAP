@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK3",
 		name = "Diplomat",
 		nochasecategory = "MOBILE VTOL",
-		objectname = "CORVROC",
+		objectname = "Units/Kern/CORVROC",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
 		sightdistance = 221,

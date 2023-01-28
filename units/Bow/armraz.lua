@@ -25,7 +25,7 @@ return {
 		maxwaterdepth = 22,
 		movementclass = "HKBOT4",
 		name = "Razorback",
-		objectname = "ARMRAZ",
+		objectname = "Units/Bow/ARMRAZ",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 450,

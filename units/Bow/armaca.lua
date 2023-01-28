@@ -32,7 +32,7 @@ return {
 		metalmake = 0.1,
 		metalstorage = 50,
 		name = "Advanced Construction Aircraft",
-		objectname = "ARMACA",
+		objectname = "Units/Bow/ARMACA",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-builder",

@@ -28,7 +28,7 @@ return {
 		maxwaterdepth = 12,
 		movementclass = "TANK3",
 		name = "Slasher",
-		objectname = "CORMIST",
+		objectname = "Units/Kern/CORMIST",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 620,

@@ -24,7 +24,7 @@ return {
 		movementclass = "BOAT43X3",
 		name = "Decade",
 		nochasecategory = "UNDERWATER VTOL",
-		objectname = "ARMDECADE",
+		objectname = "Units/Bow/ARMDECADE",
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd",
 		sightdistance = 375,

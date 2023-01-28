@@ -29,7 +29,7 @@ return {
 		minwaterdepth = 15,
 		movementclass = "BOAT43X3",
 		name = "Construction Corvette",
-		objectname = "ARMCS",
+		objectname = "Units/Bow/ARMCS",
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd-builder",
 		sightdistance = 400,

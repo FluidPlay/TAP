@@ -30,7 +30,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Sentinel",
 		nochasecategory = "MOBILE",
-		objectname = "ARMHLT",
+		objectname = "Units/Bow/ARMHLT",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 494,

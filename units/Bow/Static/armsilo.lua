@@ -27,7 +27,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Retaliator",
-		objectname = "ARMSILO",
+		objectname = "Units/Bow/ARMSILO",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "nukeBuildingSelfd",

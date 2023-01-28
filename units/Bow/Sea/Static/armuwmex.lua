@@ -29,7 +29,7 @@
 		metalstorage = 50,
 		minwaterdepth = 15,
 		name = "Offshore Metal Extractor",
-		objectname = "ARMOMEX",
+		objectname = "Units/Bow/ARMOMEX",
 		script = "armomex.cob",
 		onoffable = true,
 		seismicsignature = 0,

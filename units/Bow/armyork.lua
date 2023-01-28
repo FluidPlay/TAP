@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK3",
 		name = "Phalanx",
 		nochasecategory = "NOTAIR",
-		objectname = "ARMYORK",
+		objectname = "Units/Bow/ARMYORK",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 390,

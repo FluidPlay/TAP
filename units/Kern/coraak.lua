@@ -24,7 +24,7 @@ return {
 		movementclass = "AKBOT2",
 		name = "Manticore",
 		nochasecategory = "NOTAIR",
-		objectname = "CORAAK",
+		objectname = "Units/Kern/CORAAK",
 		seismicsignature = 1,
 		selfdestructas = "smallExplosionGenericSelfd-phib",
 		sightdistance = 390,

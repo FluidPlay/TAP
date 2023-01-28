@@ -25,7 +25,7 @@ return {
 		movementclass = "BOAT43X3",
 		name = "Supporter",
 		nochasecategory = "UNDERWATER VTOL",
-		objectname = "CORESUPP",
+		objectname = "Units/Kern/CORESUPP",
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd",
 		sightdistance = 320,

@@ -31,7 +31,7 @@ return {
 		maxslope = 20,
 		maxwaterdepth = 99999,
 		name = "Geothermal Powerplant",
-		objectname = "ARMGEO",
+		objectname = "Units/Bow/ARMGEO",
 		seismicsignature = 0,
 		selfdestructas = "geo",
 		sightdistance = 273,

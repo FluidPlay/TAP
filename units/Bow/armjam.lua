@@ -30,7 +30,7 @@ return {
 		movementclass = "TANK3",
 		name = "Jammer",
 		nochasecategory = "MOBILE",
-		objectname = "ARMJAM",
+		objectname = "Units/Bow/ARMJAM",
 		onoffable = true,
 		radardistance = 0,
 		radardistancejam = 450,

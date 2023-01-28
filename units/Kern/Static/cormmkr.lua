@@ -26,7 +26,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Moho Energy Converter",
-		objectname = "CORMMKR",
+		objectname = "Units/Kern/CORMMKR",
 		seismicsignature = 0,
 		selfdestructas = "advmetalmakerSelfd",
 		sightdistance = 273,

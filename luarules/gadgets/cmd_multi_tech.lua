@@ -245,16 +245,16 @@ if (gadgetHandler:IsSyncedCode()) then
 		if IsValidUnit(unitID) then
 			local unitDef = UnitDefs[spGetUnitDefID(unitID)]
 			local animationonly = unitDef.customParams and (tonumber(unitDef.customParams.morphdef__animationonly) == 1)
+			--Spring.Echo("Multi_tech: Check Tech for animationonly = "..(animationonly and "TRUE" or "FALSE"))
 			if techID == "local:advanced" and isAdvBuildOption(cmdID) and animationonly then
 				--Spring.Echo("cmdID "..(cmdID or "nil") .." is adv: "..tostring(isAdvBuildOption(cmdID)))
 				local localAdvUnitRule = spGetUnitRulesParam(unitID, "local:advanced")
 				if localAdvUnitRule == 0 or localAdvUnitRule == nil then
-					--Spring.Echo("local advanced: FALSE")
+					-- Spring.Echo("local advanced: FALSE")
 					return nil
-					---TEMP:
 				else
 					if localAdvUnitRule == 1 then
-						--Spring.Echo("local advanced: TRUE")
+						Spring.Echo("local advanced: TRUE")
 						return true
 					end
 				end
@@ -466,7 +466,7 @@ if (gadgetHandler:IsSyncedCode()) then
 			return	end
 		EditButtons(unitId, uDefId, teamId)
 		-- Grant Local Tech
-		Spring.Echo("Local Tech Provision for "..unitId..": "..(LocalTechProviders[uDefId] or "Nil"))
+		--Spring.Echo("Local Tech Provision for "..unitId..": "..(LocalTechProviders[uDefId] or "Nil"))
 		if LocalTechProviders[uDefId] == "advanced" then
 			spSetUnitRulesParam(unitId,"local:".."advanced", 1) --TODO: techname
 			EditButtons(unitId, uDefId, teamId)							 -- only needs to edit its own buttons

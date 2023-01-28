@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Flash",
 		nochasecategory = "VTOL",
-		objectname = "ARMFLASH",
+		objectname = "Units/Bow/ARMFLASH",
 		script = "BASICTANKSCRIPT.LUA",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",

@@ -23,7 +23,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Hawk",
 		nochasecategory = "NOTAIR",
-		objectname = "ARMHAWK",
+		objectname = "Units/Bow/ARMHAWK",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericAir",
 		sightdistance = 250,

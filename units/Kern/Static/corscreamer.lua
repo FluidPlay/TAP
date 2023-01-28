@@ -29,7 +29,7 @@ return {
 		maxslope = 20,
 		maxwaterdepth = 0,
 		name = "Screamer",
-		objectname = "CORSCREAMER",
+		objectname = "Units/Kern/CORSCREAMER",
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 600,

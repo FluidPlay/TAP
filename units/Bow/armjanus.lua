@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Janus",
 		nochasecategory = "VTOL",
-		objectname = "ARMJANUS",
+		objectname = "Units/Bow/ARMJANUS",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 325,

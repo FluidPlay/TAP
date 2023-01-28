@@ -29,7 +29,7 @@ return {
 		minwaterdepth = 15,
 		movementclass = "BOAT43X3",
 		name = "Construction Ship",
-		objectname = "CORCS",
+		objectname = "Units/Kern/CORCS",
 		seismicsignature = 0,
 		selfdestructas = "mediumexplosiongenericSelfd-builder",
 		sightdistance = 286,

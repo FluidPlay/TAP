@@ -24,7 +24,7 @@ return {
 		movementclass = "UBOAT33X3",
 		name = "Lurker",
 		nochasecategory = "VTOL",
-		objectname = "ARMSUB",
+		objectname = "Units/Bow/ARMSUB",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd-uw",
 		sightdistance = 400,

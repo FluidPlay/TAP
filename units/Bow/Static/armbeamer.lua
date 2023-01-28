@@ -29,7 +29,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Beamer",
-		objectname = "ARMBEAMER",
+		objectname = "Units/Bow/ARMBEAMER",
 		script = "armbeamer_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",

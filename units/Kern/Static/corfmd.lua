@@ -31,7 +31,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Fortitude",
 		noAutoFire = true,
-		objectname = "CORFMD",
+		objectname = "Units/Kern/CORFMD",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK1",
 		name = "Weasel",
 		nochasecategory = "VTOL",
-		objectname = "CORFAV",
+		objectname = "Units/Kern/CORFAV",
 		seismicsignature = 0,
 		selfdestructas = "tinyExplosionGenericSelfd",
 		sightdistance = 535,

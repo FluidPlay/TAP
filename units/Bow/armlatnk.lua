@@ -28,7 +28,7 @@ return {
 		movementclass = "TANK2",
 		name = "Panther",
 		nochasecategory = "VTOL",
-		objectname = "ARMLATNK",
+		objectname = "Units/Bow/ARMLATNK",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 390,

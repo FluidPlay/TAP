@@ -27,7 +27,7 @@ return {
 		movementclass = "BOAT55X5",
 		name = "Conqueror",
 		nochasecategory = "VTOL",
-		objectname = "ARMCRUS",
+		objectname = "Units/Bow/ARMCRUS",
 		seismicsignature = 0,
 		selfdestructas = "largeexplosiongenericSelfd",
 		sightdistance = 572,

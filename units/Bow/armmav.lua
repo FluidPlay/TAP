@@ -28,7 +28,7 @@ return {
 		movementclass = "KBOT3",
 		name = "Maverick",
 		nochasecategory = "VTOL",
-		objectname = "ARMMAV",
+		objectname = "Units/Bow/ARMMAV",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 550,

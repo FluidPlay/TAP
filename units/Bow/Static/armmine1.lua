@@ -33,7 +33,7 @@ return {
 		mincloakdistance = 8,
 		name = "Micro",
 		nochasecategory = "VTOL",
-		objectname = "ARMMINE1",
+		objectname = "Units/Bow/ARMMINE1",
 		script = "mines_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "MINE_LIGHT",

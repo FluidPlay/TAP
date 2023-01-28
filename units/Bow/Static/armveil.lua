@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Veil",
-		objectname = "ARMVEIL",
+		objectname = "Units/Bow/ARMVEIL",
 		onoffable = true,
 		radardistancejam = 760,
 		seismicsignature = 0,

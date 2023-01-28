@@ -30,7 +30,7 @@ return {
 		name = "Scarab",
 		nochasecategory = "ALL",
 		noAutoFire = true,
-		objectname = "ARMSCAB",
+		objectname = "Units/Bow/ARMSCAB",
 		radardistance = 50,
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",

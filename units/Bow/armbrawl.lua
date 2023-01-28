@@ -27,7 +27,7 @@ return {
 		--maxwaterdepth = 0,
 		--name = "Brawler",
 		--nochasecategory = "VTOL",
-		--objectname = "ARMBRAWL",
+		--objectname = "Units/Bow/ARMBRAWL",
 		--seismicsignature = 0,
 		--selfdestructas = "mediumExplosionGenericSelfd",
 		--sightdistance = 550,

@@ -29,7 +29,7 @@ return {
 		maxwaterdepth = 0,
 		metalstorage = 3000,
 		name = "Metal Storage",
-		objectname = "CORMSTOR",
+		objectname = "Units/Kern/CORMSTOR",
 		seismicsignature = 0,
 		selfdestructas = "mediumBuildingExplosionGenericSelfd",
 		sightdistance = 273,

@@ -445,7 +445,7 @@ table.insert(ScavengerConstructorBlueprintsT1,DamgamEcoStuff15T1)
 	-- if radiusCheck then
 		-- return posradius
 	-- else
-		-- Spring.GiveOrderToUnit(scav, -(UDN.cormadsam_scav.id), {posx+(0), posy, posz+(0), 1}, {"shift"})
+		-- Spring.GiveOrderToUnit(scav, -(UDN.cordrag_scav.id), {posx+(-40), posy, posz+(-8), 1}, {"shift"})
 		-- Spring.GiveOrderToUnit(scav, -(UDN.cordrag_scav.id), {posx+(-40), posy, posz+(-8), 1}, {"shift"})
 		-- Spring.GiveOrderToUnit(scav, -(UDN.cordrag_scav.id), {posx+(24), posy, posz+(40), 1}, {"shift"})
 		-- Spring.GiveOrderToUnit(scav, -(UDN.cordrag_scav.id), {posx+(8), posy, posz+(-40), 1}, {"shift"})

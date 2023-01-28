@@ -25,7 +25,7 @@ return {
 		maxvelocity = 10.58,
 		maxwaterdepth = 0,
 		name = "Eagle",
-		objectname = "ARMAWAC",
+		objectname = "Units/Bow/ARMAWAC",
 		radardistance = 2500,
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",

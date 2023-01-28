@@ -29,7 +29,7 @@ return {
 		movementclass = "HTANK4",
 		name = "Goliath",
 		nochasecategory = "VTOL",
-		objectname = "CORGOL",
+		objectname = "Units/Kern/CORGOL",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 395,

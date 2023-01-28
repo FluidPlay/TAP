@@ -26,7 +26,7 @@ return {
 		movementclass = "HTKBOT4",
 		name = "Karganeth",
 		nochasecategory = "VTOL",
-		objectname = "CORKARG",
+		objectname = "Units/Kern/CORKARG",
 		seismicsignature = 0,
 		selfdestructas = "hugeExplosionGenericSelfd",
 		sightdistance = 455,

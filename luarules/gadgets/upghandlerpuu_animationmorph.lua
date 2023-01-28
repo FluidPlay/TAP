@@ -51,11 +51,11 @@ local upgData = {}          -- { [UnitDefNames["armstump"].id] = true, ... }
 local updateRate = 2        -- How often to check for pending-research techs
 --local reductionFactor = 0.7
 
-local unitRulesCompletedParamName = "upgraded" -- "morphedinto"
+local unitRulesCompletedParamName = "morphedinto"
 
 local techname = "advanced"
 
-local animMorphLockedOptions = { "cormando", "coraak", "corcan", "corsktl", "cordefiler", }
+--local animMorphLockedOptions = { "cormando", "coraak", "corcan", "corsktl", "cordefiler", }
 
 function gadget:Initialize()
     --upgData = UnitUpgrades.hover
@@ -88,11 +88,12 @@ end
 --end
 
 -- Initialize local:techname unitRulesParam (with value 0) to 'animationonly' == 1 cparams/morphdef units
-function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+function gadget:UnitCreated(unitID, unitDefID, unitTeam)
     local unitDef = UnitDefs[unitDefID]
-    if unitDef or not unitDef.customParams or not unitDef.customParams.morphdef__animationonly then
+    if unitDef == nil or unitDef.customParams == nil then
         return end
     if tonumber(unitDef.customParams.morphdef__animationonly) == 1 then
+        Spring.Echo("Started tracking animation-only for "..unitID)
         trackedUnits[unitID] = unitDef
         --TODO: Generalize/Move to upgrade_perunit
         spSetUnitRulesParam(unitID,"local:"..techname, 0)	-- 0 = initializes, 1 == awarded
@@ -103,11 +104,12 @@ end
 local function Update()
     for unitID, unitDef in pairs(trackedUnits) do
         local completedParam = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
-        if completedParam and (tonumber(completedParam) == 1) then
+        --Spring.Echo("upgradehandler: morph-completed param = "..(completedParam or "nil"))
+        if tonumber(completedParam) == 1 then
             trackedUnits[unitID] = nil
             spSetUnitRulesParam(unitID,"local:"..techname, 1)
             GG.RefreshTechReqs(unitID, unitDef)
-            --Spring.Echo("Morph-animation local upgrade assigned")
+            Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
         end
     end

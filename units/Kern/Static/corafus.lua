@@ -31,7 +31,7 @@ return {
 		maxslope = 13,
 		maxwaterdepth = 0,
 		name = "Advanced Fusion Reactor",
-		objectname = "CORAFUS",
+		objectname = "Units/Kern/CORAFUS",
 		seismicsignature = 0,
 		selfdestructas = "advancedFusionExplosionSelfd",
 		sightdistance = 273,

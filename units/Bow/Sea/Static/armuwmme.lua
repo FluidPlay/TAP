@@ -30,7 +30,7 @@ return {
 		metalstorage = 1000,
 		minwaterdepth = 15,
 		name = "Underwater Moho Mine",
-		objectname = "ARMUWMME",
+		objectname = "Units/Bow/ARMUWMME",
 		onoffable = true,
 		seismicsignature = 0,
 		selfdestructas = "hugeBuildingExplosionGenericSelfd-uw",

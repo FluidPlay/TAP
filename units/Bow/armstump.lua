@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK2",
 		name = "Stumpy",
 		nochasecategory = "VTOL",
-		objectname = "ARMSTUMP",
+		objectname = "Units/Bow/ARMSTUMP",
 		script = "BASICTANKSCRIPT.LUA",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",

@@ -23,7 +23,7 @@ return {
 		maxwaterdepth = 0,
 		name = "Freedom Fighter",
 		nochasecategory = "NOTAIR",
-		objectname = "ARMFIG",
+		objectname = "Units/Bow/ARMFIG",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericAir",
 		sightdistance = 210,

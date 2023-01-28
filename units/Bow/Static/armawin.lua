@@ -28,7 +28,7 @@ return {
 		maxslope = 10,
 		maxwaterdepth = 0,
 		name = "Advanced Wind Generator",
-		objectname = "ARMWIN",
+		objectname = "Units/Bow/ARMWIN",
 		seismicsignature = 0,
 		selfdestructas = "SMALL_BUILDING",
 		sightdistance = 273,

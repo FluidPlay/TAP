@@ -29,7 +29,7 @@ return {
 		movementclass = "TANK3",
 		name = "Pillager",
 		nochasecategory = "NOTLAND VTOL",
-		objectname = "CORMART",
+		objectname = "Units/Kern/CORMART",
 		seismicsignature = 0,
 		selfdestructas = "mediumExplosionGenericSelfd",
 		sightdistance = 299,
