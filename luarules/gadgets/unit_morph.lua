@@ -322,6 +322,36 @@ local Floor = math.floor
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+local function removeUnitCmdDesc(unitID, cmdID)
+	local cmdDescID = spFindUnitCmdDesc(unitID, cmdID)
+	if (cmdDescID) then
+		spRemoveUnitCmdDesc(unitID, cmdDescID)
+	end
+end
+
+local function removeMorphButtons(unitID) --, unitDefID)
+	--if (unitDefID == nil) then
+	--	unitDefID = spGetUnitDefID(unitID)	end
+	--local unitDefName = UnitDefs[unitDefID].name
+	--local morphDefData = morphDefs[unitDefName]
+	--if (morphDefData) then
+	--	for _,morphDef in pairs(morphDefData) do
+	--		if (morphDef) then
+	--			local cmdDescID = spFindUnitCmdDesc(unitID, morphDef.cmd)
+	--			if (cmdDescID) then
+	--				spRemoveUnitCmdDesc ( unitID [, number cmdDescID ] )
+	--			end
+	--		end
+	--	end
+	--end
+	for number = 0, MAX_MORPH-1 do
+		removeUnitCmdDesc(unitID, CMD_MORPH+number)
+	end
+	removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
+	removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
+	removeUnitCmdDesc(unitID, CMD_MORPH_PAUSE)
+end
+
 
 --// translate lowercase UnitNames to real unitname (with upper-/lowercases)
 local defNamesL = {}
@@ -1014,7 +1044,7 @@ local function FinishMorph(unitID, morphData)
 		SendToUnsynced("unit_morph_finished", unitID, unitID)
 		spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
 		--spSetUnitRulesParam(unitID, "upgraded", 1)
-		Spring.Echo("'morphedinto' unitrulesparam for unit "..unitID.." set to 1")
+		--Spring.Echo("'morphedinto' unitrulesparam for unit "..unitID.." set to 1")
 	else
 		--- Is it a structure?
 		if udDst.isBuilding or udDst.isFactory then
@@ -1243,6 +1273,7 @@ function gadget:Initialize()
 	-- self linking for planetwars
 	GG['morphHandler'] = {}
 	GG['morphHandler'].AddExtraUnitMorph = AddExtraUnitMorph
+	GG.removeMorphButtons = removeMorphButtons --(unitID, unitDefID)
 
 	hostName = GG.PlanetWars and GG.PlanetWars.options.hostname or nil
 	PWUnits = GG.PlanetWars and GG.PlanetWars.units or {}
@@ -1262,18 +1293,18 @@ function gadget:Initialize()
 --    then gadgetHandler:RemoveGadget()
 --    return end
 
-  --// make it global for unsynced access via SYNCED
-  _G.morphUnits = morphingUnits
-  _G.teamQUnits = teamQueuedUnits
-  _G.morphDefs  = morphDefs
-  _G.extraUnitMorphDefs  = extraUnitMorphDefs
+	--// make it global for unsynced access via SYNCED
+	_G.morphUnits = morphingUnits
+	_G.teamQUnits = teamQueuedUnits
+	_G.morphDefs  = morphDefs
+  	_G.extraUnitMorphDefs  = extraUnitMorphDefs
 
-  --// Register CmdIDs
-  for number = 0, MAX_MORPH-1 do
-	gadgetHandler:RegisterCMDID(CMD_MORPH + number)
-	gadgetHandler:RegisterCMDID(CMD_MORPH_STOP + number)
-	--gadgetHandler:RegisterCMDID(CMD_MORPH_PAUSE) --TODO: RegisterCMDID MorphPause + number
-  end
+	--// Register CmdIDs
+	for number = 0, MAX_MORPH-1 do
+		gadgetHandler:RegisterCMDID(CMD_MORPH + number)
+		gadgetHandler:RegisterCMDID(CMD_MORPH_STOP + number)
+		--gadgetHandler:RegisterCMDID(CMD_MORPH_PAUSE) --TODO: RegisterCMDID MorphPause + number
+	end
 
   local allUnits = spGetAllUnits()
   for i = 1, #allUnits do
@@ -1288,10 +1319,10 @@ function gadget:Initialize()
 --    end
 	UpdateMorphReqs(teamID)
 	AddFactory(unitID, unitDefID, teamID)
-	local morphDefSet  = morphDefs[unitDefName]
-	if (morphDefSet) then
+	local morphDefData = morphDefs[unitDefName]
+	if (morphDefData) then
 	  local useXPMorph = false
-	  for _,morphDef in pairs(morphDefSet) do
+	  for _,morphDef in pairs(morphDefData) do
 		if (morphDef) then
 		  local cmdDescID = spFindUnitCmdDesc(unitID, morphDef.cmd)
 		  if (not cmdDescID) then

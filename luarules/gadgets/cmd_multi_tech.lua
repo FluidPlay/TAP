@@ -257,7 +257,7 @@ if (gadgetHandler:IsSyncedCode()) then
 					return nil
 				else
 					if tonumber(localAdvUnitRule) == 1 then
-						Spring.Echo("local advanced: TRUE")
+						--Spring.Echo("local advanced: TRUE")
 						return true
 					end
 				end

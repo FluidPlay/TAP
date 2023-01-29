@@ -10,7 +10,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "14 December 2022",
         license   = "GNU GPL, v2 or later",
-        layer     = 0,
+        layer     = 550,
         enabled   = true,
     }
 end
@@ -52,8 +52,8 @@ local updateRate = 2        -- How often to check for pending-research techs
 --local reductionFactor = 0.7
 
 local unitRulesCompletedParamName = "morphedinto"
-
 local techname = "advanced"
+local removeMorphButtons = _G.removeMorphButtons
 
 --local animMorphLockedOptions = { "cormando", "coraak", "corcan", "corsktl", "cordefiler", }
 
@@ -109,8 +109,9 @@ local function Update()
             trackedUnits[unitID] = nil
             spSetUnitRulesParam(unitID,"local:"..techname, 1)
             GG.RefreshTechReqs(unitID, unitDef)
-            Spring.Echo("Morph-animation local upgrade assigned")
+            --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
+            GG.removeMorphButtons(unitID) --(unitID, unitDefID)
         end
     end
 end
