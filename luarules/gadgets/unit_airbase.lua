@@ -24,6 +24,7 @@ function gadget:GetInfo()
 end
 
 -- Ammo Reference: https://github.com/spring1944/spring1944/blob/master/LuaRules/Gadgets/game_ammo.lua
+-- Land/Repair pads piece names should always have "land" in their names - eg: land1, land2, etc
 
 VFS.Include("gamedata/taptools.lua")
 
@@ -334,7 +335,7 @@ if (gadgetHandler:IsSyncedCode()) then
             local airbasePads = {}
             local pieceMap = Spring.GetUnitPieceMap(unitID)
             for pieceName, pieceNum in pairs(pieceMap) do
-                if pieceName:find("land") then
+                if pieceName:find("land") then      --land1, land2, etc
                     airbasePads[pieceNum] = false -- value is whether or not the pad is reserved
                 end
             end

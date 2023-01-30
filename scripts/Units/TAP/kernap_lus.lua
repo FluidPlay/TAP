@@ -43,8 +43,6 @@ local left_cover = piece 'left_cover'
 local left_frontal_base = piece 'left_frontal_base'
 local left_frontal_protection = piece 'left_frontal_protection'
 local left_frontal_upgrade = piece 'left_frontal_upgrade'
---
-local buildPiece = piece 'build_pos' --building_plate
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -131,6 +129,7 @@ local scriptEnv = { base = base,
 
 local PlayAnimation = VFS.Include("scripts/animations/kernap_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
+local buildPiece = piece 'build_pos'
 
 script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
 
