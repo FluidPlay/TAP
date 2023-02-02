@@ -91,7 +91,8 @@ local automatableUnits = {} -- All units which can be automated // { [unitID] = 
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
 local workingUnits = {}   -- All units currently automated    // { [unitID] = frameToRecheckAutomation, ... }
 local deautomatedUnits = {} -- Post deautomation (direct order) // { [unitID] = frameToTryReautomation, ... }
-local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
+local awaitedUnits = {}
+--local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
 local unitIdleEvent = {}
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
@@ -133,6 +134,7 @@ local CMD_MOVE = CMD.MOVE
 local CMD_STOP = CMD.STOP
 local CMD_INSERT = CMD.INSERT
 local CMD_OPT_RIGHT = CMD.OPT_RIGHT
+local CMD_WAIT = CMD.WAIT
 
 local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
@@ -211,6 +213,8 @@ local function DeautomateUnit(unitID, caller)
 end
 
 function setAutomateState(unitID, state, caller)
+    if awaitedUnits[unitID] then
+        return end
     if state == "deautomated" then
         DeautomateUnit(unitID, caller)
         --Spring.Echo("Deautomated by "..(caller or "nil"))
@@ -235,23 +239,6 @@ end
 --    --end
 --end
 
-local function hasCommandQueue(unitID)
-    --local commandQueue = spGetCommandQueue(unitID, 0)
-    local unitCommands = spGetUnitCommands(unitID, 20)
-    local fullBuildQueue = spGetFullBuildQueue(unitID)
-
-    --spEcho("command queue size: "..(commandQueue or "N/A"))
-    --Spring.Echo("has command queue: "..((unitCommands and #unitCommands > 0) and "YES" or "NO"))
-    --Spring.Echo("has fullbuild queue: "..((fullBuildQueue and #fullBuildQueue > 0) and "YES" or "NO"))
-
-    if executingCmd[unitID] then
-        return false
-    end
-    if unitCommands then
-        return #unitCommands > 0
-    end
-    return false
-end
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
     if automatableUnits[unitID] then
@@ -275,16 +262,6 @@ end
 --    end
 --    return (pos2.x - pos1.x)^2 + (pos2.z - pos1.z)^2
 --end
-
-local function hasBuildQueue(unitID)
-    local buildqueue = spGetFullBuildQueue(unitID) -- => nil | buildOrders = { [1] = { [number unitDefID] = number count }, ... } }
-    --spEcho("build queue size: "..(buildqueue and #buildqueue or "N/A"))
-    if buildqueue then
-        return #buildqueue > 0
-    else
-        return false
-    end
-end
 
 ---- Disable widget if I'm spec
 function widget:Initialize()
@@ -394,6 +371,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local unitDef = UnitDefs[unitDefID]
     if not unitDef then
         return end
+    awaitedUnits[unitID] = false
     if isOreTower(unitDef) then
         oreTowers[unitID] = getOreTowerRange(nil, unitDef)
         -- go through harvesters and see if a new parentOreTower should be assigned
@@ -493,7 +471,7 @@ end
 
 local function isReallyIdle(unitID)
     local result = unitIdleEvent[unitID]
-    if automatedState[unitID] == "harvest" and WG.harvestState and WG.harvestState[unitID] == "idle" then
+    if automatedState[unitID] == "harvest" and WG.harvestState ~= nil and WG.harvestState[unitID] == "idle" then
         result = true
     end
 
@@ -757,7 +735,8 @@ local automatedFunctions = {
                                             (WG.harvestState and WG.harvestState == "idle"))
                              or
                              (automatedState[ud.unitID] == "assist" and
-                                     (not hasBuildQueue(targetID) or (not targetIsInRange(ud.unitID, targetID, false))))
+                                     (not hasBuildQueue(targetID) or (not targetIsInRange(ud.unitID, targetID, false))
+                                             or awaitedUnits[targetID]))
                              or
                              (automatedState[ud.unitID] == "repair" and --not IsValidUnit(targetID) or
                                      (isFullHealth(targetID) or (not targetIsInRange(ud.unitID, targetID, false))) ) -- target unit destroyed or full health
@@ -779,7 +758,7 @@ local automatedFunctions = {
 
 --- Goes through all the automatedFunctions, in order, and returns the new state, if the state-change succeeds
 local function automateCheck(unitID, unitDef, caller)
-    if not unitDef or not IsValidUnit(unitID) then
+    if not unitDef or not IsValidUnit(unitID) or awaitedUnits[unitID] then
         return end
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
@@ -867,6 +846,7 @@ function widget:GameFrame(f)
             --Spring.Echo("unitai_auto_assist: Deautomated units check for "..f)
             --Spring.Echo(unitID.." is really idle: "..tostring(isReallyIdle(unitID)).." automated State: "..automatedState[unitID].." unitsToAutomate f: "..(tostring(unitsToAutomate[unitID]) or "nil"))
             if isReallyIdle(unitID) then
+                spGiveOrderToUnit(unitID, CMD_STOP, {}, {} )
                 if automatedState[unitID] ~= "deautomated" then
                     customUnitIdle(unitID, 0)
                 elseif not unitsToAutomate[unitID] then
@@ -914,6 +894,20 @@ end
 ---- Decomissions the unit data when given away
 function widget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
     widget:UnitDestroyed(unitID, unitDefID, oldTeamID)
+end
+
+function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
+    if (not automatableUnits[unitID]) or (not IsValidUnit(unitID)) or awaitedUnits[unitID] == nil then
+        return end
+    if cmdID == 2 then -- ugly hack to prevent state changes from inadvertently exiting wait status
+        return
+    end
+    if cmdID == CMD_WAIT then
+        awaitedUnits[unitID] = not awaitedUnits[unitID]
+    else
+        awaitedUnits[unitID] = false
+    end
+    --Spring.Echo("Unit "..tostring(unitID).." awaited="..tostring(awaitedUnits[unitID])..", cmdId: "..cmdID)
 end
 
 ----From unitai_auto_assist: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")

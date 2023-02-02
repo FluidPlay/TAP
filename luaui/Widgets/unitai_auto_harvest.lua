@@ -412,13 +412,15 @@ local automatedFunctions = {
                 local nearestChunkID = getNearestChunkID(ud)
                 ud.nearestChunkID = nearestChunkID
                 local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
+                local isReallyIdle = (not hasBuildQueue(ud.unitID)) and (not hasCommandQueue(ud.unitID))
                 spEcho("target Chunk: "..(ud.targetChunkID or "nil"))
                 return  harvestState[ud.unitID] == "returningandstuck"
                         or
+                        harvestState[ud.unitID] == "returning" and isReallyIdle
+                        or
                         (harvestState[ud.unitID] == "attacking" and
-                            (   ud.targetChunkID == nil
-                                or
-                                (not IsValidUnit(ud.targetChunkID))
+                            (   (ud.targetChunkID == nil or not IsValidUnit(ud.targetChunkID))
+                                or isReallyIdle
                                 or
                                 (loadPercent >= 1 and (not ud.parentOreTowerID and not nearestOreTowerID))
                             )

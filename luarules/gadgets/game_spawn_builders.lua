@@ -73,10 +73,10 @@ if gadgetHandler:IsSyncedCode() then
             builderID = armckid
         end
 
-        spCreateUnit(builderID, x+50, y, z, 0, teamID)
-        spCreateUnit(builderID, x+100, y, z, 0, teamID)
-        spCreateUnit(builderID, x-50, y, z, 0, teamID)
-        spCreateUnit(builderID, x-100, y, z, 0, teamID)
+        spCreateUnit(builderID, x+30, y, z, 0, teamID)
+        spCreateUnit(builderID, x+45, y, z, 0, teamID)
+        spCreateUnit(builderID, x-30, y, z, 0, teamID)
+        spCreateUnit(builderID, x-45, y, z, 0, teamID)
 
     end
 
@@ -96,118 +96,71 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
-    ----function gadget:GameFrame(frame)
-    --function gadget:GameStart()
-    --    --if not initialized and frame > 0 then
-    --        --Spring.Echo("Found gaia team id: "..gaiaTeamID)
-    --        local allFeatures = spGetAllFeatures()
-    --        for i, featureID in ipairs(allFeatures) do
-    --            local featureDefID = spGetFeatureDefID(featureID)
-    --            --Spring.Echo(FeatureDefs[featureDefID].name)
-    --            if FeatureDefs[featureDefID].name == "geovent" then
-    --                -- Spawn Geothermal at feature position
-    --                local x,y,z = spGetFeaturePosition(featureID)
-    --                SpawnGeothermal(x,y,z)
-    --            end
-    --        end
-    --        --initialized = true
-    --    --end
-    --end
-
-    --function gadget:FeaturePreDamaged(featureID, featureDefID, featureTeam, damage, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    --    --if featureID:find("geothermal") then
-    --    --Spring.Echo("Dmg feature name: "..FeatureDefs[featureDefID].name)
-    --    if FeatureDefs[featureDefID].name:lower():find("armgeo") then
-    --        return 0, 0 -- newDamage, impulseMult
-    --    end
-    --end
-
-    --function gadget:UnitDestroyed(unitID, unitDefID, unitTeamID)
-    --    local geo = geoThermals[unitID]
-    --    if geo then
-    --        geosToRespawn[unitID] = { x=geo.x, y=geo.y, z = geo.z, time = Spring.spGetGameFrame() + respawnTime }
-    --    end
-    --    --local featureDef   = FeatureDefs[featureDefID or -1] or {height=0,name=''}
-    --end
-    --
-    --function gadget:GameFrame(n)
-    --    for unitID, data in pairs(geosToRespawn) do
-    --        if data.time >= n then
-    --            Spring.CreateFeature("armgeo_heap", data.x, data.y, data.z)
-    --        --    ( string "defName" | number featureDefID,
-    --        --number x, number y, number z
-    --        --[, number heading
-    --        --[, number AllyTeamID
-    --        --[, number featureID ]]] ) -> number featureID
-    --
-    --        end
-    --    end
-    --end
-
-else
-    -----------------
-    ---- UNSYNCED
-    -----------------
-
-    ---- Here we'll make the 'capture' cursor the default action on top of geothermals
-    ---- for commanders and capture-enabled builders
-
-    local spGetMouseState = Spring.GetMouseState
-    local spTraceScreenRay = Spring.TraceScreenRay
-    --local spAreTeamsAllied = Spring.AreTeamsAllied
-    --local spGetUnitTeam = Spring.GetUnitTeam
-    local spGetUnitDefID = Spring.GetUnitDefID
-    local spGetSelectedUnits = Spring.GetSelectedUnits
-    --local spGetLocalTeamID = Spring.GetLocalTeamID
-    local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
-    local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
-    local CMD_CAPTURE = CMD.CAPTURE
-
-    local strUnit = "unit"
-
-    local geothermalsDefIDs = {
-        [UnitDefNames["armgeo"].id] = true,
-        [UnitDefNames["armageo"].id] = true,
-        [UnitDefNames["armgmm"].id] = true,
-    }
-
-    function gadget:DefaultCommand()
-        local function isGeothermal(unitDefID)
-            return geothermalsDefIDs[unitDefID]
-        end
-        local mx, my = spGetMouseState()
-        local s, targetID = spTraceScreenRay(mx, my)
-        if s ~= strUnit then
-            return false end
-
-        --if not spAreTeamsAllied(myTeamID, spGetUnitTeam(targetID)) then
-        --    return false
-        --end
-
-        -- Only proceed if target is one of the geothermal variations
-        local targetDefID = spGetUnitDefID(targetID)
-        if not isGeothermal(targetDefID) then
-            return false end
-
-        -- If any of the selected units is a capturer, default to 'capture'
-        local sUnits = spGetSelectedUnits()
-        --local teamID = spGetLocalTeamID()
-
-        for i=1,#sUnits do
-            local unitID = sUnits[i]
-            local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-            if unitDef.customParams.iscommander then
-                return CMD_CAPTURE
-            end
-            if unitDef.canCapture then
-                -- Check if the units has capture enabled already
-                local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
-                local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
-                if not cmdDesc.disabled then
-                    return CMD_CAPTURE end
-            end
-        end
-        return false
-    end
-
 end
+--else
+--    -----------------
+--    ---- UNSYNCED
+--    -----------------
+--
+--    ---- Here we'll make the 'capture' cursor the default action on top of geothermals
+--    ---- for commanders and capture-enabled builders
+--
+--    local spGetMouseState = Spring.GetMouseState
+--    local spTraceScreenRay = Spring.TraceScreenRay
+--    --local spAreTeamsAllied = Spring.AreTeamsAllied
+--    --local spGetUnitTeam = Spring.GetUnitTeam
+--    local spGetUnitDefID = Spring.GetUnitDefID
+--    local spGetSelectedUnits = Spring.GetSelectedUnits
+--    --local spGetLocalTeamID = Spring.GetLocalTeamID
+--    local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
+--    local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+--    local CMD_CAPTURE = CMD.CAPTURE
+--
+--    local strUnit = "unit"
+--
+--    local geothermalsDefIDs = {
+--        [UnitDefNames["armgeo"].id] = true,
+--        [UnitDefNames["armageo"].id] = true,
+--        [UnitDefNames["armgmm"].id] = true,
+--    }
+--
+--    function gadget:DefaultCommand()
+--        local function isGeothermal(unitDefID)
+--            return geothermalsDefIDs[unitDefID]
+--        end
+--        local mx, my = spGetMouseState()
+--        local s, targetID = spTraceScreenRay(mx, my)
+--        if s ~= strUnit then
+--            return false end
+--
+--        --if not spAreTeamsAllied(myTeamID, spGetUnitTeam(targetID)) then
+--        --    return false
+--        --end
+--
+--        -- Only proceed if target is one of the geothermal variations
+--        local targetDefID = spGetUnitDefID(targetID)
+--        if not isGeothermal(targetDefID) then
+--            return false end
+--
+--        -- If any of the selected units is a capturer, default to 'capture'
+--        local sUnits = spGetSelectedUnits()
+--        --local teamID = spGetLocalTeamID()
+--
+--        for i=1,#sUnits do
+--            local unitID = sUnits[i]
+--            local unitDef = UnitDefs[spGetUnitDefID(unitID)]
+--            if unitDef.customParams.iscommander then
+--                return CMD_CAPTURE
+--            end
+--            if unitDef.canCapture then
+--                -- Check if the units has capture enabled already
+--                local cmdIdx = spFindUnitCmdDesc(unitID, CMD_CAPTURE)
+--                local cmdDesc = spGetUnitCmdDescs(unitID, cmdIdx, cmdIdx)[1]
+--                if not cmdDesc.disabled then
+--                    return CMD_CAPTURE end
+--            end
+--        end
+--        return false
+--    end
+--
+--end

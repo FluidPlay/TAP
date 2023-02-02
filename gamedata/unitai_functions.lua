@@ -10,9 +10,26 @@ local spGetFeatureResources = Spring.GetFeatureResources
 local spGetUnitHealth   = Spring.GetUnitHealth
 local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
+local spGetUnitCommands = Spring.GetUnitCommands
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spValidUnitID = Spring.ValidUnitID
+local spGetUnitIsDead = Spring.GetUnitIsDead
+
+---==== Redundant to taptools
+
+function IsValidUnit(unitID)
+    if not isnumber(unitID) then
+        return false end
+    local unitDefID = spGetUnitDefID(unitID)
+    if unitDefID and spValidUnitID(unitID) and not spGetUnitIsDead(unitID) then
+        return true
+    end
+    return false
+end
+
+----========
 
 local function sqrDistance(x1,z1,x2,z2)
     local dx,dz = x1-x2,z1-z2
@@ -31,7 +48,9 @@ local function math_clamp(min, max, n)
     return n
 end
 
-local function hasBuildQueue(unitID)
+function hasBuildQueue(unitID)
+    if not IsValidUnit(unitID) then
+        return end
     local buildqueue = spGetFullBuildQueue(unitID) -- => nil | buildOrders = { [1] = { [number unitDefID] = number count }, ... } }
     --spEcho("build queue size: "..(buildqueue and #buildqueue or "N/A"))
     if buildqueue then
@@ -39,6 +58,26 @@ local function hasBuildQueue(unitID)
     else
         return false
     end
+end
+
+function hasCommandQueue(unitID)
+    if not IsValidUnit(unitID) then
+        return end
+    --local commandQueue = spGetCommandQueue(unitID, 0)
+    local unitCommands = spGetUnitCommands(unitID, 20)
+    --local fullBuildQueue = spGetFullBuildQueue(unitID)
+
+    --spEcho("command queue size: "..(commandQueue or "N/A"))
+    --Spring.Echo("has command queue: "..((unitCommands and #unitCommands > 0) and "YES" or "NO"))
+    --Spring.Echo("has fullbuild queue: "..((fullBuildQueue and #fullBuildQueue > 0) and "YES" or "NO"))
+
+    --if executingCmd[unitID] then
+    --    return false
+    --end
+    if unitCommands then
+        return #unitCommands > 0
+    end
+    return false
 end
 
 function getNearestUID (ud)

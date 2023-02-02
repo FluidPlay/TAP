@@ -439,7 +439,7 @@ function loadClasses()
     o.localOnly = localOnly
 
     -- TAPrime: Sets a marker with no text, then sends a message to the player's (ally) team
-    MarkerAddPoint(o.x, o.y, o.z, "", o.localOnly) -- text: o.text
+    MarkerAddPoint(o.x, o.y, o.z, "", tobool(o.localOnly)) -- text: o.text
     if o.localOnly then
       SpSendMessageToTeam(myTeam, o.text)
     else

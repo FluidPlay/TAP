@@ -101,6 +101,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
   if not heightList[unitDefID] then
 	heightList[unitDefID] = (GetUnitDefDimensions(unitDefID).height * 0.9)
   end
+
 end
 
 local function getTextSize(damage, paralyze)

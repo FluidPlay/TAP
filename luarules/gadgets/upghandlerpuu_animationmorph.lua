@@ -93,7 +93,7 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam)
     if unitDef == nil or unitDef.customParams == nil then
         return end
     if tonumber(unitDef.customParams.morphdef__animationonly) == 1 then
-        Spring.Echo("Started tracking animation-only for "..unitID)
+        --Spring.Echo("Started tracking animation-only for "..unitID)
         trackedUnits[unitID] = unitDef
         --TODO: Generalize/Move to upgrade_perunit
         spSetUnitRulesParam(unitID,"local:"..techname, 0)	-- 0 = initializes, 1 == awarded
