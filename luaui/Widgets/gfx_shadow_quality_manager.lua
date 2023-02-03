@@ -109,7 +109,7 @@ function updateShadows(force)
 end
 
 function widget:GameFrame(gameFrame)
-	if spHaveShadows() or shadowsAtInit and turnedShadowsOff then
+	if spHaveShadows() or (shadowsAtInit and turnedShadowsOff) then
 		
 		if gameFrame%109==0 then
 			local modelCount = #spGetVisibleUnits(-1,nil,false) + #spGetVisibleFeatures(-1,nil,false,false) -- expensive)
@@ -121,7 +121,7 @@ function widget:GameFrame(gameFrame)
 			--local dquality = math.floor((maxQuality+minQuality) - (maxQuality / (averageFps/20)))
 			--Spring.Echo(averageFps..'   '..dquality)
 		end
-		if gameFrame%skipGameframes==0 then
+		if gameFrame%skipGameframes < 0.001 then
 			updateShadows()
 		end
 	end
