@@ -64,8 +64,8 @@ local exceptionArray = {
   corcom = true,  corcom2=true,  corcom3=true,  corcom4=true,
   armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
   coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
-  armck = true, armcv = true, armca = true, armack = true, armacv = true, armaca = true,
-  corck = true, corcv = true, corca = true, corack = true, coracv = true, coraca = true,
+  --armck = true, armcv = true, armca = true, armack = true, armacv = true, armaca = true,
+  --corck = true, corcv = true, corca = true, corack = true, coracv = true, coraca = true,
   corcrw = true,
 }
 ----------------------------------------------
