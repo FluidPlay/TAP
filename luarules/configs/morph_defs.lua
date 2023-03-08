@@ -3,7 +3,7 @@
 Morph parameters description
 local morphDefs = {		--begining of morphDefs
 	unitname = {		--unit being morphed
-		into = 'newunitname',		--unit in that will morphing unit morph into
+		into = 'newunitname',		--unit in which morphing unit will morph into
 		time = 12,			--time required to complete morph process (in seconds)
 		require = 'requnitname',	--unit requnitname must be present in team for morphing to be enabled
 		metal = 10,			--required metal for morphing process     note: if you ommit M and/or E costs, morph costs the
@@ -15,7 +15,8 @@ local morphDefs = {		--begining of morphDefs
 		texture = 'MyIcon.dds',		--if ommited will default to [newunitname] buildpic, textures should be in "LuaRules/Images/Morph"
 		text = 'Description',		--if ommited will default to "Upgrade into a [newunitname]", else it's "Description"
 						--you may use "$$unitname" and "$$into" in 'text', both will be replaced with human readable unit names
-		animationonly = 1,     --if 1, will not replace the original model, it'll only run a 'MorphUp' methods in the unit's LUS script
+		animationonly = 1,    --if 1, will not replace the original model, it'll run a 'MorphUp' methods in the unit's LUS script
+		                      --if animationonly > 1, it will run a "MorphUp#" (eg: 'MorphUp2') method in the unit's LUS script (for sequential morphs)
 		                --TODO: And enable 'advanced' buttons
 	},
 }				--end of morphDefs

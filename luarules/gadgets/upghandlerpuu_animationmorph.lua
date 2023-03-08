@@ -103,14 +103,16 @@ end
 -- Constantly poll to check if per-unit upgrade is done (processed by upgrade_perunit.lua)
 local function Update()
     for unitID, unitDef in pairs(trackedUnits) do
-        local completedParam = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
+        local completedAnimID = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
         --Spring.Echo("upgradehandler: morph-completed param = "..(completedParam or "nil"))
-        if tonumber(completedParam) == 1 then
+        if isnumber(completedAnimID) and completedAnimID == 1 then    --TODO: Support sequential morphs
             trackedUnits[unitID] = nil
             spSetUnitRulesParam(unitID,"local:"..techname, 1)
             GG.RefreshTechReqs(unitID, unitDef)
             --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
+
+            ---TODO: Only remove when there are no morph options in the target morphDef (is there a better way?)
             GG.removeMorphButtons(unitID) --(unitID, unitDefID)
         end
     end

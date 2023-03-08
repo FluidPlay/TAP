@@ -92,10 +92,11 @@ end
 
 function getNearestRepairableID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
-            function(x) return (x.customParams.isorechunk == nil) end ,
+            function(x)
+                return (x.customParams == nil or x.customParams.isorechunk == nil) end ,
             function(x)
                 local health,maxHealth,_,_,done = spGetUnitHealth(x)
-                if not health or not maxHealth then
+                if health == nil or maxHealth == nil then
                     return nil
                 end
                 return done and health < (maxHealth * 0.99) end )

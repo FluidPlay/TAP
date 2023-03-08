@@ -157,6 +157,7 @@ local canrepair = {
     armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
     armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
+    armrectr = true, corvrad = true, cornecro = true,
 }
 
 local canassist = {
@@ -623,6 +624,7 @@ local automatedFunctions = {
                     local x,y,z = spGetFeaturePosition(nearestMetalID)
                     spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
                     automatableUnits[ud.unitID] = nearestMetalID
+                    --Spring.Echo("Issuing reclaim")
                     return "reclaim"
                 else
                     local nearestEnergyID = getNearestEnergyID(ud)
@@ -657,6 +659,7 @@ local automatedFunctions = {
                     local nearestRepairableID = getNearestRepairableID(ud)
                     nearestTargetID = nearestRepairableID -- only finished units can be targetted then
                 end
+                --Spring.Echo("Repair - nearestTargetID: "..(nearestTargetID or "nil"))
                 if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
                     --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
                     spGiveOrderToUnit(ud.unitID, CMD_REPAIR, { nearestTargetID }, {} )
@@ -706,7 +709,7 @@ local automatedFunctions = {
             action = function(ud) --unitData
                 --Spring.Echo("[2] Ressurect check")
                 local nearestFeatureID = getNearestFeatureID(ud)
-                if nearestFeatureID and automatedState[ud.unitID] ~= "resurrect" then
+                if nearestFeatureID then  --and automatedState[ud.unitID] ~= "resurrect"
                     local x,y,z = spGetFeaturePosition(nearestFeatureID)
                     spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
                     automatableUnits[ud.unitID] = nearestFeatureID

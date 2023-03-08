@@ -108,7 +108,7 @@ local CMD_MORPH_QUEUE = 34410
 local MAX_MORPH = 0           --// Will increase dynamically
 
 local lastMorphQueueFrame = 0 --// Used to prevent multiple queue messages at once
-local INSTAMORPH = TRUE --FALSE      --// Debug option, will make all morphs take 0 seconds and cost 0 resources
+local INSTAMORPH = FALSE      --// Debug option, will make all morphs take 0 seconds and cost 0 resources
 
 --------------------------------------------------------------------------------
 --region  COMMON
@@ -344,7 +344,7 @@ local function removeMorphButtons(unitID) --, unitDefID)
 	--		end
 	--	end
 	--end
-	for number = 0, MAX_MORPH-1 do
+	for number = 0, MAX_MORPH - 1 do
 		removeUnitCmdDesc(unitID, CMD_MORPH+number)
 	end
 	removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
@@ -996,6 +996,31 @@ local function StopMorph(unitID, morphData)
   end
 end
 
+local function playMorphById(unitID, id)
+	local env = Spring.UnitScript.GetScriptEnv(unitID)
+	if not env then
+		return	end
+	local scriptToCall = nil
+	if id == 0 or id == 1 then
+		scriptToCall = env.MorphUp
+	elseif id == 2 then
+		scriptToCall = env.MorphUp2
+	elseif id == 3 then
+		scriptToCall = env.MorphUp3
+	elseif id == 4 then
+		scriptToCall = env.MorphUp4
+	elseif id == 5 then
+		scriptToCall = env.MorphUp5
+	elseif id == 6 then
+		scriptToCall = env.MorphUp6
+	end
+	if scriptToCall then
+		Spring.UnitScript.CallAsUnit(unitID, scriptToCall)
+	else
+		Spring.Echo ("MorphUp #"..(id or "nil").." not found in unit "..unitID.."'s script environment")
+	end
+end
+
 local function FinishMorph(unitID, morphData)
 	if unitID == nil then
 		return end
@@ -1019,22 +1044,17 @@ local function FinishMorph(unitID, morphData)
 	local newUnit = nil
 	local face = HeadingToFacing(h)
 
-	if (morphData.def.animationonly == 1) then
-		local env = Spring.UnitScript.GetScriptEnv(unitID)
-		if env then
-			if env.MorphUp then
-				Spring.UnitScript.CallAsUnit(unitID, env.MorphUp)
-			else
-				Spring.Echo ("MorphUp not found in unit script environment")
-			end
-		end
+	local animationOnly = morphData.def.animationonly
+	if (animationOnly > 0) then		-- MorphUp, MorphUp2, ...
+		playMorphById(unitID, animationOnly)
+
 		local newBuildSpeed, newMass, newMaxHealth, newTooltip  = udDst.buildSpeed, udDst.mass, udDst.health, (udDst.humanName .." - ".. udDst.tooltip)
 		local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)
 		local newHealth = (orgHealth/orgMaxHealth) * newMaxHealth
 		local newBuildTime, newMetalCost, newEnergyCost = udDst.buildTime, udDst.metalCost, udDst.energyCost
 		--Spring.Echo("newbt, newmc, newec: "..(newBuildTime or "nil")..", "..(newMetalCost or "nil")..", "..(newEnergyCost or "nil"))
 
-		Spring.SetUnitBuildSpeed ( unitID, newBuildSpeed )	--currently used only by factories, so only buildspeed needed
+		Spring.SetUnitBuildSpeed ( unitID, newBuildSpeed )
 		Spring.SetUnitMass ( unitID, newMass )
 		Spring.SetUnitMaxHealth ( unitID, newMaxHealth )
 		Spring.SetUnitHealth( unitID, newHealth )
@@ -1249,8 +1269,7 @@ local function AddCustomMorphDefs()
 				cmdname = unitDef.customParams.morphdef__cmdname,
 				text = unitDef.customParams.morphdef__text,
 				animationonly = tonumber(unitDef.customParams.morphdef__animationonly),
-				--isfactory = tobool(unitDef.customParams.morphdef__isfactory),   -- Will enable buildOptions according to the target unit;
-				---- will also update the morphdef once morph is done
+				---- TODO: will also update the morphdef once morph is done
 			}
 			morphDefs[unitDef.name] = customMorphDef
 		end
@@ -1640,43 +1659,43 @@ end
 -- Processes morph-related command buttons
 -- AllowCommand: called when the command is given, before the unit's queue is altered
 function gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
-  local morphData = morphingUnits[unitID]   -- def = morphDef, progress = 0.0, increment = morphDef.increment,
-  --                                           morphID = morphID, teamID = teamID, paused = false
-  if morphData then
-	if cmdID == CMD_MORPH_STOP then  -- or (cmdID == CMD.STOP)
-	  if not spGetUnitTransporter(unitID) then
-		StopMorph(unitID, morphData)
+	local morphData = morphingUnits[unitID]   -- def = morphDef, progress = 0.0, increment = morphDef.increment,
+	--                                           morphID = morphID, teamID = teamID, paused = false
+	if morphData then
+		if cmdID == CMD_MORPH_STOP then  -- or (cmdID == CMD.STOP)
+		  if not spGetUnitTransporter(unitID) then
+			StopMorph(unitID, morphData)
+			return false
+		  end
+		elseif cmdID == CMD.ONOFF then
+		  return false
+		--elseif cmdID == CMD.SELFD then
+		  --StopMorph(unitID, morphData)
+		elseif cmdID == CMD_MORPH_PAUSE then
+		  PauseMorph(unitID, morphData)
+		  --return false
+		elseif cmdID == CMD_MORPH_QUEUE then
+		  return hasTech(unitID, unitDefID, teamID, cmdID)
+				 and not ipairs_containsElement(teamQueuedUnits[teamID], "unitID", unitID)
+		--else --// disallow ANY command to units in morph
+		--  return false
+		end
+		elseif cmdID >= CMD_MORPH and cmdID < CMD_MORPH + MAX_MORPH then
+		-- Valid MORPH command, allow it to go through (actually processed in gadget:commandfallback)
+		--Spring.Echo(" Has Tech: "..hasTech(unitID, unitDefID, teamID, cmdID))
+		if hasTech(unitID, unitDefID, teamID, cmdID) and isFactory(unitDefID) then
+		  --// the factory cai is broken and doesn't call CommandFallback(),
+		  --// so we have to start the morph here
+		  local morphDef = getMorphDef(unitID, unitDefID, cmdID)
+		  StartMorph(unitID, morphDef, teamID)
+		  return false
+		else
+		  return true
+		end
 		return false
-	  end
-	elseif cmdID == CMD.ONOFF then
-	  return false
-	--elseif cmdID == CMD.SELFD then
-	  --StopMorph(unitID, morphData)
-	elseif cmdID == CMD_MORPH_PAUSE then
-	  PauseMorph(unitID, morphData)
-	  --return false
-	elseif cmdID == CMD_MORPH_QUEUE then
-	  return hasTech(unitID, unitDefID, teamID, cmdID)
-			 and not ipairs_containsElement(teamQueuedUnits[teamID], "unitID", unitID)
-	--else --// disallow ANY command to units in morph
-	--  return false
 	end
-  elseif cmdID >= CMD_MORPH and cmdID < CMD_MORPH + MAX_MORPH then
-	-- Valid MORPH command, allow it to go through (actually processed in gadget:commandfallback)
-	--Spring.Echo(" Has Tech: "..hasTech(unitID, unitDefID, teamID, cmdID))
-	if hasTech(unitID, unitDefID, teamID, cmdID) and isFactory(unitDefID) then
-	  --// the factory cai is broken and doesn't call CommandFallback(),
-	  --// so we have to start the morph here
-	  local morphDef = getMorphDef(unitID, unitDefID, cmdID)
-	  StartMorph(unitID, morphDef, teamID)
-	  return false
-	else
-	  return true
-	end
-	return false
-  end
 
-  return true
+	return true
 end
 
 -- Fallback to process the Morph (start) command
