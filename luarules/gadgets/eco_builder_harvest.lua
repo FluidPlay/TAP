@@ -59,6 +59,8 @@ if gadgetHandler:IsSyncedCode() then
 
 	local oreTowerDefNames = {
 		armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
+		bowhq = true, bowhq2 = true, bowhq3 = true, bowhq4 = true, bowhq5 = true, bowhq6 = true,
+		kernhq = true, kernhq2 = true, kernhq3 = true, kernhq4 = true, kernhq5 = true, kernhq6 = true,
 	}
 	local canharvest = {
 		armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,

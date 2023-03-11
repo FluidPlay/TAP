@@ -29,8 +29,10 @@ if gadgetHandler:IsSyncedCode() then
     local spGetUnitTeam = Spring.GetUnitTeam
     local spGetTeamInfo = Spring.GetTeamInfo
 
-    local armcomid = UnitDefNames["armcom"].id
-    local corcomid = UnitDefNames["corcom"].id
+    local bowcomid = UnitDefNames["armcom"].id
+    local kerncomid = UnitDefNames["corcom"].id
+    local bowhqid = UnitDefNames["bowhq"].id
+    local kernhqid = UnitDefNames["kernhq"].id
     local armckid = UnitDefNames["armck"].id
     local corckid = UnitDefNames["corck"].id
 
@@ -60,23 +62,26 @@ if gadgetHandler:IsSyncedCode() then
         --if not GeoNearby(x,y,z) then
             -- Spring.GetGroundHeight(x, z)
         local x,y,z = spGetUnitPosition(unitID)
-        local builderID
+        local builderID, commanderID
 
         --Don't use it, just reads it from the lobby setting
         --local _, _, _, _, teamSide = spGetTeamInfo(teamID)
         --teamSide = string.lower(teamSide)
         --Spring.Echo("Side : "..(teamSide or "nil"))  --(side or "nil").."|"..
 
-        if unitDef.id == corcomid then
+        if unitDef.id == kernhqid then
             builderID = corckid
+            commanderID = kerncomid
         else
             builderID = armckid
+            commanderID = bowcomid
         end
 
-        spCreateUnit(builderID, x+30, y, z, 0, teamID)
-        spCreateUnit(builderID, x+45, y, z, 0, teamID)
-        spCreateUnit(builderID, x-30, y, z, 0, teamID)
-        spCreateUnit(builderID, x-45, y, z, 0, teamID)
+        spCreateUnit(builderID, x+50, y, z+160, 0, teamID)
+        spCreateUnit(builderID, x-50, y, z+160, 0, teamID)
+        spCreateUnit(builderID, x+50, y, z-160, 0, teamID)
+        spCreateUnit(builderID, x-50, y, z-160, 0, teamID)
+        spCreateUnit(commanderID, x, y, z-160, 0, teamID)
 
     end
 

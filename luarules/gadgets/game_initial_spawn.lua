@@ -70,12 +70,12 @@ local startUnitParamName = 'startUnit'
 ----------------------------------------------------------------
 -- Vars
 ----------------------------------------------------------------
-local armcomDefID = UnitDefNames.armcom.id
-local corcomDefID = UnitDefNames.corcom.id
+local bowhqDefID = UnitDefNames.bowhq.id -- UnitDefNames.armcom.id
+local kernhqDefID = UnitDefNames.kernhq.id -- UnitDefNames.corcom.id
 
 local validStartUnits = {
-	[armcomDefID] = true,
-	[corcomDefID] = true,
+	[bowhqDefID] = true,
+	[kernhqDefID] = true,
 }
 local spawnTeams = {} -- spawnTeams[teamID] = allyID
 local nSpawnTeams
@@ -191,10 +191,10 @@ function gadget:Initialize()
 			if teamID ~= gaiaTeamID then
 				--set & broadcast (current) start unit
 				local _, _, _, _, teamSide, teamAllyID = spGetTeamInfo(teamID)
-				if teamSide == 'core' then
-					spSetTeamRulesParam(teamID, startUnitParamName, corcomDefID)
+				if teamSide == 'kern' then	--cor
+					spSetTeamRulesParam(teamID, startUnitParamName, kernhqDefID)
 				else
-					spSetTeamRulesParam(teamID, startUnitParamName, armcomDefID)
+					spSetTeamRulesParam(teamID, startUnitParamName, bowhqDefID)
 				end
 				spawnTeams[teamID] = teamAllyID
 
@@ -460,9 +460,9 @@ function SpawnStartUnit(teamID, x, z)
 	--overwrite startUnit with random faction for newbies
 	if Spring.GetTeamRulesParam(teamID, 'isNewbie') == 1 then
 		if math.random() > 0.5 then
-			startUnit = corcomDefID
+			startUnit = kernhqDefID
 		else
-			startUnit = armcomDefID
+			startUnit = bowhqDefID
 		end
 	end
 

@@ -65,6 +65,18 @@ if gadgetHandler:IsSyncedCode() then
         [UnitDefNames["corcarry"].id] = 2,
         [UnitDefNames["armasp"].id] = 4,
         [UnitDefNames["corasp"].id] = 4,
+        [UnitDefNames["bowhq"].id] = 2,
+        [UnitDefNames["bowhq2"].id] = 2,
+        [UnitDefNames["bowhq3"].id] = 2,
+        [UnitDefNames["bowhq4"].id] = 2,
+        [UnitDefNames["bowhq5"].id] = 2,
+        [UnitDefNames["bowhq6"].id] = 2,
+        [UnitDefNames["kernhq"].id] = 2,
+        [UnitDefNames["kernhq2"].id] = 2,
+        [UnitDefNames["kernhq3"].id] = 2,
+        [UnitDefNames["kernhq4"].id] = 2,
+        [UnitDefNames["kernhq5"].id] = 2,
+        [UnitDefNames["kernhq6"].id] = 2,
     }
 
     function gadget:Initialize()
