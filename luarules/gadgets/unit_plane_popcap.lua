@@ -10,7 +10,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "22 March 2019",
         license   = "Whatever is free-er",
-        layer     = -1,
+        layer     = 2,
         enabled   = true,
     }
 end
@@ -57,10 +57,10 @@ if gadgetHandler:IsSyncedCode() then
     local popcapProviders = {
         [UnitDefNames["armpad"].id] = 1,
         [UnitDefNames["corpad"].id] = 1,
-        [UnitDefNames["armap"].id] = 2,
-        [UnitDefNames["corap"].id] = 2,
-        [UnitDefNames["armaap"].id] = 2,
-        [UnitDefNames["coraap"].id] = 2,
+        --[UnitDefNames["armap"].id] = 2,
+        --[UnitDefNames["corap"].id] = 2,
+        --[UnitDefNames["armaap"].id] = 2,
+        --[UnitDefNames["coraap"].id] = 2,
         [UnitDefNames["armcarry"].id] = 2,
         [UnitDefNames["corcarry"].id] = 2,
         [UnitDefNames["armasp"].id] = 4,
@@ -83,8 +83,15 @@ if gadgetHandler:IsSyncedCode() then
         for _, teamID in ipairs(Spring.GetTeamList()) do
             popcap[teamID] = 0
             pop[teamID] = 0
-            Spring.SetTeamRulesParam(teamID, "planepopcap", 0, {private=true, allied=false})
+            Spring.SetTeamRulesParam(teamID, "planepopcap", 0, {private=true, allied=false}) -- was zero
             Spring.SetTeamRulesParam(teamID, "planecount", 0, {private=true, allied=false})
+        end
+        local allUnits = Spring.GetAllUnits()
+        for i=1,#allUnits do
+            local unitID = allUnits[i]
+            local unitDefID = spGetUnitDefID(unitID)
+            local teamID = Spring.GetUnitTeam(unitID)
+            gadget:UnitFinished(unitID, unitDefID, teamID)
         end
     end
 
@@ -106,8 +113,9 @@ if gadgetHandler:IsSyncedCode() then
 
     -- This tracks the actual completion of the upgrade/tech-proxy
     function gadget:UnitFinished(unitID, unitDefID, unitTeam)
-        if spGetGameFrame() <= 1 or not unitTeam then   -- Let's skip pre-spawned units (commanders etc)
+        if not unitTeam then   -- Let's skip pre-spawned units (commanders etc) --spGetGameFrame() <= 1 or
             return end
+        --Spring.Echo("unit_plane_popcap: checking unit "..(UnitDefs[spGetUnitDefID(unitID)].name or "nil"))
 
         unitsbeingbuilt[unitID] = nil
         unitscompleted[unitID] = true

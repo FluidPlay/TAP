@@ -5,8 +5,8 @@ function widget:GetInfo()
 		author = "Beherith",
 		date = "2021.07.12",
 		license = "Lua: GPLv2, GLSL: (c) Beherith (mysterme@gmail.com)",
-		layer = 0,
-		enabled = true
+		layer = 200,
+		enabled = false, --true
 	}
 end
 --- WIP: Being upgraded to show ore towers buildrange (ie. collection range)
@@ -53,16 +53,12 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.name == 'armmstor' then
 		smalloretowerrange = unitDef.buildDistance or smalloretowerrange
 	end
-	if unitDef.name == 'armmstor' then
+	if unitDef.name == 'armmstor' or unitDef.name == 'cormstor'
+			or unitDef.name == 'bowhq'	or unitDef.name == 'bowhq2'	 or unitDef.name == 'bowhq3' then
 		cmdidtoradarsize[-1 * unitDefID] = "small"
 	end
-	if unitDef.name == 'cormstor' then
-		cmdidtoradarsize[-1 * unitDefID] = "small"
-	end
-	if unitDef.name == 'coruwadvms' then
-		cmdidtoradarsize[-1 * unitDefID] = "large"
-	end
-	if unitDef.name == 'armuwadvms' then
+	if unitDef.name == 'coruwadvms' or unitDef.name == 'armuwadvms'
+			or unitDef.name == 'kernhq4'	or unitDef.name == 'kernhq5' or unitDef.name == 'kernhq6' then
 		cmdidtoradarsize[-1 * unitDefID] = "large"
 	end
 end

@@ -482,10 +482,10 @@ local function updatePlanecap(forceText)
         glTexture(false)
 
         -- Text
-        if gameFrame > 0 or forceText then
+        --if gameFrame > 0 or forceText then    -- Don't show planecap on start
             local fontsize = (height/3.2)*widgetScale
             font:Print('\255\255\190\000'..currentPlanecap, area[3]-(2.8*widgetScale), area[2]+(4.5*widgetScale), fontsize, 'or')
-        end
+        --end
     end)
 
     if WG['tooltip'] ~= nil then
@@ -862,7 +862,7 @@ function init()
     -- planecap
     planecapArea = {barContentArea[1]+filledWidth, barContentArea[2], barContentArea[1]+filledWidth+width, barContentArea[4]}
     filledWidth = filledWidth + width + areaSeparator
-    updatePlanecap()
+    updatePlanecap(true)
 
     -- coms
     if displayComCounter then
@@ -925,6 +925,7 @@ local uiOpacitySec = 0
 local sec = 0
 local secComCount = 0
 local t = UPDATE_RATE_S
+
 function widget:Update(dt)
     local prevMyTeamID = myTeamID
     if spec and spGetMyTeamID() ~= prevMyTeamID then  -- check if the team that we are spectating changed
@@ -979,6 +980,12 @@ function widget:Update(dt)
             resbarHover = nil
             updateResbar('metal')
         end
+        currentPlanecap = Spring.GetTeamRulesParam(myTeamID, "planepopcap") or 0
+        currentPlaneCount = Spring.GetTeamRulesParam(myTeamID, "planecount") or 0
+        if currentPlanecap ~= lastPlanecap then
+            updatePlanecap()
+            lastPlanecap = currentPlanecap
+        end
     elseif spec and myTeamID ~= prevMyTeamID then  -- check if the team that we are spectating changed
         draggingShareIndicatorValue = {}
         draggingConversionIndicatorValue = nil
@@ -996,14 +1003,14 @@ function widget:Update(dt)
     end
 
     -- planecap & count
-    if (gameFrame ~= lastFrame) then
-        currentPlanecap = Spring.GetTeamRulesParam(myTeamID, "planepopcap") or 0
-        currentPlaneCount = Spring.GetTeamRulesParam(myTeamID, "planecount") or 0
-        if currentPlanecap ~= lastPlanecap then
-            updatePlanecap()
-            lastPlanecap = currentPlanecap
-        end
-    end
+    --if (gameFrame ~= lastFrame) then
+    --    currentPlanecap = Spring.GetTeamRulesParam(myTeamID, "planepopcap") or 0
+    --    currentPlaneCount = Spring.GetTeamRulesParam(myTeamID, "planecount") or 0
+    --    if currentPlanecap ~= lastPlanecap then
+    --        updatePlanecap()
+    --        lastPlanecap = currentPlanecap
+    --    end
+    --end
 
     -- coms
     if displayComCounter then
@@ -1179,14 +1186,14 @@ function widget:DrawScreen()
         glCallList(dlistPlanes1)
         glColor(1,1,1,0.3)
         -- Blink if we're at or past the planecap limit
-        if currentPlaneCount > 0 and gameFrame % 12 < 6 then
+        if currentPlaneCount > 0 and gameFrame % 12 < 0.001 then
             if currentPlaneCount > currentPlanecap then
                 glColor(1,0.6,0,0.6)
             elseif currentPlaneCount == currentPlanecap then	-- at limit, slight alert
                 glColor(1,0.85,1,0.3)
             end
-        else
-
+        --else
+            --
         end
         glCallList(dlistPlanes2)
         glPopMatrix()

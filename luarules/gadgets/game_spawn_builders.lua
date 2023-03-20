@@ -77,11 +77,18 @@ if gadgetHandler:IsSyncedCode() then
             commanderID = bowcomid
         end
 
-        spCreateUnit(builderID, x+50, y, z+160, 0, teamID)
-        spCreateUnit(builderID, x-50, y, z+160, 0, teamID)
-        spCreateUnit(builderID, x+50, y, z-160, 0, teamID)
-        spCreateUnit(builderID, x-50, y, z-160, 0, teamID)
-        spCreateUnit(commanderID, x, y, z-160, 0, teamID)
+        spCreateUnit(builderID, x, y, z+80, 0, teamID)
+        spCreateUnit(builderID, x, y, z+40, 0, teamID)
+        spCreateUnit(builderID, x, y, z-0, 0, teamID)
+        spCreateUnit(builderID, x, y, z-40, 0, teamID)
+
+        spCreateUnit(commanderID, x, y, z-100, 0, teamID)
+
+        --spCreateUnit(builderID, x+50, y, z+160, 0, teamID)
+        --spCreateUnit(builderID, x-50, y, z+160, 0, teamID)
+        --spCreateUnit(builderID, x+50, y, z-160, 0, teamID)
+        --spCreateUnit(builderID, x-50, y, z-160, 0, teamID)
+        --spCreateUnit(commanderID, x, y, z-160, 0, teamID)
 
     end
 
@@ -92,7 +99,7 @@ if gadgetHandler:IsSyncedCode() then
             for _, unitID in ipairs(allUnits) do
                 local unitDefID = spGetUnitDefID(unitID)
                 local unitDef = unitDefID and UnitDefs[unitDefID] or nil
-                if unitDef and unitDef.customParams and unitDef.customParams.iscommander == "1" then
+                if unitDef and unitDef.customParams and unitDef.customParams.ishq then
                     local teamID = spGetUnitTeam(unitID)
                     spawnBuilders(unitID, teamID, unitDef)
                 end

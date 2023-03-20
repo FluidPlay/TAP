@@ -18,7 +18,7 @@ function gadget:GetInfo()
         author    = "ashdnazg, Bluestone, updated by MaDDoX (ammo reload)",
         date      = "February 2016",
         license   = "GNU GPL, v2 or later",
-        layer     = 1,
+        layer     = 2,
         enabled   = true  --  loaded by default?
     }
 end
@@ -69,17 +69,21 @@ local spGiveOrderToUnit = Spring.GiveOrderToUnit
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
 local airbaseDefIDs = {
-    --Arm
+    --Bow
     [UnitDefNames["armasp"].id] = 5000, --350,     -- distance in elmos for snap onto pad
     [UnitDefNames["armpad"].id] = 5000,
     [UnitDefNames["armap"].id] = 4000,
     [UnitDefNames["armaap"].id] = 4000,
+    [UnitDefNames["bowhq"].id] = 4000,[UnitDefNames["bowhq2"].id] = 4000,[UnitDefNames["bowhq3"].id] = 4000,
+    [UnitDefNames["bowhq4"].id] = 4000,[UnitDefNames["bowhq5"].id] = 4000,[UnitDefNames["bowhq6"].id] = 4000,    
     [UnitDefNames["armcarry"].id] = 1000,
-    --Core
+    --Kern
     [UnitDefNames["corasp"].id] = 5000, --350
     [UnitDefNames["corpad"].id] = 5000, --350
     [UnitDefNames["corap"].id] = 4000,
     [UnitDefNames["coraap"].id] = 4000,
+    [UnitDefNames["kernhq"].id] = 4000,[UnitDefNames["kernhq2"].id] = 4000,[UnitDefNames["kernhq3"].id] = 4000,
+    [UnitDefNames["kernhq4"].id] = 4000,[UnitDefNames["kernhq5"].id] = 4000,[UnitDefNames["kernhq6"].id] = 4000,    
     [UnitDefNames["corcarry"].id] = 1000,
 }
 
@@ -764,13 +768,14 @@ if (gadgetHandler:IsSyncedCode()) then
         for i=1,#allUnits do
             local unitID = allUnits[i]
             local unitDefID = spGetUnitDefID(unitID)
-            --local teamID = Spring.GetUnitTeam(unitID)
             gadget:UnitCreated(unitID, unitDefID)
 
             local transporterID = Spring.GetUnitTransporter(unitID)
             if transporterID and IsPlane(unitDefID) then
                 Spring.UnitDetach(unitID)
             end
+            local teamID = Spring.GetUnitTeam(unitID)
+            gadget:UnitFinished(unitID, unitDefID, teamID)
         end
 
     end
