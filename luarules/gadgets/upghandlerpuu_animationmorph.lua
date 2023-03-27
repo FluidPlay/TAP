@@ -105,9 +105,9 @@ local function Update()
     for unitID, unitDef in pairs(trackedUnits) do
         local completedAnimID = spGetUnitRulesParam(unitID, unitRulesCompletedParamName)
         --Spring.Echo("upgradehandler: morph-completed param = "..(completedParam or "nil"))
-        if isnumber(completedAnimID) and completedAnimID == 1 then    --TODO: Support sequential morphs
+        if isnumber(completedAnimID) and completedAnimID > 0 then
             trackedUnits[unitID] = nil
-            spSetUnitRulesParam(unitID,"local:"..techname, 1)
+            spSetUnitRulesParam(unitID,"local:"..techname, completedAnimID) --TODO/WIP: Support sequential morphs
             GG.RefreshTechReqs(unitID, unitDef)
             --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
