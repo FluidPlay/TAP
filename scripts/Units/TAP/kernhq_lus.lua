@@ -153,10 +153,10 @@ local scriptEnv = { base = base,
 					standardOnlyPieces = { right_arm, left_arm, right_head, left_head },
 					upgradeOnlyPieces = { right_arm_advanced, left_arm_advanced, right_head_advanced, left_head_advanced,
 										  left_pointer1, left_pointer2, right_pointer1, right_pointer2, antenna_upgrade,
-										  upgradeR, upgradeL },
+										  upgradeR, upgradeL, upgradeR_door, upgradeL_door },
 					explodePartsDefault = { right_arm, left_arm },
 					explodePartsStandard = { left_head, right_head, antenna_axis },
-					explodePartsAdvanced = { upgradeR, upgradeL },
+					explodePartsAdvanced = { upgradeR, upgradeL, upgradeR_door, upgradeL_door },
 	--
 					ipairs = ipairs,
 					unitID = unitID,
@@ -174,6 +174,11 @@ scriptEnv.PlayAnimation = PlayAnimation
 script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
 
 function script.Create()
+    initTween({veryLastFrame=36,
+               [antenna_base]={
+                   [1]={cmd="move", axis=z_axis, targetValue=15.000000, firstFrame=0, lastFrame=36,},
+               }
+    })
 	Spin(antenna_axis, z_axis, 2)
 	Spin(Y_right, x_axis, -4)
 	Spin(Y_left, x_axis, 4)
@@ -183,10 +188,20 @@ end
 
 function script.Activate()
 	--Spin(antenna_axis, z_axis, 90)
+    initTween({veryLastFrame=36,
+               [antenna_base]={
+                   [1]={cmd="move", axis=z_axis, targetValue=15.000000, firstFrame=0, lastFrame=36,},
+               }
+    })
 	script_activate()
 end
 
 function script.Deactivate()
+    initTween({veryLastFrame=20,
+               [antenna_base]={
+                   [1]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=0, lastFrame=20,},
+               }
+    })
 	--StopSpin(antenna_axis, z_axis)
 	script_deactivate()
 end

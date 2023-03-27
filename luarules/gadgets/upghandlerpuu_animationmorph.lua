@@ -112,7 +112,6 @@ local function Update()
             --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
 
-            ---TODO: Only remove when there are no morph options in the target morphDef (is there a better way?)
             GG.removeMorphButtons(unitID) --(unitID, unitDefID)
         end
     end

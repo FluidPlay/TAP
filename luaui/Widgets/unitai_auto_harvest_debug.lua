@@ -48,7 +48,7 @@ function widget:DrawScreen()
     local textSize = 17 --22
 
     gl.PushMatrix()
-    gl.Translate(50, -50, 0)
+    gl.Translate(50, 35, 0)
     gl.BeginText()
     for unitID, state in pairs(WG.harvestState) do
         if spIsUnitInView(unitID) then
