@@ -245,6 +245,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --  morphingUnits[unitID] = {  def = morphDef, progress = 0.0, increment = morphDef.increment,
     --                             morphID = morphID, pauseID, queueID, teamID = teamID, paused = false }
+    --                          * aka /morphData/, within loops
+    --  **ATTENTION: def here is the morphDef, a specific entry and not the morph set
     local morphingUnits = {}    --// make it global in Initialize()
 
     local reqTechs = {}         --// {[techId]=true, ...} all possible techs which are used as a requirement for a morph
@@ -376,11 +378,20 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --- Returns the morphdef assigned to a certain cmdID, or the first valid morph def (if cmdID is empty/nil)
     local function getOneMorphDef(unitID, unitDefID, cmdID)
+        if not cmdID then
+            cmdID = getStartCmdId(unitDefID)
+        end
+        Spring.Echo("cmdID searched: "..(cmdID or "nil"))
         if IsValidUnit(unitID) then
             local editedMorphDefs = OverriddenMorphs[unitID]
             if istable(editedMorphDefs) then
-                Spring.Echo("Found: edited morphDefs [getOneMorphDef]")
-                return editedMorphDefs
+                local editedMorphDef = editedMorphDefs[cmdID]
+                Spring.Echo("\nEdited MorphDef debug:\n")
+                DebugTable(editedMorphDef)
+                if istable(editedMorphDef) then
+                    Spring.Echo("Found: edited morphDefs [getOneMorphDef]")
+                    return editedMorphDef
+                end
             end
         end
         if not unitDefID then
@@ -389,12 +400,8 @@ if (gadgetHandler:IsSyncedCode()) then
         -- return default morph definition
         Spring.Echo("Returning default morphdef")
         local morphDef
-
-        if not cmdID then
-            cmdID = getStartCmdId(unitDefID)
-        end
         morphDef = (morphDefs[UnitDefs[unitDefID].name] or {})[cmdID] or extraUnitMorphDefs[unitID]
-        Spring.Echo("MorphDef Debug: ") --..(morphDef.into or "nil"))
+        Spring.Echo("\n\n****MorphDef Debug: ") --..(morphDef.into or "nil"))
         DebugTable(morphDef)
 
         return morphDef
@@ -415,7 +422,7 @@ if (gadgetHandler:IsSyncedCode()) then
         Spring.Echo("morphdef dest uDef name: ".. destUDef.name)
         local targetMorphDefName = destUDef.customParams.morphdef__into
         Spring.Echo("morphdef next morph uDef name: ".. (targetMorphDefName or "nil"))
-        return morphDefs[targetMorphDefName]
+        return morphDefs[destUDef.name] --targetMorphDefName
     end
 
     local function removeUnitCmdDesc(unitID, cmdID)
@@ -834,7 +841,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local morphDefs = getMorphDefs(unitID, unitDefID)
         if not istable(morphDefs) then
             return end
-        Spring.Echo("Checking morphDefs")
+        Spring.Echo("unit_morph: UpdateUnitMorphReqs")
         for _, morphDef in pairs(morphDefs) do
             local morphCmdDescIdx = spFindUnitCmdDesc(unitID, morphDef.cmd)
             if morphCmdDescIdx then
@@ -1189,13 +1196,14 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
+    --- morphData here is just relative to one specific morph, not to the entire morph set
     local function FinishMorph(unitID, morphData)
         if unitID == nil then
             return
         end
         local udDst = UnitDefs[morphData.def.intoId]
         local defName = udDst.name
-        local unitTeam = morphData.teamID
+        local unitTeam = spGetUnitTeam(unitID) -- morphData.teamID
         local px, py, pz = spGetUnitBasePosition(unitID)
         local h = spGetUnitHeading(unitID)
         spSetUnitBlocking(unitID, false)
@@ -1204,7 +1212,8 @@ if (gadgetHandler:IsSyncedCode()) then
         --[Deprecated] After 10 frames, we'll clean up this unitRulesParam, to allow explosions after this time frame
         --cleanRulesParam[unitID] = Spring.GetGameFrame()+10
 
-        local oldHealth, oldMaxHealth, paralyzeDamage, captureProgress, buildProgress = spGetUnitHealth(unitID)
+        --local oldHealth, oldMaxHealth, paralyzeDamage, captureProgress, buildProgress
+        local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
         local isBeingBuilt = false
         if buildProgress < 1 then
             isBeingBuilt = true
@@ -1237,6 +1246,8 @@ if (gadgetHandler:IsSyncedCode()) then
             Spring.SetUnitTooltip(unitID, newTooltip)    --"advanced bot lab - "
             Spring.SetUnitCosts(unitID, { metalCost = newMetalCost, energyCost = newEnergyCost, buildTime = newBuildTime })
             SendToUnsynced("unit_morph_finished", unitID, unitID)
+
+            ---TODO: Check!!
             spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
             --spSetUnitRulesParam(unitID, "upgraded", 1)
             --Spring.Echo("'morphedinto' unitrulesparam for unit "..unitID.." set to 1")
@@ -1251,7 +1262,12 @@ if (gadgetHandler:IsSyncedCode()) then
 
             if nextMorphDefs then
                 for _, morphDef in pairs(nextMorphDefs) do
+                    ---morphData is the current data, morphDef is part of the new data
                     morphDef.cmd = morphData.def.cmd    --morphDef.cmd has to be preserved (@UpdateUnitMorphReqs)
+                    --Spring.Echo("old morph (morphData) def debug:")
+                    --DebugTable(morphData.def)
+                    --Spring.Echo("next morphDef debug:")
+                    --DebugTable(morphDef)
                 end
                 Spring.Echo("Assigning edited morph")
                 OverriddenMorphs[unitID] = nextMorphDefs
@@ -1262,6 +1278,8 @@ if (gadgetHandler:IsSyncedCode()) then
             UpdateAllMorphReqs(spGetUnitTeam(unitID))
 
             playMorphById(unitID, animationonly)
+            --// Send to unsynced so it can broadcast to widgets (and update selection here)
+            SendToUnsynced("unit_morph_finished", unitID, newUnit)
         else
             --- Is it a structure?
             if udDst.isBuilding or udDst.isFactory then
@@ -1405,6 +1423,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
         spSetUnitBlocking(newUnit, true)
     end
+
+    --morphData = { paused = true|false, progress = 0..1, def = { morphDef } }
 
     -- Here's where the Morph is updated
     local function UpdateMorph(unitID, morphData, bonus)
@@ -1865,6 +1885,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     local function hasTech(unitID, unitDefID, teamID, cmdID)
         local morphDef = getOneMorphDef(unitID, unitDefID, cmdID)
+        Spring.Echo("morphdef tech: "..(morphDef.tech or "nil")..", teamID: "..teamID..", teamtechlevel: "..(teamTechLevel[teamID] or "nil"))
         if morphDef and morphDef.tech <= teamTechLevel[teamID]
                 and morphDef.rank <= GetUnitRank(unitID)
                 and morphDef.xp <= spGetUnitExperience(unitID)
