@@ -112,6 +112,11 @@ local guishaderDisabled = true
 if spGetSelectedUnitsCount() > 0 then
   local checkSelectedUnits = true
 end
+
+local function isnumber(v)
+  return type(v)=="number"
+end
+
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
@@ -313,6 +318,8 @@ function DrawPicList()
   unitCounts = spGetSelectedUnitsCounts()
 
   unitTypes = unitCounts.n;
+  if not isnumber(unitTypes) then
+    return end
   if (unitTypes <= 0) then
     countsTable = {}
     activePress = false
@@ -573,6 +580,9 @@ end
 
 
 function MouseOverIcon(x, y)
+  if not isnumber(unitTypes) then
+    return -1 end
+
   if (unitTypes <= 0) then return -1 end
   if (x < rectMinX)   then return -1 end
   if (x > rectMaxX)   then return -1 end

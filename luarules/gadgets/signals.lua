@@ -33,7 +33,7 @@ local Signals = {}
 
 local function SetupSignal(unitID, signalKey, func)
 	if not isfunc(func) then
-		Spring.Log("Signals", LOG.WARNING, "Signal: "..tostring(signalKey or "nil").."'s function is not set properly")
+		--Spring.Log("Signals", LOG.WARNING, "Signal: "..tostring(signalKey or "nil").."'s function is not set properly")
 	end
 	if not Signals[unitID] then
 		Signals[unitID] = {}

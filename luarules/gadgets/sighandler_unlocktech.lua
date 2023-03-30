@@ -54,7 +54,7 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
     -- If it's one of the units-of-interest, initialize all its possible signals
     if unlockableTechs[unitDefName] then
         for _, techName in pairs(unlockableTechs[unitDefName]) do
-            Spring.Echo("sighandler: Tech to unlock = "..techName)
+            --Spring.Echo("sighandler: Tech to unlock = "..techName)
             ---SetupSignal = nil
             GG.SetupSignal(unitID, techName, function ()
                                 GG.TechGrant(techName, unitTeam) --, Init)
