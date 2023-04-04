@@ -175,6 +175,7 @@ function DebugTable(tbl)
 	for k, v in pairsByKeys(tbl) do
 		local str = ""
 		if type(v) == "table" then
+			str = str .. "{"
 			for k2, v2 in pairsByKeys(v) do
 				str = str .. k2 .. "="
 				if type(v2) == "table" then
