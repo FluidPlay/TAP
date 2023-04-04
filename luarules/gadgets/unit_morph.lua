@@ -347,13 +347,13 @@ if (gadgetHandler:IsSyncedCode()) then
     --------------------------------------------------------------------------------
 
     --- Returns the first morph cmdId (to use as index for the morphDefs table)
-    local function getStartCmdId(unitDefID)
-        local startCmdID
-        for id, _ in pairsByKeys(morphDefs[UnitDefs[unitDefID].name]) do
-            startCmdID = id
+    local function getValidCmdID(morphDefs)
+        local firstCmdId
+        for id, _ in pairsByKeys(morphDefs) do
+            firstCmdId = id
             break
         end
-        return startCmdID
+        return firstCmdId
     end
 
     --- Returns all morphdefs assigned to a certain unit (overriden or not), save it to the unit's table too
@@ -371,6 +371,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 --Spring.Echo("\n\nFound: edited morphDefs [getMorphDefs]")
                 --DebugTable(editedMorphDefs)
             end
+            Spring.Echo("\n debugging getMorphDefs returned table")
             DebugTable(thisMorphDefs)
             return thisMorphDefs
         elseif unitDefID ~= nil then
@@ -380,30 +381,12 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     --- Returns the morphdef assigned to a certain cmdID, or the first valid morph def (if cmdID is empty/nil)
-    local function getOneMorphDef(unitID, unitDefID, cmdID)
-        if not cmdID then
-            cmdID = getStartCmdId(unitDefID)
+    local function getSingleMorphdef(unitID, unitDefID, cmdID)
+        local morphDefs = getMorphDefs(unitID, unitDefID, "getSingleMorphDef")
+        if not cmdID or not morphDefs[cmdID] then
+            cmdID = getValidCmdID(morphDefs)
         end
-        --Spring.Echo("cmdID searched: "..(cmdID or "nil"))
-        if IsValidUnit(unitID) then
-            local editedMorphDefs = unitMorphDefs[unitID]
-            if istable(editedMorphDefs) then
-                local editedMorphDef = editedMorphDefs[cmdID]
-                --Spring.Echo("\nEdited MorphDef debug:\n")
-                --DebugTable(editedMorphDef)
-                if istable(editedMorphDef) then
-                    --Spring.Echo("Found: edited morphDefs [getOneMorphDef]")
-                    return editedMorphDef
-                end
-            end
-        end
-        if not unitDefID then
-            unitDefID = spGetUnitDefID(unitID) end
-        if not unitDefID then
-            return nil end
-        -- return default morph definition
-        --Spring.Echo("\nReturning default morphdef")
-        local morphDef = (morphDefs[UnitDefs[unitDefID].name] or {})[cmdID] or extraUnitMorphDefs[unitID]
+        local morphDef = morphDefs[cmdID] or extraUnitMorphDefs[unitID][cmdID]
         --Spring.Echo("\n\n****MorphDef Debug: ") --..(morphDef.into or "nil"))
         --DebugTable(morphDef)
 
@@ -1254,13 +1237,14 @@ if (gadgetHandler:IsSyncedCode()) then
         local copystatsonly = morphData.def.copystatsonly
         local signal = morphData.def.signal
 
-        -- Should not replace unit when animationonly or copystatsonly are set
 
-        --Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
-        --        "; animationonly = " .. (animationonly or "nil") ..
-        --        ",  copystatsonly = " .. (copystatsonly or "nil") ..
-        --        ", signal = " .. (signal or "nil")
-        --)
+        Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
+                "; animationonly = " .. (animationonly or "nil") ..
+                ",  copystatsonly = " .. (copystatsonly or "nil") ..
+                ", signal = " .. (signal or "nil")
+        )
+
+        --- Should not replace unit when animationonly or copystatsonly are set
         if (isnumber(animationonly) and animationonly > 0) or copystatsonly == 1 then
             local newBuildSpeed, newMass, newMaxHealth, newTooltip = defDest.buildSpeed, defDest.mass, defDest.health, (defDest.humanName .. " - " .. defDest.tooltip)
             local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)
@@ -1315,7 +1299,8 @@ if (gadgetHandler:IsSyncedCode()) then
                 --Spring.Echo("Assigning edited morph")
                 unitMorphDefs[unitID] = nextMorphDefs
             else
-                --Spring.Echo("No next morph found")
+                Spring.Echo("No next morph found")
+                removeMorphButtons(unitID)
             end
 
             ---####TODO: Check if needed
@@ -1934,7 +1919,7 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     local function hasTech(unitID, unitDefID, teamID, cmdID)
-        local morphDef = getOneMorphDef(unitID, unitDefID, cmdID)
+        local morphDef = getSingleMorphdef(unitID, unitDefID, cmdID)
         --Spring.Echo("\nmorphdef tech check: "..(morphDef.tech or "nil")..", teamID: "..teamID..", teamtechlevel: "..(teamTechLevel[teamID] or "nil"))
         if morphDef and morphDef.tech <= teamTechLevel[teamID]
                 and morphDef.rank <= GetUnitRank(unitID)
@@ -1951,6 +1936,9 @@ if (gadgetHandler:IsSyncedCode()) then
     function gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
         local morphData = morphingUnits[unitID]   -- def = morphDef, progress = 0.0, increment = morphDef.increment,
         --                                           morphID = morphID, teamID = teamID, paused = false
+        if morphData then
+            Spring.Echo("Has morphData @AllowCommand: "..tostring(istable(morphData)))
+        end
         if morphData then
             if cmdID == CMD_MORPH_STOP then
                 -- or (cmdID == CMD.STOP)
@@ -1974,11 +1962,15 @@ if (gadgetHandler:IsSyncedCode()) then
         elseif cmdID >= CMD_MORPH and cmdID < CMD_MORPH + MAX_MORPH then
             -- Valid MORPH command, allow it to go through (actually processed in gadget:commandfallback)
             --Spring.Echo(" Has Tech: "..hasTech(unitID, unitDefID, teamID, cmdID))
+            Spring.Echo("Allowcommand: Valid morph command issued!")
             if hasTech(unitID, unitDefID, teamID, cmdID) and isFactory(unitDefID) then
+                Spring.Echo("Allowcommand: prerequisites ok")
                 --// the factory cai is broken and doesn't call CommandFallback(),
                 --// so we have to start the morph here
                 --local morphDef = getOneMorphDef(unitID, unitDefID, cmdID)
-                local morphDef = getMorphDefs(unitID, unitDefID, "AllowCommand")[cmdID]
+                local morphDefs = getMorphDefs(unitID, unitDefID, "AllowCommand")
+                local morphDef = morphDefs[getValidCmdID(morphDefs)]
+                Spring.Echo("Allowcommand: Found morphDef: "..tostring(istable(morphDef)))
                 StartMorph(unitID, morphDef, teamID)
                 return false
             else
@@ -1998,11 +1990,9 @@ if (gadgetHandler:IsSyncedCode()) then
             -- local morphData = { def = morphDef, progress = 0.0, increment = morphDef.increment,
             --                    morphID = nil, teamID = teamID, paused = false, }
 
-            --- We're only taking the first cmdID for queues
-            local startCmdID = getStartCmdId(unitDefID)
             -- If there are no morphingUnits, start morphing this immediately
             if #teamQueuedUnits[teamID] == 0 then
-                local morphDef = getOneMorphDef(unitID, unitDefID, startCmdID)
+                local morphDef = getSingleMorphdef(unitID, unitDefID, cmdID)
                 --if not morphDef then
                 --  return true, true end      --// command was used, remove it
                 QueueMorph(unitID, teamID, startCmdID)
@@ -2016,7 +2006,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if cmdID < CMD_MORPH or cmdID >= CMD_MORPH + MAX_MORPH then
             return false        --// command unknown, not used here
         end
-        local morphDef = getOneMorphDef(unitID, unitDefID, cmdID)
+        local morphDef = getSingleMorphdef(unitID, unitDefID, cmdID)
         if not morphDef then
             return true, true   --// command was used, remove it
         end
