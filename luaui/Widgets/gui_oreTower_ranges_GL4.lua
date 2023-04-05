@@ -123,7 +123,7 @@ void main() {
 
 
 local function goodbye(reason)
-  Spring.Echo("DefenseRange GL4 widget exiting with reason: "..reason)
+  Spring.Echo("OreTower Range GL4 widget exiting with reason: "..reason)
   widgetHandler:RemoveWidget()
 end
 
@@ -153,7 +153,7 @@ local function initgl4()
 		  {id = 2, name = 'endposrad', size = 4}, --  end pos + radius
 		  {id = 3, name = 'color', size = 4}, --- color
 		}
-  circleInstanceVBO = makeInstanceVBOTable(circleInstanceVBOLayout,32, "radarrangeVBO")
+  circleInstanceVBO = makeInstanceVBOTable(circleInstanceVBOLayout,32, "oretowerrangeVBO") --radarrangeVBO
   circleInstanceVBO.numVertices = numVertices
   circleInstanceVBO.vertexVBO = circleVBO
   circleInstanceVBO.VAO = makeVAOandAttach(circleInstanceVBO.vertexVBO, circleInstanceVBO.instanceVBO)
@@ -207,6 +207,7 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 
 			if unitDef.isBuilding or unitDef.isFactory or unitDef.speed==0 then
 				isBuilding[unitDefID] = true
+				Spring.Echo("gui_oreTower_ranges; isBuilding of "..unitDef.name.." is TRUE")
 			end
 		end
 	end
@@ -237,12 +238,15 @@ end
 local function processUnit(unitID, unitDefID, noUpload)
 	if (not (spec and fullview )) and ( not spIsUnitAllied(unitID)) then return end -- display mode for specs
 
-	local unitDefID = spGetUnitDefID(unitID)
+	if not type(unitDefID)=="number" then
+		unitDefID = spGetUnitDefID(unitID)	end
 
-    if not unitRange[unitDefID] then
-		--Spring.Echo("oreTower_ranges: Unit range not found for UnitDef type "..UnitDefs[unitDefID].name)
-        return
-    end
+	if not unitRange[unitDefID] then
+		Spring.Echo("oreTower_ranges: Unit range not found for UnitDef type "..UnitDefs[unitDefID].name)
+		return
+	else
+		Spring.Echo("oreTower_ranges: Unit range found for UnitDef type "..(UnitDefs[unitDefID].name or "nil").."; "..tostring(unitRange[unitDefID]['range']))
+	end
 
 	local teamID = Spring.GetUnitTeam(unitID)
 	if teamID == gaiaTeamID then return end -- no gaia units

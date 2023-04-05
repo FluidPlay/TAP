@@ -443,18 +443,18 @@ if (gadgetHandler:IsSyncedCode()) then
         local unitDefID = spGetUnitDefID(unitID)
         local unitDefName = UnitDefs[unitDefID].name
         local morphDefs = getMorphDefs(unitID,_, "removeMorphButtons")
-        if (morphDefs) then
-        	for _,morphDef in pairs(morphDefs) do
-        		if (morphDef) then
-        			local cmdDescID = spFindUnitCmdDesc(unitID, morphDef.cmd)
-        			if (cmdDescID) then
-                        removeUnitCmdDesc(unitID, cmdDescID)
-                        removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
-                        removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
-                        removeUnitCmdDesc(unitID, CMD_MORPH_PAUSE)
-        			end
-        		end
-        	end
+        if not istable (morphDefs) then
+            return end
+        for cmdID, morphDef in pairs(morphDefs) do
+            if (morphDef) then
+                local cmdDesc = spFindUnitCmdDesc(unitID, cmdID)
+                if (cmdDesc) then
+                    removeUnitCmdDesc(unitID, cmdDesc)
+                    removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
+                    removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
+                    removeUnitCmdDesc(unitID, CMD_MORPH_PAUSE)
+                end
+            end
         end
         --if not targetsMorphDefs(unitID) then
         --    for number = 0, MAX_MORPH - 1 do
@@ -876,7 +876,7 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     local function UpdateAllMorphReqs(teamID, caller)
-        Spring.Echo("UpdateAllMorphReqs Caller: "..(caller or "nil"))
+        --Spring.Echo("UpdateAllMorphReqs Caller: "..(caller or "nil"))
         if not isValidTeamID(teamID) then
             return end
         local teamUnits = spGetTeamUnits(teamID)
@@ -894,11 +894,12 @@ if (gadgetHandler:IsSyncedCode()) then
         local teamHasTechs = teamReqTechs and #teamReqTechs == 0
         morphCmdDesc.tooltip = GetMorphTooltip(unitID, unitDefID, teamID, morphDef, teamTech, unitXP, unitRank, teamReqTechs)
 
-        if morphDef.texture then
-            morphCmdDesc.texture = "LuaRules/Images/Morph/" .. morphDef.texture
-        else
-            morphCmdDesc.texture = "#" .. morphDef.into   --// only works with a patched layout.lua or the TweakedLayout widget!
-        end
+        --if morphDef.texture then
+        --    morphCmdDesc.texture = "LuaRules/Images/Morph/" .. morphDef.texture
+        --else
+        --    morphCmdDesc.texture = "#" .. morphDef.into   --// only works with a patched layout.lua or the TweakedLayout widget!
+        --end
+        morphCmdDesc.texture = "luaui/images/gfxbuttons/cmd_morph.png"
         morphCmdDesc.name = morphDef.cmdname
 
         -- Sets initial state of command buttons to be added to the unit
