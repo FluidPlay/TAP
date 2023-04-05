@@ -358,7 +358,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --- Returns all morphdefs assigned to a certain unit (overriden or not), save it to the unit's table too
     local function getMorphDefs(unitID, unitDefID, caller)
-        Spring.Echo("\nget unit-morphDefs, called from "..(caller or "nil"))
+        --Spring.Echo("\nget unit-morphDefs, called from "..(caller or "nil"))
         if unitID and IsValidUnit(unitID) then
             local thisMorphDefs = unitMorphDefs[unitID]
             if not istable(thisMorphDefs) then
@@ -371,11 +371,11 @@ if (gadgetHandler:IsSyncedCode()) then
                 --Spring.Echo("\n\nFound: edited morphDefs [getMorphDefs]")
                 --DebugTable(editedMorphDefs)
             end
-            Spring.Echo("\n debugging getMorphDefs returned table")
-            DebugTable(thisMorphDefs)
+            --Spring.Echo("\n debugging getMorphDefs returned table")
+            --DebugTable(thisMorphDefs)
             return thisMorphDefs
         elseif unitDefID ~= nil then
-            Spring.Echo("unitDefID: morphDef unitDef name = "..(UnitDefs[unitDefID].name or "nil"))
+            --Spring.Echo("unitDefID: morphDef unitDef name = "..(UnitDefs[unitDefID].name or "nil"))
             return (morphDefs[UnitDefs[unitDefID].name] or {}) or extraUnitMorphDefs[unitID]
         end
     end
@@ -875,7 +875,8 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    local function UpdateAllMorphReqs(teamID)
+    local function UpdateAllMorphReqs(teamID, caller)
+        Spring.Echo("UpdateAllMorphReqs Caller: "..(caller or "nil"))
         if not isValidTeamID(teamID) then
             return end
         local teamUnits = spGetTeamUnits(teamID)
@@ -1288,7 +1289,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     --
                     --    ---morphData is the current data, morphDef is part of the new data
                     morphDef.cmd = morphData.def.cmd    --morphDef.cmd has to be preserved (@UpdateUnitMorphReqs)
-                    morphDef.signal = morphData.def.signal
+                    --morphDef.signal = morphData.def.signal
 
                     --
                     ----    Spring.Echo("old morph (morphData) def debug:")
@@ -1304,7 +1305,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
 
             ---####TODO: Check if needed
-            UpdateAllMorphReqs(spGetUnitTeam(unitID))
+            UpdateAllMorphReqs(spGetUnitTeam(unitID), "FinishMorph")
 
             --morphCmdDesc.id = morphDef.cmd
             --morphCmdDesc.disabled = morphDef.tech > teamTech or morphDef.rank > unitRank
@@ -1604,7 +1605,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --    end
 
             --UpdateAllMorphReqs(teamID)
-            UpdateAllMorphReqs(unitID, teamID)
+            UpdateAllMorphReqs(unitID, teamID, "Initialize")
             AddFactory(unitID, unitDefID, teamID)
             local morphDefData = morphDefs[unitDefName]
             if (morphDefData) then
@@ -1706,7 +1707,7 @@ if (gadgetHandler:IsSyncedCode()) then
         AddFactory(unitID, unitDefID, teamID)
 
         UpdateMorphBoosters(unitID, unitDefID, true)
-        UpdateAllMorphReqs(teamID)
+        UpdateAllMorphReqs(teamID, "UnitFinished")
 
         --  if (bfrTechLevel ~= teamTechLevel[teamID]) then
         --    UpdateMorphReqs(teamID)
@@ -1743,7 +1744,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         --if updateButtons then
-        UpdateAllMorphReqs(teamID)
+        UpdateAllMorphReqs(teamID, "UnitDestroyed")
     end
 
     function gadget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
