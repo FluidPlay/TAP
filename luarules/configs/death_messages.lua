@@ -550,7 +550,7 @@ teamDeathMessages = {
 	"XX flew low over power lines",
 	"XX fell down a rabbit hole",
 	"XX got its meat skewer stuck in a toaster",
-	"XX got slapped around with a large peewee",
+	"XX got slapped around with a large keewee",
 	"XX was reclassified as an apology",
 	"XX turned into a pumpkin and two mice",
 	"XX sat around eating risotto and drinking Chateau du Chasselas",
