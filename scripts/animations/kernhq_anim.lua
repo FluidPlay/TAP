@@ -67,18 +67,18 @@ local function closeadv()
 			   },
 	})
 end
-local function morphup4()
+local function morphup()
 	initTween({veryLastFrame=48,
-			   [extenderFL_root]={
+			   [extenderFL]={
 				   [1]={cmd="move", axis=y_axis, targetValue=-8.999999, firstFrame=0, lastFrame=48,},
 			   },
-			   [extenderBL_root]={
+			   [extenderBL]={
 				   [1]={cmd="move", axis=y_axis, targetValue=-9.000001, firstFrame=0, lastFrame=48,},
 			   },
-			   [extenderFR_root]={
+			   [extenderFR]={
 				   [1]={cmd="move", axis=y_axis, targetValue=8.999996, firstFrame=0, lastFrame=48,},
 			   },
-			   [extenderBR_root]={
+			   [extenderBR]={
 				   [1]={cmd="move", axis=y_axis, targetValue=9.000001, firstFrame=0, lastFrame=48,},
 			   },
 			   [frameL]={
@@ -89,7 +89,7 @@ local function morphup4()
 			   },
 	})
 end
-local function morphup5()
+local function morphup2()
 	initTween({veryLastFrame=40,
 			   [toppieceR]={
 				   [1]={cmd="move", axis=z_axis, targetValue=11.820000, firstFrame=0, lastFrame=40,},
@@ -103,7 +103,7 @@ local function morphup5()
 			   },
 	})
 end
-local function morphup6()
+local function morphup3()
 	initTween({veryLastFrame=40,
 			   [toppieceL]={
 				   [1]={cmd="move", axis=z_axis, targetValue=11.820000, firstFrame=0, lastFrame=40,},
@@ -119,6 +119,6 @@ local function morphup6()
 end
 
 local Animations = {on = on, off = off, openstd = openstd, closestd = closestd, openadv = openadv, closeadv = closeadv,
-					morphup4 = morphup4, morphup5 = morphup5, morphup6 = morphup6, }
+					morphup = morphup, morphup2 = morphup2, morphup3 = morphup3, }
 
 return Animations

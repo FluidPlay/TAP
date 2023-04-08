@@ -10,14 +10,16 @@ function widget:GetInfo()
 	}
 end
 
+
 -------   Configurables: -------------------
-local rangeLineWidth = 10.5 --3.5, 4.5 -- (note: will end up larger for larger vertical screen resolution size)
+
+local rangeLineWidth = 6.5 --3.5, 4.5 -- (note: will end up larger for larger vertical screen resolution size)
 local minDevolutionRadius = 250 --500
 
 local gaiaTeamID = Spring.GetGaiaTeamID()
-local rangeColor = { 1.0, 0.88, 0.0, 0.56 } -- default range color -- was pure green, a: 0.16
+local rangeColor = { 1.0, 0.88, 0.0, 0.26 } -- default range color -- was pure green, a: 0.16 => 0.56
 local usestipple = 1 -- 0 or 1resolution size)
-local opacity = 0.56 --0.16
+local opacity = 0.26 --0.16 => 0.56
 
 
 local circleSegments = 64
@@ -146,7 +148,7 @@ local function initgl4()
     "radarrange shader GL4"
   )
   shaderCompiled = circleShader:Initialize()
-  if not shaderCompiled then goodbye("Failed to compile radarrange shader GL4 ") end
+  if not shaderCompiled then goodbye("Failed to compile oreTower ranges shader GL4 ") end
   local circleVBO,numVertices = makeCircleVBO(circleSegments)
   local circleInstanceVBOLayout = {
 		  {id = 1, name = 'startposrad', size = 4}, -- the start pos + radius
@@ -166,7 +168,9 @@ local spGetUnitDefID        = Spring.GetUnitDefID
 local spGetUnitPosition     = Spring.GetUnitPosition
 local spIsGUIHidden 		= Spring.IsGUIHidden
 local spIsUnitAllied		= Spring.IsUnitAllied
+local spGetUnitTeam         = Spring.GetUnitTeam
 local glColor               = gl.Color
+
 local glColorMask           = gl.ColorMask
 local glDepthTest           = gl.DepthTest
 local glLineWidth           = gl.LineWidth
@@ -242,10 +246,10 @@ local function processUnit(unitID, unitDefID, noUpload)
 		unitDefID = spGetUnitDefID(unitID)	end
 
 	if not unitRange[unitDefID] then
-		Spring.Echo("oreTower_ranges: Unit range not found for UnitDef type "..UnitDefs[unitDefID].name)
+		--Spring.Echo("oreTower_ranges: Unit range not found for UnitDef type "..UnitDefs[unitDefID].name)
 		return
-	else
-		Spring.Echo("oreTower_ranges: Unit range found for UnitDef type "..(UnitDefs[unitDefID].name or "nil").."; "..tostring(unitRange[unitDefID]['range']))
+	--else
+	--	Spring.Echo("oreTower_ranges: Unit range found for UnitDef type "..(UnitDefs[unitDefID].name or "nil").."; "..tostring(unitRange[unitDefID]['range']))
 	end
 
 	local teamID = Spring.GetUnitTeam(unitID)
@@ -355,9 +359,11 @@ function widget:DrawWorld()
     if spec and fullview then return end
     if spIsGUIHidden() or (WG['topbar'] and WG['topbar'].showingQuit()) then return end
 
-	if circleInstanceVBO.usedElements == 0 then return end
+	if circleInstanceVBO.usedElements == 0 then
+		return end
 
-	if opacity < 0.01 then return end
+	if opacity < 0.01 then
+		return end
 
 	glColorMask(false, false, false, false)
 	glStencilTest(true)
@@ -370,7 +376,7 @@ function widget:DrawWorld()
 	-- Draw outer circles into stencil buffer
 		glStencilFunc(GL_ALWAYS, 1, 1) -- Always Passes, 1 Bit Plane, 1 As Mask
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE) -- Set The Stencil Buffer To 1 Where Draw Any Polygon
-		glLineWidth(rangeLineWidth + 1.0)
+		glLineWidth(rangeLineWidth) -- + 1.0
 		circleInstanceVBO.VAO:DrawArrays(GL_LINE_LOOP,circleInstanceVBO.numVertices,0,circleInstanceVBO.usedElements,0)
 
 	-- Draw inverse inner circles into stencil buffer

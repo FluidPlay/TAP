@@ -44,7 +44,7 @@ UnitResearchers = {
     [UnitDefNames["coravp"].id] = "nanobooster",
     [UnitDefNames["coraap"].id] = "nanobooster",
     [UnitDefNames["corasy"].id] = "nanobooster",
-	[UnitDefNames["armvp"].id] = "techupgrade",
+--	[UnitDefNames["armvp"].id] = "techupgrade",
 }
 
 local CMD_CAPTURE = CMD.CAPTURE
@@ -333,6 +333,7 @@ UnitUpgrades = {
                              [UnitDefNames["corasy"].id] = true,
         },
     },
+    ---Currently disabled, morph updates took its place
 	techupgrade = {     -- >> Core Informer Resurrect (Per Unit)
 		id = "techupgrade",
 		UpgradeCmdDesc = {
@@ -355,7 +356,7 @@ UnitUpgrades = {
 		type = "perunit",
 		buttonToUnlock = nil, --CMD_TECHUPGRADE,
 		buttonToUnlockTooltip = "",
-		upgradableDefIDs = { [UnitDefNames["armvp"].id] = true,
+		upgradableDefIDs = { --[UnitDefNames["armvp"].id] = true,
 							 --[UnitDefNames["armlab"].id] = true,
 							 --[UnitDefNames["armap"].id] = true,
 							 --[UnitDefNames["armsy"].id] = true,

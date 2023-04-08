@@ -108,7 +108,9 @@ local armorDefs = {
 		"armflash_shield",
 	},
 
-	ore = { "orelrg", "oreuber", "oremoho", "oresml", },
+	ore = { "orelrg", "oreuber", "oremoho", "oresml",
+			"kernhq_rt", "kernhq_lt", "kernhq_mt", "kernhq_ct", 	-- I know, that's a hack. We don't want them targettable.
+	},
 
 	["else"] = {},
 }

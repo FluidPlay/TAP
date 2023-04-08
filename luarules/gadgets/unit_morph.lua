@@ -436,25 +436,31 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    ---TODO: Only remove when there are no morph options in the target morphDef (is there a better way?)
-    local function removeMorphButtons(unitID)
-        Spring.Echo("unit_morph: trying to remove morph buttons")
-
-        local unitDefID = spGetUnitDefID(unitID)
-        local unitDefName = UnitDefs[unitDefID].name
-        local morphDefs = getMorphDefs(unitID,_, "removeMorphButtons")
-        if not istable (morphDefs) then
+    local function removeMorphButtons(unitID, caller)
+        ---Only remove when there are no morph options in the target morphDef (is there a better way?)
+        if istable(morphDestinationDefs(unitID)) then
             return end
-        for cmdID, morphDef in pairs(morphDefs) do
-            if (morphDef) then
-                local cmdDesc = spFindUnitCmdDesc(unitID, cmdID)
-                if (cmdDesc) then
-                    removeUnitCmdDesc(unitID, cmdDesc)
-                    removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
-                    removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
-                    removeUnitCmdDesc(unitID, CMD_MORPH_PAUSE)
-                end
+        Spring.Echo("unit_morph: trying to remove morph buttons from "..(unitID or "nil").."; caller = "..(caller and caller or "nil"))
+
+        removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
+        removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
+        removeUnitCmdDesc(unitID, CMD_MORPH_PAUSE)
+        local unitDefID = spGetUnitDefID(unitID)
+        --local unitDefName = UnitDefs[unitDefID].name
+        local morphDefs = getMorphDefs(unitID,unitDefID, "removeMorphButtons")
+        if not istable (morphDefs) then
+            Spring.Echo("remove morph buttons: morphdefs not found")
+            return
+        end
+        for cmdID, _ in pairs(morphDefs) do
+            Spring.Echo("Remove attempt for button: "..(cmdID or "nil"))
+            local cmdDesc = spFindUnitCmdDesc(unitID, cmdID)
+            if (cmdDesc) then
+                removeUnitCmdDesc(unitID, cmdDesc)
             end
+        end
+        for number = 0, MAX_MORPH - 1 do
+            removeUnitCmdDesc(unitID, CMD_MORPH + number)
         end
         --if not targetsMorphDefs(unitID) then
         --    for number = 0, MAX_MORPH - 1 do
@@ -1203,7 +1209,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         if scriptToCall then
             Spring.UnitScript.CallAsUnit(unitID, scriptToCall)
-            Spring.Echo("Play anim MorphUp #" .. (id or "nil"))
+            --Spring.Echo("Play anim MorphUp #" .. (id or "nil"))
         else
             Spring.Echo("Play anim MorphUp #" .. (id or "nil") .. " not found in unit " .. unitID .. "'s script environment")
         end
@@ -1302,7 +1308,8 @@ if (gadgetHandler:IsSyncedCode()) then
                 unitMorphDefs[unitID] = nextMorphDefs
             else
                 Spring.Echo("No next morph found")
-                removeMorphButtons(unitID)
+                --unitMorphDefs[unitID] = nil
+                removeMorphButtons(unitID, "FinishMorph")
             end
 
             ---####TODO: Check if needed
@@ -1313,7 +1320,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --        or morphDef.xp > unitXP or not teamHasTechs
             --spEditUnitCmdDesc(unitID, cmdDescID, morphCmdDesc)
 
-
+            Spring.Echo("Animation only # received: "..(animationonly or "nil"))
             playMorphById(unitID, animationonly)
             --// Send to unsynced so it can broadcast to widgets (and update selection here)
             SendToUnsynced("unit_morph_finished", unitID, newUnit)

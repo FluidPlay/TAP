@@ -78,10 +78,13 @@ assert(type(teamID) == "number","Argument teamID is of invalid type - expected n
 return boolMock
 end
 
-function Spring.CreateUnit   (  unitDefID, x, y , z, teamID)
-assert(type(unitID) == "number","Argument unitID is of invalid type - expected number");
-return  numberMock
- end
+function Spring.CreateUnit   (  unitDefID, x, y , z, direction, teamID)
+ assert(type(unitDefID) == "number","Argument unitID is of invalid type - expected number");
+ assert(type(x) == "number","Argument x is of invalid type - expected number");
+ assert(type(direction) == "direction","Argument direction is of invalid type - expected number");
+ assert(type(teamID) == "teamID","Argument teamID is of invalid type - expected number");
+ return  numberMock
+end
 
 function Spring.DestroyUnit   ( )
 return  numberMock

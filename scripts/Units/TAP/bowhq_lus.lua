@@ -168,10 +168,10 @@ local scriptEnv = { base = base,
 }
 
 local buildPiece = build_pos --building_plate
-local PlayAnimation = VFS.Include("scripts/animations/kernhq_anim.lua", scriptEnv)
+local PlayAnimation = VFS.Include("scripts/animations/kernhq_anim.lua", scriptEnv)	--TODO: switch to bowhq_anim once done
 scriptEnv.PlayAnimation = PlayAnimation
 
-script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3 = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
 
 function script.Create()
 	Spin(antenna_axis, z_axis, 2)

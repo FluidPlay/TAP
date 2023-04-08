@@ -64,6 +64,9 @@ local upgradeR_door = piece 'upgradeR_door'
 local plug_advR = piece 'plug_advR'
 local build_pos = piece 'build_pos'
 
+local spCreateUnit  = Spring.CreateUnit
+local BLUnitName    = "kernhq_lt"
+
 local pointer = { nanoL, nanoR }
 local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
 
@@ -171,19 +174,34 @@ local buildPiece = build_pos --building_plate
 local PlayAnimation = VFS.Include("scripts/animations/kernhq_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 
-script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3 = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+
+function SpawnAtBL()
+    local x,y,z = Spring.GetUnitPosition(unitID)
+    local ofsx,ofsy,ofsz = Spring.GetUnitPiecePosition ( unitID, plugBR )
+    local teamID = Spring.GetUnitTeam(unitID)
+    --Spring.Echo("Pos x: "..(x+ofsx or "nil").." z: "..(z+ofsz or "nil").." teamID = "..teamID)
+    local spawnedUnitID = spCreateUnit(BLUnitName, x+ofsx, y+ofsy, z+ofsz, 0, teamID)
+    if not spawnedUnitID then
+--        Spring.Echo("Unit not created")
+        return end
+--    Spring.Echo("Unit CREATED")
+    Spring.UnitScript.AttachUnit ( plugBR, spawnedUnitID)
+end
 
 function script.Create()
-    --TODO: Fix initTween not in a thread
-    --initTween({veryLastFrame=36,
-    --           [antenna_base]={
-    --               [1]={cmd="move", axis=z_axis, targetValue=15.000000, firstFrame=0, lastFrame=36,},
-    --           }
-    --})
+    StartThread(function ()
+        initTween({veryLastFrame=36,
+                   [antenna_base]={
+                       [1]={cmd="move", axis=z_axis, targetValue=15.000000, firstFrame=0, lastFrame=36,},
+                   }
+        })
+    end)
 	Spin(antenna_axis, z_axis, 2)
 	Spin(Y_right, x_axis, -4)
 	Spin(Y_left, x_axis, 4)
 	Spin(antenna_upgrade, z_axis, -1)
+    SpawnAtBL()
 	script_create()
 end
 

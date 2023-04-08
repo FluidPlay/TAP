@@ -103,17 +103,49 @@ local function pieceSetup(advanced)
 	end
 end
 
-local function morphAnimSetup()
+-- This is called by unit_morph, when the 'animationonly' tag is set in the morphData
+-- The first morph-up animation is always the "advanced" mode one, thus it requires additional setup
+function MorphUp()
 	isAdvanced = true
 	pieceSetup(true)
-	PlayAnimation.morphup()
+	Spring.SetUnitNanoPieces(unitID, advNanoPieces)
+	UnitScript.StartThread(function()
+		PlayAnimation.morphup()
+	end)
 end
 
--- This is called by unit_morph, when the 'animationonly' tag is set in the morphData
-function MorphUp()
-	Spring.SetUnitNanoPieces(unitID, advNanoPieces)
-	UnitScript.StartThread(morphAnimSetup)
+-- Below are the subsequent morph-up animations; here we support up to 6 morph-up animations, but unit_morph might
+-- 	need to be edited
+function MorphUp2()
+	UnitScript.StartThread(function ()
+		PlayAnimation.morphup2()
+	end)
 end
+
+function MorphUp3()
+	UnitScript.StartThread(function ()
+		PlayAnimation.morphup3()
+	end)
+end
+
+function MorphUp4()
+	UnitScript.StartThread(function ()
+		PlayAnimation.morphup4()
+	end)
+end
+
+function MorphUp5()
+	UnitScript.StartThread(function ()
+		PlayAnimation.morphup5()
+	end)
+end
+
+function MorphUp6()
+	UnitScript.StartThread(function ()
+		PlayAnimation.morphup6()
+	end)
+end
+
 
 local function Stop()
 	--Spring.UnitScript.Signal(SIG_STATECHG)
@@ -278,4 +310,4 @@ function script_killed(recentDamage, maxHealth)
 	return (corpsetype)
 end
 
-return script_create, script_activate, script_deactivate, script_killed, MorphUp
+return script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3, MorphUp4, MorphUp5, MorphUp6

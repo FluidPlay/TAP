@@ -261,6 +261,11 @@ local weaponDamageTypes = {
 	corvroc = { ["Rocket"] = "plasma", },
     corvrad = { ["neutronstriketagger"] = "thermo", ["Shield"] = "omni", },
 	corjugg = { ["GaussCannon"] = "omni", ["LightLaser"] = "laser", },
+
+	kernhq_lt = { ["HighEnergyLaser"] = "laser", },
+	kernhq_ct = { ["HQCannon"] = "cannon", },
+	kernhq_mt = { ["Missiles"] = "pierce", ["AAMissiles"] = "pierce", },
+	kernhq_rt = { ["ScoutPulse"] = "omni", },
 	
 	["else"] = {},
 }

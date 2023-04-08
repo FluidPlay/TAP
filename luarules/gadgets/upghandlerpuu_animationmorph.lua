@@ -18,7 +18,7 @@ end
 --- What's this for?
 ---     In some cases, you don't want the morph to replace the unit for a new one. When there are weapon changes,
 ---     replacement is usually the best option. But for factories, for instance, you might get units under production
----     stuck due different yardmaps, and/or lose whatever was being produced while the morph finished. That's what
+---     stuck due to different yardmaps, and/or lose whatever was being produced while the morph finished. That's what
 ---     "animation-only" morphs are for, you just play an animation (defined in the script) and unlocks buildoptions
 ---     if needed (usually "advanced" units)
 --- How to use it?
@@ -112,7 +112,7 @@ local function Update()
             --Spring.Echo("Morph-animation local upgrade assigned")
             --SetDisableButtons(unitID, false)
 
-            GG.removeMorphButtons(unitID) --(unitID, unitDefID)
+            GG.removeMorphButtons(unitID, "upghandlerpuu_animationmorph") --(unitID, unitDefID)
         end
     end
 end
