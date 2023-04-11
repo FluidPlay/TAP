@@ -403,15 +403,15 @@ if (gadgetHandler:IsSyncedCode()) then
         for _, morphDef in pairsByKeys(morphDefs) do
             local morphTargetDefID = morphDef.intoId
             if morphTargetDefID ~= nil then
-                Spring.Echo("morph Def intoId: "..morphTargetDefID)
+                --Spring.Echo("morph Def intoId: "..morphTargetDefID)
                 local targetMorphDefs = getMorphDefs(_, morphTargetDefID, "morphDestinationDefs (next)")
-                for _, tgtMorphDef in pairsByKeys(targetMorphDefs) do
-                    Spring.Echo("\nmorphdef next morph uDef name: ".. (tgtMorphDef and tgtMorphDef.into or "nil"))
-                    break
-                end
+                --for _, tgtMorphDef in pairsByKeys(targetMorphDefs) do
+                    --Spring.Echo("\nmorphdef next morph uDef name: ".. (tgtMorphDef and tgtMorphDef.into or "nil"))
+                --break
+                --end
                 return targetMorphDefs
             else
-                Spring.Echo("\ncouldn't find next morphdef uDef name..")
+                --Spring.Echo("\ncouldn't find next morphdef uDef name..")
             end
         end
 
@@ -440,7 +440,7 @@ if (gadgetHandler:IsSyncedCode()) then
         ---Only remove when there are no morph options in the target morphDef (is there a better way?)
         if istable(morphDestinationDefs(unitID)) then
             return end
-        Spring.Echo("unit_morph: trying to remove morph buttons from "..(unitID or "nil").."; caller = "..(caller and caller or "nil"))
+        --Spring.Echo("unit_morph: trying to remove morph buttons from "..(unitID or "nil").."; caller = "..(caller and caller or "nil"))
 
         removeUnitCmdDesc(unitID, CMD_MORPH_STOP)
         removeUnitCmdDesc(unitID, CMD_MORPH_QUEUE)
@@ -449,11 +449,11 @@ if (gadgetHandler:IsSyncedCode()) then
         --local unitDefName = UnitDefs[unitDefID].name
         local morphDefs = getMorphDefs(unitID,unitDefID, "removeMorphButtons")
         if not istable (morphDefs) then
-            Spring.Echo("remove morph buttons: morphdefs not found")
+            --Spring.Echo("remove morph buttons: morphdefs not found")
             return
         end
         for cmdID, _ in pairs(morphDefs) do
-            Spring.Echo("Remove attempt for button: "..(cmdID or "nil"))
+            --Spring.Echo("Remove attempt for button: "..(cmdID or "nil"))
             local cmdDesc = spFindUnitCmdDesc(unitID, cmdID)
             if (cmdDesc) then
                 removeUnitCmdDesc(unitID, cmdDesc)
@@ -1246,11 +1246,11 @@ if (gadgetHandler:IsSyncedCode()) then
         local signal = morphData.def.signal
 
 
-        Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
-                "; animationonly = " .. (animationonly or "nil") ..
-                ",  copystatsonly = " .. (copystatsonly or "nil") ..
-                ", signal = " .. (signal or "nil")
-        )
+        --Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
+        --        "; animationonly = " .. (animationonly or "nil") ..
+        --        ",  copystatsonly = " .. (copystatsonly or "nil") ..
+        --        ", signal = " .. (signal or "nil")
+        --)
 
         --- Should not replace unit when animationonly or copystatsonly are set
         if (isnumber(animationonly) and animationonly > 0) or copystatsonly == 1 then
@@ -1320,7 +1320,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --        or morphDef.xp > unitXP or not teamHasTechs
             --spEditUnitCmdDesc(unitID, cmdDescID, morphCmdDesc)
 
-            Spring.Echo("Animation only # received: "..(animationonly or "nil"))
+            --Spring.Echo("Animation only # received: "..(animationonly or "nil"))
             playMorphById(unitID, animationonly)
             --// Send to unsynced so it can broadcast to widgets (and update selection here)
             SendToUnsynced("unit_morph_finished", unitID, newUnit)
@@ -1945,9 +1945,9 @@ if (gadgetHandler:IsSyncedCode()) then
     function gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
         local morphData = morphingUnits[unitID]   -- def = morphDef, progress = 0.0, increment = morphDef.increment,
         --                                           morphID = morphID, teamID = teamID, paused = false
-        if morphData then
-            Spring.Echo("Has morphData @AllowCommand: "..tostring(istable(morphData)))
-        end
+        --if morphData then
+        --    Spring.Echo("Has morphData @AllowCommand: "..tostring(istable(morphData)))
+        --end
         if morphData then
             if cmdID == CMD_MORPH_STOP then
                 -- or (cmdID == CMD.STOP)
@@ -1971,15 +1971,15 @@ if (gadgetHandler:IsSyncedCode()) then
         elseif cmdID >= CMD_MORPH and cmdID < CMD_MORPH + MAX_MORPH then
             -- Valid MORPH command, allow it to go through (actually processed in gadget:commandfallback)
             --Spring.Echo(" Has Tech: "..hasTech(unitID, unitDefID, teamID, cmdID))
-            Spring.Echo("Allowcommand: Valid morph command issued!")
+            --Spring.Echo("Allowcommand: Valid morph command issued!")
             if hasTech(unitID, unitDefID, teamID, cmdID) and isFactory(unitDefID) then
-                Spring.Echo("Allowcommand: prerequisites ok")
+                --Spring.Echo("Allowcommand: prerequisites ok")
                 --// the factory cai is broken and doesn't call CommandFallback(),
                 --// so we have to start the morph here
                 --local morphDef = getOneMorphDef(unitID, unitDefID, cmdID)
                 local morphDefs = getMorphDefs(unitID, unitDefID, "AllowCommand")
                 local morphDef = morphDefs[getValidCmdID(morphDefs)]
-                Spring.Echo("Allowcommand: Found morphDef: "..tostring(istable(morphDef)))
+                --Spring.Echo("Allowcommand: Found morphDef: "..tostring(istable(morphDef)))
                 StartMorph(unitID, morphDef, teamID)
                 return false
             else

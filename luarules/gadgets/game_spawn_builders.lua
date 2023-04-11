@@ -37,6 +37,7 @@ if gadgetHandler:IsSyncedCode() then
     local corckid = UnitDefNames["corck"].id
 
     local startWeapName = "kernhq_lt"
+    local startTechName = "kernhq_rt"
 
     local minSpawnDistance = 150    -- This prevents duplicated geothermals in faulty maps
     --local respawnTime = 60 -- in frames; 60f = 2s
@@ -91,6 +92,10 @@ if gadgetHandler:IsSyncedCode() then
 
         local px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
         local spawnedUnitID = spCreateUnit(startWeapName, px, py, pz, 0, teamID)
+
+        pieceID = piecemap["plugFL2"]
+        px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
+        spawnedUnitID = spCreateUnit(startTechName, px, py, pz, 0, teamID)
         --Spring.UnitAttach(unitID, spawnedUnitID, pieceID)
     end
 

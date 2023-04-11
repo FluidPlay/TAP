@@ -32,6 +32,7 @@ return {
 		seismicsignature = 4,
 		selfdestructas = "",
 		side = "BOW",
+		script="Other/spotter.cob",
 		sightdistance = 400,
 		turninplaceanglelimit = 140,
 		turninplacespeedlimit = 0,
