@@ -74,7 +74,7 @@ local gaiaTeamID = Spring.GetGaiaTeamID()
 local startupGracetime = 60 --300        -- Widget won't work at all before those many frames (10s)
 local updateRate = 15               -- Global update "tick rate"
 
-local recheckLatency = 30 -- Delay until a de-automated unit checks for automation again
+local recheckLatency = 30 -- Delay until a commanded/idle unit checks for automation again
 local automatedState = {}
 
 local oretowerShortScanRange = 250 -- Collection-start scan range (not used here, only by auto_assist actually)
@@ -105,7 +105,7 @@ local oreChunks = {} --TODO
 local orphanHarvesters = {}     -- { unitID = true, ... }    -- has no parentOretower assigned, "idle"
 -- Post direct order                // { [unitID] = frameToTryReautomation, ... }
                                     -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
-local automatedHarvesters = {}    -- { unitID = true, ... }    -- Basically the opposite of an 'orphaHarvester'
+local automatedHarvesters = {}    -- { unitID = true, ... }    -- Basically the opposite of an 'orphanHarvester'
 
 local CMD_FIGHT = CMD.FIGHT
 local CMD_PATROL = CMD.PATROL
@@ -147,6 +147,28 @@ function widget:PlayerChanged()
     if Spring.GetSpectatingState() and Spring.GetGameFrame() > 0 then
         widgetHandler:RemoveWidget(self)
     end
+end
+
+local function removeAttack(unitID)
+    --Spring.Echo("unitai_auto_harvest: removing Cmds")
+    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
+end
+
+local function deautomateUnit(unitID)
+    removeAttack(unitID)  -- removes Guard, Patrol, Fight and Repair commands
+    --spEcho("Deharvesting Unit: "..unitID)
+    --harvestersInAction[unitID] = nil
+    automatedHarvesters[unitID] = nil
+    spEcho("Auto harvest:: Deautomating Unit: "..unitID..", try re-automation in: "..harvesters[unitID].recheckFrame)
+end
+
+local function setHarvestState(unitID, state, caller) -- idle, attack, waitforunload, deliver, resume
+    if state == "idle" then
+        deautomateUnit(unitID)
+        harvesters[unitID].recheckFrame = spGetGameFrame() + recheckLatency
+    end
+    harvestState[unitID] = state
+    spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
 end
 
 ---- Disable widget if I'm spec
@@ -192,13 +214,14 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
         return end
     if oreTowerDefNames[unitDef.name] then
         oreTowers[unitID] = getOreTowerRange(nil, unitDef) end
-    --local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
-    --if maxorestorage and maxorestorage > 0 then
+    local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+    if maxorestorage and maxorestorage > 0 then
+        setHarvestState(unitID, "idle", "UnitFinished")
     --    harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
     --                           recheckFrame = spGetGameFrame() + recheckLatency,  }
     --    Spring.Echo("unitai_autoharvest: added harvester: "..unitID.." storage: "..maxorestorage)
     --    orphanHarvesters[unitID] = true -- newborns are orphan. Usually not for long.
-    --end
+    end
 end
 
 function widget:UnitDestroyed(unitID)
@@ -231,28 +254,6 @@ local function GetNearestSpotPos(x, z)
         end
     end
     return bestSpot
-end
-
-local function removeAttack(unitID)
-    --Spring.Echo("unitai_auto_harvest: removing Cmds")
-    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
-end
-
-local function deautomateUnit(unitID)
-    removeAttack(unitID)  -- removes Guard, Patrol, Fight and Repair commands
-    --spEcho("Deharvesting Unit: "..unitID)
-    --harvestersInAction[unitID] = nil
-    automatedHarvesters[unitID] = nil
-    spEcho("Auto harvest:: Deautomating Unit: "..unitID..", try re-automation in: "..harvesters[unitID].recheckFrame)
-end
-
-local function setHarvestState(unitID, state, caller) -- idle, attack, waitforunload, deliver, resume
-    if state == "idle" then
-        deautomateUnit(unitID)
-        harvesters[unitID].recheckFrame = spGetGameFrame() + recheckLatency
-    end
-    harvestState[unitID] = state
-    spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
 end
 
 local function checkParentOreTowerID(ud)
@@ -415,7 +416,7 @@ local automatedFunctions = {
                 local nearestChunkID = getNearestChunkID(ud)
                 ud.nearestChunkID = nearestChunkID
                 local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
-                local isReallyIdle = (not hasBuildQueue(ud.unitID)) and (not hasCommandQueue(ud.unitID))
+                local isReallyIdle = (not HasBuildQueue(ud.unitID)) and (not HasCommandQueue(ud.unitID))
                 spEcho("target Chunk: "..(ud.targetChunkID or "nil"))
                 return  harvestState[ud.unitID] == "returningandstuck"
                         or
@@ -442,9 +443,8 @@ local automatedFunctions = {
                 spEcho("**6** Idle actions")
                 harvesters[ud.unitID].parentOreTowerID = nil
                 harvesters[ud.unitID].returnPos = nil
-                if WG.automatedStates[ud.unitID] ~= "deautomated" then
---                    WG.automatedStates[ud.unitID] = "deautomated"
-                    WG.setAutomateState(ud.unitID, "deautomated", "autoHarvest")
+                if WG.automatedStates[ud.unitID] ~= "commanded" then
+                    WG.setAutomateState(ud.unitID, "commanded", "autoHarvest")
                 end
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
@@ -519,7 +519,7 @@ end
 --                end
 --            end
 --            if not setToAttacking then
---                setHarvestState(unitID, "idle", "CommandNotify") --"deautomated"
+--                setHarvestState(unitID, "idle", "CommandNotify") --"commanded"
 --            end
 --        end
 --    end
@@ -537,14 +537,14 @@ end
 
 --- Frame-based Update
 function widget:GameFrame(f)
-    if f < startupGracetime then
-        return
-    end
+    --if f < startupGracetime then
+    --    return
+    --end
     if f % updateRate < 0.001 then
         for harvesterID, data in pairs(harvesters) do
-            local maxStorage = data.maxorestorage
-            local curStorage = getUnitHarvestStorage(harvesterID) or 0
-            --Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
+            --local maxStorage = data.maxorestorage
+            --local curStorage = getUnitHarvestStorage(harvesterID) or 0
+            Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
             if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
                 --- Check/Update harvest Automation
                 --local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
@@ -566,7 +566,7 @@ function widget:RecvLuaMsg(msg, playerID)
     --    return end
     --Spring.Echo("Message Received: "..msg)
     local data = Split(msg, '_')
-    if data[1] == 'unitDeautomated' then
+    if data[1] == 'unitCommanded' then
         local unitID = tonumber(data[2])
         --Spring.Echo("Harvester To Deautomate: "..(unitID or "nil"))
         if unitID and harvesters[unitID] then

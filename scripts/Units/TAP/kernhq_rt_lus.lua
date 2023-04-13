@@ -6,6 +6,21 @@ fireSlot = 1
 
 local SIG_AIM = {}
 
+local sfxBITMAPONLY = 32    --https://github.com/Balanced-Annihilation/Balanced-Annihilation/blob/master/scripts/exptype.h
+local sfxBITMAP1 = 256
+local sfxBITMAP2 = 512
+local sfxBITMAP3 = 1024
+local sfxBITMAP4 = 2048
+local sfxBITMAP5 = 4096
+local sfxShatter = SFX.SHATTER
+local sfxFall = SFX.FALL
+local sfxFire = SFX.FIRE
+local sfxSmoke = SFX.SMOKE
+local sfxExplodeOnHit = SFX.EXPLODE_ON_HIT
+
+local explosionFx1 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit
+local explosionFx2 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3
+
 --- For units which emit smoke when damaged, fired up from script.Create
 function SmokeUnit(healthPercent, sleepTime, smokeType)
 --SmokeUnit(healthpercent, sleeptime, smoketype)
@@ -94,8 +109,8 @@ end
 
 function script.Killed()
 		--Explode(base, SFX.SHATTER + SFX.NO_HEATCLOUD)
-		Explode(poke_top, SFX.EXPLODE_ON_HIT + SFX.SMOKE + SFX.FIRE + SFX.FALL + SFX.NO_HEATCLOUD)
-		Explode(panelL_upgrade, SFX.FALL + SFX.NO_HEATCLOUD)
-		Explode(panelR_upgrade, SFX.EXPLODE_ON_HIT + SFX.SMOKE + SFX.FIRE + SFX.FALL + SFX.NO_HEATCLOUD)
+		Explode(pole_top, explosionFx1)
+		Explode(panelL_upgrade, explosionFx2)
+		Explode(panelR_upgrade, explosionFx1)
 		return 3   -- spawn ARMSTUMP_DEAD corpse / This is the equivalent of corpsetype = 1; in bos
 end
