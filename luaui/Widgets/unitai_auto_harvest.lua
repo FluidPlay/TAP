@@ -560,6 +560,10 @@ function widget:GameFrame(f)
     --- => Find nearest ore tower and set parentOretower, new returnPos to it
     --- => Attack nearest ore Chunk
 end
+--
+--function widgetHandler:UnitCommand(unitID, unitDefID, unitTeam, cmdID)
+--    Spring.Echo("UnitCommand for "..unitID..": "..cmdID)
+--end
 
 ----From unitai_auto_assist or eco_ore_manager: Spring.SendLuaRulesMsg("msgKey_"..value, "allies")
 function widget:RecvLuaMsg(msg, playerID)
@@ -612,7 +616,7 @@ function widget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
     widget:UnitDestroyed(unitID, unitDefID, oldTeamID)
 end
 
-function widget:ViewResize(n_vsx,n_vsy)
-    vsx, vsy = glGetViewSizes()
-    widgetScale = (0.50 + (vsx*vsy / 5000000))
-end
+--function widget:ViewResize(n_vsx,n_vsy)
+--    vsx, vsy = glGetViewSizes()
+--    widgetScale = (0.50 + (vsx*vsy / 5000000))
+--end

@@ -198,17 +198,15 @@ local function unitIsBeingBuilt(unitID)
 end
 
 local function removeCommands(unitID)
-    Spring.Echo("unitai_autoassist: removing cmds")
+    --Spring.Echo("unitai_autoassist: removing cmds")
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
 end
 
---- Spring's UnitIdle is just too weird, it fires up when units are transitioning between commands..
 --function widget:UnitIdle(unitID, unitDefID, unitTeam)
-local function forceUnitIdle(unitID) --, delay)
+local function assureUnitIsIdle(unitID) --, delay)
     if not automatableUnits[unitID] then
         return end
     removeCommands(unitID)
-    spGiveOrderToUnit(unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
     setAutomateState(unitID, "idle", "forceUnitIdle")
     if WG.harvestState then
         WG.harvestState[unitID] = "idle" end   -- Forces unitai_auto_harvest into idle state
@@ -218,7 +216,7 @@ local function DeautomateUnit(unitID, caller)
     ---TODO: Below should only be called if a build order was issued, or if issued by unitai_auto_harvest
     if caller == "CommandNotifyBuild" or caller == "CommandNotify" or caller == "autoHarvest" then
         --removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
-        forceUnitIdle(unitID)
+        assureUnitIsIdle(unitID)
     end
     workingUnits[unitID] = nil
     --- It'll only get out of commanded if it's idle, that's only the delay to recheck idle
@@ -261,7 +259,7 @@ end
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
     if automatableUnits[unitID] then
-        Spring.Echo("Unit idle: "..unitID.." idled") -- automatable? "..tostring(automatableUnits[unitID]))
+        Spring.Echo("UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
     end
 end
@@ -814,7 +812,7 @@ local function automateCheck(unitID, unitDef, caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-    Spring.Echo("CommandID registered: "..(cmdID or "nil"))
+    Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
@@ -855,20 +853,9 @@ function widget:GameFrame(f)
     --- First let's verify if units tagged by widget:unitIdle are still idle, one second after the fact
     for unitID, recheckFrame in pairs(unitIdleEvent) do
         if IsValidUnit(unitID) and f >= recheckFrame then
-            --local commandq = spGetCommandQueue(unitID, -1)
-            --Spring.Echo("\nCommand Queue for: "..unitID)
-            --DebugTable(commandq)
-
-            --local unitDef = UnitDefs[spGetUnitDefID(unitID)]
-            --Spring.Echo("unitID: "..unitID.." f: "..f.." recheckFrame: "..recheckFrame.." buildQ: "..tostring(HasBuildQueue(unitID)).." commandQ: "..tostring(HasCommandQueue(unitID)))
-            --if HasBuildQueue(unitID) or HasCommandQueue(unitID) then
-            --    reallyIdleUnits[unitID] = false
-            --    unitIdleEvent[unitID] = spGetGameFrame() + automationLatency
-            --else
             reallyIdleUnits[unitID] = true
             setAutomateState(unitID, "idle", "GameFrame")
             unitIdleEvent[unitID] = nil
-            --end
         end
     end
 
