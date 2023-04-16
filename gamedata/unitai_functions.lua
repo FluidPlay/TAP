@@ -48,7 +48,7 @@ local function math_clamp(min, max, n)
     return n
 end
 
-function hasBuildQueue(unitID)
+function HasBuildQueue(unitID)
     if not IsValidUnit(unitID) then
         return end
     local buildqueue = spGetFullBuildQueue(unitID) -- => nil | buildOrders = { [1] = { [number unitDefID] = number count }, ... } }
@@ -60,7 +60,7 @@ function hasBuildQueue(unitID)
     end
 end
 
-function hasCommandQueue(unitID)
+function HasCommandQueue(unitID)
     if not IsValidUnit(unitID) then
         return end
     --local commandQueue = spGetCommandQueue(unitID, 0)
@@ -137,7 +137,7 @@ end
 function getNearestFactoryID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
             function(x) return x.isFactory end,     --We're only interested in factories currently producing
-            function(x) return hasBuildQueue(x) end)
+            function(x) return HasBuildQueue(x) end)
 end
 
 function getNearestMetalID (ud)

@@ -47,11 +47,12 @@ function widget:DrawScreen()
     gl.PushMatrix()
     gl.Translate(50, 50, 0)
     gl.BeginText()
+    SetColor(1,1,1,1)
     for unitID, state in pairs(WG.automatedStates) do
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy, sz = spWorldToScreenCoords(x, y, z)
-            local text = state or "nil"
+            local text = (state or "nil") .." | "..unitID
             --local substate = ""
             --if (state == "harvest") then
             --    substate = WG.harvestSubStates[unitID]

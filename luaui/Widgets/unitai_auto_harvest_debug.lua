@@ -27,10 +27,10 @@ local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color = gl.Color
 
---local function SetColor(r,g,b,a)
---    gl_Color(r,g,b,a)
---    font:SetTextColor(r,g,b,a)
---end
+local function SetColor(r,g,b,a)
+    gl_Color(r,g,b,a)
+    font:SetTextColor(r,g,b,a)
+end
 
 local harvesters = WG.harvesters
 
@@ -50,6 +50,7 @@ function widget:DrawScreen()
     gl.PushMatrix()
     gl.Translate(50, 35, 0)
     gl.BeginText()
+    SetColor(0.96,0.625,0,1)
     for unitID, state in pairs(WG.harvestState) do
         if spIsUnitInView(unitID) then
             local x, y, z = spGetUnitViewPosition(unitID)

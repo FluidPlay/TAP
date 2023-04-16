@@ -239,7 +239,7 @@ function setAutomateState(unitID, state, caller)
         workingUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -730,7 +730,7 @@ local automatedFunctions = {
                 --local recheckFrame = commandedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
                 --if automatedState[ud.unitID] == "repair" then
-                Spring.Echo("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
+                --Spring.Echo("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
 
                 if automatedState[ud.unitID] == "idle" then
                     return false end

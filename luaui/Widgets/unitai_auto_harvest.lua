@@ -217,6 +217,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
     if maxorestorage and maxorestorage > 0 then
         setHarvestState(unitID, "idle", "UnitFinished")
+        Spring.Echo("Added harvester: "..unitID)
     --    harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
     --                           recheckFrame = spGetGameFrame() + recheckLatency,  }
     --    Spring.Echo("unitai_autoharvest: added harvester: "..unitID.." storage: "..maxorestorage)
@@ -544,7 +545,7 @@ function widget:GameFrame(f)
         for harvesterID, data in pairs(harvesters) do
             --local maxStorage = data.maxorestorage
             --local curStorage = getUnitHarvestStorage(harvesterID) or 0
-            Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
+            --Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
             if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
                 --- Check/Update harvest Automation
                 --local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]

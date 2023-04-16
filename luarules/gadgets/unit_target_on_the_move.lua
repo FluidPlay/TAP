@@ -50,7 +50,7 @@ if gadgetHandler:IsSyncedCode() then
 
 	-- Unseen targets will be removed after at least UNSEEN_TIMEOUT*USEEN_UPDATE_FREQUENCY frames
 	-- and at most (UNSEEN_TIMEOUT+1)*USEEN_UPDATE_FREQUENCY frames/
-	local USEEN_UPDATE_FREQUENCY = 150
+	local UNSEEN_UPDATE_FREQUENCY = 150
 	local UNSEEN_TIMEOUT = 2
 
 
@@ -618,7 +618,7 @@ if gadgetHandler:IsSyncedCode() then
 			end
 		end
 
-		if n % USEEN_UPDATE_FREQUENCY == 0 then
+		if n % UNSEEN_UPDATE_FREQUENCY < 0.001 then
 			for unitID, unitData in pairs(unitTargets) do
 				for index, targetData in ipairs(unitData.targets) do
 					if removeUnseenTarget(targetData, unitData.allyTeam) then
