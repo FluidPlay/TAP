@@ -36,7 +36,7 @@ local harvesters = WG.harvesters
 
 function widget:Initialize()
     if not WG.harvestState then
-        Spring.Echo("<AI Harvester Brain> This widget requires the 'AI Builder Brain' widget to run.")
+        Spring.Echo("<AI Harvester Brain> This widget requires the 'UnitAI Auto Harvest' widget to run.")
         widgetHandler:RemoveWidget(self)
     end
     harvesters = WG.harvesters

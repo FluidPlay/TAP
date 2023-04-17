@@ -444,8 +444,8 @@ local automatedFunctions = {
                 spEcho("**6** Idle actions")
                 harvesters[ud.unitID].parentOreTowerID = nil
                 harvesters[ud.unitID].returnPos = nil
-                if WG.automatedStates[ud.unitID] ~= "commanded" then
-                    WG.setAutomateState(ud.unitID, "commanded", "autoHarvest")
+                if WG.automatedStates[ud.unitID] ~= "idle" then
+                    WG.setAutomateState(ud.unitID, "idle", "autoHarvest")
                 end
                 --spGiveOrderToUnit(ud.unitID, CMD_STOP, {} , CMD_OPT_RIGHT )
                 return "idle"
@@ -454,7 +454,7 @@ local automatedFunctions = {
 }
 
 local function automateCheck(unitID, caller)
-    if not unitID then
+    if not IsValidUnit(unitID) then
         return end
     local unitDef = harvesters[unitID].unitDef
     if not unitDef then
@@ -546,7 +546,7 @@ function widget:GameFrame(f)
             --local maxStorage = data.maxorestorage
             --local curStorage = getUnitHarvestStorage(harvesterID) or 0
             --Spring.Echo("Harvester id: "..harvesterID.." state: "..automatedState[harvesterID].." recheckFrame: "..data.recheckFrame.." this Frame: "..f)
-            if automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
+            if IsValidUnit(harvesterID) and automatedState[harvesterID] == "harvest" and f >= data.recheckFrame then
                 --- Check/Update harvest Automation
                 --local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
                 automateCheck(harvesterID, "harvesters")

@@ -655,6 +655,9 @@ end
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
 function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID, allyTeamID)
+	if pos.x == nil or pos.z == nil then
+		return nil
+	end
     --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID
     radius = radius and radius or 80 --default scan Radius
     local itemsAround = isFeature

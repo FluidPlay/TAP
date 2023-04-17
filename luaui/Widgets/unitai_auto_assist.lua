@@ -94,6 +94,7 @@ local commandedUnits = {} -- Post deautomation (direct order) // { [unitID] = fr
 local awaitedUnits = {}
 --local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
 local unitIdleEvent = {}      -- { [unitID] = frameToRecheckIdle, ...} // tracks units tagged by widget:unitIdle (requires further verification)
+local cancelUnitIdleEvent = {}-- { [unitID] = true | false, ... }
 local reallyIdleUnits = {}
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
@@ -199,14 +200,15 @@ end
 
 local function removeCommands(unitID)
     --Spring.Echo("unitai_autoassist: removing cmds")
+
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
+    cancelUnitIdleEvent[unitID] = true
 end
 
 --function widget:UnitIdle(unitID, unitDefID, unitTeam)
 local function assureUnitIsIdle(unitID) --, delay)
     if not automatableUnits[unitID] then
         return end
-    removeCommands(unitID)
     setAutomateState(unitID, "idle", "forceUnitIdle")
     if WG.harvestState then
         WG.harvestState[unitID] = "idle" end   -- Forces unitai_auto_harvest into idle state
@@ -214,7 +216,7 @@ end
 
 local function DeautomateUnit(unitID, caller)
     ---TODO: Below should only be called if a build order was issued, or if issued by unitai_auto_harvest
-    if caller == "CommandNotifyBuild" or caller == "CommandNotify" or caller == "autoHarvest" then
+    if caller == "CommandNotifyBuild" then --or caller == "CommandNotify" or caller == "autoHarvest"
         --removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
         assureUnitIsIdle(unitID)
     end
@@ -237,7 +239,7 @@ function setAutomateState(unitID, state, caller)
         workingUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -258,8 +260,8 @@ end
 
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
-    if automatableUnits[unitID] then
-        Spring.Echo("UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
+    if automatableUnits[unitID] and not unitIdleEvent[unitID] then
+        Spring.Echo("widget:UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
     end
 end
@@ -410,10 +412,10 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     end
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
-        setAutomateState(unitID, "idle", "UnitFinished")
+        --setAutomateState(unitID, "idle", "UnitFinished")
         automatableUnits[unitID] = true
-        unitIdleEvent[unitID] = spGetGameFrame() + 3   -- Will recheck after only 3 frames, by default
-        --commandedUnits[unitID] = spGetGameFrame() + 3   ## TODO: Check if obsolete; probably unneeded
+        --unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after only 3 frames, by default
+        setAutomateState(unitID, "commanded", "UnitFinished")
     end
 end
 
@@ -799,6 +801,7 @@ local function automateCheck(unitID, unitDef, caller)
             --Spring.Echo("order issued: "..(ud.orderIssued or "nil"))
         end
         if ud.orderIssued then
+            --Spring.Echo("auto-assist order issued for "..(unitID or "nil"))
             unitIdleEvent[unitID] = nil
             break end
     end
@@ -812,7 +815,7 @@ local function automateCheck(unitID, unitDef, caller)
 end
 
 function widget:CommandNotify(cmdID, params, options)
-    Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
+    --Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
     ---TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
@@ -822,27 +825,29 @@ function widget:CommandNotify(cmdID, params, options)
             if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
                 spEcho("CMD_ATTACK, params #: "..#params)
                 if #params == 1 then -- and isOreChunk(params[1]) then
-                    --setAutomateState(unitID, "harvest", "CommandNotify")
                     automatableUnits[unitID] = params[1]    -- set Target
                 end
             end
             if automatedState[unitID] ~= "commanded" then -- if it's working, don't touch it
                 ---We do this to check if remove commands should be issued or not, down the pipe
-                --if options and options.shift then
+                if options and options.shift then
+                    removeCommands(unitID)
+                end
                 if cmdID and cmdID < 0 then
                     setAutomateState(unitID, "commanded", "CommandNotifyBuild")
                 else
                     setAutomateState(unitID, "commanded", "CommandNotify")
                 end
             end
-            unitIdleEvent[unitID] = nil
+            --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
+            --unitIdleEvent[unitID] = nil
         end
     end
 end
-
-function widget:UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
-    spEcho("CmdDone for "..(unitID or "nil").." cmdID: "..(cmdID or "nil"))
-end
+--
+--function widget:UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
+--    spEcho("CmdDone for "..(unitID or "nil").." cmdID: "..(cmdID or "nil"))
+--end
 
 --- Frame-based Update
 function widget:GameFrame(f)
@@ -852,10 +857,17 @@ function widget:GameFrame(f)
 
     --- First let's verify if units tagged by widget:unitIdle are still idle, one second after the fact
     for unitID, recheckFrame in pairs(unitIdleEvent) do
-        if IsValidUnit(unitID) and f >= recheckFrame then
-            reallyIdleUnits[unitID] = true
-            setAutomateState(unitID, "idle", "GameFrame")
+        if cancelUnitIdleEvent[unitID] then
+            cancelUnitIdleEvent[unitID] = nil
             unitIdleEvent[unitID] = nil
+        else
+            --Spring.Echo("Checking idleEvent for: "..(unitID or "nil"))
+            if f >= recheckFrame then    --IsValidUnit(unitID) and
+                reallyIdleUnits[unitID] = true
+                setAutomateState(unitID, "idle", "GameFrame")
+                Spring.Echo("Setting idle state for: "..unitID)
+                unitIdleEvent[unitID] = nil
+            end
         end
     end
 
@@ -896,7 +908,7 @@ function widget:GameFrame(f)
                 local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
                 if not orderIssued and not automatedState[unitID] and automatedState[unitID]~="commanded" then
                     --spEcho("1.5")
-                    setAutomateState(unitID, "commanded", "GameFrame: deautomate")
+                    setAutomateState(unitID, "idle", "GameFrame: deautomate")
                 end
             end
             unitsToAutomate[unitID] = nil
