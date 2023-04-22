@@ -239,7 +239,7 @@ function setAutomateState(unitID, state, caller)
         workingUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -261,7 +261,7 @@ end
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
     if automatableUnits[unitID] and not unitIdleEvent[unitID] then
-        Spring.Echo("widget:UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
+        --Spring.Echo("widget:UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
     end
 end

@@ -397,7 +397,7 @@ local automatedFunctions = {
                local dist = Spring.GetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
                --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                 if dist > 30 then   --TODO: De-hardcode
-                    spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")
+                    spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, {}) --"alt" favors reclaiming --Spring.Echo("Farking")
                     harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
                     --Spring.Echo("HARVESTER: Issued Command: ATTACK")
                     return "attacking"
