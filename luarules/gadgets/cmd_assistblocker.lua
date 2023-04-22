@@ -76,9 +76,15 @@ local CMD_GUARD		= CMD.GUARD
 --local CMD_STOP		= CMD.STOP
 
 -- These are the builders DefIDs to be assist-blocked
-local builderDefIDs = {
-    UnitDefNames.armck.id, UnitDefNames.corck.id, UnitDefNames.armcv.id, UnitDefNames.corcv.id,
-    UnitDefNames.armca.id, UnitDefNames.corca.id, UnitDefNames.armcs.id, UnitDefNames.corcs.id,
+--local builderDefIDs = {
+--    UnitDefNames.armck.id, UnitDefNames.corck.id, UnitDefNames.armcv.id, UnitDefNames.corcv.id,
+--    UnitDefNames.armca.id, UnitDefNames.corca.id, UnitDefNames.armcs.id, UnitDefNames.corcs.id,
+--}
+local basicBuilderDefIDs = {
+    [UnitDefNames.armck.id] = true, [UnitDefNames.corck.id] = true,
+    [UnitDefNames.armcv.id] = true, [UnitDefNames.corcv.id] = true,
+    [UnitDefNames.armca.id] = true, [UnitDefNames.corca.id] = true,
+    [UnitDefNames.armcs.id] = true, [UnitDefNames.corcs.id] = true,
 }
 local WIPmobileUnits = {}     -- { unitID, ... }
 local basicBuilderUnits     = {}     -- { unitID, ... }
@@ -87,15 +93,17 @@ local PausedPlayers         = {}     -- { [playerID]=pausedState, ... }
 GG.JustFinishedBuilders = {}
 
 local nextUpdate = 30
+local updateRate = 6
 
 --Returns if the uDef is from a basic builder or not
-local function IsBasicBuilder(uDefID)
+local function IsBasicBuilder(unitDefID)
+    return basicBuilderDefIDs[unitDefID]
     --Spring.Echo(tostringplus(udef))
-    for i = 1, #builderDefIDs do
-        if (builderDefIDs[i] == uDefID) then
-            return true end
-    end
-    return false
+    --for i = 1, #builderDefIDs do
+    --    if (builderDefIDs[i] == uDefID) then
+    --        return true end
+    --end
+    --return false
 end
 
 -- Check if it's Poker (Armfav)
@@ -370,20 +378,39 @@ if gadgetHandler:IsSyncedCode() then
     end
 
     function gadget:GameFrame(thisFrame)
+        if thisFrame % updateRate < 0.0001 then
+            return
+        end
         for _, v in ipairs(GG.JustFinishedBuilders) do
             local unitID = v.unitID
             if thisFrame > v.cleanupFrame then
-                ipairs_removeByElement(GG.JustFinishedBuilders,"unitID", unitID)
                 if IsValidUnit(unitID) then
                     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_REPAIR}, {"alt"})
                     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_GUARD}, {"alt"})
                     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL}, {"alt"})
                 end
+                ipairs_removeByElement(GG.JustFinishedBuilders,"unitID", unitID)
                 --Spring.Echo("blockassist: Repairs removed from: "..unitID)
                 --RemoveUnitFromTable(GG.JustFinishedBuilders, unitID)
             end
         end
     end
+
+    function gadget:AllowBuilderHoldFire(unitID, unitDefID, action)
+        --if IsBasicBuilder(unitDefID) then
+        Spring.Echo("Basic Builder trying to fire: "..(unitID or "nil"))
+        --end
+        return true
+    end
+
+--New in version 98.0 5a82d750 Called when a construction unit wants to "use his nano beams".
+--action is one of following:
+---1 Build
+--CMD.REPAIR Repair
+--    CMD.RECLAIM Reclaim
+--    CMD.RESTORE Restore
+--    CMD.RESURRECT Resurrect
+--    CMD.CAPTURE Capture
 
 else
 ---- #################  UNSYNCED
