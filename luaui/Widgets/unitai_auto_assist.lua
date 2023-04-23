@@ -827,8 +827,7 @@ function widget:CommandNotify(cmdID, params, options)
                 if #params == 1 then -- and isOreChunk(params[1]) then
                     automatableUnits[unitID] = params[1]    -- set Target
                 end
-            end
-            if automatedState[unitID] ~= "commanded" then -- if it's working, don't touch it
+            elseif automatedState[unitID] ~= "commanded" then -- if it's working, don't touch it
                 ---We do this to check if remove commands should be issued or not, down the pipe
                 if options and options.shift then
                     removeCommands(unitID)
@@ -865,7 +864,7 @@ function widget:GameFrame(f)
             if f >= recheckFrame then    --IsValidUnit(unitID) and
                 reallyIdleUnits[unitID] = true
                 setAutomateState(unitID, "idle", "GameFrame")
-                Spring.Echo("Setting idle state for: "..unitID)
+                --Spring.Echo("Setting idle state for: "..unitID)
                 unitIdleEvent[unitID] = nil
             end
         end
