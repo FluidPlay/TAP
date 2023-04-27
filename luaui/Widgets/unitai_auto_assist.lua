@@ -94,7 +94,6 @@ local commandedUnits = {} -- Post deautomation (direct order) // { [unitID] = fr
 local awaitedUnits = {}
 --local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
 local unitIdleEvent = {}      -- { [unitID] = frameToRecheckIdle, ...} // tracks units tagged by widget:unitIdle (requires further verification)
-local internalCmdEvent = {}-- { [unitID] = true | false, ... }
 local reallyIdleUnits = {}
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
@@ -207,7 +206,7 @@ end
 
 local function giveInternalOrderToUnit(unitID, cmdID, params, options)
     spGiveOrderToUnit(unitID, cmdID, params, options)
-    internalCmdEvent[unitID] = true
+    --internalCmdEvent[unitID] = true
 end
 
 local function removeCommands(unitID)
@@ -274,11 +273,11 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
     if reallyIdleUnits[unitID] then
         Spring.Echo("reallyIdleUnits still set for: "..unitID)
     end
-    if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
-        Spring.Echo("internal cmd Event blocked idle from firing")
-        internalCmdEvent[unitID] = nil
-        unitIdleEvent[unitID] = nil
-    elseif automatedState[unitID] ~= "harvest" then
+    --if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
+    --    Spring.Echo("internal cmd Event blocked idle from firing")
+    --    internalCmdEvent[unitID] = nil
+    --    unitIdleEvent[unitID] = nil
+    if automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
         Spring.Echo("Idle event fired for "..(unitID or "nil"))
     end
@@ -613,7 +612,6 @@ local automatedFunctions = {
                     local nearestRepairableID = getNearestRepairableID(ud)
                     nearestTargetID = nearestRepairableID -- only finished units can be targetted then
                 end
-                Spring.Echo("Repair - nearestTargetID: "..(nearestTargetID or "nil"))
                 if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
                     --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
                     giveInternalOrderToUnit(ud.unitID, CMD_REPAIR, { nearestTargetID }, {} )
@@ -625,7 +623,7 @@ local automatedFunctions = {
     },
     [5] = { id="assist",
             condition =  function(ud) --unitData
-                --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
+                Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
                 local hasResources = resourcesCheck()
                 return canassist[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "enemyreclaim"
@@ -637,6 +635,7 @@ local automatedFunctions = {
             end,
             action = function(ud)
                 --Spring.Echo("[3] Factory-assist check \nAutoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
+                Spring.Echo("Executing assist for "..ud.unitID)
                 --TODO: If during 'automation' it's assisting/guarding a factory but factory stopped production, de-automate it
                 local nearestFactoryID = getNearestFactoryID(ud)
                 if nearestFactoryID then
@@ -785,9 +784,9 @@ function widget:GameFrame(f)
             local unitDef = UnitDefs[spGetUnitDefID(unitID)]
             --- PS: we only un-set unitsToAutomate[unitID] down the pipe, if automation is successful
             if unitDef then
+                --Spring.Echo("Checkpoint #2")
                 local orderIssued = automateCheck(unitID, unitDef, "unitsToAutomate")
-                if not orderIssued and not automatedState[unitID] and automatedState[unitID]~="commanded" then
-                    --spEcho("1.5")
+                if not orderIssued and automatedState[unitID] ~= "idle" then --and not automatedState[unitID]
                     setAutomateState(unitID, "idle", "GameFrame: deautomate")
                 end
             end
@@ -826,10 +825,7 @@ function widget:CommandNotify(cmdID, params, options)
         return end              -- awaitedUnits is set below, in widget:UnitCommand
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
     for _, unitID in ipairs(selUnits) do
-        if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
-            --internalCmdEvent[unitID] = nil
-            --unitIdleEvent[unitID] = nil
-        elseif automatableUnits[unitID] and IsValidUnit(unitID) then
+        if automatableUnits[unitID] and IsValidUnit(unitID) then
             --Spring.Echo("Valid automatable unit got a user command "..unitID)
             if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
                 spEcho("CMD_ATTACK, params #: "..#params)
@@ -850,7 +846,7 @@ function widget:CommandNotify(cmdID, params, options)
             --end
 
             --- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
-            if automatedState[unitID] ~= "commanded" and not internalCmdEvent[unitID] then
+            if automatedState[unitID] ~= "commanded" then
                     --and (cmdID == CMD_MOVE or cmdID == CMD_REPAIR or cmdID == CMD_RECLAIM) then
                 --Spring.Echo("Valid automatable unit got a move command "..unitID)
                 ---We do this to check if remove commands should be issued or not, down the pipe
