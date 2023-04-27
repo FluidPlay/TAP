@@ -4,8 +4,8 @@
 ---
 function gadget:GetInfo()
     return {
-        name      = "Spawn Builders",
-        desc      = "Spawn builders next to commanders at game start",
+        name      = "Spawn Starting Units",
+        desc      = "Spawn builders, Avatar & Daemon next to the Starting Unit (HQ) at game start",
         author    = "MaDDoX",
         date      = "June 2022",
         license   = "GNU GPL v3",
@@ -93,9 +93,10 @@ if gadgetHandler:IsSyncedCode() then
         local px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
         local spawnedUnitID = spCreateUnit(startWeapName, px, py, pz, 0, teamID)
 
-        pieceID = piecemap["plugFL2"]
-        px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
-        spawnedUnitID = spCreateUnit(startTechName, px, py, pz, 0, teamID)
+        --pieceID = piecemap["plugFL2"]
+        --px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
+        --spawnedUnitID = spCreateUnit(startTechName, px, py, pz, 0, teamID)
+
         --Spring.UnitAttach(unitID, spawnedUnitID, pieceID)
     end
 

@@ -368,6 +368,7 @@ local function GetCmdOpts(alt, ctrl, meta, shift, right)
     opts.coded = coded
     return opts
 end
+
 local function GiveNotifyingOrder(cmdID, cmdParams, cmdOpts)
 
     if widgetHandler:CommandNotify(cmdID, cmdParams, cmdOpts) then
@@ -386,7 +387,9 @@ local function GiveNotifyingOrderToUnit(uArr, oArr, uID, cmdID, cmdParams, cmdOp
 
     uArr[#uArr + 1] = uID
     oArr[#oArr + 1] = {cmdID, cmdParams, cmdOpts.coded}
-    return
+    if widgetHandler:CommandNotify(cmdID, cmdParams, cmdOpts) then
+        return
+    end
 end
 
 --------------------------------------------------------------------------------

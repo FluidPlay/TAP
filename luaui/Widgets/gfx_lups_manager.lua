@@ -129,12 +129,12 @@ local UnitEffects = {}
       [UnitDefNames["armfig"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=5, length=40, piece="rearthrust", onActive=true}},
      },
-      [UnitDefNames["armsfig"].id] = {
-        {class='AirJet',options={color={0.1,0.4,0.6}, width=5.5, length=44, piece="thrust", onActive=true}},
-     },
-      [UnitDefNames["armseap"].id] = {
-        {class='AirJet',options={color={0.1,0.4,0.6}, width=5.7, length=48, piece="thrust", onActive=true}},
-     },
+     -- [UnitDefNames["armsfig"].id] = {
+     --   {class='AirJet',options={color={0.1,0.4,0.6}, width=5.5, length=44, piece="thrust", onActive=true}},
+     --},
+     -- [UnitDefNames["armseap"].id] = {
+     --   {class='AirJet',options={color={0.1,0.4,0.6}, width=5.7, length=48, piece="thrust", onActive=true}},
+     --},
       [UnitDefNames["armhawk"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=5.6, length=55, piece="rearthrust", onActive=true}},
       },
@@ -151,14 +151,14 @@ local UnitEffects = {}
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta1", onActive=true}},
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta2", onActive=true}},
       },
-      [UnitDefNames["corsfig"].id] = {
-        {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust1", onActive=true}},
-        {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust2", onActive=true}},
-      },
-      [UnitDefNames["corseap"].id] = {
-        {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust1", onActive=true, light=1}},
-        {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust2", onActive=true, light=1}},
-      },
+      --[UnitDefNames["corsfig"].id] = {
+      --  {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust1", onActive=true}},
+      --  {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust2", onActive=true}},
+      --},
+      --[UnitDefNames["corseap"].id] = {
+      --  {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust1", onActive=true, light=1}},
+      --  {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust2", onActive=true, light=1}},
+      --},
       [UnitDefNames["corshad"].id] = {
         {class='AirJet',options={color={0.6,0.1,0}, width=4, length=57, piece="thrusta1", onActive=true, light=1.5}},
         {class='AirJet',options={color={0.6,0.1,0}, width=4, length=57, piece="thrusta2", onActive=true}},

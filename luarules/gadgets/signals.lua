@@ -12,13 +12,13 @@ end
 
 --[[ USAGE EXAMPLE:
 
-Setting up a Signal:end
+* Setting up (or adding up) a Signal with a given signalkey
 GG.SetupSignal(unitID, signalkey, func) -- number, str, function
 
-Sending (executing) a Signal:
+* Sending (executing) a Signal:
 GG.SendSignal(unitID, signalKey)	-- number, str
 
-Accessing a Signal function directly:
+* Accessing a Signal function table directly:
 GG.Signal[unitID]
 
 ]]
@@ -29,6 +29,9 @@ if (not gadgetHandler:IsSyncedCode()) then
 local function isfunc(x)
 	return (type(x) == 'function') end
 
+local function istable(x)
+	return (type(x) == 'table') end
+
 local Signals = {}
 
 local function SetupSignal(unitID, signalKey, func)
@@ -38,15 +41,26 @@ local function SetupSignal(unitID, signalKey, func)
 	if not Signals[unitID] then
 		Signals[unitID] = {}
 	end
-	Signals[unitID][signalKey] = func
+	if not Signals[unitID][signalKey] then
+		Signals[unitID][signalKey] = {}
+	end
+	table.insert(Signals[unitID][signalKey],func)
+	--local functionTable = Signals[unitID][signalKey]
+	--functionTable[#functionTable+1] = func
 end
 
 local function SendSignal(unitID, signalKey)	-- str, str
-	--Spring.Echo("Signal received: "..(signalKey or "nil"))
+	Spring.Echo("Signal received: "..(signalKey or "nil"))
 	if Signals[unitID] then
-		local signal = Signals[unitID][signalKey]
-		if signal and isfunc(signal) then
-			signal()	-- Execute the signal if it's set
+		local functionTable = Signals[unitID][signalKey]
+		if istable(functionTable) then
+			Spring.Echo("Signal-assigned func count: "..#functionTable)
+			for _, signal in ipairs(functionTable) do
+				if isfunc(signal) then
+					-- Execute the signal if it's set
+					signal()
+				end
+			end
 		end
 	end
 end

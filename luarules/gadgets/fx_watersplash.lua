@@ -26,7 +26,7 @@ local nonexplosiveWeapons = {
 	LightningCannon = true,
 }
 
-local CORE_SEAADVBOMB = WeaponDefNames['corsb_core_seaadvbomb'].id --corsb gets a special ceg with less particles, because it has lots of bouncing bombs
+--local CORE_SEAADVBOMB = WeaponDefNames['corsb_core_seaadvbomb'].id --corsb gets a special ceg with less particles, because it has lots of bouncing bombs
 
 local splashCEG1 = "splash-tiny"
 local splashCEG2 = "splash-small"
@@ -38,7 +38,7 @@ function gadget:Explosion(weaponID, px, py, pz, ownerID)
 	local isWater = Spring.GetGroundHeight(px,pz) < 0
 	local aoe = WeaponDefs[weaponID]["damageAreaOfEffect"] / 2
 	local wType = WeaponDefs[weaponID].type
-	if not nonexplosiveWeapons[wType] and isWater and abs(py) <= aoe and (not GetGroundBlocked(px, pz)) and weaponID ~= CORE_SEAADVBOMB then
+	if not nonexplosiveWeapons[wType] and isWater and abs(py) <= aoe and (not GetGroundBlocked(px, pz)) then --and weaponID ~= CORE_SEAADVBOMB then
 		if  aoe >= 6 and aoe < 12 then
 			Spring.SpawnCEG(splashCEG1, px, 0, pz)
 		elseif  aoe >= 12 and aoe < 24 then

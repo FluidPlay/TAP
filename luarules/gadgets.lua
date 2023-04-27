@@ -913,6 +913,15 @@ function gadgetHandler:RecvLuaMsg(msg, player)
   return false
 end
 
+function gadgetHandler:TextCommand(command)
+  for _, g in ipairs(self.TextCommandList) do
+    if g:TextCommand(command) then
+      return true
+    end
+  end
+  return
+end
+
 
 --------------------------------------------------------------------------------
 --
@@ -1004,6 +1013,21 @@ end
 --  LuaRules Game call-ins
 --
 
+
+function gadgetHandler:MetaUnitAdded(unitID, unitDefID, unitTeam)
+  for _, g in ipairs(self.MetaUnitAddedList) do
+    g:MetaUnitAdded(unitID, unitDefID, unitTeam)
+  end
+  return
+end
+
+function gadgetHandler:MetaUnitRemoved(unitID, unitDefID, unitTeam)
+  for _, g in ipairs(self.MetaUnitRemovedList) do
+    g:MetaUnitRemoved(unitID, unitDefID, unitTeam)
+  end
+  return
+end
+
 function gadgetHandler:DrawUnit(unitID, drawMode)
   for _,g in ipairs(self.DrawUnitList) do
     if (g:DrawUnit(unitID, drawMode)) then
@@ -1063,11 +1087,20 @@ function gadgetHandler:CommandFallback(unitID, unitDefID, unitTeam,
 end
 
 
+--function gadgetHandler:AllowCommand(unitID, unitDefID, unitTeam,
+--                                    cmdID, cmdParams, cmdOptions, cmdTag, synced)
+--  for _,g in ipairs(self.AllowCommandList) do
+--    if (not g:AllowCommand(unitID, unitDefID, unitTeam,
+--                           cmdID, cmdParams, cmdOptions, cmdTag, synced)) then
+--      return false
+--    end
+--  end
+--  return true
+--end
 function gadgetHandler:AllowCommand(unitID, unitDefID, unitTeam,
-                                    cmdID, cmdParams, cmdOptions, cmdTag, synced)
-  for _,g in ipairs(self.AllowCommandList) do
-    if (not g:AllowCommand(unitID, unitDefID, unitTeam,
-                           cmdID, cmdParams, cmdOptions, cmdTag, synced)) then
+                                    cmdID, cmdParams, cmdOptions, cmdTag, playerID, fromSynced, fromLua)
+  for _, g in ipairs(self.AllowCommandList) do
+    if not g:AllowCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOptions, cmdTag, playerID, fromSynced, fromLua) then
       return false
     end
   end
@@ -1136,6 +1169,17 @@ function gadgetHandler:AllowUnitBuildStep(builderID, builderTeam,
   for _,g in ipairs(self.AllowUnitBuildStepList) do
     if (not g:AllowUnitBuildStep(builderID, builderTeam,
                                  unitID, unitDefID, part)) then
+      return false
+    end
+  end
+  return true
+end
+
+
+function gadgetHandler:AllowUnitCaptureStep(builderID, builderTeam,
+                                            unitID, unitDefID, part)
+  for _, g in ipairs(self.AllowUnitCaptureStepList) do
+    if not g:AllowUnitCaptureStep(builderID, builderTeam, unitID, unitDefID, part) then
       return false
     end
   end
@@ -1217,6 +1261,15 @@ function gadgetHandler:AllowDirectUnitControl(unitID, unitDefID, unitTeam,
   return true
 end
 
+
+function gadgetHandler:AllowBuilderHoldFire(unitID, unitDefID, action)
+  for _, g in ipairs(self.AllowBuilderHoldFireList) do
+    if not g:AllowBuilderHoldFire(unitID, unitDefID, action) then
+      return false
+    end
+  end
+  return true
+end
 
 function gadgetHandler:MoveCtrlNotify(unitID, unitDefID, unitTeam, data)
   local state = false
@@ -1363,52 +1416,32 @@ function gadgetHandler:UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdTag, c
 end
 
 
-function gadgetHandler:UnitPreDamaged(
-  unitID,
-  unitDefID,
-  unitTeam,
-  damage,
-  paralyzer,
-  weaponDefID,
-  projectileID,
-  attackerID,
-  attackerDefID,
-  attackerTeam
-)
+function gadgetHandler:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
   local retDamage = damage
   local retImpulse = 1.0
 
-  for _,g in ipairs(self.UnitPreDamagedList) do
-    dmg, imp = g:UnitPreDamaged(
-      unitID, unitDefID, unitTeam,
-      retDamage, paralyzer,
-      weaponDefID, projectileID,
-      attackerID, attackerDefID, attackerTeam)
+  for _, g in ipairs(self.UnitPreDamagedList) do
+    local dmg, imp = g:UnitPreDamaged(
+            unitID, unitDefID, unitTeam,
+            retDamage, paralyzer,
+            weaponDefID, projectileID,
+            attackerID, attackerDefID, attackerTeam)
 
-    if (dmg ~= nil) then retDamage = dmg end
-    if (imp ~= nil) then retImpulse = imp end
+    if dmg ~= nil then
+      retDamage = dmg
+    end
+    if imp ~= nil then
+      retImpulse = imp
+    end
   end
 
   return retDamage, retImpulse
 end
 
 
-function gadgetHandler:UnitDamaged(
-  unitID,
-  unitDefID,
-  unitTeam,
-  damage,
-  paralyzer,
-  weaponDefID,
-  projectileID,
-  attackerID,
-  attackerDefID,
-  attackerTeam
-)
-  for _,g in ipairs(self.UnitDamagedList) do
-    g:UnitDamaged(unitID, unitDefID, unitTeam,
-                  damage, paralyzer, weaponDefID, projectileID,
-                  attackerID, attackerDefID, attackerTeam)
+function gadgetHandler:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
+  for _, g in ipairs(self.UnitDamagedList) do
+    g:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
   end
 end
 
@@ -1748,6 +1781,7 @@ function gadgetHandler:DrawWorld()
   return
 end
 
+--- OBSOLETE?
 function gadgetHandler:DrawGroundPreForward()
   for _,g in ipairs(self.DrawGroundPreForwardList) do
     g:DrawGroundPreForward()
@@ -1755,6 +1789,7 @@ function gadgetHandler:DrawGroundPreForward()
   return
 end
 
+--- OBSOLETE?
 function gadgetHandler:DrawGroundPostForward()
   for _,g in ipairs(self.DrawGroundPostForwardList) do
     g:DrawGroundPostForward()
@@ -1765,6 +1800,48 @@ end
 function gadgetHandler:DrawWorldPreUnit()
   for _,g in ipairs(self.DrawWorldPreUnitList) do
     g:DrawWorldPreUnit()
+  end
+  return
+end
+
+function gadgetHandler:DrawOpaqueUnitsLua(deferredPass, drawReflection, drawRefraction)
+  for _, g in ipairs(self.DrawOpaqueUnitsLuaList) do
+    g:DrawOpaqueUnitsLua(deferredPass, drawReflection, drawRefraction)
+  end
+  return
+end
+
+function gadgetHandler:DrawOpaqueFeaturesLua(deferredPass, drawReflection, drawRefraction)
+  for _, g in ipairs(self.DrawOpaqueFeaturesLuaList) do
+    g:DrawOpaqueFeaturesLua(deferredPass, drawReflection, drawRefraction)
+  end
+  return
+end
+
+function gadgetHandler:DrawAlphaUnitsLua(drawReflection, drawRefraction)
+  for _, g in ipairs(self.DrawAlphaUnitsLuaList) do
+    g:DrawAlphaUnitsLua(drawReflection, drawRefraction)
+  end
+  return
+end
+
+function gadgetHandler:DrawAlphaFeaturesLua(drawReflection, drawRefraction)
+  for _, g in ipairs(self.DrawAlphaFeaturesLuaList) do
+    g:DrawAlphaFeaturesLua(drawReflection, drawRefraction)
+  end
+  return
+end
+
+function gadgetHandler:DrawShadowUnitsLua()
+  for _, g in ipairs(self.DrawShadowUnitsLuaList) do
+    g:DrawShadowUnitsLua()
+  end
+  return
+end
+
+function gadgetHandler:DrawShadowFeaturesLua()
+  for _, g in ipairs(self.DrawShadowFeaturesLuaList) do
+    g:DrawShadowFeaturesLua()
   end
   return
 end
@@ -1910,6 +1987,20 @@ function gadgetHandler:GetTooltip(x, y)
   return ''
 end
 
+
+function gadgetHandler:UnsyncedHeightMapUpdate(x1, z1, x2, z2)
+  for _, g in r_ipairs(self.UnsyncedHeightMapUpdateList) do
+    g:UnsyncedHeightMapUpdate(x1, z1, x2, z2)
+  end
+  return
+end
+
+function gadgetHandler:GameProgress(serverFrameNum)
+  for _, g in ipairs(self.GameProgressList) do
+    g:GameProgress(serverFrameNum)
+  end
+  return
+end
 
 function gadgetHandler:MapDrawCmd(playerID, cmdType, px, py, pz, labelText)
   for _,g in ipairs(self.MapDrawCmdList) do

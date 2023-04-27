@@ -1,6 +1,6 @@
 function gadget:GetInfo()
     return {
-        name = "Sighandler_unlocktech",
+        name = "Signal Handler - Unlock Tech",
         desc = "Unlocks tech after receiving a signal",
         author = "MaDDoX",
         date = "March 2023",
@@ -53,9 +53,8 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
     local unitDefName = UnitDefs[unitDefID].name
     -- If it's one of the units-of-interest, initialize all its possible signals
     if unlockableTechs[unitDefName] then
-        for _, techName in pairs(unlockableTechs[unitDefName]) do
+        for _, techName in ipairs(unlockableTechs[unitDefName]) do
             --Spring.Echo("sighandler: Tech to unlock = "..techName)
-            ---SetupSignal = nil
             GG.SetupSignal(unitID, techName, function ()
                                 GG.TechGrant(techName, unitTeam) --, Init)
                             end
