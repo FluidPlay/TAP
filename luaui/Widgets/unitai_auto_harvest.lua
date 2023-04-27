@@ -408,7 +408,7 @@ local automatedFunctions = {
                         harvestState[ud.unitID] == "returning" and isReallyIdle
                         or
                         (harvestState[ud.unitID] == "attacking" and
-                                (   ((ud.targetChunkID == nil or not IsValidUnit(ud.targetChunkID)) and (not nearestChunkID))
+                                (   (ud.targetChunkID == nil or not IsValidUnit(ud.targetChunkID)) --and (not nearestChunkID))
                                         --or isReallyIdle
                                         or
                                         (loadPercent >= 1 and (not ud.parentOreTowerID and not nearestOreTowerID))

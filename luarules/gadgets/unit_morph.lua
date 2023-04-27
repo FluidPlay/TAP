@@ -386,7 +386,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if not cmdID or not morphDefs[cmdID] then
             cmdID = getValidCmdID(morphDefs)
         end
-        local morphDef = morphDefs[cmdID] or extraUnitMorphDefs[unitID][cmdID]
+        local morphDef = morphDefs[cmdID] or (extraUnitMorphDefs[unitID] and extraUnitMorphDefs[unitID][cmdID])
         --Spring.Echo("\n\n****MorphDef Debug: ") --..(morphDef.into or "nil"))
         --DebugTable(morphDef)
 

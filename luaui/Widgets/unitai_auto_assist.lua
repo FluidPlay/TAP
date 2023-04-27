@@ -243,7 +243,7 @@ function setAutomateState(unitID, state, caller)
         automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -264,22 +264,18 @@ end
 
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
-    Spring.Echo("widget:UnitIdle for "..unitID)
+    --Spring.Echo("widget:UnitIdle for "..unitID)
     if not automatableUnits[unitID] then
         return end
-    if unitIdleEvent[unitID] then
-        Spring.Echo("Unit idle event still set for: "..unitID)
-    end
-    if reallyIdleUnits[unitID] then
-        Spring.Echo("reallyIdleUnits still set for: "..unitID)
-    end
-    --if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
-    --    Spring.Echo("internal cmd Event blocked idle from firing")
-    --    internalCmdEvent[unitID] = nil
-    --    unitIdleEvent[unitID] = nil
+    --if unitIdleEvent[unitID] then
+    --    Spring.Echo("Unit idle event still set for: "..unitID)
+    --end
+    --if reallyIdleUnits[unitID] then
+    --    Spring.Echo("reallyIdleUnits still set for: "..unitID)
+    --end
     if automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
-        Spring.Echo("Idle event fired for "..(unitID or "nil"))
+        --Spring.Echo("Idle event fired for "..(unitID or "nil"))
     end
 end
 
@@ -386,7 +382,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
         automatableUnits[unitID] = true
-        --unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after only 3 frames, by default
+        unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after two seconds, by default
         setAutomateState(unitID, "commanded", "UnitFinished")
     end
 end
@@ -623,7 +619,7 @@ local automatedFunctions = {
     },
     [5] = { id="assist",
             condition =  function(ud) --unitData
-                Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
+                --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
                 local hasResources = resourcesCheck()
                 return canassist[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "enemyreclaim"
@@ -635,7 +631,6 @@ local automatedFunctions = {
             end,
             action = function(ud)
                 --Spring.Echo("[3] Factory-assist check \nAutoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
-                Spring.Echo("Executing assist for "..ud.unitID)
                 --TODO: If during 'automation' it's assisting/guarding a factory but factory stopped production, de-automate it
                 local nearestFactoryID = getNearestFactoryID(ud)
                 if nearestFactoryID then
@@ -769,7 +764,7 @@ function widget:GameFrame(f)
 
     --- First let's verify if units tagged by widget:unitIdle are still idle, one second after the fact
     for unitID, recheckFrame in pairs(unitIdleEvent) do
-        Spring.Echo("Checking idleEvent for: "..(unitID or "nil").." recheck frame: "..(recheckFrame or "nil"))
+        --Spring.Echo("Checking idleEvent for: "..(unitID or "nil").." recheck frame: "..(recheckFrame or "nil"))
         if f >= recheckFrame then --and not automatedState[unitID] == "harvest" then   -- while on harvest state, only unitai_auto_harvest can say if it's idle or not
             reallyIdleUnits[unitID] = true
             setAutomateState(unitID, "idle", "GameFrame")
@@ -818,7 +813,7 @@ end
 
 
 function widget:CommandNotify(cmdID, params, options)
-    Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
+    --Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
     --TODO: If guarding, interrupt what's doing, otherwise don't
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     if cmdID == CMD_WAIT then   -- prevents wait-state changes from inadvertently exiting wait status

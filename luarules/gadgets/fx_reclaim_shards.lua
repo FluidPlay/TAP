@@ -56,11 +56,15 @@ function gadget:AllowFeatureBuildStep(builderID, builderTeam, featureID, feature
         featureList[featureDefID] = {minX = (defs.model.minx * 0.6), maxX = (defs.model.maxx * 0.6), minZ = (defs.model.minz * 0.6), maxZ = (defs.model.maxz * 0.6), y = (defs.model.maxy * 0.5)}
         featureDefs = featureList[featureDefID]
       end
-      if featureDefs.minX and featureDefs.maxX and featureDefs.minZ and featureDefs.maxZ and featureDefs.y then
+      local minX, maxX = featureDefs.minX, featureDefs.maxX
+      local minZ, maxZ = featureDefs.minZ, featureDefs.maxZ
+      if isnumber(minX) and isnumber(maxX) and isnumber(minZ) and isnumber(maxZ) then
         local x,y,z = GetFeaturePosition(featureID)
-        x = x + random(featureDefs.minX,featureDefs.maxX)
-        z = z + random(featureDefs.minZ,featureDefs.maxZ)
-        y = y + featureDefs.y
+        if minX < maxX then
+          x = x + random(minX, maxX) end
+        if minZ < maxZ then
+          z = z + random(minZ, maxZ) end
+        y = y + (featureDefs.y or 0)
         cegList[featureID] = {ceg = cegs[random(1,3)],xs=x,ys=y,zs=z,enabled=true}
       end
     end

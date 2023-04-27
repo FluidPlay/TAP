@@ -54,7 +54,7 @@ local function SendSignal(unitID, signalKey)	-- str, str
 	if Signals[unitID] then
 		local functionTable = Signals[unitID][signalKey]
 		if istable(functionTable) then
-			Spring.Echo("Signal-assigned func count: "..#functionTable)
+			--Spring.Echo("Signal-assigned func count: "..#functionTable)
 			for _, signal in ipairs(functionTable) do
 				if isfunc(signal) then
 					-- Execute the signal if it's set
