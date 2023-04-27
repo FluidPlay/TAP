@@ -396,9 +396,10 @@ if gadgetHandler:IsSyncedCode() then
         end
     end
 
+    --TODO: Implement with the new functionality
     function gadget:AllowBuilderHoldFire(unitID, unitDefID, action)
         --if IsBasicBuilder(unitDefID) then
-        Spring.Echo("Basic Builder trying to fire: "..(unitID or "nil"))
+        --    Spring.Echo("Basic Builder trying to fire: "..(unitID or "nil"))
         --end
         return true
     end

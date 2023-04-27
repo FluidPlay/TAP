@@ -50,7 +50,7 @@ local function SetupSignal(unitID, signalKey, func)
 end
 
 local function SendSignal(unitID, signalKey)	-- str, str
-	Spring.Echo("Signal received: "..(signalKey or "nil"))
+	--Spring.Echo("Signal received: "..(signalKey or "nil"))
 	if Signals[unitID] then
 		local functionTable = Signals[unitID][signalKey]
 		if istable(functionTable) then

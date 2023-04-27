@@ -31,6 +31,7 @@ end
 local trackedTechs = {
     -- UnitWhichSpawnsTheUnit = {[UnlockingTechName] = { unitname = unitNameToSpawn, pice = pieceNameToSpawnItOnTop}, ... }
     bowhq = {['Tech'] = { unitname = "kernhq_rt", piece = "plugFL2"}}, --TODO: 'EnhancedTech', 'AdvancedTech', 'MohoTech', 'UberTech',}
+    kernhq = {['Tech'] = { unitname = "kernhq_rt", piece = "plugFL2"}}, --TODO: 'EnhancedTech', 'AdvancedTech', 'MohoTech', 'UberTech',}
     --kernhq = {'Tech', 'EnhancedTech', 'AdvancedTech', 'MohoTech', 'UberTech',}
 --    bowhq2 = "Tech",
 --    bowhq3 = "EnhancedTech",
@@ -72,7 +73,7 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
             local unitname = spawnData.unitname
             local spawnUnitDefID = UnitDefNames[unitname].id
             local piece = spawnData.piece
-            Spring.Echo("sighandler: Tech detected = "..techName..", unit to spawn: "..unitname)
+            --Spring.Echo("sighandler: Tech detected = "..techName..", unit to spawn: "..unitname)
             GG_SetupSignal(unitID, techName, function ()
                                 --local pos = Spring.GetUnitPosition(unitID)
                                 local piecemap = Spring.GetUnitPieceMap(unitID)

@@ -13,7 +13,7 @@ function widget:GetInfo()
         license = "GPLv3",
         layer = 0,
         enabled = true,
-        handler = false,
+        handler = true,
     }
 end
 
@@ -87,14 +87,14 @@ local recheckLatency = 30             -- Delay until a de-automated unit checks 
 
 -- TODO: Commanders guarding factories, let's use it to stop guarding when we're out of resources
 local automatableUnits = {} -- All units which can be automated // { [unitID] = targetID|true|false, ... }
-                            -- targetID might be a chunk being harvested, a feature being reclaimed or ressurected, or an enemy unity being reclaimed
+-- targetID might be a chunk being harvested, a feature being reclaimed or ressurected, or an enemy unity being reclaimed
 local unitsToAutomate = {}  -- These will be automated, but aren't there yet (on latency); can be interrupted by direct orders
-local workingUnits = {}   -- All units currently automated    // { [unitID] = frameToRecheckAutomation, ... }
+local automatedUnits = {}   -- All units currently automated    // { [unitID] = frameToRecheckAutomation, ... }
 local commandedUnits = {} -- Post deautomation (direct order) // { [unitID] = frameToTryReautomation, ... }
 local awaitedUnits = {}
 --local executingCmd = {}     -- Last command being executed (eg.: reclaim) { [unitID] = cmdID, ... }
 local unitIdleEvent = {}      -- { [unitID] = frameToRecheckIdle, ...} // tracks units tagged by widget:unitIdle (requires further verification)
-local cancelUnitIdleEvent = {}-- { [unitID] = true | false, ... }
+local internalCmdEvent = {}-- { [unitID] = true | false, ... }
 local reallyIdleUnits = {}
 -- { [unitID] = frameToAutomate (eg: spGetGameFrame() + recheckUpdateRate), ... }
 
@@ -112,7 +112,7 @@ local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, 
 
 -- == uDef.harvestStorage is not working (105)
 local harvesters = {} -- { unitID = { maxorestorage = uDef.customparams.maxorestorage, parentOreTowerID,
-                      --    returnPos = { x = rpx, y = rpy, z = rpz } }
+--    returnPos = { x = rpx, y = rpy, z = rpz } }
 local oreTowers = {}  -- { unitID = oreTowerReturnRange, ... }
 
 local enoughResourcesThreshold = 0.1 -- for 0.1, 'enough' is more than 10% global storage for that resource
@@ -171,60 +171,59 @@ local canassist = {
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
 }
 
-local canharvest = {
-    armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
-    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
-}
+--local canharvest = {
+--    armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+--    armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
+--}
 
 local canresurrect = {
     armrectr = true, corvrad = true, cornecro = true,
 }
 
+--local standardbuilder = {
+--    armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+--}
+
+--if standardbuilder[unitDef.name] then
+--
+--end
 -----
 
 local function spEcho(string)
-    if localDebug then --and isCom(unitID) and state ~= "commanded"
+    if localDebug then
         Spring.Echo(string) end
 end
 
-local function isCommander(unitID,unitDefID)
-    if unitID and not unitDefID then
-        unitDefID = spGetUnitDefID(unitID)
-    end
-    return UnitDefs[unitDefID] and UnitDefs[unitDefID].customParams and UnitDefs[unitDefID].customParams.iscommander ~= nil
-end
+--local function isCommander(unitID,unitDefID)
+--    if unitID and not unitDefID then
+--        unitDefID = spGetUnitDefID(unitID)
+--    end
+--    return UnitDefs[unitDefID] and UnitDefs[unitDefID].customParams and UnitDefs[unitDefID].customParams.iscommander ~= nil
+--end
+--
+--local function unitIsBeingBuilt(unitID)
+--    return select(5, spGetUnitHealth(unitID)) < 1
+--end
 
-local function unitIsBeingBuilt(unitID)
-    return select(5, spGetUnitHealth(unitID)) < 1
+local function giveInternalOrderToUnit(unitID, cmdID, params, options)
+    spGiveOrderToUnit(unitID, cmdID, params, options)
+    internalCmdEvent[unitID] = true
 end
 
 local function removeCommands(unitID)
-    --Spring.Echo("unitai_autoassist: removing cmds")
-
-    spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
-    cancelUnitIdleEvent[unitID] = true
-end
-
---function widget:UnitIdle(unitID, unitDefID, unitTeam)
-local function assureUnitIsIdle(unitID) --, delay)
-    if not automatableUnits[unitID] then
-        return end
-    setAutomateState(unitID, "idle", "forceUnitIdle")
-    if WG.harvestState then
-        WG.harvestState[unitID] = "idle" end   -- Forces unitai_auto_harvest into idle state
+    giveInternalOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
+    --spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_PATROL, CMD_GUARD, CMD_ATTACK, CMD_UNIT_SET_TARGET, CMD_RECLAIM, CMD_FIGHT, CMD_REPAIR}, {"alt"})
+    --internalCmdEvent[unitID] = true
 end
 
 local function DeautomateUnit(unitID, caller)
     ---TODO: Below should only be called if a build order was issued, or if issued by unitai_auto_harvest
-    if caller == "CommandNotifyBuild" then --or caller == "CommandNotify" or caller == "autoHarvest"
-        --removeCommands(unitID)  -- removes Guard, Patrol, Fight and Repair commands
-        assureUnitIsIdle(unitID)
-    end
-    workingUnits[unitID] = nil
-    --- It'll only get out of commanded if it's idle, that's only the delay to recheck idle
-    commandedUnits[unitID] = spGetGameFrame() + commandedRecheckLatency
-    --Spring.Echo("Autoassist: Ordering Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + commandedRecheckLatency)
-    spSendLuaUIMsg("unitCommanded_"..unitID, "allies") --(message, mode)
+    --if caller == "CommandNotifyBuild" then --or caller == "CommandNotify" or caller == "autoHarvest"
+    --assureUnitIsIdle(unitID)
+    if WG.harvestState then
+        WG.harvestState[unitID] = "idle" end   -- Forces unitai_auto_harvest into idle state
+    --end
+    automatedUnits[unitID] = nil
 end
 
 function setAutomateState(unitID, state, caller)
@@ -233,13 +232,19 @@ function setAutomateState(unitID, state, caller)
         return end
     if state == "commanded" then
         DeautomateUnit(unitID, caller)
+        --- It'll only get out of commanded if it's idle, that's only the delay to recheck idle
+        commandedUnits[unitID] = spGetGameFrame() + commandedRecheckLatency
+        spEcho("Autoassist: Ordering Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + commandedRecheckLatency)
+        spSendLuaUIMsg("unitCommanded_"..unitID, "allies") --(message, mode)
+    elseif state == "idle" then
+        DeautomateUnit(unitID, caller)
+        unitsToAutomate[unitID] = spGetGameFrame() + automationLatency
     else
-        --Spring.Echo(unitID.." not commanded!")
         commandedUnits[unitID] = nil
-        workingUnits[unitID] = spGetGameFrame() + automationLatency
+        automatedUnits[unitID] = spGetGameFrame() + automationLatency
     end
     automatedState[unitID] = state
-    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -260,46 +265,27 @@ end
 
 
 function widget:UnitIdle(unitID, unitDefID, unitTeam)
-    if automatableUnits[unitID] and not unitIdleEvent[unitID] then
-        --Spring.Echo("widget:UnitIdle fired for: "..unitID) -- automatable? "..tostring(automatableUnits[unitID]))
+    Spring.Echo("widget:UnitIdle for "..unitID)
+    if not automatableUnits[unitID] then
+        return end
+    if unitIdleEvent[unitID] then
+        Spring.Echo("Unit idle event still set for: "..unitID)
+    end
+    if reallyIdleUnits[unitID] then
+        Spring.Echo("reallyIdleUnits still set for: "..unitID)
+    end
+    if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
+        Spring.Echo("internal cmd Event blocked idle from firing")
+        internalCmdEvent[unitID] = nil
+        unitIdleEvent[unitID] = nil
+    elseif automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
+        Spring.Echo("Idle event fired for "..(unitID or "nil"))
     end
 end
 
------ We use this to make sure patrol works, issuing two nearby patrol points
---local function patrolOffset (x, y, z)
---    local ofs = 50
---    x = (x > mapsizehalfwidth ) and x-ofs or x+ofs   -- x ? a : b, in lua notation
---    z = (z > mapsizehalfheight) and z-ofs or z+ofs
---
---    return { x = x, y = y, z = z }
---end
-
---local function sqrDistance (pos1, pos2)
---    if not istable(pos1) or not istable(pos2) or not pos1.x or not pos1.z or not pos2.x or not pos2.z then
---        return 999999   -- keeping this huge so it won't affect valid nearest-distance calculations
---    end
---    return (pos2.x - pos1.x)^2 + (pos2.z - pos1.z)^2
---end
-
 ---- Disable widget if I'm spec
 function widget:Initialize()
-
-    --local harvestWeapDefID = WeaponDefNames["armck_harvest_weapon"].id --unitDef.name..
-    --Spring.Echo("Harv weap def ID: "..harvestWeapDefID)
-    --for id,weaponDef in pairs(WeaponDefs) do
-    --    Spring.Echo("weaponDefID: "..id)
-    --    if id == harvestWeapDefID then
-    --        --DebugTable(weaponDef.damages)
-    --        Spring.Echo("Default dmg: "..tostring(weaponDef.damages[0]))
-    --        --for name,param in ipairs(weaponDef.damages) do
-    --        --    Spring.Echo(name.." | "..tostring(param))
-    --        --end
-    --        Spring.Echo("\n\n====")
-    --    end
-    --end
-
-
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
     WG.harvesters = harvesters              --- Read by unitai_auto_harvest.lua
     WG.setAutomateState = setAutomateState
@@ -335,16 +321,6 @@ function widget:PlayerChanged()
         widgetHandler:RemoveWidget(self)
     end
 end
-
---local function setLoadedHarvester(harvesterTeam, unitID, value)
---    --Spring.Echo("Harvester team: "..(harvesterTeam or "nil").." my team: "..myTeamID.." unitID: "..unitID.." value: "..tostring(value))
---    if (harvesterTeam ~= myTeamID) then
---        return end
---    local rpx, rpy, rpz = spGetUnitPosition(unitID) -- "return position" x,y,z
---    loadedHarvesters[unitID] = true
---    harvesters[unitID].nearestOreTowerID = nil
---    harvesters[unitID].returnPos = { x = rpx, y = rpy, z = rpz }
---end
 
 local function getOreTowerRange(oreTowerID, unitDef)
     if not oreTowerID and not unitDef then
@@ -407,12 +383,9 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
                                harvestWeapon = harvestWeapon, harvestRange = harvestRange,
                                unitDef = unitDef
         }
-        Spring.Echo("unitai_autoharvest: added harvester: "..unitID.." storage: "..maxorestorage)
-        --orphanHarvesters[unitID] = true -- newborns are orphan. Usually not for long.
     end
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
-        --setAutomateState(unitID, "idle", "UnitFinished")
         automatableUnits[unitID] = true
         --unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after only 3 frames, by default
         setAutomateState(unitID, "commanded", "UnitFinished")
@@ -420,15 +393,9 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 end
 
 function widget:UnitDestroyed(unitID)
-    ---Dont. That is done by deautomation
-    --for autoID, targetID in pairs(automatableUnits) do
-    --    if targetID == unitID then
-    --        automatableUnits[autoID] = nil
-    --    end
-    --end
     automatableUnits[unitID] = nil
     unitsToAutomate[unitID] = nil
-    workingUnits[unitID] = nil
+    automatedUnits[unitID] = nil
     commandedUnits[unitID] = nil
     automatedState[unitID] = nil
     harvesters[unitID] = nil
@@ -437,7 +404,7 @@ function widget:UnitDestroyed(unitID)
     --Clean up the target of any automatedUnit, if it was destroyed
     for automatedUnit,targetID in pairs(automatableUnits) do
         if targetID == unitID then
-            workingUnits[automatedUnit] = nil
+            automatedUnits[automatedUnit] = nil
         end
     end
 
@@ -475,26 +442,6 @@ local function resourcesCheck(resourceType, flood)
         return currentE > (currentEstorage * thresholdToCheck)
     end
 end
-
-local function isReallyIdle(unitID)
-    return reallyIdleUnits[unitID]
-    --local result = unitIdleEvent[unitID]
-    --if automatedState[unitID] == "harvest" and WG.harvestState ~= nil and WG.harvestState[unitID] == "idle" then
-    --    result = true
-    --end
-    --
-    ---- commandqueue with guard => not idle
-    --
-    --if hasBuildQueue(unitID) or hasCommandQueue(unitID) then
-    --    result = false
-    --end
-    ----Spring.Echo(unitID.." idleEvent: "..tostring(unitIdleEvent[unitID]).." | has queue: "..tostring(hasBuildQueue(unitID)) or (hasCommandQueue(unitID)))
-    --return result
-end
-
---function widget:UnitIdle(unitID, unitDefID, unitTeam)
---    idledUnits[unitID] = true
---end
 
 local function targetIsInRange(unitID, targetID, isFeature)
     --if not IsValidUnit(unitID) then --or not isnumber(targetID)
@@ -577,7 +524,7 @@ local automatedFunctions = {
                 if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
                     local neDefID = UnitDefs[spGetUnitDefID(nearestEnemy)]
                     if not neDefID.canFly then
-                        spGiveOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
+                        giveInternalOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
                         automatableUnits[ud.unitID] = nearestEnemy
                         return "enemyreclaim"
                     end
@@ -599,14 +546,14 @@ local automatedFunctions = {
                     end
                     local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
                     if (nearestChunkID and loadPercent < 1)
-                       or (parentOreTowerID and loadPercent > 0)
-                       or (harvesters[ud.unitID].returnPos and harvesters[ud.unitID].returnPos.x) then
+                            or (parentOreTowerID and loadPercent > 0)
+                            or (harvesters[ud.unitID].returnPos and harvesters[ud.unitID].returnPos.x) then
                         return true end
                 end
             end,
             action = function(ud) --unitData
                 local nearestChunkID = getNearestChunkID(ud)
-                spEcho("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
+                --Spring.Echo("**5** Harvest check - nearest chunk: "..(nearestChunkID or "nil"))
                 spEcho("Sending message: ".."harvesterAttack_"..ud.unitID.."_"..(nearestChunkID or "nil"))
                 if nearestChunkID then
                     spSendLuaUIMsg("harvesterAttack_"..ud.unitID.."_"..nearestChunkID, "allies") --(message, mode)
@@ -629,7 +576,7 @@ local automatedFunctions = {
                 local hasMetal = resourcesCheck("m",true)
                 if nearestMetalID and not hasMetal then
                     local x,y,z = spGetFeaturePosition(nearestMetalID)
-                    spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
+                    giveInternalOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
                     automatableUnits[ud.unitID] = nearestMetalID
                     --Spring.Echo("Issuing reclaim")
                     return "reclaim"
@@ -639,7 +586,7 @@ local automatedFunctions = {
                     if nearestEnergyID and not hasEnergy then
                         -- If not, we'll check if there's an energy resource nearby and if we're not overflowing energy, reclaim it
                         local x,y,z = spGetFeaturePosition(nearestEnergyID)
-                        spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
+                        giveInternalOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RECLAIM, CMD_OPT_INTERNAL+1,x,y,z,reclaimRadius}, {"alt"})
                         automatableUnits[ud.unitID] = nearestEnergyID
                         return "reclaim"
                     end
@@ -650,7 +597,7 @@ local automatedFunctions = {
     [4] = { id="repair",
             condition = function(ud) --unitData
                 local hasEnergy = resourcesCheck("e")
-                return canrepair[ud.unitDef.name] --and not ud.orderIssued
+                return canrepair[ud.unitDef.name]
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "reclaim"
                         and automatedState[ud.unitID] ~= "harvest"
@@ -666,10 +613,10 @@ local automatedFunctions = {
                     local nearestRepairableID = getNearestRepairableID(ud)
                     nearestTargetID = nearestRepairableID -- only finished units can be targetted then
                 end
-                --Spring.Echo("Repair - nearestTargetID: "..(nearestTargetID or "nil"))
+                Spring.Echo("Repair - nearestTargetID: "..(nearestTargetID or "nil"))
                 if nearestTargetID and automatedState[ud.unitID] ~= "repair" then
                     --spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_REPAIR, CMD_OPT_INTERNAL+1,x,y,z,80}, {"alt"})
-                    spGiveOrderToUnit(ud.unitID, CMD_REPAIR, { nearestTargetID }, {} )
+                    giveInternalOrderToUnit(ud.unitID, CMD_REPAIR, { nearestTargetID }, {} )
                     automatableUnits[ud.unitID] = nearestTargetID
                     return "repair"
                 end
@@ -687,18 +634,17 @@ local automatedFunctions = {
                         and automatedState[ud.unitID] ~= "repair"
                         and automatedState[ud.unitID] ~= "assist"
                         and hasResources -- must have enough energy and ore to assist things being built
-                end,
+            end,
             action = function(ud)
-               --Spring.Echo("[3] Factory-assist check")
-               --TODO: If during 'automation' it's guarding a factory but factory stopped production, remove it
-               --Spring.Echo ("Autoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
-               local nearestFactoryID = getNearestFactoryID(ud)
-               if nearestFactoryID then
-                   spGiveOrderToUnit(ud.unitID, CMD_GUARD, { nearestFactoryID }, {} )
-                   automatableUnits[ud.unitID] = nearestFactoryID
-                   return "assist"
-               end
-               return nil
+                --Spring.Echo("[3] Factory-assist check \nAutoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
+                --TODO: If during 'automation' it's assisting/guarding a factory but factory stopped production, de-automate it
+                local nearestFactoryID = getNearestFactoryID(ud)
+                if nearestFactoryID then
+                    giveInternalOrderToUnit(ud.unitID, CMD_GUARD, { nearestFactoryID }, {} )
+                    automatableUnits[ud.unitID] = nearestFactoryID
+                    return "assist"
+                end
+                return nil
             end
     },
     [6] = { id="resurrect",
@@ -718,7 +664,7 @@ local automatedFunctions = {
                 local nearestFeatureID = getNearestFeatureID(ud)
                 if nearestFeatureID then  --and automatedState[ud.unitID] ~= "resurrect"
                     local x,y,z = spGetFeaturePosition(nearestFeatureID)
-                    spGiveOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
+                    giveInternalOrderToUnit(ud.unitID, CMD_INSERT, {-1, CMD_RESURRECT, CMD_OPT_INTERNAL+1,x,y,z,20}, {"alt"})  --shift
                     automatableUnits[ud.unitID] = nearestFeatureID
                     return "resurrect"
                 end
@@ -735,7 +681,7 @@ local automatedFunctions = {
                 if automatedState[ud.unitID] == "idle" then
                     return false end
 
-                if isReallyIdle(ud.unitID) and automatedState[ud.unitID] == "harvest" and
+                if reallyIdleUnits[ud.unitID] and automatedState[ud.unitID] == "harvest" and
                         WG.harvestState and WG.harvestState == "attacking" and
                         (not isnumber(targetID)) then
                     return false end
@@ -747,23 +693,23 @@ local automatedFunctions = {
                 if not isnumber(targetID) then
                     return true end
                 return
-                     (automatedState[ud.unitID] == "commanded")
-                     or
-                     --factory guarded but out of queue, Fac destroyed or no buildqueue
-                     --TODO: Deautomate assisting units when factory is awaited
-                     (automatedState[ud.unitID] == "assist" and
-                             (not targetIsInRange(ud.unitID, targetID, false)
-                                     or awaitedUnits[targetID]))
-                     or
-                     -- target unit destroyed or full health
-                     (automatedState[ud.unitID] == "repair" and --not IsValidUnit(targetID) or
-                             (isFullHealth(targetID) or (not targetIsInRange(ud.unitID, targetID, false))) )
-                     or
-                     -- reclaimed enemy unit destroyed
-                     (automatedState[ud.unitID] == "enemyreclaim" and (not IsValidUnit(targetID) or not targetIsInRange(ud.unitID, targetID, false)) )
-                     or
-                     (automatedState[ud.unitID] == "reclaim" or automatedState[ud.unitID] == "resurrect")
-                             and (not targetIsInRange(ud.unitID, targetID, true)) -- reclaimed feature destroyed or feature was rezzed
+                (automatedState[ud.unitID] == "commanded")
+                        or
+                        --factory guarded but out of queue, Fac destroyed or no buildqueue
+                        --TODO: Deautomate assisting units when factory is awaited
+                        (automatedState[ud.unitID] == "assist" and
+                                (not targetIsInRange(ud.unitID, targetID, false)
+                                        or awaitedUnits[targetID]))
+                        or
+                        -- target unit destroyed or full health
+                        (automatedState[ud.unitID] == "repair" and --not IsValidUnit(targetID) or
+                                (isFullHealth(targetID) or (not targetIsInRange(ud.unitID, targetID, false))) )
+                        or
+                        -- reclaimed enemy unit destroyed
+                        (automatedState[ud.unitID] == "enemyreclaim" and (not IsValidUnit(targetID) or not targetIsInRange(ud.unitID, targetID, false)) )
+                        or
+                        (automatedState[ud.unitID] == "reclaim" or automatedState[ud.unitID] == "resurrect")
+                                and (not targetIsInRange(ud.unitID, targetID, true)) -- reclaimed feature destroyed or feature was rezzed
 
             end,
             action = function(ud)
@@ -775,8 +721,11 @@ local automatedFunctions = {
 
 --- Goes through all the automatedFunctions, in order, and returns the new state, if the state-change succeeds
 local function automateCheck(unitID, unitDef, caller)
-    if not unitDef or not IsValidUnit(unitID) or awaitedUnits[unitID] or automatedState[unitID] == "commanded" then
+    if not unitDef or not IsValidUnit(unitID) or awaitedUnits[unitID] then --or automatedState[unitID] == "commanded"
         return end
+    --if automatedState[unitID] == "commanded" and unitIdleEvent[unitID] then
+    --    setAutomateState(unitID, "idle", "UnitCommand")
+    --end
     local x, y, z = spGetUnitPosition(unitID)
     local pos = { x = x, y = y, z = z }
 
@@ -787,7 +736,7 @@ local function automateCheck(unitID, unitDef, caller)
     --    radius = radius * 1.3
     --end
 
---  local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
+    --  local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
     local harvestRange = harvesters[unitID] and harvesters[unitID].harvestRange
 
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, harvestRange = harvestRange, orderIssued = nil,
@@ -798,10 +747,8 @@ local function automateCheck(unitID, unitDef, caller)
         local autoFunc = automatedFunctions[i]
         if autoFunc.condition(ud) then
             ud.orderIssued = autoFunc.action(ud)
-            --Spring.Echo("order issued: "..(ud.orderIssued or "nil"))
         end
         if ud.orderIssued then
-            --Spring.Echo("auto-assist order issued for "..(unitID or "nil"))
             unitIdleEvent[unitID] = nil
             break end
     end
@@ -810,43 +757,10 @@ local function automateCheck(unitID, unitDef, caller)
         spEcho ("New order Issued: "..ud.orderIssued)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
+        reallyIdleUnits[unitID] = nil
     end
     return ud.orderIssued
 end
-
-function widget:CommandNotify(cmdID, params, options)
-    --Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
-    ---TODO: If guarding, interrupt what's doing, otherwise don't
-    -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
-    local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
-    for _, unitID in ipairs(selUnits) do
-        if automatableUnits[unitID] and IsValidUnit(unitID) then
-            --Spring.Echo("Valid automatable unit got a user command "..unitID)
-            if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
-                spEcho("CMD_ATTACK, params #: "..#params)
-                if #params == 1 then -- and isOreChunk(params[1]) then
-                    automatableUnits[unitID] = params[1]    -- set Target
-                end
-            elseif automatedState[unitID] ~= "commanded" then -- if it's working, don't touch it
-                ---We do this to check if remove commands should be issued or not, down the pipe
-                if options and options.shift then
-                    removeCommands(unitID)
-                end
-                if cmdID and cmdID < 0 then
-                    setAutomateState(unitID, "commanded", "CommandNotifyBuild")
-                else
-                    setAutomateState(unitID, "commanded", "CommandNotify")
-                end
-            end
-            --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
-            --unitIdleEvent[unitID] = nil
-        end
-    end
-end
---
---function widget:UnitCmdDone(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
---    spEcho("CmdDone for "..(unitID or "nil").." cmdID: "..(cmdID or "nil"))
---end
 
 --- Frame-based Update
 function widget:GameFrame(f)
@@ -856,47 +770,14 @@ function widget:GameFrame(f)
 
     --- First let's verify if units tagged by widget:unitIdle are still idle, one second after the fact
     for unitID, recheckFrame in pairs(unitIdleEvent) do
-        if cancelUnitIdleEvent[unitID] then
-            cancelUnitIdleEvent[unitID] = nil
+        Spring.Echo("Checking idleEvent for: "..(unitID or "nil").." recheck frame: "..(recheckFrame or "nil"))
+        if f >= recheckFrame then --and not automatedState[unitID] == "harvest" then   -- while on harvest state, only unitai_auto_harvest can say if it's idle or not
+            reallyIdleUnits[unitID] = true
+            setAutomateState(unitID, "idle", "GameFrame")
+            --Spring.Echo("Setting idle state for: "..unitID)
             unitIdleEvent[unitID] = nil
-        else
-            --Spring.Echo("Checking idleEvent for: "..(unitID or "nil"))
-            if f >= recheckFrame then    --IsValidUnit(unitID) and
-                reallyIdleUnits[unitID] = true
-                setAutomateState(unitID, "idle", "GameFrame")
-                --Spring.Echo("Setting idle state for: "..unitID)
-                unitIdleEvent[unitID] = nil
-            end
         end
     end
-
-    --- What to do with units just set to "commanded". 1st pass, there's a lag before the actual re-automation attempt below
-    --- Set units to "commanded" when it's really idle. There's a delay before the actual re-automation attempt below
-
-    --for unitID, recheckFrame in pairs(commandedUnits) do
-    --    if f < startupGracetime and isCommander(unitID) then
-    --        return
-    --    end
-    --    --Spring.Echo("unitID: "..unitID.." f: "..f.." recheckFrame: "..recheckFrame)
-    --    if IsValidUnit(unitID) and f >= recheckFrame then
-    --        --Spring.Echo("unitai_auto_assist: commanded units check for "..f)
-    --        --Spring.Echo(unitID.." is really idle: "..tostring(isReallyIdle(unitID)).." automated State: "..automatedState[unitID].." unitsToAutomate f: "..(tostring(unitsToAutomate[unitID]) or "nil"))
-    --        if isReallyIdle(unitID) then
-    --            --spGiveOrderToUnit(unitID, CMD_STOP, {}, {} )
-    --            if automatedState[unitID] ~= "idle" then
-    --                forceUnitIdle(unitID) --, 0)
-    --            elseif not unitsToAutomate[unitID] then
-    --                unitsToAutomate[unitID] = spGetGameFrame() + commandedRecheckLatency --schedule next check
-    --                commandedUnits[unitID] = nil
-    --            end
-    --            --if not hasBuildQueue(guardedUnit) then -- builders assisting *do* have a commandqueue (guard)
-    --            --    deassistCheck(unitID) end --- We need to remove Guard commands, otherwise the unit will keep guarding
-    --        else
-    --            unitsToAutomate[unitID] = nil
-    --            commandedUnits[unitID] = f + commandedRecheckLatency
-    --        end
-    --    end
-    --end
 
     --- Check if it's time to actually try to automate an unit (after idle or creation)
     for unitID, automateFrame in pairs(unitsToAutomate) do
@@ -915,11 +796,12 @@ function widget:GameFrame(f)
     end
 
     --- Check if the automated unit should be doing something else instead of what's doing
-    for unitID, recheckFrame in pairs(workingUnits) do
+    for unitID, recheckFrame in pairs(automatedUnits) do
         if IsValidUnit(unitID) and f >= recheckFrame then
+            --Spring.Echo("rechecking "..unitID)
             local unitDef = UnitDefs[spGetUnitDefID(unitID)]
             automateCheck(unitID, unitDef, "repurposeCheck")
-            workingUnits[unitID] = spGetGameFrame() + automationLatency
+            automatedUnits[unitID] = spGetGameFrame() + automationLatency
         end
     end
 end
@@ -935,18 +817,82 @@ function widget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
     widget:UnitDestroyed(unitID, unitDefID, oldTeamID)
 end
 
+
+function widget:CommandNotify(cmdID, params, options)
+    Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
+    --TODO: If guarding, interrupt what's doing, otherwise don't
+    -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
+    if cmdID == CMD_WAIT then   -- prevents wait-state changes from inadvertently exiting wait status
+        return end              -- awaitedUnits is set below, in widget:UnitCommand
+    local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
+    for _, unitID in ipairs(selUnits) do
+        if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
+            --internalCmdEvent[unitID] = nil
+            --unitIdleEvent[unitID] = nil
+        elseif automatableUnits[unitID] and IsValidUnit(unitID) then
+            --Spring.Echo("Valid automatable unit got a user command "..unitID)
+            if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
+                spEcho("CMD_ATTACK, params #: "..#params)
+                if #params == 1 then -- and isOreChunk(params[1]) then
+                    automatableUnits[unitID] = params[1]    -- set Target
+                end
+            end
+            --if automatedState[unitID] ~= "commanded" then -- if it's working, don't touch it
+            --    ---We do this to check if remove commands should be issued or not, down the pipe
+            --    if options and options.shift then
+            --        removeCommands(unitID)
+            --    end
+            --    if cmdID and cmdID < 0 then
+            --        setAutomateState(unitID, "commanded", "CommandNotifyBuild")
+            --    else
+            --        setAutomateState(unitID, "commanded", "CommandNotify")
+            --    end
+            --end
+
+            --- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
+            if automatedState[unitID] ~= "commanded" and not internalCmdEvent[unitID] then
+                    --and (cmdID == CMD_MOVE or cmdID == CMD_REPAIR or cmdID == CMD_RECLAIM) then
+                --Spring.Echo("Valid automatable unit got a move command "..unitID)
+                ---We do this to check if remove commands should be issued or not, down the pipe
+                if cmdID and cmdID < 0 then
+                    setAutomateState(unitID, "commanded", "UnitCommandBuild")
+                else
+                    setAutomateState(unitID, "commanded", "UnitCommand")
+                end
+            end
+            --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
+            --unitIdleEvent[unitID] = nil
+        end
+    end
+end
+
 function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOpts, cmdTag)
-    if (not automatableUnits[unitID]) or (not IsValidUnit(unitID)) or awaitedUnits[unitID] == nil then
+    if not IsValidUnit(unitID) or not automatableUnits[unitID] then
         return end
     if cmdID == 2 then -- ugly hack to prevent state changes from inadvertently exiting wait status
-        return
-    end
+        return end
+    -- This is a condition/filter used by automateCheck
     if cmdID == CMD_WAIT then
         awaitedUnits[unitID] = not awaitedUnits[unitID]
-    else
-        awaitedUnits[unitID] = false
+        return
     end
-    --Spring.Echo("Unit "..tostring(unitID).." awaited="..tostring(awaitedUnits[unitID])..", cmdId: "..cmdID)
+    --if internalCmdEvent[unitID] then    -- may be removeCmds, or some delayed automation order
+    --    internalCmdEvent[unitID] = nil
+    --    unitIdleEvent[unitID] = nil
+    --    return
+    --end
+    ----- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
+    --if automatedState[unitID] ~= "commanded" and not internalCmdEvent[unitID]
+    --        and (cmdID == CMD_MOVE or cmdID == CMD_REPAIR or cmdID == CMD_RECLAIM) then
+    --    --Spring.Echo("Valid automatable unit got a move command "..unitID)
+    --    ---We do this to check if remove commands should be issued or not, down the pipe
+    --    if cmdID and cmdID < 0 then
+    --        setAutomateState(unitID, "commanded", "UnitCommandBuild")
+    --    else
+    --        setAutomateState(unitID, "commanded", "UnitCommand")
+    --    end
+    --end
+    --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
 end
 
 ----From unitai_auto_assist: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")
@@ -955,8 +901,8 @@ function widget:RecvLuaMsg(msg, playerID)
         local data = Split(msg, '_')
         local unitID = tonumber(data[2])
         spEcho("Autoassist :: Idle Harvester: "..(unitID or "nil"))
-        if unitID then --and isReallyIdle(unitID) then
-            setAutomateState(unitID, "commanded", "RecvLuaMsg")
+        if IsValidUnit(unitID) then
+            setAutomateState(unitID, "idle", "RecvLuaMsg")
         end
     end
 end
