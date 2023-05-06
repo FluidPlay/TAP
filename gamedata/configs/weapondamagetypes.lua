@@ -266,7 +266,9 @@ local weaponDamageTypes = {
 	kernhq_ct = { ["HQCannon"] = "cannon", },
 	kernhq_mt = { ["Missiles"] = "pierce", ["AAMissiles"] = "pierce", },
 	kernhq_rt = { ["ScoutPulse"] = "omni", },
-	
+
+	bowdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
+
 	["else"] = {},
 }
 

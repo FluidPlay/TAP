@@ -20,6 +20,8 @@ end
 local GetFeaturePosition = Spring.GetFeaturePosition
 local SpawnCEG = Spring.SpawnCEG
 local random = math.random
+local function isnumber(n)
+  return type(n) == "number" end
 
 local cegs = {}
 cegs[1] = "reclaimshards1"
