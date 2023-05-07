@@ -52,7 +52,7 @@ function HasBuildQueue(unitID)
     if not IsValidUnit(unitID) then
         return end
     local buildqueue = spGetFullBuildQueue(unitID) -- => nil | buildOrders = { [1] = { [number unitDefID] = number count }, ... } }
-    --spEcho("build queue size: "..(buildqueue and #buildqueue or "N/A"))
+    --Spring.Echo("build queue size: "..(buildqueue and #buildqueue or "N/A"))
     if buildqueue then
         return #buildqueue > 0
     else
