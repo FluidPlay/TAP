@@ -34,30 +34,29 @@ VFS.Include("gamedata/taptools.lua")
 local spSetUnitMidAndAimPos = Spring.SetUnitMidAndAimPos
 local vehicleBaseYOffset = 16
 
---UnitDefID, vertical offset of aim position from base
-local unitsToEdit = { [UnitDefNames.armllt.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corllt.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armbeamer.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corhllt.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armamex.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corexp.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armhlt.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corhlt.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armdeva.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corshred.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corrl.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armrl.id] = {bpo = {x=0,y=13,z=0}},
+local unitsToEdit = { [UnitDefNames.armllt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corllt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armbeamer.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corhllt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armamex.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corexp.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armhlt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corhlt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armdeva.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corshred.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corrl.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armrl.id] = {apo = {x=0,y=20,z=0}},
                       --[UnitDefNames.armflak.id] = 13,
-                      [UnitDefNames.corrad.id] = {bpo = {x=0,y=15,z=0}},    -- Model bugfix
-                      [UnitDefNames.armcir.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corerad.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armmercury.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.corscreamer.id] = {bpo = {x=0,y=13,z=0}},
-                      [UnitDefNames.armoutpost.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armoutpost2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armoutpost3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.armoutpost4.id] = {bpo = {x=0,y=15,z=0}},
-                      [UnitDefNames.coroutpost.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.coroutpost2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.coroutpost3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.coroutpost4.id] = {bpo = {x=0,y=15,z=0}},
-                      [UnitDefNames.armtech.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech1.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.armtech4.id] = {bpo = {x=0,y=15,z=0}},
-                      [UnitDefNames.cortech.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.armtech1.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech2.id] = {bpo = {x=0,y=13,z=0}}, [UnitDefNames.cortech3.id] = {bpo = {x=0,y=15,z=0}}, [UnitDefNames.cortech4.id] = {bpo = {x=0,y=15,z=0}},
-                      [UnitDefNames.armgmm.id] = {bpo = {x=0,y=20,z=0}}, --Prude
+                      [UnitDefNames.corrad.id] = {apo = {x=0,y=15,z=0}},    -- Model bugfix
+                      [UnitDefNames.armcir.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corerad.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armmercury.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.corscreamer.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.armoutpost.id] = {apo = {x=0,y=20,z=0}}, [UnitDefNames.armoutpost2.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.armoutpost3.id] = {apo = {x=0,y=15,z=0}}, [UnitDefNames.armoutpost4.id] = {apo = {x=0,y=15,z=0}},
+                      [UnitDefNames.coroutpost.id] = {apo = {x=0,y=20,z=0}}, [UnitDefNames.coroutpost2.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.coroutpost3.id] = {apo = {x=0,y=15,z=0}}, [UnitDefNames.coroutpost4.id] = {apo = {x=0,y=15,z=0}},
+                      [UnitDefNames.armtech.id] = {apo = {x=0,y=20,z=0}}, [UnitDefNames.armtech1.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.armtech2.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.armtech3.id] = {apo = {x=0,y=15,z=0}}, [UnitDefNames.armtech4.id] = {apo = {x=0,y=15,z=0}},
+                      [UnitDefNames.cortech.id] = {apo = {x=0,y=20,z=0}}, [UnitDefNames.armtech1.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.cortech2.id] = {apo = {x=0,y=13,z=0}}, [UnitDefNames.cortech3.id] = {apo = {x=0,y=15,z=0}}, [UnitDefNames.cortech4.id] = {apo = {x=0,y=15,z=0}},
+                      [UnitDefNames.armgmm.id] = {apo = {x=0,y=20,z=0}}, --Prude
                       --- Model middle position offset fixes
                       --[UnitDefNames.armflash.id] = {bpo = {x=0,y=0,z=0}},
                       --[UnitDefNames.armpw.id] = {bpo = {x=0,y=15,z=0}},

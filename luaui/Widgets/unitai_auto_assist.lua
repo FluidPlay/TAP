@@ -509,7 +509,7 @@ end
 local automatedFunctions = {
     [1] = { id="enemyreclaim",
             condition = function(ud)  -- Commanders shouldn't prioritize enemy-reclaiming
-                return automatedState[ud.unitID] ~= "enemyreclaim"
+                return automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "harvest"
                         and ud.unitDef.canMove
                         and not ud.unitDef.customParams.iscommander
             end,

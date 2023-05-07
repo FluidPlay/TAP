@@ -17,6 +17,7 @@ local sfxFall = SFX.FALL
 local sfxFire = SFX.FIRE
 local sfxSmoke = SFX.SMOKE
 local sfxExplodeOnHit = SFX.EXPLODE_ON_HIT
+local topSpinAngle = 35
 
 local explosionFx1 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit
 local explosionFx2 = sfxFall + sfxSmoke + sfxFire + sfxExplodeOnHit + sfxBITMAP3
@@ -61,6 +62,28 @@ function script.Create()
 				   },
 		})
 	end)
+end
+
+local function RotateAnim()
+	if not GetUnitValue(COB.ACTIVATION) then
+		return
+	end
+	initTween({ veryLastFrame = 4*30, --sleepTime = sleepTime,
+				[base] = { [1] = { cmd = "turn", targetValue = math.rad(topSpinAngle),
+								  axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 120,}
+				},
+	} )
+	initTween({ veryLastFrame = 4*30, --sleepTime = sleepTime,
+				[base] = { [1] = { cmd = "turn", targetValue = math.rad(-topSpinAngle),
+								  axis = z_axis, easingFunction = "inOutCubic", firstFrame = 0, lastFrame = 120,}
+				},
+	} )
+
+	RotateAnim()
+end
+
+function script.Activate()
+	StartThread(RotateAnim, true)
 end
 
 --- To restore to the default firing position; generally not used for turrets

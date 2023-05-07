@@ -35,6 +35,8 @@ if gadgetHandler:IsSyncedCode() then
     local kernhqid = UnitDefNames["kernhq"].id
     local armckid = UnitDefNames["armck"].id
     local corckid = UnitDefNames["corck"].id
+    local bowdaemonid = UnitDefNames["bowdaemon"].id
+    local kerndaemonid = UnitDefNames["kerndaemon"].id
 
     local startWeapName = "kernhq_lt"
     local startTechName = "kernhq_rt"
@@ -65,7 +67,7 @@ if gadgetHandler:IsSyncedCode() then
         --if not GeoNearby(x,y,z) then
             -- Spring.GetGroundHeight(x, z)
         local x,y,z = spGetUnitPosition(unitID)
-        local builderID, commanderID
+        local builderID, commanderID, daemonID
 
         --Don't use it, just reads it from the lobby setting
         --local _, _, _, _, teamSide = spGetTeamInfo(teamID)
@@ -75,17 +77,20 @@ if gadgetHandler:IsSyncedCode() then
         if unitDef.id == kernhqid then
             builderID = corckid
             commanderID = kerncomid
+            daemonID = kerndaemonid
         else
             builderID = armckid
             commanderID = bowcomid
+            daemonID = bowdaemonid
         end
 
-        spCreateUnit(builderID, x, y, z+80, 0, teamID)
-        spCreateUnit(builderID, x, y, z+40, 0, teamID)
-        spCreateUnit(builderID, x, y, z-0, 0, teamID)
-        spCreateUnit(builderID, x, y, z-40, 0, teamID)
+        spCreateUnit(builderID, x-40, y, z+100, 0, teamID)
+        spCreateUnit(builderID, x+40, y, z+100, 0, teamID)
+        spCreateUnit(builderID, x-40, y, z-100, 0, teamID)
+        spCreateUnit(builderID, x+40, y, z-100, 0, teamID)
 
-        spCreateUnit(commanderID, x, y, z-100, 0, teamID)
+        spCreateUnit(commanderID, x, y, z-50, 0, teamID)
+        spCreateUnit(daemonID, x, y, z+50, 0, teamID)
 
         local piecemap = Spring.GetUnitPieceMap(unitID)
         local pieceID = piecemap["plugBL"]

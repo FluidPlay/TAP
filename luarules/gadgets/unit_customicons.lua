@@ -52,7 +52,8 @@ local unitIconTable = {
       air_fighter=1.4,
       air_gunshiplaser=1.2,
       air_gunshipmissile=1.2,
-      drone_radar=1.1,
+      daemon=1.5,
+      drone_scout=1.1,
       drone_antibot=1.2,
       drone_missile=1.25,
       def_artillery=1.8,
@@ -90,6 +91,7 @@ local unitIconTable = {
       structure_shield=1.1,
       structure_tech=1.5,
       structure_pad=2, --1.25
+      structure_hq=2, --1.25
       veh_antibot=1.5,
       veh_artillery=1.4,
       veh_assault=1.5,
@@ -151,7 +153,7 @@ function loadUnitIcons()
         if VFS.LoadFile(fileName) then
             addUnitIcon(iconName, fileName, size)
         else
-            addUnitIcon("Icon file not found: "..fileName)
+            Spring.Echo("Icon file not found: "..fileName)
         end
     end
     for iconid, baseSize in pairs(unitIconTable) do

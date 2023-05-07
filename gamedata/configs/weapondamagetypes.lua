@@ -268,7 +268,9 @@ local weaponDamageTypes = {
 	kernhq_rt = { ["ScoutPulse"] = "omni", },
 
 	bowdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
-
+	kerndaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
+	bowadvdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
+	kernadvdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
 	["else"] = {},
 }
 
