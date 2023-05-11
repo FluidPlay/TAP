@@ -2738,7 +2738,7 @@ function init()
           end,
         },
 
-        {id="nanoeffect", group="gfx", name="Nano effect", type="select", options={'beam','particles'}, value=tonumber(Spring.GetConfigInt("NanoEffect",1) or 1), description='Sets nano effect\n\nBeams more expensive than particles',
+        {id="nanoeffect", group="gfx", name="Nano effect", type="select", options={'beam','particles'}, value=tonumber(Spring.GetConfigInt("NanoEffect",0) or 1), description='Sets nano effect\n\nBeams more expensive than particles',
          onload = function(i) end,
          onchange = function(i, value)
         	 Spring.SetConfigInt("NanoEffect",value)

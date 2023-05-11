@@ -1,0 +1,92 @@
+#define TA			// This is a TA script
+
+#include "sfxtype.h"
+#include "exptype.h"
+
+#define SIG_AIM				2
+
+piece shooter, base;
+
+static-var RotateSpeed, accelbrakerate, statechg_DesiredState, statechg_StateChanging;
+
+Go()
+{
+	spin base around y-axis speed <30.00000>;
+	spin base around x-axis speed <60.00000>;
+	spin base around z-axis speed <15.00000>;
+	return (0);
+}
+
+InitState()
+{
+	statechg_DesiredState = TRUE;
+	statechg_StateChanging = FALSE;
+	return (0);
+}
+
+RequestState(requestedstate, currentstate)
+{
+	if( statechg_StateChanging )
+	{
+		statechg_DesiredState = requestedstate;
+		return (0);
+	}
+	statechg_StateChanging = TRUE;
+	currentstate = statechg_DesiredState;
+	statechg_DesiredState = requestedstate;
+	while( statechg_DesiredState != currentstate )
+	{
+		if( statechg_DesiredState == 0 )
+		{
+			call-script Go();
+			currentstate = 0;
+		}
+	}
+	statechg_StateChanging = FALSE;
+	return (0);
+}
+
+Create()
+{
+	RotateSpeed = 50;
+	accelbrakerate = 1;
+	call-script InitState();
+	start-script RequestState(0);	
+	return (0);
+}
+
+SweetSpot(piecenum)
+{
+	piecenum = base;
+	return (0);
+}
+
+AimPrimary(heading, pitch)
+{
+	signal SIG_AIM;
+	set-signal-mask SIG_AIM;
+	turn shooter to y-axis heading speed <999.00000>;
+	turn shooter to x-axis <0.00000> - pitch speed <999.00000>;
+	wait-for-turn shooter around y-axis;
+	wait-for-turn shooter around x-axis;	
+	return (1);
+}
+
+// -- The piece that the bullet/laser/whatever comes out of.
+QueryPrimary(piecenum)
+{
+	piecenum = base;
+}
+
+// -- The unit looks from this piece down the QueryWeapon piece, to see whether it's aiming at anything.
+AimFromPrimary(piecenum)
+{
+	piecenum = shooter;
+}
+
+Killed( severity, corpsetype )
+{
+	//corpsetype = 1;
+	//return(corpsetype);
+	return 1;
+}

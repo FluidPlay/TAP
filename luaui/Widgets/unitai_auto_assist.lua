@@ -277,7 +277,7 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
     --if reallyIdleUnits[unitID] then
     --    Spring.Echo("reallyIdleUnits still set for: "..unitID)
     --end
-    Spring.Echo("widget:UnitIdle fired for "..unitID)
+    --Spring.Echo("widget:UnitIdle fired for "..unitID)
     if automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
         --Spring.Echo("Idle event fired for "..(unitID or "nil"))
@@ -750,7 +750,7 @@ local function automateCheck(unitID, unitDef, caller)
             ud.orderIssued = autoFunc.action(ud)
         end
         if ud.orderIssued then
-            Spring.Echo("Interrupting unitIdleEvent by orderIssued")
+            --Spring.Echo("Interrupting unitIdleEvent by orderIssued")
             unitIdleEvent[unitID] = nil
             break end
     end
@@ -763,7 +763,7 @@ local function automateCheck(unitID, unitDef, caller)
     else
         if automatedState[unitID] ~= "harvest" then
             unitsToAutomate[unitID] = spGetGameFrame() + idleRecheckLatency
-            Spring.Echo("Rechecking for idle unit "..unitID.." on frame: "..(spGetGameFrame() + idleRecheckLatency))
+            --Spring.Echo("Rechecking for idle unit "..unitID.." on frame: "..(spGetGameFrame() + idleRecheckLatency))
         end
     end
     return ud.orderIssued
@@ -777,14 +777,14 @@ function widget:GameFrame(f)
 
     --- First let's verify if units tagged by widget:unitIdle are still idle, one second after the fact
     for unitID, recheckFrame in pairs(unitIdleEvent) do
-        Spring.Echo("Checking idleEvent for: "..(unitID or "nil")..", frame: "..f..", recheck fr: "..(recheckFrame or "nil")..", state: "..(automatedState[unitID] or "nil"))
+        --Spring.Echo("Checking idleEvent for: "..(unitID or "nil")..", frame: "..f..", recheck fr: "..(recheckFrame or "nil")..", state: "..(automatedState[unitID] or "nil"))
         if f >= recheckFrame then
             if automatedState[unitID] ~= "harvest" then   -- while on harvest state, only unitai_auto_harvest can say if it's idle or not
                 reallyIdleUnits[unitID] = true
                 setAutomateState(unitID, "idle", "GameFrame")
-                Spring.Echo("Setting idle state for: "..unitID)
-            else
-                Spring.Echo("Wont set idle, "..unitID.." is harvesting.")
+            --    Spring.Echo("Setting idle state for: "..unitID)
+            --else
+            --    Spring.Echo("Wont set idle, "..unitID.." is harvesting.")
             end
             unitIdleEvent[unitID] = nil
         end

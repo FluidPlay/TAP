@@ -67,7 +67,7 @@ local damageMultipliers = {
     --,
 
     ---v3
-    plasma = { 	robot = 1.1, vehicle = 0.65, air = 1, ship = 1.5, armorbot = 0.6, armorveh = 0.4, armorair = 1.5, armorship = 1.5,
+    plasma = { 	robot = 1.1, vehicle = 0.5, air = 1, ship = 1.5, armorbot = 0.6, armorveh = 0.4, armorair = 1.5, armorship = 1.5,
                 structure = 1.4, defense = 0.6, commander = 0.85, shield = 1, superunit = 0.75, ore = 0.2, },
 
     ---v2

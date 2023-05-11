@@ -271,6 +271,8 @@ local weaponDamageTypes = {
 	kerndaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
 	bowadvdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
 	kernadvdaemon = { ["Laser"] = "omni", ["NSLaser"] = "omni", ["Shield"] = "omni", },
+
+	pandoreguard = { ["FlakCannon"] = "omni", },
 	["else"] = {},
 }
 
