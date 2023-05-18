@@ -387,7 +387,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
         automatableUnits[unitID] = true
-        unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after two seconds, by default
+        --unitIdleEvent[unitID] = spGetGameFrame() + 60   -- Will recheck after two seconds, by default
         setAutomateState(unitID, "commanded", "UnitFinished")
     end
 end
@@ -670,7 +670,7 @@ local automatedFunctions = {
                 return nil
             end
     },
-    [7] = { id="idle",  --commanded
+    [7] = { id="idle",
             condition = function(ud) --unitData
                 --local recheckFrame = commandedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]

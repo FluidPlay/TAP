@@ -19,11 +19,15 @@ if gadgetHandler:IsSyncedCode() then
     ---- SYNCED
     -----------------
 
+    VFS.Include("gamedata/taptools.lua")
+    VFS.Include("gamedata/unitai_functions.lua")
+
     local spGetAllUnits	= Spring.GetAllUnits
     local spGetUnitDefID = Spring.GetUnitDefID
     --local spGetGameFrame = Spring.GetGameFrame
     local spGetFeatureDefID = Spring.GetFeatureDefID
     local spGetUnitPosition = Spring.GetUnitPosition
+    local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spCreateUnit = Spring.CreateUnit
     local initialized = false
     local spGetUnitTeam = Spring.GetUnitTeam
@@ -40,6 +44,8 @@ if gadgetHandler:IsSyncedCode() then
 
     local startWeapName = "kernhq_lt"
     local startTechName = "kernhq_rt"
+
+    local CMD_MOVE = CMD.MOVE
 
     local minSpawnDistance = 150    -- This prevents duplicated geothermals in faulty maps
     --local respawnTime = 60 -- in frames; 60f = 2s
@@ -63,6 +69,29 @@ if gadgetHandler:IsSyncedCode() then
     --    return false
     --end
 
+    local function moveTowardsNearestOre(unitID, unitDef)
+        --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
+        local pos, cpos = {}, {}
+        pos.x, pos.y, pos.z = spGetUnitPosition(unitID)
+        local buildRange = unitDef.buildDistance
+        local ud = { unitID = unitID, pos = pos, unitDef = unitDef, harvestRange = buildRange * 2.2 } -- let's increase scan range
+        local nearestChunkID = getNearestChunkID(ud)
+        if not nearestChunkID then
+            return end
+        cpos.x, cpos.y, cpos.z = spGetUnitPosition(nearestChunkID)
+        local buffer = 0.85
+        local offset = { x = (cpos.x - pos.x)*buffer,  y = (cpos.y - pos.y)*buffer,  z = (cpos.z - pos.z)*buffer}
+        pos.x, pos.y, pos.z = pos.x+offset.x, pos.y+offset.y, pos.z+offset.z
+        spGiveOrderToUnit(unitID, CMD_MOVE, { pos.x, pos.y, pos.z }, { "" })
+        --parentOreTowerID = getNearestOreTowerID(ud, oreTowers, maxOreTowerScanRange)
+        --harvesters[unitID].parentOreTowerID = parentOreTowerID
+    end
+
+    local function spawBuilder(builderID, xPos, yPos, zPos, teamID, unitDef)
+        local unitID = spCreateUnit(builderID, xPos, yPos, zPos, 0, teamID)
+        moveTowardsNearestOre(unitID, unitDef)
+    end
+
     local function spawnBuilders(unitID, teamID, unitDef)
         --if not GeoNearby(x,y,z) then
             -- Spring.GetGroundHeight(x, z)
@@ -84,10 +113,10 @@ if gadgetHandler:IsSyncedCode() then
             daemonID = bowdaemonid
         end
 
-        spCreateUnit(builderID, x-40, y, z+100, 0, teamID)
-        spCreateUnit(builderID, x+40, y, z+100, 0, teamID)
-        spCreateUnit(builderID, x-40, y, z-100, 0, teamID)
-        spCreateUnit(builderID, x+40, y, z-100, 0, teamID)
+        spawBuilder(builderID, x-40, y, z+100, teamID, unitDef)
+        spawBuilder(builderID, x+40, y, z+100, teamID, unitDef)
+        spawBuilder(builderID, x-40, y, z-100, teamID, unitDef)
+        spawBuilder(builderID, x+40, y, z-100, teamID, unitDef)
 
         spCreateUnit(commanderID, x, y, z-50, 0, teamID)
         spCreateUnit(daemonID, x, y, z+50, 0, teamID)
