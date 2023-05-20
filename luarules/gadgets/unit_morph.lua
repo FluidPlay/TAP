@@ -390,7 +390,7 @@ if (gadgetHandler:IsSyncedCode()) then
         --Spring.Echo("\n\n****MorphDef Debug: ") --..(morphDef.into or "nil"))
         --DebugTable(morphDef)
 
-        return morphDef
+        return morphDef, cmdID
     end
 
     --- Returns all destination morphDefs set in the unit, if any
@@ -1999,9 +1999,9 @@ if (gadgetHandler:IsSyncedCode()) then
             -- local morphData = { def = morphDef, progress = 0.0, increment = morphDef.increment,
             --                    morphID = nil, teamID = teamID, paused = false, }
 
+            local morphDef, startCmdID = getSingleMorphdef(unitID, unitDefID, cmdID)
             -- If there are no morphingUnits, start morphing this immediately
             if #teamQueuedUnits[teamID] == 0 then
-                local morphDef = getSingleMorphdef(unitID, unitDefID, cmdID)
                 --if not morphDef then
                 --  return true, true end      --// command was used, remove it
                 QueueMorph(unitID, teamID, startCmdID)
