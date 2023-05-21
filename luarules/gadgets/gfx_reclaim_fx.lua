@@ -22,8 +22,8 @@ if UnitDefNames["chip"] ~= nil then
 --	ignoreUnits[UnitDefNames["dice"].id] = true
 	ignoreUnits[UnitDefNames["xmasball"].id] = true
 	--ignoreUnits[UnitDefNames["xmasball2"].id] = true
-	ignoreUnits[UnitDefNames["armstone"].id] = true
-	ignoreUnits[UnitDefNames["corstone"].id] = true
+--	ignoreUnits[UnitDefNames["armstone"].id] = true
+--  ignoreUnits[UnitDefNames["corstone"].id] = true
 end
 
 

@@ -79,7 +79,7 @@ if gadgetHandler:IsSyncedCode() then
         if not nearestChunkID then
             return end
         cpos.x, cpos.y, cpos.z = spGetUnitPosition(nearestChunkID)
-        local buffer = 0.85
+        local buffer = 0.7 --0.85
         local offset = { x = (cpos.x - pos.x)*buffer,  y = (cpos.y - pos.y)*buffer,  z = (cpos.z - pos.z)*buffer}
         pos.x, pos.y, pos.z = pos.x+offset.x, pos.y+offset.y, pos.z+offset.z
         spGiveOrderToUnit(unitID, CMD_MOVE, { pos.x, pos.y, pos.z }, { "" })
@@ -87,7 +87,7 @@ if gadgetHandler:IsSyncedCode() then
         --harvesters[unitID].parentOreTowerID = parentOreTowerID
     end
 
-    local function spawBuilder(builderID, xPos, yPos, zPos, teamID, unitDef)
+    local function spawnBuilder(builderID, xPos, yPos, zPos, teamID, unitDef)
         local unitID = spCreateUnit(builderID, xPos, yPos, zPos, 0, teamID)
         moveTowardsNearestOre(unitID, unitDef)
     end
@@ -113,10 +113,10 @@ if gadgetHandler:IsSyncedCode() then
             daemonID = bowdaemonid
         end
 
-        spawBuilder(builderID, x-40, y, z+100, teamID, unitDef)
-        spawBuilder(builderID, x+40, y, z+100, teamID, unitDef)
-        spawBuilder(builderID, x-40, y, z-100, teamID, unitDef)
-        spawBuilder(builderID, x+40, y, z-100, teamID, unitDef)
+        spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
+        spawnBuilder(builderID, x+40, y, z+100, teamID, unitDef)
+        spawnBuilder(builderID, x-40, y, z-100, teamID, unitDef)
+        spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
 
         spCreateUnit(commanderID, x, y, z-50, 0, teamID)
         spCreateUnit(daemonID, x, y, z+50, 0, teamID)

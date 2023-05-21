@@ -56,6 +56,7 @@ local spGetMyAllyTeamID     = Spring.GetMyAllyTeamID
 --local spGetFeaturePosition = Spring.GetFeaturePosition
 --local spGetSelectedUnits = Spring.GetSelectedUnits
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
+local spGetUnitSeparation = Spring.GetUnitSeparation
 --local spSetUnitRulesParam = Spring.SetUnitRulesParam
 --local spGetUnitHarvestStorage = Spring.GetUnitHarvestStorage
 --local spGetTeamResources = Spring.GetTeamResources
@@ -379,7 +380,7 @@ local automatedFunctions = {
             end,
             action = function(ud)
                 spEcho("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
-                local dist = Spring.GetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
+                local dist = spGetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
                 --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                 if dist > 50 then   --TODO: De-hardcode
                     spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "alt" }) --"alt" favors reclaiming --Spring.Echo("Farking")

@@ -181,9 +181,9 @@ local UnitEffects = {}
       [UnitDefNames["corawac"].id] = {
         {class='AirJet',options={color={0.8,0.2,0}, width=4, length=53, piece="thrust", onActive=true, light=1}},
       },
-      [UnitDefNames["corhunt"].id] = {
-        {class='AirJet',options={color={0.8,0.2,0}, width=4, length=58, piece="thrust", onActive=true, light=1}},
-      },
+      --[UnitDefNames["corhunt"].id] = {
+      --  {class='AirJet',options={color={0.8,0.2,0}, width=4, length=58, piece="thrust", onActive=true, light=1}},
+      --},
      [UnitDefNames["armawac"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=53, piece="thrust", onActive=true, light=1}},
       },

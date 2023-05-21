@@ -211,7 +211,7 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 
 			if unitDef.isBuilding or unitDef.isFactory or unitDef.speed==0 then
 				isBuilding[unitDefID] = true
-				Spring.Echo("gui_oreTower_ranges; isBuilding of "..unitDef.name.." is TRUE")
+				--Spring.Echo("gui_oreTower_ranges; isBuilding of "..unitDef.name.." is TRUE")
 			end
 		end
 	end
