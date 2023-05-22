@@ -76,7 +76,7 @@ local function spawnGuardian(x, y, z)
 
     local unitID = spCreateUnit(guardianUnitDefId, x, y, z, 0, gaiaTeamID)
     guardians[unitID]={ x=x, y=y, z=z}
-    spSetUnitNeutral(unitID, true)
+    --spSetUnitNeutral(unitID, true)
 
     spSetUnitRotation(unitID,0,math.random()*85,0) -- 0~85 degress after the spawn placement (N,S,E,W)
     spGiveOrderToUnit(unitID, cmdFly, { 0 }, {})

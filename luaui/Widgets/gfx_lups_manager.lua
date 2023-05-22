@@ -198,13 +198,13 @@ local UnitEffects = {}
         {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=58, piece="jet1", onActive=true, light=1}},
         {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=58, piece="jet2", onActive=true, light=1}},
       },
-      [UnitDefNames["corsb"].id] = {
-        {class='AirJet',options={color={0.6,0.1,0}, width=3.8, length=58, piece="emit1", onActive=true, light=1}},
-        {class='AirJet',options={color={0.6,0.1,0}, width=3.8, length=58, piece="emit2", onActive=true, light=1}},
-      },
-      [UnitDefNames["armsb"].id] = {
-        {class='AirJet',options={color={0.1,0.4,0.6}, width=4.3, length=59, piece="emit1", onActive=true, light=1}},
-      },
+      --[UnitDefNames["corsb"].id] = {
+      --  {class='AirJet',options={color={0.6,0.1,0}, width=3.8, length=58, piece="emit1", onActive=true, light=1}},
+      --  {class='AirJet',options={color={0.6,0.1,0}, width=3.8, length=58, piece="emit2", onActive=true, light=1}},
+      --},
+      --[UnitDefNames["armsb"].id] = {
+      --  {class='AirJet',options={color={0.1,0.4,0.6}, width=4.3, length=59, piece="emit1", onActive=true, light=1}},
+      --},
       [UnitDefNames["corstil"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=4, length=59, piece="thrust", onActive=true, light=1}},
       },

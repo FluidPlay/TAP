@@ -39,7 +39,7 @@ function sqrDistance(x1,z1,x2,z2)
     if not x1 or not z1 or not x2 or not z2 then
         return 9999999 end
 	local dx,dz = x1-x2,z1-z2
-	return sqr(dx)+sqr(dz)
+	return dx*dx + dz*dz
 end
 
 -- eg.: distance(pos1, pos2) | pos1 = { x=n, y=n }
@@ -659,7 +659,7 @@ function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, is
 		return nil
 	end
     --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID
-    radius = radius and radius or 80 --default scan Radius
+    radius = radius and (radius-20) or 80 --default scan Radius; we're adding a 20 units buffer to prevent edge cases
     local itemsAround = isFeature
             and spGetFeaturesInCylinder(pos.x, pos.z, radius)
             or (teamID and spGetUnitsInCylinder(pos.x, pos.z, radius, teamID)

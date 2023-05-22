@@ -11,6 +11,7 @@ local spGetUnitHealth   = Spring.GetUnitHealth
 local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
 local spGetUnitCommands = Spring.GetUnitCommands
+local spGetCommandQueue = Spring.GetCommandQueue
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
@@ -63,19 +64,16 @@ end
 function HasCommandQueue(unitID)
     if not IsValidUnit(unitID) then
         return end
-    --local commandQueue = spGetCommandQueue(unitID, 0)
-    local unitCommands = spGetUnitCommands(unitID, 20)
-    --local fullBuildQueue = spGetFullBuildQueue(unitID)
+    local commandQueue = spGetCommandQueue(unitID, -1)
+    --local unitCommands = spGetUnitCommands(unitID, 20)
 
-    --spEcho("command queue size: "..(commandQueue or "N/A"))
-    --Spring.Echo("has command queue: "..((unitCommands and #unitCommands > 0) and "YES" or "NO"))
-    --Spring.Echo("has fullbuild queue: "..((fullBuildQueue and #fullBuildQueue > 0) and "YES" or "NO"))
+    --Spring.Echo("command queue size: "..(#commandQueue or "nil"))
 
     --if executingCmd[unitID] then
     --    return false
     --end
-    if unitCommands then
-        return #unitCommands > 0
+    if commandQueue then
+        return #commandQueue > 0
     end
     return false
 end
