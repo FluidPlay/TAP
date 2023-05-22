@@ -187,9 +187,9 @@ local UnitEffects = {}
      [UnitDefNames["armawac"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=53, piece="thrust", onActive=true, light=1}},
       },
-     [UnitDefNames["armsehak"].id] = {
-        {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=58, piece="thrust", onActive=true, light=1}},
-      },
+     --[UnitDefNames["armsehak"].id] = {
+     --   {class='AirJet',options={color={0.1,0.4,0.6}, width=3.5, length=58, piece="thrust", onActive=true, light=1}},
+     -- },
       [UnitDefNames["armliche"].id] = {
         {class='AirJet',options={color={0.1,0.4,0.6}, width=4.4, length=54, piece="thrust1", onActive=true, light=1}},
         {class='AirJet',options={color={0.1,0.4,0.6}, width=4.4, length=54, piece="thrust2", onActive=true, light=1}},

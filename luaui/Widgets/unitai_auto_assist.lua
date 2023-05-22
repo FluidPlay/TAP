@@ -232,23 +232,25 @@ function setAutomateState(unitID, state, caller)
     -- Avoid recursion
     if awaitedUnits[unitID] or automatedState[unitID] == state then
         return end
-    if state == "commanded" then
-        DeautomateUnit(unitID, caller)
-        --- It'll only get out of commanded if it's idle, that's only the delay to recheck idle
-        commandedUnits[unitID] = spGetGameFrame() + idleRecheckLatency
-        spEcho("Autoassist: Commanding Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + idleRecheckLatency)
-        spSendLuaUIMsg("unitCommanded_"..unitID, "allies") --(message, mode)
-        unitsToAutomate[unitID] = nil
-    elseif state == "idle" then
+    if state == "idle" then
         DeautomateUnit(unitID, caller)
         commandedUnits[unitID] = nil
-        unitsToAutomate[unitID] = spGetGameFrame() + idleRecheckLatency
+        unitsToAutomate[unitID] = spGetGameFrame() + idleRecheckLatency     -- That's a key point when unit is set for later reautomatio
     else
-        commandedUnits[unitID] = nil
-        automatedUnits[unitID] = spGetGameFrame() + reautomationLatency
+        if state == "commanded" then
+            DeautomateUnit(unitID, caller)
+            --- It'll only get out of commanded if it's idle, that's only the delay to recheck for idle
+            commandedUnits[unitID] = spGetGameFrame() + idleRecheckLatency
+            spEcho("Autoassist: Commanding Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + idleRecheckLatency)
+            spSendLuaUIMsg("unitCommanded_"..unitID, "allies") --(message, mode)
+        else
+            commandedUnits[unitID] = nil
+            automatedUnits[unitID] = spGetGameFrame() + reautomationLatency
+        end
+        unitsToAutomate[unitID] = nil
     end
     automatedState[unitID] = state
-    --Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -674,8 +676,9 @@ local automatedFunctions = {
             condition = function(ud) --unitData
                 --local recheckFrame = commandedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
-                --if automatedState[ud.unitID] == "repair" then
-                --Spring.Echo("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
+                if automatedState[ud.unitID] == "repair" then
+                    Spring.Echo("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
+                end
 
                 if automatedState[ud.unitID] == "idle" then
                     return false end
@@ -691,8 +694,9 @@ local automatedFunctions = {
                 -- Checks below are all depending on having a target; if none, bail out
                 if not isnumber(targetID) then
                     return true end
+
                 return
-                (automatedState[ud.unitID] == "commanded")
+                        (automatedState[ud.unitID] == "commanded")
                         or
                         --factory guarded but out of queue, Fac destroyed or no buildqueue
                         --TODO: Deautomate assisting units when factory is awaited
@@ -760,11 +764,11 @@ local function automateCheck(unitID, unitDef, caller)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
         reallyIdleUnits[unitID] = nil
-    else
-        if automatedState[unitID] ~= "harvest" then
-            unitsToAutomate[unitID] = spGetGameFrame() + idleRecheckLatency
-            --Spring.Echo("Rechecking for idle unit "..unitID.." on frame: "..(spGetGameFrame() + idleRecheckLatency))
-        end
+    --else
+    --    if automatedState[unitID] ~= "harvest" then
+    --        unitsToAutomate[unitID] = spGetGameFrame() + idleRecheckLatency
+    --        --Spring.Echo("Rechecking for idle unit "..unitID.." on frame: "..(spGetGameFrame() + idleRecheckLatency))
+    --    end
     end
     return ud.orderIssued
 end
