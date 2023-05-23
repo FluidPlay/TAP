@@ -22,6 +22,7 @@ VFS.Include("gamedata/taptools.lua")
 VFS.Include("gamedata/unitai_functions.lua")
 
 local localDebug = false --true --|| Enables text state debug messages
+local localDebugLight = false   -- for lighter, local debug messages
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
@@ -197,6 +198,11 @@ local function spEcho(string)
         Spring.Echo(string) end
 end
 
+local function spEchoLight(string)
+    if localDebugLight then
+        Spring.Echo(string) end
+end
+
 --local function isCommander(unitID,unitDefID)
 --    if unitID and not unitDefID then
 --        unitDefID = spGetUnitDefID(unitID)
@@ -252,7 +258,7 @@ function setAutomateState(unitID, state, caller)
         unitsToAutomate[unitID] = nil
     end
     automatedState[unitID] = state
-    Spring.Echo("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    spEchoLight("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -280,10 +286,10 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
     -- If that delay isn't over yet, the unitIdleEvent shouldn't be set, and we bail out of this
     local isCommanded = commandedUnits[unitID]
     if isCommanded and spGetGameFrame() < isCommanded then
-        Spring.Echo("widget:UnitIdle blocked")
+        spEchoLight("widget:UnitIdle blocked")
         unitIdleEvent[unitID] = nil
         return end
-    Spring.Echo("widget:UnitIdle fired/confirmed for "..unitID)
+    spEchoLight("widget:UnitIdle fired/confirmed for "..unitID)
     if automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
     end
@@ -686,7 +692,7 @@ local automatedFunctions = {
                 --local recheckFrame = commandedUnits[ud.unitID]
                 local targetID = automatableUnits[ud.unitID]
                 if automatedState[ud.unitID] == "repair" then
-                    Spring.Echo("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
+                    spEchoLight("TargetID: "..(tostring(targetID) or "nil").." fullHealth: "..(isFullHealth(targetID) and "true" or"false").." in range: "..(targetIsInRange(ud.unitID, targetID, false)and"true"or"false"))
                 end
 
                 if automatedState[ud.unitID] == "idle" then
@@ -792,10 +798,10 @@ function widget:GameFrame(f)
         if f >= frame then
             automatableUnits[unitID] = true
             setAutomateState(unitID, "commanded", "UnitFinished")
-            Spring.Echo("unit "..unitID.." HasBuildQueue: "..tostring(HasBuildQueue(unitID) or "nil").." has commandQueue: "..tostring(HasCommandQueue(unitID) or "nil") )
+            spEchoLight("unit "..unitID.." HasBuildQueue: "..tostring(HasBuildQueue(unitID) or "nil").." has commandQueue: "..tostring(HasCommandQueue(unitID) or "nil") )
             if (not HasBuildQueue(unitID)) and (not HasCommandQueue(unitID)) then
                 -- This prevents widget:idle from blocking idle from ever being fired after the unit is built
-                Spring.Echo("scheduling idle event")
+                spEchoLight("scheduling idle event")
                 unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
             end
             unitFinishedNextFrame[unitID] = nil

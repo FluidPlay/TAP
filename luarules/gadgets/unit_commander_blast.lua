@@ -35,6 +35,7 @@ local COM_EMPEXPLOSION_WEAP = WeaponDefNames['armcom_empexplosion'].id
 local DAEMON_EMPEXPLOSION_WEAP = WeaponDefNames['armcom_empexplosion'].id
 
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spValidUnitID = Spring.ValidUnitID
 
 local COMMANDER = {
   [UnitDefNames["corcom"].id] = true,
@@ -84,6 +85,8 @@ local daemonExplosionEMPparams = {
     damageGround = true,
 }
 
+local finishedDaemons = {} --{ [unitID] = true, ...}
+
 local teamCEG = {} --teamCEG[tID] = cegID of commander blast for that team
 
 function gadget:Initialize()
@@ -116,13 +119,23 @@ function gadget:Initialize()
     --end
 end
 
+function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+    if DAEMON[unitDefID] and spValidUnitID(unitID) then
+        finishedDaemons[unitID] = true
+    end
+end
+
+
 function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
     local isCommander = COMMANDER[unitDefID]
     local isDaemon = DAEMON[unitDefID]
-    if not isCommander and not isDaemon then
+    if (not isCommander and not isDaemon) or (not spValidUnitID(unitID))then
         return end
-    local x,y,z = Spring.GetUnitBasePosition(unitID)
+    -- Canceled in-production daemons shouldn't blow up and paralyze the whole base, right? doh..
+    if isDaemon and not finishedDaemons[unitID] then
+        return end
 
+    local x,y,z = Spring.GetUnitBasePosition(unitID)
     -- If it was simply morphed into => No explosion FX, just "level up" fx.
     if spGetUnitRulesParam(unitID, "justmorphed") == 1 then
         Spring.SpawnCEG("commander-levelup", x,y,z, 0,0,0, 0, 0)

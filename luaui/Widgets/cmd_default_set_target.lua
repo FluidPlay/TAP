@@ -121,7 +121,7 @@ function widget:CommandNotify(id, params, options)
             for _,unitID in ipairs(unitsAroundClick) do
                 if spGetUnitAllyTeam(unitID) ~= myAllyTeam then -- It's enemy Unit
                     local eUnitPos = {}
-                    eUnitPos.x, eUnitPos.z = spGetUnitPosition(unitID)
+                    eUnitPos.x, _, eUnitPos.z = spGetUnitPosition(unitID)
                     local sqrDist = sqrDistance(click.x, click.z, eUnitPos.x, eUnitPos.z)
                     if (sqrDist < minSqrDist) then
                         closestEnemyID = unitID

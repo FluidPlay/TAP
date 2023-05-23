@@ -4,6 +4,123 @@
 ---
 
 -----------------------------------------------------------------
+-- Global Variables
+-----------------------------------------------------------------
+
+local shader
+local vbo
+local vao
+
+-----------------------------------------------------------------
+
+function widget:GetInfo()
+    return {
+        name = "GUI Icon Out-of-ammo GL4",
+        desc = "Shows icons on top of out-of-ammo planes",
+        author = "Ivand. MaDDoX added one triangle. O_o'",
+        date = "Oct 11, 2021",
+        license = "GPLv3",
+        layer = 0,
+        enabled = false, --true,
+    }
+end
+
+--VFS.Include("gamedata/taptools.lua")
+--
+--function widget:Initialize()
+--    shader = gl.CreateShader({
+--        vertex = vsSrc,
+--        fragment = fsSrc,
+--    })
+--
+--    Spring.Echo(gl.GetShaderLog())
+--    if shader == 0 then
+--        widgetHandler:RemoveWidget()
+--    end
+--
+--    Spring.Echo("worldPos", gl.GetUniformLocation(shader, "worldPos"))
+--
+--    vao = gl.GetVAO()
+--    if vao == nil then
+--        widgetHandler:RemoveWidget()
+--    end
+--
+--    vbo = gl.GetVBO(GL.ARRAY_BUFFER, false)
+--    if vbo == nil then
+--        widgetHandler:RemoveWidget()
+--    end
+--
+--    -- 6 below means reserve 6 points (to draw a Quad)
+--    vbo:Define(6, {
+--        {id = 0, name = "ndcVert", size = 2},
+--        {id = 1, name = "uv", size = 2},
+--    })
+--
+--    -- I'm lazy, so I'll do only one triangle
+--    vbo:Upload({
+--        -0.1, -0.1, 0.0, 1.0, --BL (pos, uv)   TL-----TR
+--        -0.1,  0.1, 0.0, 0.0, --TL (pos, uv)    |
+--        0.1,  0.1, 1.0, 0.0, --TR (pos, uv)    BL     BR
+--        --- 2nd Triangle
+--        -0.1, -0.1, 0.0, 1.0, --BL (pos, uv)
+--        0.1,  0.1, 1.0, 0.0, --TR (pos, uv)
+--        0.1, -0.1, 1.0, 1.0, --BR (pos, uv)
+--    })
+--
+--    Spring.Echo(vbo:Download())
+--    vbo:DumpDefinition()
+--
+--    vao:AttachVertexBuffer(vbo)
+--
+--    -- Other buffer types exist:
+--    -- AttachVertexBuffer
+--    -- AttachInstanceBuffer
+--    -- AttachIndexBuffer
+--end
+--
+--function widget:Finalize()
+--    gl.DeleteShader(shader)
+--
+--    --optional, but recommended
+--    if vao then
+--        --optional
+--        vao:Delete()
+--        vao = nil
+--    end
+--
+--    --optional, but recommended
+--    if vbo then
+--        --optional
+--        vbo:Delete()
+--        vbo = nil
+--    end
+--end
+--
+--function widget:ViewResize()
+--    widget:Finalize()
+--    widget:Initialize()
+--end
+--
+----function widget:DrawScreen()
+--function widget:DrawWorldPreUnit()
+--    gl.DepthTest(false)
+--    gl.UseShader(shader)
+--    -- pos uniform in the vertex shader
+--    -- represents center of quad
+--    gl.Texture(0, "luaui/icons/outofammo.png")
+--    gl.Uniform(0, 1300, 200, 4000) --example world space position
+--
+--    vao:DrawArrays(GL.TRIANGLES, 6) --only a triangle is drawn, change to 6 when you'll want quad
+--
+--    gl.Texture(0, false)
+--    gl.UseShader(0)
+--    gl.DepthTest(true)
+--end
+
+--=============
+
+
+-----------------------------------------------------------------
 -- Shader Sources
 -----------------------------------------------------------------
 
@@ -125,118 +242,3 @@
 --	fragColor = texture(tex, vuv);
 --}
 --]]
-
-
------------------------------------------------------------------
--- Global Variables
------------------------------------------------------------------
-
-local shader
-local vbo
-local vao
-
------------------------------------------------------------------
-
-function widget:GetInfo()
-    return {
-        name = "GUI Icon Out-of-ammo GL4",
-        desc = "Shows icons on top of out-of-ammo planes",
-        author = "Ivand. MaDDoX added one triangle. O_o'",
-        date = "Oct 11, 2021",
-        license = "GPLv3",
-        layer = 0,
-        enabled = false, --true,
-    }
-end
-
---VFS.Include("gamedata/taptools.lua")
---
---function widget:Initialize()
---    shader = gl.CreateShader({
---        vertex = vsSrc,
---        fragment = fsSrc,
---    })
---
---    Spring.Echo(gl.GetShaderLog())
---    if shader == 0 then
---        widgetHandler:RemoveWidget()
---    end
---
---    Spring.Echo("worldPos", gl.GetUniformLocation(shader, "worldPos"))
---
---    vao = gl.GetVAO()
---    if vao == nil then
---        widgetHandler:RemoveWidget()
---    end
---
---    vbo = gl.GetVBO(GL.ARRAY_BUFFER, false)
---    if vbo == nil then
---        widgetHandler:RemoveWidget()
---    end
---
---    -- 6 below means reserve 6 points (to draw a Quad)
---    vbo:Define(6, {
---        {id = 0, name = "ndcVert", size = 2},
---        {id = 1, name = "uv", size = 2},
---    })
---
---    -- I'm lazy, so I'll do only one triangle
---    vbo:Upload({
---        -0.1, -0.1, 0.0, 1.0, --BL (pos, uv)   TL-----TR
---        -0.1,  0.1, 0.0, 0.0, --TL (pos, uv)    |
---        0.1,  0.1, 1.0, 0.0, --TR (pos, uv)    BL     BR
---        --- 2nd Triangle
---        -0.1, -0.1, 0.0, 1.0, --BL (pos, uv)
---        0.1,  0.1, 1.0, 0.0, --TR (pos, uv)
---        0.1, -0.1, 1.0, 1.0, --BR (pos, uv)
---    })
---
---    Spring.Echo(vbo:Download())
---    vbo:DumpDefinition()
---
---    vao:AttachVertexBuffer(vbo)
---
---    -- Other buffer types exist:
---    -- AttachVertexBuffer
---    -- AttachInstanceBuffer
---    -- AttachIndexBuffer
---end
---
---function widget:Finalize()
---    gl.DeleteShader(shader)
---
---    --optional, but recommended
---    if vao then
---        --optional
---        vao:Delete()
---        vao = nil
---    end
---
---    --optional, but recommended
---    if vbo then
---        --optional
---        vbo:Delete()
---        vbo = nil
---    end
---end
---
---function widget:ViewResize()
---    widget:Finalize()
---    widget:Initialize()
---end
---
-----function widget:DrawScreen()
---function widget:DrawWorldPreUnit()
---    gl.DepthTest(false)
---    gl.UseShader(shader)
---    -- pos uniform in the vertex shader
---    -- represents center of quad
---    gl.Texture(0, "luaui/icons/outofammo.png")
---    gl.Uniform(0, 1300, 200, 4000) --example world space position
---
---    vao:DrawArrays(GL.TRIANGLES, 6) --only a triangle is drawn, change to 6 when you'll want quad
---
---    gl.Texture(0, false)
---    gl.UseShader(0)
---    gl.DepthTest(true)
---end

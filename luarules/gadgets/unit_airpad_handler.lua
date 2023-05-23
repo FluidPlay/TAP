@@ -519,9 +519,7 @@ end
 
 function GG.LandAborted(unitID)
     if landingUnit[unitID] then
-        landingUnit[unitID].abort = true
-
-    end
+        landingUnit[unitID].abort = true end
 end
 
 local function UpdateCoroutines()

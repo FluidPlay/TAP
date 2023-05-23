@@ -16,7 +16,7 @@ return {
 		turret = 1,
 		weaponvelocity = 900,
 		damage = {
-			default = 100,
+			default = 200,
 		},
 		customParams = { damagetype = "omni"},
 	},
