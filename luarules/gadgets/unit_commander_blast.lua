@@ -52,7 +52,9 @@ local COMMANDER = {
 
 local DAEMON = {
     [UnitDefNames["bowdaemon"].id] = true,
-    --[UnitDefNames["kerndaemon"].id] = true,
+    [UnitDefNames["kerndaemon"].id] = true,
+    [UnitDefNames["bowadvdaemon"].id] = true,
+    [UnitDefNames["kernadvdaemon"].id] = true,
 }
 
 --local METEOR_EXPLOSION = WeaponDefNames["meteor_weapon"].id
