@@ -191,7 +191,8 @@ function gadget:Initialize()
 			if teamID ~= gaiaTeamID then
 				--set & broadcast (current) start unit
 				local _, _, _, _, teamSide, teamAllyID = spGetTeamInfo(teamID)
-				if teamSide == 'kern' then	--cor
+				teamSide = string.lower(teamSide)
+				if teamSide == 'kern' or teamSide == "cor" then
 					spSetTeamRulesParam(teamID, startUnitParamName, kernhqDefID)
 				else
 					spSetTeamRulesParam(teamID, startUnitParamName, bowhqDefID)

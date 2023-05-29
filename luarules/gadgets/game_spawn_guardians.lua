@@ -106,6 +106,7 @@ function gadget:GameFrame(frame)
     if not initialized and frame > 0 then
         local allUnits = spGetAllUnits()
         local isHQ = {}  -- { unitID = true, ... }
+        --TODO: Use GG.teamStartPoints = teamStartPoints instead of this
         for _, unitID in ipairs(allUnits) do
             local unitDefID = spGetUnitDefID(unitID)
             local unitDef = unitDefID and UnitDefs[unitDefID] or nil

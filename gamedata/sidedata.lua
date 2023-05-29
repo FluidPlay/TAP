@@ -2,10 +2,10 @@
 return {
     {
         name = 'Bow', --ARM
-        startunit = 'armcom',
+        startunit = 'bowhq',   --'armcom'
     },
     {
         name = 'Kern', --CORE
-        startunit = 'corcom',
+        startunit = 'kernhq',   --'corcom'
     },
 }
