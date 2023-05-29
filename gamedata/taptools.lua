@@ -5,6 +5,7 @@
 VFS.Include("LuaRules/colors.h.lua")
 
 FontPath = "LuaUI/Fonts/GeogrotesqueCompMedium.otf" --Kelson Sans Regular.otf" --Akrobat-SemiBold.otf"
+--New: local FontPath = (VFS.Include("gamedata/configs/fontsettings.lua")).LuaUI
 
 local spFindUnitCmdDesc     = Spring.FindUnitCmdDesc
 local spInsertUnitCmdDesc     = Spring.InsertUnitCmdDesc

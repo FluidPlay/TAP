@@ -126,6 +126,15 @@ local spGetUnitExperience = Spring.GetUnitExperience
 local spGetUnitSensorRadius = Spring.GetUnitSensorRadius
 local spGetUnitWeaponState = Spring.GetUnitWeaponState
 
+local gl_Color = gl.Color
+local gl_PushMatrix = gl.PushMatrix
+local gl_Translate = gl.Translate
+local gl_BeginText = gl.BeginText
+local gl_EndText = gl.EndText
+local gl_PopMatrix = gl.PopMatrix
+local gl_Text = gl.Text
+local gl_GetTextWidth = gl.GetTextWidth
+
 local uDefs = UnitDefs
 local wDefs = WeaponDefs
 
@@ -135,6 +144,11 @@ local oldUnitpics = false
 local myTeamID = Spring.GetMyTeamID
 local spGetTeamRulesParam = Spring.GetTeamRulesParam
 local spGetTooltip = Spring.GetCurrentTooltip
+
+-- Font setup
+local loadedFontSize = 32
+local FontPath = (VFS.Include("gamedata/configs/fontsettings.lua")).LuaUI
+local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 
 local vsx, vsy = Spring.GetViewGeometry()
 
@@ -172,14 +186,14 @@ local function DrawText(t1, t2)
 	textBufferCount = textBufferCount + 1
 	textBuffer[textBufferCount] = {t1,t2,cX,cY}
 	cY = cY - fontSize
-	maxWidth = max(maxWidth, (gl.GetTextWidth(t1)*fontSize), (gl.GetTextWidth(t2)*fontSize)+(fontSize*6.5))
+	maxWidth = max(maxWidth, (gl_GetTextWidth(t1)*fontSize), (gl_GetTextWidth(t2)*fontSize)+(fontSize*6.5))
 end
 
 local function DrawTextBuffer()
 	local num = #textBuffer
 	for i=1, num do
-		glText(textBuffer[i][1], textBuffer[i][3], textBuffer[i][4], fontSize, "o")
-		glText(textBuffer[i][2], textBuffer[i][3] + (fontSize*6.5), textBuffer[i][4], fontSize, "o")
+		glText('\255\255\255\240'..textBuffer[i][1], textBuffer[i][3], textBuffer[i][4], fontSize, "o")
+		glText('\255\255\255\240'..textBuffer[i][2], textBuffer[i][3] + (fontSize*6.5), textBuffer[i][4], fontSize, "o")
 	end
 end
 
@@ -229,6 +243,11 @@ end
 ------------------------------------------------------------------------------------
 -- Code
 ------------------------------------------------------------------------------------
+
+local function SetColor(r,g,b,a)
+	gl_Color(r,g,b,a)
+	font:SetTextColor(r,g,b,a)
+end
 
 function widget:Initialize()
     WG['unitstats'] = {}
@@ -358,6 +377,11 @@ function widget:DrawScreen()
     --
     local titleFontSize = fontSize*1.12
     local cornersize = ceil(bgpadding*0.21)
+
+	gl_PushMatrix()
+	gl_BeginText()
+	SetColor(1,1,1,1)
+
 	--glColor(0,0,0,0.73)
 	--RectRound(cX-bgpadding+cornersize, cY-bgpadding+cornersize, cX+(gl.GetTextWidth(text)*fontSize)+bgpadding-cornersize, cY+(fontSize/2)+bgpadding-cornersize, bgcornerSize)
 	--cornersize = ceil(bgpadding*0.21)
@@ -421,8 +445,6 @@ function widget:DrawScreen()
             DrawText("Move:", format("%.1f / %.1f / %.0f (Speed / Accel / Turn)", mSpeed, 900 * mAccel, simSpeed * mTurnRate * (180 / 32767)))
         end
     end
-
-
 
 	if uDef.buildSpeed > 0 then	DrawText('Build:', yellow .. uDef.buildSpeed) end
 
@@ -706,6 +728,9 @@ function widget:DrawScreen()
 		guishaderEnabled = true
 		WG['guishader_api'].InsertRect(cX-bgpadding, cY+(fontSize/3)+bgpadding, cX+maxWidth+bgpadding, cYstart-bgpadding, 'unit_stats_data')
 	end
+
+	gl_EndText()
+	gl_PopMatrix()
 end
 
 ------------------------------------------------------------------------------------

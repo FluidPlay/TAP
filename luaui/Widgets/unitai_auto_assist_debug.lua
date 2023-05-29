@@ -24,8 +24,15 @@ local spWorldToScreenCoords = Spring.WorldToScreenCoords
 local localDebug = true --false --|| Enables text and UI state debug messages
 
 local loadedFontSize = 32
+local FontPath = (VFS.Include("gamedata/configs/fontsettings.lua")).LuaUI
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color = gl.Color
+local gl_PushMatrix = gl.PushMatrix
+local gl_Translate = gl.Translate
+local gl_BeginText = gl.BeginText
+local gl_EndText = gl.EndText
+local gl_PopMatrix = gl.PopMatrix
+local gl_Text = gl.Text
 
 local function SetColor(r,g,b,a)
     gl_Color(r,g,b,a)
@@ -44,9 +51,9 @@ function widget:DrawScreen()
         return end
     local textSize = 20 --22
 
-    gl.PushMatrix()
-    gl.Translate(50, 50, 0)
-    gl.BeginText()
+    gl_PushMatrix()
+    gl_Translate(50, 50, 0)
+    gl_BeginText()
     SetColor(1,1,1,1)
     for unitID, state in pairs(WG.automatedStates) do
         if spIsUnitInView(unitID) then
@@ -60,11 +67,11 @@ function widget:DrawScreen()
             --        text = text.." : "..substate
             --    end
             --end
-            gl.Text(text, sx, sy, textSize, "ocd")
+            gl_Text(text, sx, sy, textSize, "ocd")
         end
     end
-    gl.EndText()
-    gl.PopMatrix()
+    gl_EndText()
+    gl_PopMatrix()
 end
 
 function widget:TextCommand(command)

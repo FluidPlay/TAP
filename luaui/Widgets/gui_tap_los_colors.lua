@@ -17,7 +17,7 @@ end
 -- v2 Changed colors + remember ; mode + fix keybindings for non english layouts + 2 color presets (/loswithcolors)
 
 local losWithRadarEnabled = false;
-local colorProfile = "colored" -- "greyscale"
+local colorProfile = "greyscale" --"colored" --
 local specDetected = false
 
 local always, LOS, radar, jam, radar2
