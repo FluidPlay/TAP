@@ -448,8 +448,8 @@ function math_clamp(min, max, n)
         return n
     end
 	if n > max then
-		n = max end
-	if n < min then
+		n = max
+	elseif n < min then
 		n = min end
 	return n
 end

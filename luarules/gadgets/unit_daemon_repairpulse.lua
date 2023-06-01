@@ -58,20 +58,20 @@ local function isnumber(v)
     return (type(v)=="number")
 end
 
+function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+    if DAEMON[unitDefID] and spValidUnitID(unitID) then
+        activeDaemons[unitID] = UnitDefs[unitDefID]
+    end
+end
+
 function gadget:Initialize()
     local allUnits = spGetAllUnits()
     for i = 1, #allUnits do
         local unitID    = allUnits[i]
         local unitDefID = spGetUnitDefID(unitID)
         --local unitTeam  = spGetUnitTeam(unitID)
-        gadget:UnitCreated(unitID, unitDefID) --, unitTeam)
+        --gadget:UnitCreated(unitID, unitDefID) --, unitTeam)
         gadget:UnitFinished(unitID, unitDefID) --, unitTeam)
-    end
-end
-
-function gadget:UnitFinished(unitID, unitDefID, unitTeam)
-    if DAEMON[unitDefID] and spValidUnitID(unitID) then
-        activeDaemons[unitID] = UnitDefs[unitDefID]
     end
 end
 

@@ -27,6 +27,8 @@ if gadgetHandler:IsSyncedCode() then
 
 	local CHECK_FREQ = 30 --4
 
+	--local function clamp(low, n, high) return math.min(math.max(n, low), high) end
+	local clamp = math.clamp
 	local spGetGameFrame = Spring.GetGameFrame
 	local spCreateUnit = Spring.CreateUnit
 	local spSetUnitNeutral = Spring.SetUnitNeutral
@@ -242,24 +244,33 @@ if gadgetHandler:IsSyncedCode() then
 	--	return true
 	--end
 
+	--local function getHarvesterInfo(harvesterID)
+	--	if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
+	--		return end
+	--	local harvesterDef = UnitDefs[harvesterDefID]
+	--	if not harvesterDef or not canharvest[harvesterDef.name] then
+	--		return end
+	--end
+
 	local function DeliverResources(harvesterID)
 		if not IsValidUnit(harvesterID) then
 			return end
-		local unitDef = UnitDefs[spGetUnitDefID(harvesterID)]
-		local harvestWeaponDef = WeaponDefNames[unitDef.name.."_harvest_weapon"] --WeaponDefs[harvestWeapDefID]
+		local harvesterDef = UnitDefs[spGetUnitDefID(harvesterID)]
+		local harvestWeaponDef = WeaponDefNames[harvesterDef.name.."_harvest_weapon"] --WeaponDefs[harvestWeapDefID]
 		--Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
 
-		local amount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
+		local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
 		--Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
 		local curStorage = getUnitHarvestStorage(harvesterID) or 0
+		local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
 
-		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math.min(curStorage, amount) ) --eg: curStorage = 3, amount = 5, add 3.
-		setUnitHarvestStorage (harvesterID, math.max(curStorage - amount, 0))
+		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, curStorage, deliveryAmount) ) --eg: curStorage = 3, amount = 5, add 3.
+		setUnitHarvestStorage (harvesterID, math_clamp(0, maxStorage, curStorage - deliveryAmount))
 	end
 
 	--- Delivers resource straight to the pool (it's in range of a tower)
-	local function DeliverResourcesRaw(harvesterID, amount)
-		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", amount )
+	local function DeliverResourcesRaw(harvesterID, amount, curStorage)
+		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, curStorage, amount) ) --(min, max, n)
 	end
 
 	function gadget:UnitIdle(unitID, unitDefID, unitTeam)
@@ -290,7 +301,7 @@ if gadgetHandler:IsSyncedCode() then
 			return end
 		if curStorage < maxStorage then
 			if inTowerRange(harvesterID) then
-				DeliverResourcesRaw(harvesterID, damage)
+				DeliverResourcesRaw(harvesterID, damage, curStorage)
 			else
 				setUnitHarvestStorage (harvesterID, curStorage + damage)
 			end
