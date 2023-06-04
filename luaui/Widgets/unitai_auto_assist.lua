@@ -540,7 +540,7 @@ local automatedFunctions = {
                 local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
                 if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
                     local neDefID = UnitDefs[spGetUnitDefID(nearestEnemy)]
-                    if not neDefID.canFly then
+                    if not neDefID or not neDefID.canFly then
                         giveInternalOrderToUnit(ud.unitID, CMD_RECLAIM, { nearestEnemy }, {} )
                         automatableUnits[ud.unitID] = nearestEnemy
                         return "enemyreclaim"

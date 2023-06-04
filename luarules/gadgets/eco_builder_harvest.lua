@@ -187,9 +187,9 @@ if gadgetHandler:IsSyncedCode() then
 	--    return nearestTowerID, nearestDeployPos
 	--end
 
-	local function isHarvesting(unitID)
-		return harvestersInAction[unitID]
-	end
+	--local function isHarvesting(unitID)
+	--	return harvestersInAction[unitID]
+	--end
 
 	local function inTowerRange(harvesterID)
 		local harvesterAlly = spGetUnitAllyTeam(harvesterID)
@@ -270,7 +270,9 @@ if gadgetHandler:IsSyncedCode() then
 
 	--- Delivers resource straight to the pool (it's in range of a tower)
 	local function DeliverResourcesRaw(harvesterID, amount, curStorage)
-		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, curStorage, amount) ) --(min, max, n)
+		local harvesterDef = UnitDefs[spGetUnitDefID(harvesterID)]
+		local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
+		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, maxStorage, amount) ) --(min, max, n)
 	end
 
 	function gadget:UnitIdle(unitID, unitDefID, unitTeam)

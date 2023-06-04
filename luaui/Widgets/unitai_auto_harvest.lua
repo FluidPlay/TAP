@@ -379,7 +379,7 @@ local automatedFunctions = {
                         and loadPercent < 1
             end,
             action = function(ud)
-                Spring.Echo("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
+                --Spring.Echo("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
                 local dist = spGetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
                 --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
                 if dist > 50 then   --TODO: De-hardcode
