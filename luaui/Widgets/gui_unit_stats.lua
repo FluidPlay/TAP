@@ -121,6 +121,8 @@ local spGetSelectedUnitsCount	= Spring.GetSelectedUnitsCount
 local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitExp = Spring.GetUnitExperience
 local spGetUnitHealth = Spring.GetUnitHealth
+local spGetUnitArmored = Spring.GetUnitArmored
+local spGetUnitMoveTypeData = Spring.GetUnitMoveTypeData
 local spGetUnitTeam = Spring.GetUnitTeam
 local spGetUnitExperience = Spring.GetUnitExperience
 local spGetUnitSensorRadius = Spring.GetUnitSensorRadius
@@ -142,15 +144,19 @@ local triggerKey = KEYSYMS.SPACE
 local oldUnitpics = false
 
 local myTeamID = Spring.GetMyTeamID
-local spGetTeamRulesParam = Spring.GetTeamRulesParam
-local spGetTooltip = Spring.GetCurrentTooltip
+local spGetMyTeamID = Spring.GetMyTeamID
+local spGetViewGeometry = Spring.GetViewGeometry
+local gl_GetViewSizes = gl.GetViewSizes
+local spGetActiveCommand = Spring.GetActiveCommand
+--local spGetTeamRulesParam = Spring.GetTeamRulesParam
+--local spGetTooltip = Spring.GetCurrentTooltip
 
 -- Font setup
 local loadedFontSize = 32
 local FontPath = (VFS.Include("gamedata/configs/fontsettings.lua")).LuaUI
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 
-local vsx, vsy = Spring.GetViewGeometry()
+local vsx, vsy = spGetViewGeometry()
 
 local maxWidth = 0
 local textBuffer = {}
@@ -273,7 +279,7 @@ function init()
 		weaponDmgTypes = VFS.Include("gamedata/configs/weapondamagetypes.lua")
 	end
 
-	vsx, vsy = gl.GetViewSizes()
+	vsx, vsy = gl_GetViewSizes()
     widgetScale = (0.60 + (vsx*vsy / 5000000))
     fontSize = customFontSize * widgetScale
 
@@ -304,6 +310,12 @@ local function dmgMultColor(oDmg, defaultDmg)
     end
 end
 
+local function cachedGetMyTeamID()
+	if myTeamID == nil then
+		myTeamID = spGetMyTeamID()
+	end
+end
+
 function widget:DrawScreen()
 	local alt, ctrl, meta, shift = spGetModKeyState()
     if not meta or spIsUserWriting() then
@@ -324,7 +336,7 @@ function widget:DrawScreen()
 		end
 	end
     local useHoverID = false
-    local _, activeID = Spring.GetActiveCommand()
+    local _, activeID = spGetActiveCommand()
     if not activeID then activeID = 0 end
     if not uID and (not WG.hoverID) and not (activeID < 0) then
         RemoveGuishader() return
@@ -343,7 +355,7 @@ function widget:DrawScreen()
 
 	local uDef = uDefs[uDefID]
     local maxHP = uDef.health
-    local uTeam = Spring.GetMyTeamID()
+    local uTeam = cachedGetMyTeamID()
     local losRadius = uDef.losRadius
     local airLosRadius = uDef.airLosRadius
     local radarRadius = uDef.radarRadius
@@ -354,7 +366,7 @@ function widget:DrawScreen()
     local armoredMultiple = uDef.armoredMultiple
     if uID then
         local uCurHp, _, _, _, buildProg = spGetUnitHealth(uID)
-        maxHP = select(2,Spring.GetUnitHealth(uID))
+        maxHP = select(2, spGetUnitHealth(uID))
         uTeam = spGetUnitTeam(uID)
         losRadius = spGetUnitSensorRadius(uID, 'los') or 0
         airLosRadius = spGetUnitSensorRadius(uID, 'airLos') or 0
@@ -364,7 +376,7 @@ function widget:DrawScreen()
         sonarJammingRadius = spGetUnitSensorRadius(uID, 'sonarJammer') or 0
         seismicRadius = spGetUnitSensorRadius(uID, 'seismic') or 0
         local uExp = spGetUnitExperience(uID)
-        armoredMultiple = select(2,Spring.GetUnitArmored(uID))
+        armoredMultiple = select(2, spGetUnitArmored(uID))
     end
 
 	maxWidth = 0
@@ -435,10 +447,10 @@ function widget:DrawScreen()
 			)
 
     if not (uDef.isBuilding or uDef.isFactory) then
-        if not uID or not Spring.GetUnitMoveTypeData(uID) then
+        if not uID or not spGetUnitMoveTypeData(uID) then
             DrawText("Move:", format("%.1f / %.1f / %.0f (Speed / Accel / Turn)", uDef.speed, 900 * uDef.maxAcc, simSpeed * uDef.turnRate * (180 / 32767)))
         else
-            local mData = Spring.GetUnitMoveTypeData(uID)
+            local mData = spGetUnitMoveTypeData(uID)
             local mSpeed = mData.maxSpeed or uDef.speed
             local mAccel = mData.accRate or uDef.maxAcc
             local mTurnRate = mData.baseTurnRate or uDef.turnRate

@@ -29,14 +29,33 @@ local isActive = true --is the widget shown and reacts to clicks?
 local scheduleUpdate = true
 local loadedFontSize = 55
 
+
+local spGetSelectedUnits = Spring.GetSelectedUnits
+local spGetGameSpeed = Spring.GetGameSpeed
+local spSendCommands = Spring.SendCommands
+local spGetGameFrame = Spring.GetGameFrame
+local spGetMouseState = Spring.GetMouseState
+local gl_CallList = gl.CallList
+local gl_DeleteList = gl.DeleteList
+local gl_CreateList = gl.CreateList
+local gl_DeleteFont = gl.DeleteFont
+local gl_LoadFont = gl.LoadFont
+
 local gl_Color = gl.Color
+local gl_PushMatrix = gl.PushMatrix
+--local gl_Translate = gl.Translate
+local gl_BeginText = gl.BeginText
+local gl_EndText = gl.EndText
+local gl_PopMatrix = gl.PopMatrix
 
 local function SetColor(r,g,b,a)
+	if font == nil then
+		return end
     gl_Color(r,g,b,a)
     font:SetTextColor(r,g,b,a)
 end
 
-function widget:Initialize()	
+function widget:Initialize()
 	if (not Spring.IsReplay()) then
 		Spring.Echo ("[Replay Control] Replay not detected, Shutting Down.")
 		widgetHandler:RemoveWidget(self)
@@ -55,7 +74,7 @@ function widget:Initialize()
 	speedbuttons[2].color = {0.75,0,0,0.66}
 	dy=dy+h
 	local text = "  skip"
-	if Spring.GetGameFrame() > 0 then
+	if spGetGameFrame() > 0 then
 		text = "  ||"
 	end
 	add_button (buttons, wPos.x, wPos.y, 0.037, 0.033, text,"playpauseskip", {0,0,0,0.6})	
@@ -66,13 +85,14 @@ function widget:Shutdown()
 	if (WG['guishader_api'] ~= nil) then
 		WG['guishader_api'].RemoveRect('replaybuttons')
 	end
-	gl.DeleteList(speedButtonsList)
-	gl.DeleteList(buttonsList)
+	gl_DeleteList(speedButtonsList)
+	gl_DeleteList(buttonsList)
 end
 
 function speedButtonColor (i)
 	return{0,0,0,0.6}
 end
+
 
 function widget:DrawScreen()
 	if (WG['guishader_api'] ~= nil) then
@@ -85,40 +105,50 @@ function widget:DrawScreen()
 		end
 	end
 	
-	if not isActive then return end
-	if scheduleUpdate then
+	if not isActive then
+		return end
+
+	gl_PushMatrix()
+	gl_BeginText()
+
+		SetColor(1,1,1,1)
+
+		if scheduleUpdate then
+			if speedButtonsList then
+				gl_DeleteList(speedButtonsList)
+				gl_DeleteList(buttonsList)
+			end
+			speedButtonsList = gl_CreateList(draw_buttons, speedbuttons)
+			buttonsList = gl_CreateList(draw_buttons, buttons)
+			scheduleUpdate = false
+		end
 		if speedButtonsList then
-			gl.DeleteList(speedButtonsList)
-			gl.DeleteList(buttonsList)
+			gl_CallList(speedButtonsList)
+			gl_CallList(buttonsList)
 		end
-		speedButtonsList = gl.CreateList(draw_buttons, speedbuttons)
-		buttonsList = gl.CreateList(draw_buttons, buttons)
-		scheduleUpdate = false
-	end
-	if speedButtonsList then
-		gl.CallList(speedButtonsList)
-		gl.CallList(buttonsList)
-	end
-	local mousex, mousey = Spring.GetMouseState()
-	local b = speedbuttons
-	local topbutton = #speedbuttons
-	if point_in_rect (buttons[1].x, buttons[1].y, b[topbutton].x+b[topbutton].w, b[topbutton].y+b[topbutton].h,  uiX(mousex), uiY(mousey)) then
-		for i = 1, #b, 1 do
-			if (point_in_rect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h,  uiX(mousex), uiY(mousey)) or i == active_button) then
-                SetColor (0.4,0.4,0.4,0.6)
-				uiRect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h)
-				uiText (b[i].text, b[i].x, b[i].y+b[i].h/2, (0.0115), 'vo')
+		local mousex, mousey = spGetMouseState()
+		local b = speedbuttons
+		local topbutton = #speedbuttons
+		if point_in_rect (buttons[1].x, buttons[1].y, b[topbutton].x+b[topbutton].w, b[topbutton].y+b[topbutton].h,  uiX(mousex), uiY(mousey)) then
+			for i = 1, #b, 1 do
+				if (point_in_rect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h,  uiX(mousex), uiY(mousey)) or i == active_button) then
+					SetColor (0.4,0.4,0.4,0.6)
+					uiRect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h)
+					uiText (b[i].text, b[i].x, b[i].y+b[i].h/2, (0.0115), 'vo')
+				end
+			end
+			b = buttons
+			for i = 1, #b, 1 do
+				if (point_in_rect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h,  uiX(mousex), uiY(mousey)) or i == active_button) then
+					SetColor (0.4,0.4,0.4,0.6)
+					uiRect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h)
+					uiText (b[i].text, b[i].x, b[i].y+b[i].h/2, (0.0115), 'vo')
+				end
 			end
 		end
-		b = buttons
-		for i = 1, #b, 1 do
-			if (point_in_rect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h,  uiX(mousex), uiY(mousey)) or i == active_button) then
-                SetColor (0.4,0.4,0.4,0.6)
-				uiRect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h)
-				uiText (b[i].text, b[i].x, b[i].y+b[i].h/2, (0.0115), 'vo')
-			end
-		end
-	end
+
+	gl_EndText()
+	gl_PopMatrix()
 end
 
 function widget:MousePress(x,y,button)	
@@ -135,18 +165,18 @@ function widget:MousePress(x,y,button)
 	
 	local cb,i = clicked_button (buttons)	
 	if cb == "playpauseskip" then
-		if Spring.GetGameFrame () > 1 then			
+		if spGetGameFrame () > 1 then
 			if (isPaused) then 			
-				Spring.SendCommands ("pause 0")
+				spSendCommands ("pause 0")
 				buttons[i].text = "  ||"
 				isPaused = false
 			else 
-				Spring.SendCommands ("pause 1")
+				spSendCommands ("pause 1")
 				buttons[i].text = "  >>"
 				isPaused = true
 			end
 		else
-			Spring.SendCommands ("skip 1")
+			spSendCommands ("skip 1")
 			buttons[i].text = "  ||"
 		end
 		scheduleUpdate = true
@@ -154,26 +184,25 @@ function widget:MousePress(x,y,button)
 end
 
 function setReplaySpeed (speed, i)
-	local s = Spring.GetGameSpeed()	
+	local s = spGetGameSpeed()
 	--Spring.Echo ("setting speed to: " , speed , " current is " , s)
 	if (speed > s) then	--speedup
-		Spring.SendCommands ("setminspeed " .. speed)
-		Spring.SendCommands ("setminspeed " ..0.1)
+		spSendCommands ("setminspeed " .. speed)
+		spSendCommands ("setminspeed " ..0.1)
 	else	--slowdown
 		wantedSpeed = speed
 	end
 end
 
-
 function widget:Update()
 	if (wantedSpeed) then
-		if (Spring.GetGameSpeed() > wantedSpeed) then
-			Spring.SendCommands ("slowdown")
+		if (spGetGameSpeed() > wantedSpeed) then
+			spSendCommands ("slowdown")
 		else
 			wantedSpeed = nil
 		end
 	end
-	if #Spring.GetSelectedUnits () ~=0 then isActive = false else isActive = true end
+	if #spGetSelectedUnits () ~=0 then isActive = false else isActive = true end
 end
 
 function widget:GameFrame (f)	
@@ -211,8 +240,8 @@ function widget:ViewResize(viewSizeX, viewSizeY)
     local newFontfileScale = (0.5 + (vsx*vsy / 5700000))
     if (fontfileScale ~= newFontfileScale) then
         fontfileScale = newFontfileScale
-        gl.DeleteFont(font)
-        font = gl.LoadFont ( FontPath, loadedFontSize, 24, 1.25 ) -- 24, 1.25
+        gl_DeleteFont(font)
+        font = gl_LoadFont ( FontPath, loadedFontSize, 24, 1.25 ) -- 24, 1.25
         --font = gl.LoadFont(fontfile, fontfileSize*fontfileScale, fontfileOutlineSize*fontfileScale, fontfileOutlineStrength)
     end
 end
@@ -240,7 +269,6 @@ function drawmessagebox (msgbox, msg_n)
 		yoff=yoff+msgbox.textsize*1.2
 	end
 end
-
 
 function drawmessage_simple (message, x, y, s)
 	offx=0
@@ -275,7 +303,6 @@ function drawmessage (message, x, y, s)
     font:Print (message.text, sX(x+offx), sY(y), sX(s), 'vo')
 end
 
-
 function addmessage (msgbox, text, bgcolor)
 	local newmessage = {}
 	--newmessage.frame = gameframe
@@ -283,6 +310,7 @@ function addmessage (msgbox, text, bgcolor)
 	newmessage.text = text
 	table.insert (msgbox.messages, newmessage)
 end
+
 -------message boxxy end------
 ------BUTTONS------
 
@@ -310,7 +338,7 @@ function RectRound(px,py,sx,sy,cs)
 end
 
 function draw_buttons (b)
-	local mousex, mousey = Spring.GetMouseState()
+	--local mousex, mousey = Spring.GetMouseState()
 	for i = 1, #b, 1 do	
 		if (b[i].color) then SetColor (unpack(b[i].color)) else SetColor (1 ,0,0,0.66) end
 		--if (point_in_rect (b[i].x, b[i].y, b[i].x+b[i].w, b[i].y+b[i].h,  uiX(mousex), uiY(mousey)) or i == active_button) then
@@ -322,8 +350,6 @@ function draw_buttons (b)
 		uiText (b[i].text, b[i].x, b[i].y+b[i].h/2, (0.0115), 'vo')
 	end
 end
-
-
 
 function add_button (buttonlist, x,y, w, h, text, name, color)
 	local new_button = {x=x, y=y, w=w, h=h, text=text, name=name}
@@ -343,8 +369,7 @@ function next_button ()
 end
 
 function point_in_rect (x1, y1, x2, y2, px, py)
-	if (px > x1 and px < x2 and py > y1 and py < y2) then return true end
-	return false
+	return (px > x1 and px < x2 and py > y1 and py < y2)
 end
 
 function clicked_button (b)

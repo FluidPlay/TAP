@@ -90,6 +90,7 @@ function Costmatch(command)
 		local function checkGroupSize(udef, mcost)
 			if udef.customParams and udef.customParams.groupdef__size then
 				local udefgroupSize = tonumber(udef.customParams.groupdef__size)
+				--Spring.Echo("Group size found for "..udef.id.." = "..udefgroupSize)
 				if udefgroupSize and udefgroupSize > 1 then
 					mcost = mcost / udefgroupSize
 				end
