@@ -398,14 +398,6 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
         unitFinishedNextFrame[unitID] = spGetGameFrame()
-        --automatableUnits[unitID] = true
-        --setAutomateState(unitID, "commanded", "UnitFinished")
-        --Spring.Echo("unit "..unitID.." HasBuildQueue: "..tostring(HasBuildQueue(unitID)).." has commandQueue: "..tostring(HasCommandQueue(unitID)) )
-        --if (not HasBuildQueue(unitID)) and (not HasCommandQueue(unitID)) then
-        --    -- This prevents widget:idle from blocking idle from ever being fired after the unit is built
-        --    Spring.Echo("scheduling idle event")
-        --    unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
-        --end
     end
 end
 
