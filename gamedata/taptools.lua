@@ -16,9 +16,12 @@ local spGetFeaturesInCylinder = Spring.GetFeaturesInCylinder
 local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetFeatureDefID = Spring.GetFeatureDefID
 local spValidFeatureID = Spring.ValidFeatureID
+local spGetUnitNearestAlly = Spring.GetUnitNearestAlly
 local spValidUnitID = Spring.ValidUnitID
 local spGetUnitIsDead = Spring.GetUnitIsDead
 local spGetUnitDefID = Spring.GetUnitDefID
+local spGetUnitFeatureSeparation = Spring.GetUnitFeatureSeparation
+local spGetUnitSeparation = Spring.GetUnitSeparation
 
 local spMarkerAddPoint = Spring.MarkerAddPoint
 local spMarkerErasePosition = Spring.MarkerErasePosition
@@ -632,24 +635,20 @@ end
 --- Advanced Functions
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
-function GetNearest (originUID, targets, isFeature)
-    local nearestSqrDistance = 999999
+function GetNearest (unitID, targets, isFeature)
+    local nearestDistance = 999999
     local nearestItemID = #targets > 0 and targets[1] or nil    --safe check
 
-    local ox,oy,oz = spGetUnitPosition(originUID)
-    local origin = {x = ox, y = oy, z = oz}
     for targetID in pairs(targets) do
-        local x,y,z
+		local dist
         if isFeature then
-            x,y,z = spGetFeaturePosition(targetID)
-        else
-            x,y,z = spGetUnitPosition(targetID) end
-        local target = { x = x, y = y, z = z }
-        local thisSqrDist = sqrDistance(origin.x, origin.z, target.x, target.z)
-        if isnumber(thisSqrDist) and isnumber(nearestSqrDistance)
-                and (thisSqrDist < nearestSqrDistance) then
+			dist = spGetUnitFeatureSeparation (unitID, targetID, true) -- 2D = true
+		else
+            dist = spGetUnitSeparation (unitID, targetID, true, true) --[, bool 2D [, bool surfaceDist ]] )
+		end
+        if isnumber(dist) and (dist < nearestDistance) then
             nearestItemID = targetID
-            nearestSqrDistance = thisSqrDist
+            nearestDistance = dist
         end
     end
     return nearestItemID
@@ -657,7 +656,7 @@ end
 
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
-function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, isFeature, teamID, allyTeamID)
+function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
 	if pos.x == nil or pos.z == nil then
 		return nil
 	end
@@ -673,24 +672,45 @@ function NearestItemAround(unitID, pos, unitDef, radius, uDefCheck, uIDCheck, is
     --- Get list of valid targets
     for _,targetID in pairs(itemsAround) do
         if isFeature and spValidFeatureID(targetID) then
-            local targetDefID = spGetFeatureDefID(targetID)
-            local targetDef = (targetDefID ~= nil) and FeatureDefs[targetDefID] or nil
-            --if targetDef and targetDef.isFactory then ==> eg.: function(x) return x.isFactory end
-            if targetDef and (uDefCheck == nil or uDefCheck(targetDef))
-                    and (uIDCheck == nil or uIDCheck(targetID)) then
-                targets[targetID] = true
-            end
+			targets[targetID] = true
+			if defCheck then
+				local targetDefID = spGetFeatureDefID(targetID)
+				local targetDef = (targetDefID ~= nil) and FeatureDefs[targetDefID] or nil
+				if not defCheck(targetDef) then
+					targets[targetID] = nil
+				end
+			end
+			if idCheck then
+				if not idCheck(targetID) then
+					targets[targetID] = nil
+				end
+			end
         elseif IsValidUnit(targetID) and targetID ~= unitID then
-            local targetDefID = spGetUnitDefID(targetID)
-            local targetDef = (targetDefID ~= nil) and UnitDefs[targetDefID] or nil
-            if targetDef and (uDefCheck == nil or uDefCheck(targetDef))
-                    and (uIDCheck == nil or uIDCheck(targetID)) then
-                targets[targetID] = true
-            end
+			targets[targetID] = true
+			if defCheck then
+				local targetDefID = spGetUnitDefID(targetID)
+				local targetDef = (targetDefID ~= nil) and UnitDefs[targetDefID] or nil
+				if not defCheck(targetDef) then
+					targets[targetID] = nil
+				end
+			end
+			if idCheck then
+				if not idCheck(targetID) then
+					targets[targetID] = nil
+				end
+			end
         end
     end
     return GetNearest (unitID, targets, isFeature)
 end
+
+-- This is faster than 'NearestItemAround', but won't work for neutral units or features
+function NearestAllyAround(unitID, radius)
+	radius = radius and (radius-20) or 80 --default scan Radius; we're adding a 20 units buffer to prevent edge cases
+	return spGetUnitNearestAlly(unitID, radius)
+end
+
+--( number unitID [, number range ] )
 
 --local buildTimes = {}
 --local variableCostUnit = {

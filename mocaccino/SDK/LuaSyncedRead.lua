@@ -275,13 +275,13 @@ function Spring.GetUnitsInPlanes   ( )
 return  numberMock
  end
 
-function Spring.GetUnitNearestAlly   ( range, unitID)
-assert(type(range) == "number","Argument range is of invalid type - expected number");
+function Spring.GetUnitNearestAlly   ( unitID, range )
 assert(type(unitID) == "number","Argument unitID is of invalid type - expected number");
+assert(type(range) == "number","Argument range is of invalid type - expected number");
 return  numberMock
  end
 
-function Spring.GetUnitNearestEnemy   ( range, unitID)
+function Spring.GetUnitNearestEnemy   ( unitID, range )
 assert(type(range) == "number","Argument range is of invalid type - expected number");
 assert(type(unitID) == "number","Argument unitID is of invalid type - expected number");
 return  numberMock

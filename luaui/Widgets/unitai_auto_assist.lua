@@ -44,6 +44,7 @@ local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
 local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetFeaturesInCylinder = Spring.GetFeaturesInCylinder
+local spGetUnitNearestAlly = Spring.GetUnitNearestAlly
 local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
 local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetFeaturePosition = Spring.GetFeaturePosition
@@ -529,7 +530,7 @@ local automatedFunctions = {
             end,
             action = function(ud) --unitData
                 --Spring.Echo("[1] Enemy-reclaim check")
-                local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, false) -- useLOS = false ; => nil | unitID
+                local nearestEnemy = spGetUnitNearestEnemy(ud.unitID, ud.radius, true) -- useLOS = true ; => nil | unitID
                 if nearestEnemy and automatedState[ud.unitID] ~= "enemyreclaim" then
                     local neDefID = UnitDefs[spGetUnitDefID(nearestEnemy)]
                     if not neDefID or not neDefID.canFly then
@@ -750,9 +751,11 @@ local function automateCheck(unitID, unitDef, caller)
 
     --  local harvestWeapon = WeaponDefs[UnitDefs[unitDef.id].name.."_harvest_weapon"] -- eg: armck_harvest_weapon
     local harvestRange = harvesters[unitID] and harvesters[unitID].harvestRange
+    local team = spGetUnitTeam(unitID)
 
+    ---TODO: Cache most 'ud' data, except for pos and frame
     local ud = { unitID = unitID, unitDef = unitDef, pos = pos, radius = radius, harvestRange = harvestRange, orderIssued = nil,
-                 frame = spGetGameFrame() }
+                 team = team, frame = spGetGameFrame() }
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #automatedFunctions do
