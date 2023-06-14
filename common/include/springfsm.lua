@@ -11,10 +11,18 @@ local spGetUnitIsDead = Spring.GetUnitIsDead
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
 local spGetGameFrame = Spring.GetGameFrame
 local spEcho = Spring.Echo
+local spIsUnitInView = Spring.IsUnitInView
+local spGetUnitViewPosition = Spring.GetUnitViewPosition
+local spIsGUIHidden = Spring.IsGUIHidden
+local spWorldToScreenCoords = Spring.WorldToScreenCoords
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
+
+localDebug = true --false --|| Enables text and UI state debug messages
 
 local function isnumber(v) return (type(v)=="number") end
 trackedUnits = {}
 
+fsmName = "def"
 fsmState = {}
 fsmBehavior = {}
 
@@ -29,6 +37,11 @@ local function dbgEcho(msg)
     if (debug) then
         spEcho(msg)
     end
+end
+
+local function SetColor(r,g,b,a)
+    gl_Color(r,g,b,a)
+    font:SetTextColor(r,g,b,a)
 end
 
 -- Local version from taptools, to make things lighter
@@ -47,7 +60,7 @@ local function setUnitAutomated(unitID, enabled)
         return end
     automatedUnits[unitID] = enabled and true or nil    -- let's assure we never use 'false' on these guys
     idleUnits[unitID] = enabled and nil or true
-    local msg = "SpringFSM:: Unit "..unitID.." automation: "..tostring(enabled)
+    local msg = "SpringFSM:: Unit "..unitID.." automation: "..(tostring(enabled))
     if not enabled then
         trackedUnits[unitID].recheckFrame = spGetGameFrame() + recheckLatency
         msg = msg .. ", will try re-automation in: "..trackedUnits[unitID].recheckFrame
@@ -59,7 +72,10 @@ end
 --// Global/Externally-Callable Functions
 --//--------------------------------------
 
-function setup(fsmBehaviorTbl, recheckLatencyNum, debugBool, updateRateNum)
+function setup(fsmIdStr, fsmBehaviorTbl, recheckLatencyNum, debugBool, updateRateNum)
+    if (type(fsmIdStr) == "string") then
+        fsmId = fsmIdStr
+    end
     fsmBehavior = fsmBehaviorTbl
     if (type(recheckLatencyNum)=="number") then
         recheckLatency = recheckLatencyNum
@@ -79,6 +95,7 @@ function setState(unitID, state, caller)
         return end
     setUnitAutomated(unitID, state ~= "idle")
     fsmState[unitID] = state
+    spSetUnitRulesParam(unitID, "fsmstate_"..fsmId, state )
     spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
 end
 
@@ -92,6 +109,7 @@ function Check(unitID, ud, caller, showEcho)
 
     debug = showEcho    -- if ommitted in the call, won't show Spring.Echo messages
 
+    local ud = { unitID = unitID }
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #fsmBehavior do
         local fsmFunc = fsmBehavior[i]
@@ -102,13 +120,13 @@ function Check(unitID, ud, caller, showEcho)
         end
     end
     --- If any automation attempt above was successful, set new harvest state
-    if ud.orderIssued then
+    if ud.stateSet then
         --if ud.orderIssued == "idle" then
         --    --Spring.Echo ("Auto harvest:: Sending message: harvesterIdle_"..unitID)
         --    spSendLuaUIMsg("harvesterIdle_"..unitID, "allies") --(message, mode)
         --end
-        dbgEcho ("Auto harvest:: New order Issued: "..ud.orderIssued)
-        setState(unitID, ud.orderIssued, caller.."> automateCheck")
+        dbgEcho ("Auto harvest:: New order Issued: "..ud.stateSet)
+        setState(unitID, ud.stateSet, caller.."> automateCheck")
     end
     return ud.orderIssued
 end
@@ -122,7 +140,8 @@ function GameFrame(f)
             Check(unitID, ud, "fsm:gameFrame")
             -- Queue up the next fsm-automation test
             trackedUnits[unitID].recheckFrame = spGetGameFrame() + recheckLatency
-            Spring.Echo("Rechecking unit: "..unitID.." at frame: "..trackedUnits[unitID].recheckFrame)
+            ---TODO: Remove (TEMP)
+            --Spring.Echo("Rechecking unit: "..unitID.." at frame: "..trackedUnits[unitID].recheckFrame)
         end
     end
 end

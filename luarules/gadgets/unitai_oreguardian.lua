@@ -5,7 +5,6 @@
 ---
 -----------------------------------------------
 -----------------------------------------------
-
 function gadget:GetInfo()
     return {
         name      = "UnitAI Ore Guardian",
@@ -18,20 +17,21 @@ function gadget:GetInfo()
     }
 end
 
--- Synced only
+
+-- Synced Part:
 if not gadgetHandler:IsSyncedCode() then
     return end
 
 VFS.Include("gamedata/taptools.lua")
-local fsm = { Spring = Spring, type = type, pairs = pairs, }
+local fsm = { Spring = Spring, type = type, pairs = pairs, gl=gl, VFS=VFS, tostring=tostring}
 VFS.Include("common/include/springfsm.lua", fsm)
 
 local updateRate = 6    -- how Often, in frames, to do updates
-local spGetUnitPosition = Spring.GetUnitPosition
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
-local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetUnitTeam = Spring.GetUnitTeam
 local spGetUnitSeparation = Spring.GetUnitSeparation
+local spGetGameFrame = Spring.GetGameFrame
+local aggroRecheckDelay = 60
 
 local CMD_FIRE_STATE = CMD.FIRE_STATE
 local holdFireState, returnFireState = 0,1
@@ -44,9 +44,26 @@ local oreGuardianDef = {
 }
 
 local oreGuardians = {}
+local aggroedGuardians = {}     -- { guardianUnitID = nextFrameCheck, ... }
+
+local fsmId = "oreguardian"
+local stateIDs = { [1] = "movetoattack", [2] = "attack", [2] = "return", [3] = "idle", }
+local fsmBehaviors = {
+    [1] = { id=stateIDs[1],             -- COMBAT
+            condition = function(ud)    -- What's the condition to transition to this state
+                --local exampleVar = exampleFunction(ud.unitID, ud.unitDef)
+                return true -- egVar > 2
+            end,
+            action = function(ud)       -- What to do when entering this state, if condition is satisfied
+                print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
+                return stateIDs[1]
+            end
+    },
+    --...
+}
 
 function gadget:Initialize()
-    fsm.setup(fsmBehaviorTbl, 30, true) --, updateRateNum = 6 (default)
+    fsm.setup(fsmId, fsmBehaviors, 30, true) --, updateRateNum = 6 (default)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
         local unitDefID = Spring.GetUnitDefID(unitID)
@@ -76,19 +93,6 @@ function gadget:GameFrame(f)
         return end
 
     fsm.GameFrame(f)
-
-    --if f % updateRate > 0.0001 then
-    --    return end
-    --
-    --for unitID,_ in pairs(oreGuardians) do
-    --    local x,_,z = spGetUnitPosition(unitID)
-    --    local unitsNearSpot = spGetUnitsInCylinder(x, z, guardRadius)
-    --    for _,unitID in ipairs(unitsNearSpot) do
-    --        --local unitDefID = spGetUnitDefID(unitID)
-    --
-    --        local currentState = unitFireState[unitID]
-    --    end
-    --end
 end
 
 local function insertOrdered(tbl, insertData, param)
@@ -134,6 +138,7 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
             else
                 insertOrdered(data.aggro, newData, "power")
             end
+            aggroedGuardians[guardianID] = spGetGameFrame() + aggroRecheckDelay
         end
     end
 end
