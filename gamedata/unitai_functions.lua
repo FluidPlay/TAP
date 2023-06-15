@@ -85,7 +85,9 @@ function getNearestUID (ud)
                 local health,maxHealth = spGetUnitHealth(x)
                 if not health or not maxHealth then
                     return nil end
-                return (health < (maxHealth * 0.99)) end)
+                return (health < (maxHealth * 0.99)) end,
+                ud.team
+            )
 end
 
 function getNearestRepairableID (ud)
@@ -97,7 +99,9 @@ function getNearestRepairableID (ud)
                 if health == nil or maxHealth == nil then
                     return nil
                 end
-                return done and health < (maxHealth * 0.99) end )
+                return done and health < (maxHealth * 0.99) end ,
+                ud.team
+            )
 end
 
 function getNearestFeatureID (ud)
@@ -135,7 +139,8 @@ end
 function getNearestFactoryID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
             function(x) return x.isFactory end,     --We're only interested in factories currently producing
-            function(x) return HasBuildQueue(x) end)
+            function(x) return HasBuildQueue(x) end,
+            ud.team)
 end
 
 function getNearestMetalID (ud)
@@ -165,7 +170,10 @@ end
 
 function getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, maxOreTowerScanRange, nil,
-            function(x) return (oreTowers and oreTowers[x] or nil) end) --,
+                function(x) return (oreTowers and oreTowers[x] or nil) end,
+                false,
+                ud.team) --,
+    --(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
 end
 
 function getParentOreTowerID (ud, harvesters)

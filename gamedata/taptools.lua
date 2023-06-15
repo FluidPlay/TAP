@@ -20,6 +20,7 @@ local spGetUnitNearestAlly = Spring.GetUnitNearestAlly
 local spValidUnitID = Spring.ValidUnitID
 local spGetUnitIsDead = Spring.GetUnitIsDead
 local spGetUnitDefID = Spring.GetUnitDefID
+local spGetUnitTeam	 = Spring.GetUnitTeam
 local spGetUnitFeatureSeparation = Spring.GetUnitFeatureSeparation
 local spGetUnitSeparation = Spring.GetUnitSeparation
 
@@ -687,17 +688,20 @@ function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFe
 			end
         elseif IsValidUnit(targetID) and targetID ~= unitID then
 			targets[targetID] = true
+			if teamID then
+				local targetTeam = spGetUnitTeam(targetID)
+				if not targetTeam == teamID then
+					targets[targetID] = nil end
+			end
 			if defCheck then
 				local targetDefID = spGetUnitDefID(targetID)
 				local targetDef = (targetDefID ~= nil) and UnitDefs[targetDefID] or nil
 				if not defCheck(targetDef) then
-					targets[targetID] = nil
-				end
+					targets[targetID] = nil end
 			end
 			if idCheck then
 				if not idCheck(targetID) then
-					targets[targetID] = nil
-				end
+					targets[targetID] = nil end
 			end
         end
     end

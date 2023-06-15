@@ -20,21 +20,21 @@ local spSetUnitRulesParam = Spring.SetUnitRulesParam
 localDebug = true --false --|| Enables text and UI state debug messages
 
 local function isnumber(v) return (type(v)=="number") end
-trackedUnits = {}
+local trackedUnits = {}
 
-fsmName = "def"
+fsmId = "def"
 fsmState = {}
 fsmBehavior = {}
 
 automatedUnits = {}
 idleUnits = {}
 
-debug = false                 -- By default this is false, but can be turned on selectively by the fsmCheck call option
+debugMsgs = false                 -- By default this is false, but can be turned on selectively by the fsmCheck call option
 recheckLatency = 30           -- Delay until a "commanded" or "idle" unit checks for automation again
 updateRate = 6
 
 local function dbgEcho(msg)
-    if (debug) then
+    if (debugMsgs) then
         spEcho(msg)
     end
 end
@@ -81,7 +81,7 @@ function setup(fsmIdStr, fsmBehaviorTbl, recheckLatencyNum, debugBool, updateRat
         recheckLatency = recheckLatencyNum
     end
     if (type(debugBool)=="boolean") then
-        debug = debugBool
+        debugMsgs = debugBool
     end
     if (type(updateRateNum)=="number") then
         updateRate = updateRateNum
@@ -93,23 +93,26 @@ end
 function setState(unitID, state, caller)
     if state == fsmState[unitID] then
         return end
-    setUnitAutomated(unitID, state ~= "idle")
+    setUnitAutomated(unitID, not (state == "idle"))
     fsmState[unitID] = state
     spSetUnitRulesParam(unitID, "fsmstate_"..fsmId, state )
-    spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
+    --Spring.Echo("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller.." paramID: fsmstate_"..fsmId)
 end
 
 function UnitFinished(unitID, unitDef)
+    --Spring.Echo("Added "..(unitID or "nil"))
     trackedUnits[unitID] = { recheckFrame = spGetGameFrame() + recheckLatency, unitDef = unitDef }
+    setState(unitID, "idle", "UnitFinished")
 end
 
 function Check(unitID, ud, caller, showEcho)
     if not IsValidUnit(unitID) or fsmBehavior == nil then
         return end
 
-    debug = showEcho    -- if ommitted in the call, won't show Spring.Echo messages
+    --Spring.Echo("Check for unitID: "..unitID)
+    debugMsgs = showEcho    -- if ommitted in the call, won't show Spring.Echo messages
 
-    local ud = { unitID = unitID }
+    --local ud = { unitID = unitID }
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #fsmBehavior do
         local fsmFunc = fsmBehavior[i]
@@ -137,6 +140,7 @@ function GameFrame(f)
     --    return end
     for unitID, data in pairs(trackedUnits) do
         if IsValidUnit(unitID) and f >= data.recheckFrame then
+            local ud = { unitID = unitID }
             Check(unitID, ud, "fsm:gameFrame")
             -- Queue up the next fsm-automation test
             trackedUnits[unitID].recheckFrame = spGetGameFrame() + recheckLatency

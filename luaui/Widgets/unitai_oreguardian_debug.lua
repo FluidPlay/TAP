@@ -13,7 +13,7 @@ function widget:GetInfo()
         enabled = true,
     }
 end
-local localDebug = true --false --|| Enables text and UI state debug messages
+local localDebug = false --|| Enables text and UI state debug messages
 local fsmId = "oreguardian"
 
 VFS.Include("gamedata/taptools.lua")

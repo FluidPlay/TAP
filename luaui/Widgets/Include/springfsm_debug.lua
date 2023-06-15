@@ -49,13 +49,13 @@ function DrawScreen(fsmId, trackedUnits, localDebug)
     for unitID in pairs(trackedUnits) do
         if spIsUnitInView(unitID) then
             local val = spGetUnitRulesParam(unitID, "fsmstate_"..fsmId)
-            Spring.Echo("ParamId: ".."fsmstate_"..fsmId.." || val: "..(val or "nil"))
-            local fsmState = (spGetUnitRulesParam(unitID, "fsmstate_"..fsmId)) or "nil"
+            --Spring.Echo("ParamId: ".."fsmstate_"..fsmId.." || val: "..(val or "nil"))
+            local fsmTxt = val or "nil"
 
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy = spWorldToScreenCoords(x, y, z)   --, sz
             --TODO: Add externally set-able custom function for 'text' here
-            local text = (unitID or "nil").." | "..(fsmState or "nil")
+            local text = (unitID or "nil").." | "..(fsmTxt or "nil")
             gl_Text(text, sx, sy, textSize, "ocd")
         end
     end
