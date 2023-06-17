@@ -48,7 +48,7 @@ if gadgetHandler:IsSyncedCode() then
 	local defaultMaxStorage = 400 --620
 	local defaultOreTowerRange = 330
 
-	local harvesterStorage = {} -- { unitID = { cur = 9999, max = unitDef.customparams.maxorestorage}, ... }
+	local harvesterStorage = {} -- { unitID = { cur = 9999, max = unitDef.customparams.maxorestorage}, delivery = 0.999 }. ... }
 	--local partialLoadHarvesters = {} --{ unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
 	local loadedHarvesters = {}
 	local featureRemainingMetal = {}
@@ -131,7 +131,10 @@ if gadgetHandler:IsSyncedCode() then
 		local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
 		spEcho("finished unit harvestStorage: "..(maxorestorage or "nil")) --maxorestorage
 		if maxorestorage and maxorestorage > 0 then
-			harvesterStorage[unitID] = { max=maxorestorage, cur=0 }
+			local harvesterDef = UnitDefs[spGetUnitDefID(unitID)]
+			local harvestWeaponDef = WeaponDefNames[harvesterDef.name.."_harvest_weapon"]
+			local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
+			harvesterStorage[unitID] = { max=maxorestorage, cur=0, delivery = deliveryAmount }
 			spEcho("Harvester added: "..unitID.." storage: "..maxorestorage)
 		else
 			spEcho("Harvester not detected")
@@ -244,25 +247,28 @@ if gadgetHandler:IsSyncedCode() then
 	--	return true
 	--end
 
-	--local function getHarvesterInfo(harvesterID)
-	--	if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
-	--		return end
-	--	local harvesterDef = UnitDefs[harvesterDefID]
-	--	if not harvesterDef or not canharvest[harvesterDef.name] then
-	--		return end
-	--end
+	--- Returns: deliveryAmount, maxStorage
+	local function getHarvesterInfo(harvesterID)
+		if not IsValidUnit(harvesterID) then
+			return end
+		if not harvesterStorage[harvesterID] then
+			return end
+		local harvesterInfo = harvesterStorage[harvesterID]
+		--local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
+		--local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
+		return harvesterInfo.delivery, harvesterInfo.max
+	end
 
 	local function DeliverResources(harvesterID)
 		if not IsValidUnit(harvesterID) then
 			return end
-		local harvesterDef = UnitDefs[spGetUnitDefID(harvesterID)]
-		local harvestWeaponDef = WeaponDefNames[harvesterDef.name.."_harvest_weapon"] --WeaponDefs[harvestWeapDefID]
 		--Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
 
-		local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
 		--Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
 		local curStorage = getUnitHarvestStorage(harvesterID) or 0
-		local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
+		local deliveryAmount, maxStorage = getHarvesterInfo(harvesterID)
+		--local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
+		--local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
 
 		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, curStorage, deliveryAmount) ) --eg: curStorage = 3, amount = 5, add 3.
 		setUnitHarvestStorage (harvesterID, math_clamp(0, maxStorage, curStorage - deliveryAmount))

@@ -17,8 +17,6 @@ local spIsGUIHidden = Spring.IsGUIHidden
 local spWorldToScreenCoords = Spring.WorldToScreenCoords
 local spSetUnitRulesParam = Spring.SetUnitRulesParam
 
-localDebug = true --false --|| Enables text and UI state debug messages
-
 local function isnumber(v) return (type(v)=="number") end
 local trackedUnits = {}
 
@@ -29,6 +27,7 @@ fsmBehavior = {}
 automatedUnits = {}
 idleUnits = {}
 
+--|| Enables text and UI state debug messages
 debugMsgs = false                 -- By default this is false, but can be turned on selectively by the fsmCheck call option
 recheckLatency = 30           -- Delay until a "commanded" or "idle" unit checks for automation again
 updateRate = 6
@@ -65,7 +64,7 @@ local function setUnitAutomated(unitID, enabled)
         trackedUnits[unitID].recheckFrame = spGetGameFrame() + recheckLatency
         msg = msg .. ", will try re-automation in: "..trackedUnits[unitID].recheckFrame
     end
-    spEcho(msg)
+    dbgEcho(msg)
 end
 
 --//--------------------------------------
