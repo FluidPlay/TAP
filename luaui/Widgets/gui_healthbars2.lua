@@ -71,6 +71,10 @@ local spGetGameFrame = Spring.GetGameFrame
 local loadedFontSize = 32
 local font = gl.LoadFont(FontPath, loadedFontSize, 24, 1.25)
 local gl_Color			= gl.Color
+local gl_Vertex = gl.Vertex
+local gl_BeginEnd = gl.BeginEnd
+local gl_CreateList = gl.CreateList
+local GL_QUADS = GL.QUADS
 
 local function SetColor(r,g,b,a)
     gl_Color(r,g,b,a)
@@ -385,35 +389,35 @@ function widget:Initialize()
         });
 
         if (barShader) then
-            barDList = gl.CreateList(function()
-                gl.BeginEnd(GL.QUADS,function()
-                    gl.Vertex(-barWidth,0,        0,0);
-                    gl.Vertex(-barWidth,0,        barWidth*2,0);
-                    gl.Vertex(-barWidth,barHeight,barWidth*2,0);
-                    gl.Vertex(-barWidth,barHeight,0,0);
+            barDList = gl_CreateList(function()
+                gl_BeginEnd(GL_QUADS,function()
+                    gl_Vertex(-barWidth,0,        0,0);
+                    gl_Vertex(-barWidth,0,        barWidth*2,0);
+                    gl_Vertex(-barWidth,barHeight,barWidth*2,0);
+                    gl_Vertex(-barWidth,barHeight,0,0);
 
-                    gl.Color(bkBottom);
-                    gl.Vertex(barWidth,0,        0,         1);
-                    gl.Vertex(barWidth,0,        barWidth*2,1);
-                    gl.Color(bkTop);
-                    gl.Vertex(barWidth,barHeight,barWidth*2,1);
-                    gl.Vertex(barWidth,barHeight,0,         1);
+                    gl_Color(bkBottom);
+                    gl_Vertex(barWidth,0,        0,         1);
+                    gl_Vertex(barWidth,0,        barWidth*2,1);
+                    gl_Color(bkTop);
+                    gl_Vertex(barWidth,barHeight,barWidth*2,1);
+                    gl_Vertex(barWidth,barHeight,0,         1);
                 end)
             end)
 
-            barFeatureDList = gl.CreateList(function()
-                gl.BeginEnd(GL.QUADS,function()
-                    gl.Vertex(-featureBarWidth,0,               0,0);
-                    gl.Vertex(-featureBarWidth,0,               featureBarWidth*2,0);
-                    gl.Vertex(-featureBarWidth,featureBarHeight,featureBarWidth*2,0);
-                    gl.Vertex(-featureBarWidth,featureBarHeight,0,0);
+            barFeatureDList = gl_CreateList(function()
+                gl_BeginEnd(GL_QUADS,function()
+                    gl_Vertex(-featureBarWidth,0,               0,0);
+                    gl_Vertex(-featureBarWidth,0,               featureBarWidth*2,0);
+                    gl_Vertex(-featureBarWidth,featureBarHeight,featureBarWidth*2,0);
+                    gl_Vertex(-featureBarWidth,featureBarHeight,0,0);
 
-                    gl.Color(fbkBottom);
-                    gl.Vertex(featureBarWidth,0,               0,         1);
-                    gl.Vertex(featureBarWidth,0,               featureBarWidth*2,1);
-                    gl.Color(fbkTop);
-                    gl.Vertex(featureBarWidth,featureBarHeight,featureBarWidth*2,1);
-                    gl.Vertex(featureBarWidth,featureBarHeight,0,         1);
+                    gl_Color(fbkBottom);
+                    gl_Vertex(featureBarWidth,0,               0,         1);
+                    gl_Vertex(featureBarWidth,0,               featureBarWidth*2,1);
+                    gl_Color(fbkTop);
+                    gl_Vertex(featureBarWidth,featureBarHeight,featureBarWidth*2,1);
+                    gl_Vertex(featureBarWidth,featureBarHeight,0,         1);
                 end)
             end)
         end
@@ -554,8 +558,8 @@ local barsN = 0
 
 do
     --//speedup
-    local glColor      = gl.Color
-    local glText       = gl.Text
+    local gl_Color      = gl.Color
+    local gl_Text       = gl.Text
 
     local maxBars = 20
     local bars    = {}
@@ -647,6 +651,9 @@ do
     local GetUnitViewPosition  = Spring.GetUnitViewPosition
     local GetUnitStockpile     = Spring.GetUnitStockpile
     local GetUnitRulesParam    = Spring.GetUnitRulesParam
+    local spGetUnitIsDead       = Spring.GetUnitIsDead
+    local spGetUnitPosition     = Spring.GetUnitPosition
+    local spMarkerAddPoint      = Spring.MarkerAddPoint
 
     local fullText
     local ux, uy, uz
@@ -721,7 +728,7 @@ do
                 scriptBurst    = tonumber(ud.customParams.script_burst),
                 reloadTime    = ud.reloadTime,
                 primaryWeapon = ud.primaryWeapon,
-                dyanmicComm   = ud.customParams.dynamic_comm,
+                dynamicComm   = ud.customParams.dynamic_comm,
                 maxWaterTank  = ud.customParams.maxwatertank,
                 freeStockpile = (ud.customParams.freestockpile and true) or nil,
                 maxorestorage = ud.customParams.maxorestorage,
@@ -739,8 +746,8 @@ do
         if (dist > infoDistance) then
             if (dist > 9000000) then
                 if debugMode then
-                    local x,y,z = Spring.GetUnitPosition(unitID)
-                    Spring.MarkerAddPoint(x,y,z,"High Distance")
+                    local x,y,z = spGetUnitPosition(unitID)
+                    spMarkerAddPoint(x,y,z,"High Distance")
                 end
                 return
             end
@@ -762,7 +769,7 @@ do
         local emp = (paralyzeDamage or 0)/empHP
         local hp  = (health or 0)/maxHealth
 
-        if Spring.GetUnitIsDead(unitID) then
+        if spGetUnitIsDead(unitID) then
             health = false
         end
 
@@ -821,12 +828,12 @@ do
         end
 
         --// HEALTH
-        if (health) and ((drawFullHealthBars)or(hp<1)) and ((build==1)or(hp<0.99 and (build>hp+0.01 or hp>build+0.01))or(drawFullHealthBars)) then
+        if (health) and ((drawFullHealthBars)or(hp<1)) and ((build==1)or(hp<0.99 and (build>hp+0.01 or hp>build+0.01)) or(drawFullHealthBars)) then
             hp100 = hp*100; hp100 = hp100 - hp100%1; --//same as floor(hp*100), but 10% faster
-            if (hp100<0) then hp100=0 elseif (hp100>100) then
+            if (hp100 < 0) then hp100 = 0 elseif (hp100 > 100) then
                 hp100 = 100
             end
-            if (drawFullHealthBars)or(hp100<100) then
+            if (drawFullHealthBars)or(hp100 < 100) then
                 AddBar(messages.health_bar,hp,nil,(fullText and hp100..'%') or '',bfcolormap[hp100])
             end
         end
@@ -992,12 +999,12 @@ do
         end
 
         --// RELOAD
-        if (not ci.scriptReload) and (ci.dyanmicComm or (ci.reloadTime >= options.minReloadTime.value)) then
+        if (not ci.scriptReload) and (ci.dynamicComm or (ci.reloadTime >= options.minReloadTime.value)) then
             local primaryWeapon = GetUnitRulesParam(unitID, "primary_weapon_override") or ci.primaryWeapon
             _,reloaded,reloadFrame = GetUnitWeaponState(unitID,primaryWeapon)
             if (reloaded==false) then
-                local reloadTime = Spring.GetUnitWeaponState(unitID, primaryWeapon, 'reloadTime')
-                if (not ci.dyanmicComm) or (reloadTime >= options.minReloadTime.value) then
+                local reloadTime = GetUnitWeaponState(unitID, primaryWeapon, 'reloadTime')
+                if (not ci.dynamicComm) or (reloadTime >= options.minReloadTime.value) then
                     ci.reloadTime = reloadTime
                     -- When weapon is disabled the reload time is constantly set to be almost complete.
                     -- It results in a bunch of units walking around with 99% reload bars.
@@ -1016,7 +1023,7 @@ do
             if reloadFrame and reloadFrame > gameFrame then
                 local scriptLoaded = GetUnitRulesParam(unitID, "scriptLoaded") or ci.scriptBurst
                 local barText = string.format("%i/%i", scriptLoaded, ci.scriptBurst) -- .. ' | ' .. floor(reload*100) .. '%'
-                reload = Spring.GetUnitRulesParam(unitID, "scriptReloadPercentage") or (1 - ((reloadFrame - gameFrame)/gameSpeed) / ci.scriptReload)
+                reload = GetUnitRulesParam(unitID, "scriptReloadPercentage") or (1 - ((reloadFrame - gameFrame)/gameSpeed) / ci.scriptReload)
                 if (reload >= 0) then
                     AddBar(messages.reload, reload,"reload",(fullText and barText) or '')
                 end
@@ -1054,8 +1061,8 @@ do
         end
 
         if debugMode then
-            local x,y,z = Spring.GetUnitPosition(unitID)
-            Spring.MarkerAddPoint(x,y,z,"N" .. barsN)
+            local x,y,z = spGetUnitPosition(unitID)
+            spMarkerAddPoint(x,y,z,"N" .. barsN)
         end
 
         if (barsN>0)or(numStockpiled) then
@@ -1279,10 +1286,16 @@ do
     local GetUnitDefID         = Spring.GetUnitDefID
     local glDepthMask          = gl.DepthMask
     local glMultiTexCoord      = gl.MultiTexCoord
+    local spIsGUIHidden        = Spring.IsGUIHidden
+    local gl_UseShader          = gl.UseShader
+    local spGetUnitPosition      = Spring.GetUnitPosition
+    local spLog                  = Spring.Log
+    local spMarkerAddPoint       = Spring.MarkerAddPoint
+    local spValidFeatureID       = Spring.ValidFeatureID
 
     function widget:DrawWorld()
-        if not Spring.IsGUIHidden() then
-            if (#visibleUnits+#visibleFeatures==0) then
+        if not spIsGUIHidden() then
+            if (#visibleUnits + #visibleFeatures==0) then
                 return
             end
             --if WG.Cutscene and WG.Cutscene.IsInCutscene() then
@@ -1295,7 +1308,7 @@ do
             cx, cy, cz = GetCameraPosition()
 
             if (barShader) then
-                gl.UseShader(barShader);
+                gl_UseShader(barShader);
                 glMyText(0)
             end
 
@@ -1309,19 +1322,19 @@ do
                     if (unitDef) then
                         DrawUnitInfos(unitID, unitDefID, unitDef)
                     elseif debugMode then
-                        local x,y,z = Spring.GetUnitPosition(unitID)
+                        local x,y,z = spGetUnitPosition(unitID)
                         if not (x and y and z) then
-                            Spring.Log("HealthBars", "error", "missing position and unitDef of unit " .. unitID)
+                            spLog("HealthBars", "error", "missing position and unitDef of unit " .. unitID)
                         else
-                            Spring.MarkerAddPoint(x,y,z,"Missing unitDef")
+                            spMarkerAddPoint(x,y,z,"Missing unitDef")
                         end
                     end
                 elseif debugMode then
-                    local x,y,z = Spring.GetUnitPosition(unitID)
+                    local x,y,z = spGetUnitPosition(unitID)
                     if not (x and y and z) then
-                        Spring.Log("HealthBars", "error", "missing position and unitDefID of unit " .. unitID)
+                        spLog("HealthBars", "error", "missing position and unitDefID of unit " .. unitID)
                     else
-                        Spring.MarkerAddPoint(x,y,z,"Missing unitDef")
+                        spMarkerAddPoint(x,y,z,"Missing unitDef")
                     end
                 end
             end
@@ -1332,7 +1345,7 @@ do
             for i=1,#visibleFeatures do
                 featureInfo = visibleFeatures[i]
                 featureID = featureInfo[4]
-                valid = Spring.ValidFeatureID(featureID)
+                valid = spValidFeatureID(featureID)
                 if (valid) then
                     wx, wy, wz = featureInfo[1],featureInfo[2],featureInfo[3]
                     dx, dy, dz = wx-cx, wy-cy, wz-cz
@@ -1361,7 +1374,7 @@ do
         end
 
         if (barShader) then
-            gl.UseShader(0)
+            gl_UseShader(0)
         end
         glDepthMask(false)
 
@@ -1375,11 +1388,11 @@ end --//end do
 
 do
     local GetGameFrame         = Spring.GetGameFrame
-    local GetVisibleUnits      = Spring.GetVisibleUnits
-    local GetVisibleFeatures   = Spring.GetVisibleFeatures
-    local GetFeatureDefID      = Spring.GetFeatureDefID
-    local GetFeaturePosition   = Spring.GetFeaturePosition
-    local GetFeatureResources  = Spring.GetFeatureResources
+    local spGetVisibleUnits = Spring.GetVisibleUnits
+    local spGetVisibleFeatures = Spring.GetVisibleFeatures
+    local spGetFeatureDefID = Spring.GetFeatureDefID
+    local spGetFeaturePosition = Spring.GetFeaturePosition
+    local spGetFeatureResources = Spring.GetFeatureResources
     local select = select
 
     local sec = 0
@@ -1390,23 +1403,23 @@ do
         blink = (sec%1)<0.5
 
         gameFrame = GetGameFrame()
-        visibleUnits = GetVisibleUnits(-1,nil,false) --this don't need any delayed update or caching or optimization since its already done in "LUAUI/cache.lua"
+        visibleUnits = spGetVisibleUnits(-1,nil,false) --this don't need any delayed update or caching or optimization since its already done in "LUAUI/cache.lua"
 
         sec2=sec2+dt
         if (sec2>1/3) then
             sec2 = 0
-            visibleFeatures = GetVisibleFeatures(-1,nil,false,false)
+            visibleFeatures = spGetVisibleFeatures(-1,nil,false,false)
             local cnt = #visibleFeatures
             local featureID,featureDefID,featureDef
             for i=cnt,1,-1 do
                 featureID    = visibleFeatures[i]
-                featureDefID = GetFeatureDefID(featureID) or -1
+                featureDefID = spGetFeatureDefID(featureID) or -1
                 featureDef   = FeatureDefs[featureDefID]
                 --// filter trees and none destructable features
                 if (featureDef)and(featureDef.destructable)and(
-                (featureDef.drawTypeString=="model")or(select(5,GetFeatureResources(featureID))<1)
+                (featureDef.drawTypeString=="model")or(select(5, spGetFeatureResources(featureID))<1)
                 ) then
-                    local fx,fy,fz = GetFeaturePosition(featureID)
+                    local fx,fy,fz = spGetFeaturePosition(featureID)
                     visibleFeatures[i] = {fx,fy,fz, featureID, featureDefID}
                 else
                     visibleFeatures[i] = visibleFeatures[cnt]
