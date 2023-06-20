@@ -94,7 +94,8 @@ function setState(unitID, state, caller)
         return end
     setUnitAutomated(unitID, not (state == "idle"))
     fsmState[unitID] = state
-    spSetUnitRulesParam(unitID, "fsmstate_"..fsmId, state )
+    spSetUnitRulesParam(unitID, "fsmstate_"..fsmId, state, { public = true } )
+    --Spring.Echo("Setting UnitRulesParam: ".."fsmstate_"..fsmId.." || val: "..(state or "nil"))
     --Spring.Echo("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller.." paramID: fsmstate_"..fsmId)
 end
 
@@ -110,15 +111,18 @@ function Check(unitID, ud, caller, showEcho)
 
     --Spring.Echo("Check for unitID: "..unitID)
     debugMsgs = showEcho    -- if ommitted in the call, won't show Spring.Echo messages
+    local curState = fsmState[unitID]
 
     --local ud = { unitID = unitID }
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #fsmBehavior do
         local fsmFunc = fsmBehavior[i]
-        if fsmFunc.condition(ud) then
-            ud.stateSet = fsmFunc.action(ud)
-            setState(unitID, ud.stateSet, caller.."> fsmCheck")
-            break
+        if curState ~= fsmFunc.id then
+            if fsmFunc.condition(ud) then
+                ud.stateSet = fsmFunc.action(ud)
+                setState(unitID, ud.stateSet, caller.."> fsmCheck")
+                break
+            end
         end
     end
     --- If any automation attempt above was successful, set new harvest state

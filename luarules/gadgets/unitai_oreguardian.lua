@@ -28,11 +28,12 @@ VFS.Include("common/include/springfsm.lua", fsm)
 
 local updateRate = 6    -- how Often, in frames, to do updates
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
+local spSetUnitNeutral = Spring.SetUnitNeutral
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitTeam = Spring.GetUnitTeam
 local spGetUnitSeparation = Spring.GetUnitSeparation
 local spGetGameFrame = Spring.GetGameFrame
-local aggroRecheckDelay = 60
+local deaggroCheckDelay = 80
 
 local CMD_FIRE_STATE = CMD.FIRE_STATE
 local holdFireState, returnFireState = 0,1
@@ -47,37 +48,60 @@ local oreGuardianDef = {
     pandoreguard = true,
 }
 
-local oreGuardians = {}
-local aggressors = {}           -- Everyone who fired an attack from within any guardian def range
-local aggroedGuardians = {}     -- { guardianUnitID = nextFrameCheck, ... }
+--{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
+local oreGuardians = {}         -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
+--local aggressors = {}           -- Everyone who fired an attack from within any guardian def range
+local aggroedGuardians = {}     -- { guardianUnitID = true|false, ... }
 
 local fsmId = "oreguardian"
-local stateIDs = { [1] = "movetoattack", [2] = "combat", [2] = "return", [3] = "idle", }
+--local stateIDs = { [1] = "movetoattack", [2] = "combat", [2] = "return", [3] = "idle", }
+
+local function issueStateOrders(unitID, state)
+    spGiveOrderToUnit(unitID, CMD_FIRE_STATE, state, 0) --holdFireState or returnFireState
+    spSetUnitNeutral(unitID, (state == holdFireState))
+    unitFireState[unitID] = state
+end
+
 local fsmBehaviors = {
     [1] = { id="combat",
             condition = function(ud)    -- What's the condition to transition to this state (if not there yet)
                 ud.targetID = oreGuardians[ud.unitID].targetID
-                return aggroedGuardians[ud.unitID] and fsm.state ~= "combat" and IsValidUnit(ud.targetID)
+                return aggroedGuardians[ud.unitID] and IsValidUnit(ud.targetID) --fsm.state ~= "combat" and
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
-                print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
-                spGiveOrderToUnit(ud.unitID, CMD_FIRE_STATE, returnFireState, 0)
-                unitFireState[ud.unitID] = returnFireState
+                --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
+                issueStateOrders(ud.unitID, returnFireState)
                 spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.targetID, { "alt" })
                 return "combat"
             end
     },
     [2] = { id="idle",
             condition = function(ud)    -- What's the condition to transition to this state (if not there yet)
-                local targetID = oreGuardians[ud.unitID].targetID
-                return (not aggroedGuardians[ud.unitID] or not IsValidUnit(targetID)) and fsm.state ~= "idle"
+                ud.oreGuardian = oreGuardians[ud.unitID]
+                local nextCheckFrame = ud.oreGuardian.nextCheckFrame
+                local f = spGetGameFrame()
+                --Spring.Echo("next Check Frame: "..(nextCheckFrame or "nil"))
+                if nextCheckFrame and (f < nextCheckFrame) then
+                    return false end
+                local targetID = ud.oreGuardian.targetID
+                local hasTarget = IsValidUnit(targetID)
+                local isAway
+                if hasTarget then
+                    local ax,ay,az = spGetUnitPosition(targetID)
+                    local ip = ud.oreGuardian.idlePos
+                    isAway = distance(ax,ay,az, ip.x,ip.y,ip.z) > (guardRadius/2)
+                end
+                --Spring.Echo("hasTarget: "..tostring(hasTarget).." isAway: "..tostring(isAway))
+                return (not hasTarget) or isAway -- and fsm.state ~= "idle"
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
-                local pos = oreGuardians[ud.unitID].idlePos
-                spGiveOrderToUnit(ud.unitID, CMD_FIRE_STATE, holdFireState, 0)
-                unitFireState[ud.unitID] = holdFireState
+                local pos = ud.oreGuardian.idlePos
+                issueStateOrders(ud.unitID, holdFireState)
                 spGiveOrderToUnit(ud.unitID, CMD_MOVE, { pos.x, pos.y, pos.z }, {""})
+                ud.oreGuardian.targetID = nil
+                ud.oreGuardian.nextCheckFrame = nil
+                aggroedGuardians[ud.unitID] = nil
                 return "idle"
             end
     },
@@ -85,7 +109,7 @@ local fsmBehaviors = {
 }
 
 function gadget:Initialize()
-    fsm.setup(fsmId, fsmBehaviors, 30, false) --, updateRateNum = 6 (default)
+    fsm.setup(fsmId, fsmBehaviors, 30, false) -- recheckLatency (idle->whatever), debug, updateRate = 6 (default)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
         local unitDefID = Spring.GetUnitDefID(unitID)
@@ -113,28 +137,32 @@ end
 
 function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                             weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    if (attackerTeam == guardiansTeam) then
+    if (oreGuardians[attackerID]) then
         return
     end
-    for guardianID, data in pairs(oreGuardians) do      --{ targetID = {}, idlePos = { x=x,y=y,z=z } }
+    -- This will trigger 'combat' state for all guardians within guard range (from their idlepos);
+    -- What will set back the idle state are the FSM conditions
+    for guardianID, data in pairs(oreGuardians) do     -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
         --Spring.Echo("guardianID: "..(tostring(guardianID) or "nil"))
         if IsValidUnit(attackerID) and IsValidUnit(guardianID) then
-            local dist = spGetUnitSeparation(attackerID, guardianID, true, false)
-            if dist <= guardRadius then
+            --local dist = spGetUnitSeparation(attackerID, guardianID, true, false)
+            local ax,ay,az = spGetUnitPosition(unitID)
+            local ip = data.idlePos
+            local isInGuardRange = distance(ax,ay,az, ip.x,ip.y,ip.z) <= guardRadius/2
+            if isInGuardRange then
                 --Spring.Echo("Unit has attacked within guarding radius of guardianID: "..(tostring(guardianID) or "nil"))
-                local nextCheckFrame = spGetGameFrame() + aggroRecheckDelay
-                aggressors[attackerID] = nextCheckFrame * 2
-                --spGiveOrderToUnit(guardianID, CMD_FIRE_STATE, returnFireState, 0)
-                unitFireState[guardianID] = returnFireState
+                --unitFireState[guardianID] = returnFireState
+
                 local attackerDef = UnitDefs[attackerDefID]
                 local attackerPower = attackerDef.power
-                -- If new nearby aggressor is not there, or has a stronger power, aim it instead
-                if (not data.targetID) or (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
+                -- If new nearby aggressor is not there, or has a stronger power, aim at it instead
+                if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
                     data.targetPower = attackerPower
                     data.targetID = attackerID
                     data.targetUpdated = true
                 end
-                aggroedGuardians[guardianID] = nextCheckFrame
+                aggroedGuardians[guardianID] = true
+                data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
             end
         end
     end
@@ -146,32 +174,37 @@ function gadget:GameFrame(f)
 
     fsm.GameFrame(f)
 
-    for aggressorID, nextCheckFrame in pairs(aggressors) do
-        if IsValidUnit(aggressorID) then
-            if f >= nextCheckFrame then
-                aggressors[aggressorID] = nil       -- Aggression Expired
-            end
-            -- Go through guardians and see if there's any of them around, if so, update its 'aggroed' check timer
-            for guardianID, nextGuardCheckFrame in pairs(aggroedGuardians) do
-                if IsValidUnit(guardianID) and f >= nextGuardCheckFrame then
-                    if spGetUnitSeparation(guardianID, aggressorID) < guardRadius then
-                        aggroedGuardians[guardianID] = spGetGameFrame() + aggroRecheckDelay
-                    end
-                    local idlePos = oreGuardians[guardianID].idlePos
-                    local x,y,z = spGetUnitPosition(guardianID)
-                    if distance(x,y,z,idlePos.x,idlePos.y,idlePos.z) > (guardRadius/2) then
-                        aggroedGuardians[guardianID] = nil
-                    end
-                end
-            end
-        end
-    end
+    --TODO: Remove this. Use state check instead, that's what it's for
+    --for aggressorID, data in pairs(aggressors) do
+    --    local nextCheckFrame = data.nextCheckFrame
+    --    local aggroedGuardian = data.aggroedGuardianID
+    --    if IsValidUnit(aggressorID) then
+    --        if f >= nextCheckFrame then
+    --            aggressors[aggressorID] = nil       -- Aggression Expired (if it hasn't shot since last check)
+    --            -- Set 'off' the guardian
+    --        end
+    --
+    --        -- Go through guardians and see if there's any of them around, if so, update its 'aggroed' check timer
+    --        for guardianID, nextGuardCheckFrame in pairs(aggroedGuardians) do
+    --            if IsValidUnit(guardianID) and f >= nextGuardCheckFrame then
+    --                if spGetUnitSeparation(guardianID, aggressorID) < guardRadius then
+    --                    aggroedGuardians[guardianID] = spGetGameFrame() + aggroRecheckDelay
+    --                end
+    --                local idlePos = oreGuardians[guardianID].idlePos
+    --                local x,y,z = spGetUnitPosition(guardianID)
+    --                if distance(x,y,z,idlePos.x,idlePos.y,idlePos.z) > (guardRadius/2) then
+    --                    aggroedGuardians[guardianID] = nil
+    --                end
+    --            end
+    --        end
+    --    end
+    --end
 
 end
 
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
-    aggressors[unitID] = nil
+    --aggressors[unitID] = nil
     aggroedGuardians[unitID] = nil
 end
 

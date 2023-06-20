@@ -49,7 +49,7 @@ function DrawScreen(fsmId, trackedUnits, localDebug)
     for unitID in pairs(trackedUnits) do
         if spIsUnitInView(unitID) then
             local val = spGetUnitRulesParam(unitID, "fsmstate_"..fsmId)
-            --Spring.Echo("ParamId: ".."fsmstate_"..fsmId.." || val: "..(val or "nil"))
+            --Spring.Echo("Loading UnitRulesParam: fsmstate_"..fsmId.." || val: "..(val or "nil"))
             local fsmTxt = val or "nil"
 
             local x, y, z = spGetUnitViewPosition(unitID)
