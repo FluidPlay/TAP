@@ -36,7 +36,7 @@ local spGetGameFrame = Spring.GetGameFrame
 local deaggroCheckDelay = 80
 
 local CMD_FIRE_STATE = CMD.FIRE_STATE
-local holdFireState, returnFireState = 0,1
+local holdFireState, returnFireState, fireAtWillState = 0,1,2
 local unitFireState = {}
 local guardRadius = 480     -- TODO: de-hard-couple this
 local guardiansTeam
@@ -70,7 +70,7 @@ local fsmBehaviors = {
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
-                issueStateOrders(ud.unitID, returnFireState)
+                issueStateOrders(ud.unitID, fireAtWillState) --returnFireState)
                 spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.targetID, { "alt" })
                 return "combat"
             end

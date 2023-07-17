@@ -164,6 +164,14 @@ function widget:Shutdown()
     end
 end
 
+local spIsUnitInView = Spring.IsUnitInView
+local spGetUnitViewPosition = Spring.GetUnitViewPosition
+local gl_PushMatrix = gl.PushMatrix
+local gl_Translate = gl.Translate
+local gl_Billboard = gl.Billboard
+local gl_CallList = gl.CallList
+local gl_PopMatrix = gl.PopMatrix
+
 function widget:DrawWorld()
 	if not IsGuiHidden() then
 		local existingGroups = GetGroupList()
@@ -171,13 +179,13 @@ function widget:DrawWorld()
 			for inGroup, _ in pairs(existingGroups) do
 				local units = GetGroupUnits(inGroup)
 				for _, unit in ipairs(units) do
-					if Spring.IsUnitInView(unit) then
-						local ux, uy, uz = Spring.GetUnitViewPosition(unit)
-						gl.PushMatrix()
-						gl.Translate(ux, uy, uz)
-						gl.Billboard()
-                        gl.CallList(dlists[inGroup])
-						gl.PopMatrix()
+					if spIsUnitInView(unit) then
+						gl_PushMatrix()
+						local ux, uy, uz = spGetUnitViewPosition(unit)
+						gl_Translate(ux, uy, uz)
+						gl_Billboard()
+                       gl_CallList(dlists[inGroup])
+						gl_PopMatrix()
 					end
 				end
 			end
