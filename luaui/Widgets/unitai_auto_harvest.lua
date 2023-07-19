@@ -161,7 +161,7 @@ local function deautomateUnit(unitID)
     --spEcho("Deharvesting Unit: "..unitID)
     --harvestersInAction[unitID] = nil
     automatedHarvesters[unitID] = nil
-    spEcho("Auto harvest:: Deautomating Unit: "..unitID..", try re-automation in: "..harvesters[unitID].recheckFrame)
+    --spEcho("Auto harvest:: Deautomating Unit: "..unitID..", try re-automation in: "..harvesters[unitID].recheckFrame)
 end
 
 local function setHarvestState(unitID, state, caller) -- idle, attack, waitforunload, deliver, resume
@@ -171,7 +171,7 @@ local function setHarvestState(unitID, state, caller) -- idle, attack, waitforun
         harvesters[unitID].recheckFrame = spGetGameFrame() + randRecheckTime
     end
     harvestState[unitID] = state
-    spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
+    --spEcho("New harvest State: ".. state .." for: "..unitID.." set by function: "..caller)
 end
 
 ---- Disable widget if I'm spec
@@ -220,7 +220,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
     if maxorestorage and maxorestorage > 0 then
         setHarvestState(unitID, "idle", "UnitFinished")
-        spEcho("Added harvester: "..unitID)
+        --spEcho("Added harvester: "..unitID)
     end
 end
 
@@ -393,7 +393,7 @@ local automatedFunctions = {
                 local nearestOreTowerID = getNearestOreTowerID(ud, oreTowers, oretowerShortScanRange)
                 local loadPercent = getLoadPercentage(ud.unitID, ud.unitDef)
                 local isReallyIdle = (not HasBuildQueue(ud.unitID)) and (not HasCommandQueue(ud.unitID))
-                spEcho("target Chunk: "..(ud.targetChunkID or "nil"))
+                --spEcho("target Chunk: "..(ud.targetChunkID or "nil"))
                 return  harvestState[ud.unitID] == "returningandstuck"
                         or
                         harvestState[ud.unitID] == "returning" and isReallyIdle
@@ -474,7 +474,7 @@ local function automateCheck(unitID, caller)
             --Spring.Echo ("Auto harvest:: Sending message: harvesterIdle_"..unitID)
             spSendLuaUIMsg("harvesterIdle_"..unitID, "allies") --(message, mode)
         end
-        spEcho ("Auto harvest:: New order Issued: "..ud.orderIssued)
+        --spEcho ("Auto harvest:: New order Issued: "..ud.orderIssued)
         setHarvestState(unitID, ud.orderIssued, caller.."> automateCheck")
     end
     return ud.orderIssued

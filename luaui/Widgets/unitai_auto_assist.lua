@@ -262,7 +262,7 @@ function setAutomateState(unitID, state, caller)
             --- It'll only get out of commanded if it's idle, that's only the delay to recheck for idle
             commandedUnits[unitID] = spGetGameFrame() + randRecheckTime
             --unitIdleEvent[unitID] = spGetGameFrame() + 45   -- Will recheck after one second and a half, by default
-            spEcho("Autoassist: Commanding Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + idleRecheckLatency)
+            --spEcho("Autoassist: Commanding Unit: "..unitID.." at frame "..spGetGameFrame()..", try re-automation in: "..spGetGameFrame() + idleRecheckLatency)
             spSendLuaUIMsg("unitCommanded_"..unitID, "allies") --(message, mode)
         else
             commandedUnits[unitID] = nil
@@ -272,7 +272,7 @@ function setAutomateState(unitID, state, caller)
         unitsToAutomate[unitID] = nil
     end
     automatedState[unitID] = state
-    spEchoLight("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
+    --spEchoLight("New automateState: "..state.." for: "..unitID.." set by function: "..caller)
 end
 
 function getUnitIdleEvent(unitID)
@@ -300,10 +300,10 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
     -- If that delay isn't over yet, the unitIdleEvent shouldn't be set, and we bail out of this
     local isCommanded = commandedUnits[unitID]
     if isCommanded and spGetGameFrame() < isCommanded then
-        spEchoLight("widget:UnitIdle blocked")
+        --spEchoLight("widget:UnitIdle blocked")
         unitIdleEvent[unitID] = nil
         return end
-    spEchoLight("widget:UnitIdle fired/confirmed for "..unitID)
+    --spEchoLight("widget:UnitIdle fired/confirmed for "..unitID)
     if automatedState[unitID] ~= "harvest" then
         unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
     end
@@ -793,7 +793,7 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
     end
     --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
     if ud.orderIssued then
-        spEcho ("New order Issued: "..ud.orderIssued)
+        --spEcho ("New order Issued: "..ud.orderIssued)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
         reallyIdleUnits[unitID] = nil
@@ -812,7 +812,7 @@ function widget:GameFrame(f)
             --spEchoLight("unit "..unitID.." HasBuildQueue: "..tostring(HasBuildQueue(unitID) or "nil").." has commandQueue: "..tostring(HasCommandQueue(unitID) or "nil") )
             if (not HasBuildQueue(unitID)) and (not HasCommandQueue(unitID)) then
                 -- This prevents widget:idle from blocking idle from ever being fired after the unit is built
-                spEchoLight("scheduling idle event")
+                --spEchoLight("scheduling idle event")
                 unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
             end
             unitFinishedNextFrame[unitID] = nil
@@ -890,7 +890,7 @@ function widget:CommandNotify(cmdID, params, options)
         if unitTarget[unitID] and IsValidUnit(unitID) then
             --Spring.Echo("Valid automatable unit got a user command "..unitID)
             if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
-                spEcho("CMD_ATTACK, params #: "..#params)
+                --spEcho("CMD_ATTACK, params #: "..#params)
                 if #params == 1 then -- and isOreChunk(params[1]) then
                     unitTarget[unitID] = params[1]    -- set Target
                 end
@@ -949,7 +949,7 @@ function widget:RecvLuaMsg(msg, playerID)
     if msg:sub(1, 13) == 'harvesterIdle' then --"harvesterIdle_"..unitID
         local data = Split(msg, '_')
         local unitID = tonumber(data[2])
-        spEcho("Autoassist :: Idle Harvester: "..(unitID or "nil"))
+        --spEcho("Autoassist :: Idle Harvester: "..(unitID or "nil"))
         if IsValidUnit(unitID) then
             setAutomateState(unitID, "idle", "RecvLuaMsg")
         end

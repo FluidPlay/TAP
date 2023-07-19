@@ -29,7 +29,7 @@ if gadgetHandler:IsSyncedCode() then
     local spGetUnitPosition = Spring.GetUnitPosition
     local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spCreateUnit = Spring.CreateUnit
-    local initialized = false
+    local init0, init2 = false, false
     local spGetUnitTeam = Spring.GetUnitTeam
     local spGetTeamInfo = Spring.GetTeamInfo
 
@@ -46,6 +46,7 @@ if gadgetHandler:IsSyncedCode() then
     local startTechName = "kernhq_rt"
 
     local CMD_MOVE = CMD.MOVE
+    local moveUnitNextFrame = {}
 
     local minSpawnDistance = 150    -- This prevents duplicated geothermals in faulty maps
     --local respawnTime = 60 -- in frames; 60f = 2s
@@ -89,7 +90,8 @@ if gadgetHandler:IsSyncedCode() then
 
     local function spawnBuilder(builderID, xPos, yPos, zPos, teamID, unitDef)
         local unitID = spCreateUnit(builderID, xPos, yPos, zPos, 0, teamID)
-        moveTowardsNearestOre(unitID, unitDef)
+        moveUnitNextFrame[unitID] = unitDef
+        --moveTowardsNearestOre(unitID, unitDef)
     end
 
     local function spawnBuilders(unitID, teamID, unitDef)
@@ -136,7 +138,7 @@ if gadgetHandler:IsSyncedCode() then
 
     function gadget:GameFrame(frame)
         -- Add all supported game-start spawned units (aka. commanders)
-        if not initialized and frame > 0 then
+        if not init0 and frame > 0 then
             local allUnits = spGetAllUnits()
             for _, unitID in ipairs(allUnits) do
                 local unitDefID = spGetUnitDefID(unitID)
@@ -146,7 +148,13 @@ if gadgetHandler:IsSyncedCode() then
                     spawnBuilders(unitID, teamID, unitDef)
                 end
             end
-            initialized = true
+            init0 = true
+        end
+        if not init2 and frame > 2 then
+            for unitID, unitDef in pairs(moveUnitNextFrame) do
+                moveTowardsNearestOre(unitID, unitDef)
+            end
+            init2 = true
         end
     end
 
