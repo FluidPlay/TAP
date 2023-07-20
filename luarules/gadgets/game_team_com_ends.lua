@@ -47,6 +47,7 @@ local modeComEnds = true
 local gaiaTeamID = Spring.GetGaiaTeamID()
 local allyTeamList = Spring.GetAllyTeamList()
 
+local spIsUnitValid = Spring.IsUnitValid
 
 local teamCount = 0
 for _,teamID in ipairs(GetTeamList()) do
@@ -152,10 +153,12 @@ function gadget:GameFrame(t)
 				destroyUnitQueue[unitID].spark = true
 			end
 			if (dt > defs.time) then
-                if defs.a then DestroyUnit(unitID, true, nil, defs.a)
-                    else DestroyUnit(unitID, true) -- if 4th arg is given, it cannot be nil (or engine complains)                
-                end
-				destroyUnitQueue[unitID] = nil
+				if spIsUnitValid(unitID) then
+					if defs.a then DestroyUnit(unitID, true, nil, defs.a)
+					else DestroyUnit(unitID, true) -- if 4th arg is given, it cannot be nil (or engine complains)
+					end
+					destroyUnitQueue[unitID] = nil
+				end
 			end
 		end
 		deathTimeBoost = math.min(deathTimeBoost * 1.5, 500)
