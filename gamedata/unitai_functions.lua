@@ -137,9 +137,19 @@ end
 --end
 
 function getNearestFactoryID (ud)
+    --function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
-            function(x) return x.isFactory end,     --We're only interested in factories currently producing
+            function(x) return x.isFactory end,     -- x.buildOptions and (#(x.buildOptions)>0) --We're only interested in factories currently producing
             function(x) return HasBuildQueue(x) end,
+            false,
+            ud.team)
+end
+
+function getNearestBuilderID (ud)
+    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
+            function(x) return x.isBuilder end,     -- x.buildOptions and (#(x.buildOptions)>0) --We're only interested in factories currently producing
+            function(x) return HasBuildQueue(x) end,
+            false,
             ud.team)
 end
 

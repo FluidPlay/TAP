@@ -658,7 +658,17 @@ end
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
 function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
-	if pos.x == nil or pos.z == nil then
+	if pos == nil then
+		Spring.Echo("pos = nil")
+	end
+	if unitDef == nil then
+		Spring.Echo("unitDef = nil")
+	end
+	if radius == nil then
+		Spring.Echo("radius = nil")
+		radius = unitDef.buildDistance
+	end
+	if not pos or pos.x == nil or pos.z == nil then
 		return nil
 	end
     --TODO: Add "ally", "enemy", "neutral"; or finish processing allyTeamID

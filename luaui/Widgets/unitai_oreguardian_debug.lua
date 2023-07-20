@@ -10,7 +10,7 @@ function widget:GetInfo()
         date = "May 13, 2023",
         license = "GPLv3",
         layer = 20,
-        enabled = true,
+        enabled = false, --true,
     }
 end
 local localDebug = true --|| Enables text and UI state debug messages
