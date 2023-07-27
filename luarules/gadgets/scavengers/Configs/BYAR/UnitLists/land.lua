@@ -34,7 +34,7 @@ T1LandUnits = {
 	"armstump",
 	"armart",
 	"armsam",
-	"armpincer",
+	--"armpincer",
 	"armjanus",
 	"corgator",
 	"cormist",

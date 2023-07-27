@@ -9,7 +9,7 @@
 --
 local damageTypes = {
 
-	cannon={"armcrus","armfflak","armflak","armblade","armmav","armroy","corcrus","corraid","corroy","corenaa","corflak","corst","armanac","armcroc","armlun","armpincer","corparrow","corseal","corsnap","corsok","armbull","armstump","corgol","correap","corgarp"},
+	cannon={"armcrus","armfflak","armflak","armblade","armmav","armroy","corcrus","corraid","corroy","corenaa","corflak","corst","armanac","armcroc","armlun","corparrow","corseal","corsnap","corsok","armbull","armstump","corgol","correap","corgarp"},
 
 	bullet={"armkam","armsaber","corcut","corfink","corveng","armpw","armpt","corpt","corsub","armflash","armemp","armspid",},
 
@@ -27,7 +27,7 @@ local damageTypes = {
 
 	emp={"corstil","corbw","armemp","armspid",},
 
-	homing={"armrl","corrl","corsumo","armfav","armcir","armsam","coratl","cormist","armatl","armmercury","corscreamer","armsfig","corsfig","corvamp","armsh","marauder","armorco","coresupp","armdecade","corsh","nsaclash","armmlv",},
+	homing={"armrl","corrl","corsumo","armfav","armcir","armsam","coratl","cormist","armatl","armmercury","corscreamer","armsfig","corsfig","corvamp","armsh","marauder","coresupp","armdecade","corsh","nsaclash",},
 
 	plasma={"armbeamer","armanni","corbhmth","cortoast","cordoom","corthud","armham","armraz","corkarg","armamb","armepoch","corbats","armbats","corblackhy","corlevlr","cormexp","cortrem",},
 

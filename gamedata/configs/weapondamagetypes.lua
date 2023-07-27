@@ -93,7 +93,7 @@ local weaponDamageTypes = {
 	armcom4 = { ["Disintegrator"] = "omni", ["J7Laser"] = "omni", ["J7NSLaser"] = "omni", ["Shield"] = "omni"},
 	armah = { ["Missiles"] = "pierce", },
 	shiva = { ["HeavyRockets"] = "plasma", ["HeavyCannon"] = "plasma", },
-	armorco = { ["FlakCannon"] = "pierce", ["SuperEMG"] = "pierce", ["RiotRockets"] = "pierce", },
+	--armorco = { ["FlakCannon"] = "pierce", ["SuperEMG"] = "pierce", ["RiotRockets"] = "pierce", },
 	corfhlt = { ["HighEnergyLaser"] = "pierce", },
 	corsb = { ["CoreSeaAdvancedBombs"] = "pierce", },
 	corscreamer = { ["ADVSAM"] = "plasma", },

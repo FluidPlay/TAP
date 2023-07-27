@@ -15,7 +15,7 @@ T1SeaUnits = {
 	"armrecl",
 	"armpship",
 	"armsub",
-	"armpincer",
+	--"armpincer",
 	"corpt",
 	"coresupp",
 	"correcl",

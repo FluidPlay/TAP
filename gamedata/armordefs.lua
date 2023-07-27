@@ -11,16 +11,16 @@ local armorDefs = {
 	--		"cormort","corstorm","cortermite", "cordefiler","armsnipe", },
 	--heavybot={"armmark", "armzeus", "corsumo","armfboy","armham","armvader","armwar","corcan","corroach","corthud",
 	--          "cormando","armmav","armspid",},
-	superunit={"corkrog","armbanth", "armorco","armraz","corkarg","corthovr","meteor",},
+	superunit={"corkrog","armbanth", "armraz","corkarg","corthovr","meteor",},
 
 	--++++==== Vehicles
 	vehicle = {		"armflash", "armyork", "corsent", "cormuskrat", "cormls", "armacv", "armcv", "armmls", "coracv", "corfast",
 					   "critter_ant", "critter_duck", "critter_goldfish", "critter_gull", "critter_penguin", "corcv", "corgator",
-					   "armlatnk","armfav","armjanus","armmlv","armsh","armspy","coresupp","corfav","corst",
+					   "armlatnk","armfav","armjanus","armsh","armspy","coresupp","corfav","corst",
 					   "corlevlr","corsh","decade","marauder","nsaclash","armfido","armmart","armsam", "cormist",
 					   "armmerl","corcat","armshock","cormart","cormh","corvroc","corwolv","corjugg","shiva","tawf013",
 					   "cortrem", "corban","corvrad",},
-	armorveh={"armanac","armbull","armcroc","armlun","armpincer","armscab","armseer","armstump","armthovr","cordl",
+	armorveh={"armanac","armbull","armcroc","armlun","armscab","armseer","armstump","armthovr","cordl",
 			  "coreter","corgarp","corgol","cormabm","cormlv","corparrow","corraid","correap","corseal","corsnap",
 			  "corsok","armintr","armmanni", "armjam",},
 	--lightveh = {

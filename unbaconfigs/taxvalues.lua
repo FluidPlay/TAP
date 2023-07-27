@@ -126,8 +126,8 @@ taxvalues = {
 	armfav = 1.025,
 	armflash = 1.025,
 	armjanus = 1.025,
-	armmlv = 1.025,
-	armpincer = 1.025,
+	--armmlv = 1.025,
+	--armpincer = 1.025,
 	armsam = 1.025,
 	armstump = 1.025,
 -- T2 ARM
