@@ -70,7 +70,7 @@ local fsmBehaviors = {
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
-                issueStateOrders(ud.unitID, fireAtWillState) --returnFireState)
+                issueStateOrders(ud.unitID, returnFireState) --fireAtWillState
                 spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.targetID, { "alt" })
                 return "combat"
             end

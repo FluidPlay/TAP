@@ -47,7 +47,12 @@ local modeComEnds = true
 local gaiaTeamID = Spring.GetGaiaTeamID()
 local allyTeamList = Spring.GetAllyTeamList()
 
-local spIsUnitValid = Spring.IsUnitValid
+local spGetUnitDefID = Spring.GetUnitDefID
+local spValidUnitID = Spring.ValidUnitID
+local spGetUnitIsDead = Spring.GetUnitIsDead
+local function isnumber(v)
+	return (type(v)=="number")
+end
 
 local teamCount = 0
 for _,teamID in ipairs(GetTeamList()) do
@@ -82,6 +87,16 @@ function gadget:Initialize()
 	for _,t in ipairs(Spring.GetAllyTeamList()) do
 		aliveCount[t] = 0
 	end
+end
+
+local function IsValidUnit(unitID)
+	if not isnumber(unitID) then
+		return false end
+	local unitDefID = spGetUnitDefID(unitID)
+	if unitDefID and spValidUnitID(unitID) and not spGetUnitIsDead(unitID) then
+		return true
+	end
+	return false
 end
 
 
@@ -153,7 +168,7 @@ function gadget:GameFrame(t)
 				destroyUnitQueue[unitID].spark = true
 			end
 			if (dt > defs.time) then
-				if spIsUnitValid(unitID) then
+				if IsValidUnit(unitID) then
 					if defs.a then DestroyUnit(unitID, true, nil, defs.a)
 					else DestroyUnit(unitID, true) -- if 4th arg is given, it cannot be nil (or engine complains)
 					end

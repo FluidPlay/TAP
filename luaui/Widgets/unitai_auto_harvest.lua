@@ -129,6 +129,7 @@ local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
 local canharvest = {
     armck = true, corck = true, armca = true, corca = true,
+    armck2 = true,
     armaca = true, coraca = true,
     armack = true, corack = true,
     armcv = true, corcv = true,
