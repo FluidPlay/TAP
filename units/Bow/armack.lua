@@ -58,7 +58,7 @@ return {
 			[11] = "armveil",
 			[12] = "armfort",
 			[13] = "armasp",
-			[14] = "armtarg",
+			--[14] = "armtarg",
 			[15] = "armsd",
 			[16] = "armgate",
 			[17] = "armamb",

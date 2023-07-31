@@ -65,7 +65,7 @@ local udefTab				= UnitDefs
 local selfdTag = "selfDExplosion"
 local aoeTag = "damageAreaOfEffect"
 
-local corMando = UnitDefNames["cormando"] --UnitDefNames["corspy"]
+local corMando = UnitDefNames["cormando"]
 local armSpy = UnitDefNames["armspy"]
 local armGremlin = UnitDefNames["corst"]
 

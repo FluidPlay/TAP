@@ -31,11 +31,7 @@ local spPlaySoundFile = Spring.PlaySoundFile
 local ignoreUnits = {}
 if UnitDefNames["chip"] ~= nil then
 	ignoreUnits[UnitDefNames["chip"].id] = true
---	ignoreUnits[UnitDefNames["dice"].id] = true
 	ignoreUnits[UnitDefNames["xmasball"].id] = true
-	--ignoreUnits[UnitDefNames["xmasball2"].id] = true
---	ignoreUnits[UnitDefNames["armstone"].id] = true
---  ignoreUnits[UnitDefNames["corstone"].id] = true
 end
 
 

@@ -10,10 +10,11 @@ function gadget:GetInfo()
   }
 end
 
+local spAreTeamsAllied = Spring.AreTeamsAllied
+
 if (not gadgetHandler:IsSyncedCode()) then return end
 -- Exhaustive list of all units that will take damages from krog's footsteps (must be completed)
 local StompedUnits = {
-    [UnitDefNames["corfav"].id] = true,
     [UnitDefNames["armfav"].id] = true,
     [UnitDefNames["corak"].id] = true,
     [UnitDefNames["armpw"].id] = true,
@@ -24,7 +25,7 @@ function gadget:UnitPreDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, w
 	if WeaponDefs[weaponDefID] then
 	if WeaponDefs[weaponDefID].name == "corkrog_krogkick" then 
 		if (unitTeam) and (attackerTeam) then
-		if Spring.AreTeamsAllied(unitTeam, attackerTeam) == false then
+		if spAreTeamsAllied(unitTeam, attackerTeam) == false then
 
 			if StompedUnits[unitDefID] then	
 				return 2000, 0

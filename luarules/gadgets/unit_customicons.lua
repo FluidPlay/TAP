@@ -22,7 +22,7 @@
 function gadget:GetInfo()
   return {
     name      = "CustomIcons",
-    desc      = "Sets custom unit icons for TAPrime",
+    desc      = "Sets custom unit icons for TAP",
     author    = "trepan, BD, TheFatController, updated by MaDDoX",
     date      = "Jan 8, 2007",
     license   = "GNU GPL, v2 or later",

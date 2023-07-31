@@ -46,18 +46,6 @@ return {
 		waterline = 30,
 		workertime = 300,
 		buildoptions = {
-			"coruwfus",
-			"coruwmmm",
-			"coruwmme",
-			"coruwadves",
-			"coruwadvms",
-			"corgantuw",
-			"corasy",
-			"corsy",
-			"corason",
-			"corfatf",
-			"coratl",
-			"corenaa",
 		},
 		customparams = {
 			techlevel = 2,

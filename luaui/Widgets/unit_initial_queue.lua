@@ -101,7 +101,6 @@ local CORTL = UnitDefNames["cortl"].id
 local ARMSONAR = UnitDefNames["armsonar"].id
 local CORSONAR = UnitDefNames["corsonar"].id
 local ARMFRT = UnitDefNames["armfrt"].id
-local CORFRT = UnitDefNames["corfrt"].id
 
 local ARMLAB = UnitDefNames["armlab"].id
 local CORLAB = UnitDefNames["corlab"].id
@@ -127,24 +126,14 @@ local COREYES = UnitDefNames["coreyes"].id
 local ARMDRAG = UnitDefNames["armdrag"].id
 local CORDRAG = UnitDefNames["cordrag"].id
 
---local ARMDL = UnitDefNames["armdl"].id
---local CORDL = UnitDefNames["cordl"].id
-
 local ARMAP = UnitDefNames["armap"].id
 local CORAP = UnitDefNames["corap"].id
-
-
-local ARMFRAD = UnitDefNames["armfrad"].id
-local CORFRAD = UnitDefNames["corfrad"].id
 
 local ARMUWMS = UnitDefNames["armuwms"].id
 local CORUWMS = UnitDefNames["coruwms"].id
 
 local ARMUWES = UnitDefNames["armuwes"].id
 local CORUWES = UnitDefNames["coruwes"].id
-
-local ARMFMKR = UnitDefNames["armfmkr"].id
-local CORFMKR = UnitDefNames["corfmkr"].id
 
 local ARMFDRAG = UnitDefNames["armfdrag"].id
 local CORFDRAG = UnitDefNames["corfdrag"].id
@@ -165,7 +154,6 @@ armToCore[ARMRAD] = CORRAD
 armToCore[ARMRL] = CORRL
 armToCore[ARMTL] = CORTL
 armToCore[ARMSONAR] = CORSONAR
-armToCore[ARMFRT] = CORFRT
 armToCore[ARMLAB] = CORLAB
 armToCore[ARMVP] = CORVP
 armToCore[ARMSY] = CORSY
@@ -175,10 +163,8 @@ armToCore[ARMMAKR] = CORMAKR
 armToCore[ARMEYES] = COREYES
 armToCore[ARMDRAG] = CORDRAG
 armToCore[ARMAP] = CORAP
-armToCore[ARMFRAD] = CORFRAD
 armToCore[ARMUWMS] = CORUWMS
 armToCore[ARMUWES] = CORUWES
-armToCore[ARMFMKR] = CORFMKR
 armToCore[ARMFDRAG] = CORFDRAG
 armToCore[ARMPTL] = CORPTL
 
@@ -194,11 +180,9 @@ local CONVERT_TABLE = {
     [10] = {[UnitDefNames["armllt"].id] = "Bow", 		[UnitDefNames["corllt"].id] = "Kern", },
     [11] = {[UnitDefNames["armrl"].id] = "Bow", 		[UnitDefNames["corrl"].id] = "Kern", },
     [12] = {[UnitDefNames["armtide"].id] = "Bow", 		[UnitDefNames["cortide"].id] = "Kern", },
-    [13] = {[UnitDefNames["armfmkr"].id] = "Bow", 		[UnitDefNames["corfmkr"].id] = "Kern", },
-    [14] = {[UnitDefNames["armsonar"].id] = "Bow", 		[UnitDefNames["corsonar"].id] = "Kern" },
-    [15] = {[UnitDefNames["armfdrag"].id] = "Bow", 		[UnitDefNames["corfdrag"].id] = "Kern", },
-    [16] = {[UnitDefNames["armtl"].id] = "Bow", 		[UnitDefNames["cortl"].id] = "Kern", },
-    [17] = {[UnitDefNames["armfrt"].id] = "Bow", 		[UnitDefNames["corfrt"].id] = "Kern", },
+    [13] = {[UnitDefNames["armsonar"].id] = "Bow", 		[UnitDefNames["corsonar"].id] = "Kern" },
+    [14] = {[UnitDefNames["armfdrag"].id] = "Bow", 		[UnitDefNames["corfdrag"].id] = "Kern", },
+    [15] = {[UnitDefNames["armtl"].id] = "Bow", 		[UnitDefNames["cortl"].id] = "Kern", },
 }
 
 function table_invert(t)
@@ -1053,8 +1037,6 @@ function widget:KeyPress(key,mods,isrepeat)
 			elseif 	selDefID == CORRL then 		SetSelDefID(CORTL)
 			elseif 	selDefID == CORRAD then		SetSelDefID(CORRL)
 			elseif 	selDefID == CORTL then 		SetSelDefID(CORSONAR)
-			elseif 	selDefID == CORSONAR then	SetSelDefID(CORFRT)
-			elseif 	selDefID == CORFRT then		SetSelDefID(CORLLT)
 			else 								SetSelDefID(CORLLT)
 			end
 		elseif key == VKEY then

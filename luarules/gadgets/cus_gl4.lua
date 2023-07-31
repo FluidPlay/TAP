@@ -275,16 +275,16 @@ do --save a ton of locals
 			baseVertexDisplacement = 0.0,
 			brightnessFactor = 1.5,
 		},
-		armscavenger = {
-			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
-			baseVertexDisplacement = 0.4,
-			brightnessFactor = 1.5,
-		},
-		corscavenger = {
-			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
-			baseVertexDisplacement = 0.4,
-			brightnessFactor = 1.5,
-		},
+		--armscavenger = {
+		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+		--	baseVertexDisplacement = 0.4,
+		--	brightnessFactor = 1.5,
+		--},
+		--corscavenger = {
+		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+		--	baseVertexDisplacement = 0.4,
+		--	brightnessFactor = 1.5,
+		--},
 		raptor = {
 			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS  + OPTION_HEALTH_DISPLACE + OPTION_HEALTH_TEXCHICKS + OPTION_TREEWIND + OPTION_SHIFT_RGBHSV,
 			baseVertexDisplacement = 0.0,

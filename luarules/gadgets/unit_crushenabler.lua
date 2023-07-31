@@ -55,7 +55,6 @@ end
 --    [UnitDefNames.armstump.id] = true,
 --    [UnitDefNames.corraid.id] = true,
 --    [UnitDefNames.correap.id] = true,
---    [UnitDefNames.corseal.id] = true,
 --    --
 --    -- Walls
 --    [UnitDefNames.armdrag.id] = true,

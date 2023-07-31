@@ -47,13 +47,6 @@ return {
 		upright = true,
 		workertime = 200,
 		buildoptions = {
-			[1] = "corvalk",
-			[2] = "corfink",
-			[3] = "cormine4",
-			[4] = "cormaw",
-			[5] = "cordrag",
-			[6] = "coreyes",
-			[7] = "corjamt",
 		},
 		customparams = {
 			techlevel = 2,

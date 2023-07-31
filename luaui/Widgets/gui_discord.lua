@@ -130,7 +130,7 @@ end
 
 function widget:MousePress(mx, my, mb)
 	if mb == 1 and isInBox(mx, my, {xPos-usedImgSize, yPos, xPos, yPos+usedImgSize}) then
-		Spring.SendCommands("say TA Prime's discord server: https://"..discordLink)
+		Spring.SendCommands("say TAP's discord server: https://"..discordLink)
 		widgetHandler:RemoveWidget(self)
 		return true
 	end

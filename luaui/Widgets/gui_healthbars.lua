@@ -986,25 +986,6 @@ do
   local customInfo = {}
   local ci
   
-    if UnitDefNames["coromex"] ~= nil then
-    customInfo[UnitDefNames["coromex"].id] = {
-      height        = 15+barHeightOffset,
-      maxShield     = 0,
-      canStockpile  = nil,
-      reloadTime    = 0,
-      primaryWeapon = 0,
-    }
-  end
-    if UnitDefNames["armomex"] ~= nil then
-    customInfo[UnitDefNames["armomex"].id] = {
-      height        = 15+barHeightOffset,
-      maxShield     = 0,
-      canStockpile  = nil,
-      reloadTime    = 0,
-      primaryWeapon = 0,
-    }
-  end
-
   function DrawUnitInfos(unitID,unitDefID)
     if ignoreUnits[unitDefID] ~= nil then return end
 
@@ -1047,25 +1028,25 @@ do
       --// Shield
       if (ci.maxShield>0) then
         local UnitDefID = Spring.GetUnitDefID(unitID)
-        local UnitName = UnitDefs[UnitDefID].name
-        if (UnitName == "armcom" or UnitName == "corcom") and Spring.GetModOptions() and Spring.GetModOptions().unba == "enabled" then
-          for i = 23,29 do
-            if (GetUnitShieldState(unitID, i)) then
-              local shieldOn, shieldPower = GetUnitShieldState(unitID, i)
-              if (shieldOn ~= 0)and(build==1)and(shieldPower<ci.maxShield) then
-                ci.maxShield = WeaponDefs[UnitDefs[UnitDefID].weapons[i].weaponDef].shieldPower
-                shieldPower = shieldPower / ci.maxShield
-                AddBar("shield",shieldPower,"shield",(fullText and floor(shieldPower*100)..'%') or '')
-              end
-            end
-          end
-        else
-          local shieldOn,shieldPower = GetUnitShieldState(unitID)
-          if (shieldOn)and(build==1)and(shieldPower<ci.maxShield) then
-            shieldPower = shieldPower / ci.maxShield
-            AddBar("shield",shieldPower,"shield",(fullText and floor(shieldPower*100)..'%') or '')
-          end
+        --local UnitName = UnitDefs[UnitDefID].name
+        --if (UnitName == "armcom" or UnitName == "corcom") and Spring.GetModOptions() and Spring.GetModOptions().unba == "enabled" then
+        --  for i = 23,29 do
+        --    if (GetUnitShieldState(unitID, i)) then
+        --      local shieldOn, shieldPower = GetUnitShieldState(unitID, i)
+        --      if (shieldOn ~= 0)and(build==1)and(shieldPower<ci.maxShield) then
+        --        ci.maxShield = WeaponDefs[UnitDefs[UnitDefID].weapons[i].weaponDef].shieldPower
+        --        shieldPower = shieldPower / ci.maxShield
+        --        AddBar("shield",shieldPower,"shield",(fullText and floor(shieldPower*100)..'%') or '')
+        --      end
+        --    end
+        --  end
+        --else
+        local shieldOn,shieldPower = GetUnitShieldState(unitID)
+        if (shieldOn)and(build==1)and(shieldPower<ci.maxShield) then
+          shieldPower = shieldPower / ci.maxShield
+          AddBar("shield",shieldPower,"shield",(fullText and floor(shieldPower*100)..'%') or '')
         end
+        --end
       end
 
       --// HEALTH

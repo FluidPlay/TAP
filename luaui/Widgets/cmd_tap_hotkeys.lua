@@ -1,7 +1,7 @@
 function widget:GetInfo()
 	return {
-		name = "TAPrime Hotkeys",
-		desc = "Enables TAPrime Hotkeys, including ZXCV,BN,YJ,O,Q" ,
+		name = "TAP Hotkeys",
+		desc = "Enables TAP Hotkeys, including ZXCV,BN,YJ,O,Q" ,
 		author = "Beherith, modified by MaDDoX",
 		date = "23 march 2012",
 		license = "GNU LGPL, v2.1 or later",
@@ -145,10 +145,6 @@ function MakeBindsTable (swapYZ)
         "bind shift+x buildunit_armtide",
         "bind x buildunit_cortide",
         "bind shift+x buildunit_cortide",
-        "bind x buildunit_armuwfus",
-        "bind shift+x buildunit_armuwfus",
-        "bind x buildunit_coruwfus",
-        "bind shift+x buildunit_coruwfus",
         "bind x buildunit_armuwmmm",
         "bind shift+x buildunit_armuwmmm",
         "bind x buildunit_coruwmmm",
@@ -191,14 +187,6 @@ function MakeBindsTable (swapYZ)
         "bind shift+c buildunit_armsonar",
         "bind c buildunit_corsonar",
         "bind shift+c buildunit_corsonar",
-        "bind c buildunit_armfrad",
-        "bind shift+c buildunit_armfrad",	-- floating radar
-        "bind c buildunit_corfrad",
-        "bind shift+c buildunit_corfrad",
-        "bind c buildunit_armfrt",			-- floating AA
-        "bind shift+c buildunit_armfrt",
-        "bind c buildunit_corfrt",
-        "bind shift+c buildunit_corfrt",
 
         -- Dragon Eyes
         "bind v buildunit_armeyes",
@@ -480,7 +468,7 @@ function widget:Shutdown()
     UnloadBindings()
     WG.Reload_TAP_Hotkeys = nil
 
-    if widgetHandler.orderList and (widgetHandler.orderList["TAPrime Hotkeys -- swap YZ"] or 0) > 0 then
-        widgetHandler:DisableWidget("TAPrime Hotkeys -- swap YZ")
+    if widgetHandler.orderList and (widgetHandler.orderList["TAP Hotkeys -- swap YZ"] or 0) > 0 then
+        widgetHandler:DisableWidget("TAP Hotkeys -- swap YZ")
     end
 end

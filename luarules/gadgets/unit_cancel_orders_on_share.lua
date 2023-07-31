@@ -6,23 +6,27 @@ function gadget:GetInfo()
     date      = "Jan 2015",
     license   = "SAUSAGE",
     layer     = 0,
-    enabled   = true  
+    enabled   = false, --true
   }
 end
 
 
 if (not gadgetHandler:IsSyncedCode()) then
+
+  local spGiveOrderToUnit = Spring.GiveOrderToUnit
+  local spGetFullBuildQueue = Spring.GetFullBuildQueue
+  local spGiveOrderToUnit = Spring.GiveOrderToUnit
  
 function gadget:UnitGiven(unitID, unitDefID, unitTeam, oldTeam)
   -- give all shared units a stop command
-  Spring.GiveOrderToUnit(unitID, CMD.STOP, {}, {})
+  spGiveOrderToUnit(unitID, CMD.STOP, {}, {})
 
   -- remove their build queue
-  local buildQ = Spring.GetFullBuildQueue(unitID) or {}
+  local buildQ = spGetFullBuildQueue(unitID) or {}
   for _,buildOrder in pairs(buildQ) do
     for uDID,count in pairs(buildOrder) do
-        for i=1,count do
-            Spring.GiveOrderToUnit(unitID, -uDID, {}, {"right"}) 
+        for i = 1, count do
+            spGiveOrderToUnit(unitID, -uDID, {}, {"right"})
         end
     end
   end

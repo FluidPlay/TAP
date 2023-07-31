@@ -43,11 +43,6 @@ return {
 		yardmap = "oooooooooooooooooooocccccoooocccccoooocccccoooocccccoooocccccoooocccccoooocccccoo",
 		buildoptions = {
 			"corkrog",
-			"corkarg",
-			"corjugg",
-			"corshiva",
-			"corcat",
-			"corsok",
 		},
 		customparams = {
 			techlevel = 3,

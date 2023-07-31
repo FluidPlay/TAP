@@ -20,7 +20,7 @@ end
 
 local rgbSpecMults = {0.2, 0.2, 0.2} -- specular RGB scales
 local copyLightDefs = {
-	["BA"] = {
+	["TAP"] = {
 		--Dgun
 		["armcom_disintegrator"  ] = "disintegrator",
 		["corcom_disintegrator"  ] = "disintegrator",
@@ -46,14 +46,11 @@ local copyLightDefs = {
 		["corint_core_intimidator"   ] = "berthacannon",
 		["armbrtha_arm_berthacannon" ] = "berthacannon",
 
-		--Juno
-		["armjuno_juno_pulse"          ] = "juno",
-		["corjuno_juno_pulse"          ] = "juno",
 	},
 }
 
 local dynLightDefs = {
-	["BA"] = {
+	["TAP"] = {
 		weaponLightDefs = {
 			-- Arm & Core Commander (dgun) projectiles
 			-- NOTE:

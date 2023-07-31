@@ -43,18 +43,6 @@ return {
 		yardmap = "oooooooooooooooooooocccccoooocccccoooocccccoooocccccoooocccccoo",
 		buildoptions = {
 			[1] = "coracv",
-			[2] = "corseal",
-			[3] = "correap",
-			[4] = "corparrow",
-			[5] = "corgol",
-			[6] = "corban",
-			[8] = "cormart",
-			[9] = "corvroc",
-			[10] = "cortrem",
-			[11] = "corsent",
-			[12] = "cormabm",
-			[13] = "coreter",
-			[14] = "corvrad",
 		},
 		customparams = {
 			bar_collisionvolumeoffsets = "1 0 0",

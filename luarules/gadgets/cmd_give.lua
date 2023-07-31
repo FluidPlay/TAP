@@ -7,7 +7,7 @@ function gadget:GetInfo()
 		date	= 'June 2017',
 		license	= 'GNU GPL, v2 or later',
 		layer	= 1,
-		enabled	= true
+		enabled	= false, --true
 	}
 end
 
@@ -23,7 +23,7 @@ if (Game and Game.gameVersion and (string.find(Game.gameVersion, 'test') or stri
 
 	local authorizedPlayers  = {'[teh]Flow', 'FlowerPower', 'Floris'}
 
-	local isSilentUnitGift = {armstone=true, corstone=true, chip=true, dice=true, xmasball=true, xmasball2=true}
+	local isSilentUnitGift = {chip=true, dice=true, xmasball=true, xmasball2=true}
 
 	if gadgetHandler:IsSyncedCode() then
 

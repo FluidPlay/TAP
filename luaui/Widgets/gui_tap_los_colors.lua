@@ -1,6 +1,6 @@
 function widget:GetInfo()
     return {
-        name      = "TAPrime LOS colors",
+        name      = "TAP LOS colors",
         desc      = "custom colors for LOS",
         author    = "[teh]decay (thx to Floris, gluon, hokomoko, [teh]Teddy)",
         date      = "23 jul 2015",

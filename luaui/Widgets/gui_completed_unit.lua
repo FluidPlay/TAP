@@ -5,7 +5,7 @@ function widget:GetInfo()
     name      = "Completed unit notifier",
     desc      = "Version " .. version .. ". notifies when the production of an expensive " ..
     "or situational unit is finished",
-    author    = "Sphiloth aka Alcur. Updated for TAPrime by MaDDoX",
+    author    = "Sphiloth aka Alcur. Updated for TAP by MaDDoX",
     date      = "Aug 3, 2012",
     license   = "BSD 3-clause with unsanctioned use aiming for profit forbidden",
     layer     = 0,
@@ -438,7 +438,7 @@ function loadClasses()
     o.text = color_cyan..text
     o.localOnly = localOnly
 
-    -- TAPrime: Sets a marker with no text, then sends a message to the player's (ally) team
+    -- TAP: Sets a marker with no text, then sends a message to the player's (ally) team
     MarkerAddPoint(o.x, o.y, o.z, "", tobool(o.localOnly)) -- text: o.text
     if o.localOnly then
       SpSendMessageToTeam(myTeam, o.text)

@@ -74,15 +74,6 @@ local UnitEffects = {}
 
 --if (Spring.GetModOptions and (tonumber(Spring.GetModOptions().barmodels) or 0) ~= 1)  then
     UnitEffects = {
-
-      [UnitDefNames["corjuno"].id] = {
-        {class='ShieldSphere',options=junoShieldSphere},
-        {class='GroundFlash',options=groundFlashJuno},
-      },
-      [UnitDefNames["armjuno"].id] = {
-        {class='ShieldSphere',options=junoShieldSphere},
-        {class='GroundFlash',options=groundFlashJuno},
-      },
       --// FUSIONS //--------------------------
       [UnitDefNames["corafus"].id] = {
         --{class='Bursts',options=corafusBursts},
@@ -151,14 +142,6 @@ local UnitEffects = {}
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta1", onActive=true}},
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta2", onActive=true}},
       },
-      --[UnitDefNames["corsfig"].id] = {
-      --  {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust1", onActive=true}},
-      --  {class='AirJet',options={color={0.3,0.1,0}, width=3.5, length=43, piece="thrust2", onActive=true}},
-      --},
-      --[UnitDefNames["corseap"].id] = {
-      --  {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust1", onActive=true, light=1}},
-      --  {class='AirJet',options={color={0.3,0.1,0}, width=3, length=50, piece="thrust2", onActive=true, light=1}},
-      --},
       [UnitDefNames["corshad"].id] = {
         {class='AirJet',options={color={0.6,0.1,0}, width=4, length=57, piece="thrusta1", onActive=true, light=1.5}},
         {class='AirJet',options={color={0.6,0.1,0}, width=4, length=57, piece="thrusta2", onActive=true}},
@@ -260,16 +243,7 @@ local UnitEffects = {}
 --            {class='ShieldSphere',options=ajunoShieldSphereBar},
 --            {class='ShieldJitter',options={life=math.huge, pos={0,72,0}, size=13, precision=22, repeatEffect=true}},
 --        },
---        [UnitDefNames["corjuno"..nameSuffix].id] = {
---            --{class='GroundFlash',options=groundFlashJunoBar},
---            {class='ShieldSphere',options=cjunoShieldSphere},
---            {class='ShieldJitter',options={life=math.huge, pos={0,72,0}, size=13, precision=22, repeatEffect=true}},
---        },
---
 --        [UnitDefNames["cormakr"..nameSuffix].id] = {
---            {class='StaticParticles',options=cormakrEffect},
---        },
---        [UnitDefNames["corfmkr"..nameSuffix].id] = {
 --            {class='StaticParticles',options=cormakrEffect},
 --        },
 --
@@ -476,12 +450,6 @@ local UnitEffects = {}
 --            {class='AirJet',options={color={0.2,0.8,0.2}, width=2.2, length=18, piece="thrustb", onActive=true, light=1}},
 --        },
 --        --SEAPLANE CORE
---        [UnitDefNames["corsfig"..nameSuffix].id] = {
---            {class='AirJet',options={color={0.2,0.8,0.2}, width=3, length=32, piece="thrust", onActive=true}},
---        },
---        [UnitDefNames["corseap"..nameSuffix].id] = {
---            {class='AirJet',options={color={0.2,0.8,0.2}, width=3, length=32, piece="thrust", onActive=true, light=1}},
---        },
 --        [UnitDefNames["corawac"..nameSuffix].id] = {
 --            {class='AirJet',options={color={0.2,0.8,0.2}, width=4, length=30, piece="thrust", onActive=true, light=1}},
 --        },

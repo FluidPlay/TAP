@@ -1,8 +1,8 @@
 
 function gadget:GetInfo()
     return {
-        name      = 'Juno Damage',
-        desc      = 'Handles Juno damage',
+        name      = 'Scout Missile Damage',
+        desc      = 'Handles Missile damage',
         author    = 'Niobium, Bluestone, MaDDoX',
         version   = 'v2.0',
         date      = '05/2013',
@@ -42,7 +42,6 @@ local tokillUnits = {
     --[UnitDefNames.armveil.id] = true,
     --[UnitDefNames.corarad.id] = true,
     --[UnitDefNames.corason.id] = true,
-    --[UnitDefNames.coreter.id] = true,
     --[UnitDefNames.coreyes.id] = true,
     --[UnitDefNames.corfrad.id] = true,
     --[UnitDefNames.corjamt.id] = true,
@@ -50,8 +49,6 @@ local tokillUnits = {
     --[UnitDefNames.corshroud.id] = true,
     --[UnitDefNames.corsjam.id] = true,
     --[UnitDefNames.corsonar.id] = true,
-    --[UnitDefNames.corspec.id] = true,
-    --[UnitDefNames.corvoyr.id] = true,
     --[UnitDefNames.corvrad.id] = true,
     --
     --[UnitDefNames.corfav.id] = true,
@@ -91,9 +88,7 @@ local Mmin = math.min
 -- kill appropriate things from initial juno blast --
 
 local scoutWeapons = {
-    [WeaponDefNames.armjuno_juno_pulse.id] = true,
-    [WeaponDefNames.corjuno_juno_pulse.id] = true,
-	--[WeaponDefNames.bowhq_rt_scout_pulse.id] = true,
+	[WeaponDefNames.bowhq_rt_scout_pulse.id] = true,
 	[WeaponDefNames.kernhq_rt_scout_pulse.id] = true,
 }
 
@@ -124,8 +119,7 @@ local counter = 1 --index each explosion of juno missile with this counter
 local gaiaTeamID = 1    -- initialized on.. erm.. Initialize.
 
 function gadget:Initialize()
-	Script.SetWatchWeapon(WeaponDefNames.armjuno_juno_pulse.id, true)
-	Script.SetWatchWeapon(WeaponDefNames.corjuno_juno_pulse.id, true)
+	Script.SetWatchWeapon(WeaponDefNames.biwhq_rt_scout_pulse.id, true)
 	Script.SetWatchWeapon(WeaponDefNames.kernhq_rt_scout_pulse.id, true)
 
     gaiaTeamID = Spring.GetGaiaTeamID()

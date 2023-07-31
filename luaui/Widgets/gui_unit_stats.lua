@@ -14,7 +14,7 @@ end
 
 include("keysym.h.lua")
 
----- TAPrime changes (by MaDDoX)
+---- TAP changes (by MaDDoX)
 -- shows weapondamagetypes info
 
 ----v1.7 by Doo changes

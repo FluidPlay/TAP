@@ -35,8 +35,6 @@ local econUnitDefIDs = { --better to hardcode these since its complicated to pic
 	--sea Basic
 	UnitDefNames.armtide.id,
 	UnitDefNames.cortide.id,
-	UnitDefNames.armfmkr.id,
-	UnitDefNames.corfmkr.id,
 	--land Adv.
 	UnitDefNames.armmmkr.id,
 	UnitDefNames.cormmkr.id,

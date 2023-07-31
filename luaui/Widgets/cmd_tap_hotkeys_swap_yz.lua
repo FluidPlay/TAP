@@ -1,6 +1,6 @@
 function widget:GetInfo()
 	return {
-		name = "TAPrime Hotkeys -- swap YZ",
+		name = "TAP Hotkeys -- swap YZ",
 		desc = "Swaps Y and Z in TAP Hotkeys widget" ,
 		author = "Beherith, modified by MaDDoX",
 		date = "23 march 2012",
@@ -15,7 +15,7 @@ function widget:Initialize()
         WG.swapYZbinds = true
         WG.Reload_TAP_Hotkeys()
     else
-        Spring.Echo("TAPrime Hotkeys widget not found, cannot swap YZ")
+        Spring.Echo("TAP Hotkeys widget not found, cannot swap YZ")
         widgetHandler:RemoveWidget(self)
     end
 end
@@ -25,6 +25,6 @@ function widget:Shutdown()
     if WG.Reload_TAP_Hotkeys then
         WG.Reload_TAP_Hotkeys()
     else
-        Spring.Echo("TAPrime Hotkeys widget not found, cannot swap YZ")
+        Spring.Echo("TAP Hotkeys widget not found, cannot swap YZ")
     end
 end

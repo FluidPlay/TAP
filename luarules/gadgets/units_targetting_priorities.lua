@@ -69,22 +69,18 @@ if gadgetHandler:IsSyncedCode() then
 		corhurc = "Bombers",
 		corseah = "Bombers",
 		cortitan = "Bombers",
-		corcsa = "Bombers",
+		--corcsa = "Bombers",
 		corcut = "Bombers",
-		corsb = "Bombers",
-		corseap = "Bombers",
 		armfig = "Fighters",
 		armhawk = "Fighters",
 		armsfig = "Fighters",
 		corveng = "Fighters",
 		corvamp = "Fighters",
-		corsfig = "Fighters",
 		armpeep = "Scouts",
 		armawac = "Scouts",
 		armsehak = "Scouts",
 		corfink = "Scouts",
 		corawac = "Scouts",
-		corhunt = "Scouts",
 	}
 
 	function gadget:UnitCreated(unitID, unitDefID)

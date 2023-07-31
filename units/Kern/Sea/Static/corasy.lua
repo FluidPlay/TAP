@@ -47,7 +47,6 @@ return {
 			"corblackhy",
 			-- "corsnap",
 			-- "corssub",
-			-- "corhal",
 			-- "corsok",
 			-- "cormh",
 

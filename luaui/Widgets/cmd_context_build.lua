@@ -4,7 +4,6 @@ local unitlist={--- Human friendly list. Automatically converted to unitdef IDs 
  
 {'armmex','armuwmex', 'cormex','coruwmex'},-- to test that widget behaves correctly when unit can't really be built
 {'armmakr','armfmkr'},
-{'cormakr','corfmkr'},
 --{'armdrag','armfdrag'},  --both can be built in shallow water -> do not touch
 --{'cordrag','corfdrag'},  --both can be built in shallow water -> do not touch
 {'armmstor', 'armuwms'},
@@ -12,31 +11,18 @@ local unitlist={--- Human friendly list. Automatically converted to unitdef IDs 
 {'cormstor', 'coruwms'},
 {'corestor', 'coruwes'},
 {'armrl','armfrt'},
-{'corrl','corfrt'},
-{'armhp','armfhp'},
-{'corhp','corfhp'},
 {'armrad','armfrad'},
-{'corrad','corfrad'},
 {'armhlt','armfhlt'},
 {'corhlt','corfhlt'},
-{'armtarg','armfatf'},
-{'cortarg','corfatf'},
 {'armmmmkr','armuwmmm'},
 {'cormmmkr','coruwmmm'},
-{'armfus','armuwfus'},
-{'corfus','coruwfus'},
 {'armflak','armfflak'},
-{'corflak','corfflak'},
 {'armmoho','armuwmme'},
 {'cormoho','coruwmme'},
 {'armsolar','armtide'},
 {'corsolar','cortide'},
 {'armlab','armsy'},
 {'corlab','corsy'},
-{'armllt','armgplat'},
-{'corllt','corgplat'},
---{'armnanotc','armnanotcplat'},
---{'cornanotc','cornanotcplat'},
 -- XTA - arm
 
 {'arm_solar_collector', 'arm_underwater_tidal_generator', 'arm_tidal_generator'},

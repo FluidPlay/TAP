@@ -26,9 +26,6 @@ local minedefs ={
 	[UnitDefNames["armmine1"].id] = true,
 	[UnitDefNames["armmine2"].id] = true,
 	[UnitDefNames["armmine3"].id] = true,
-	[UnitDefNames["cormine1"].id] = true,
-	[UnitDefNames["cormine2"].id] = true,
-	[UnitDefNames["cormine3"].id] = true,
 	[UnitDefNames["cormine4"].id] = true,
 }
 local mines={}

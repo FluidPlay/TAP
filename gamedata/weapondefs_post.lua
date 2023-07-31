@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- Default Engine Weapon Definitions Post-processing
 --------------------------------------------------------------------------------
--- TAPrime stores weapondefs in the unitdef files, except for standalone/shared
+-- TAP stores weapondefs in the unitdef files, except for standalone/shared
 -- weapons, individually defined in the /weapons folder
 --
 -- Here we load those defs into the WeaponDefs table

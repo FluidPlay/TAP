@@ -1,7 +1,7 @@
 local enablegadget = false
-if Spring.GetModOptions and Spring.GetModOptions().unba then
-    enablegadget = true
-end
+--if Spring.GetModOptions and Spring.GetModOptions().unba then
+--    enablegadget = true
+--end
 
 function gadget:GetInfo()
     return {

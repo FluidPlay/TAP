@@ -37,18 +37,16 @@ local abs = math.abs
 local unitArray = {}
 unitArray["radarunitArray"] = {
   --radar units
-  -----TAPrime-----
+  -----TAP-----
   "armseer",
   "armmark",
   "corvrad",
-  --"corvoyr",
 }
 
 unitArray["jammerunitArray"] = {
   --jammer units
-  -----TAPrime-----
+  -----TAP-----
   "armaser",
-  "coreter",
   "arm_jammer",
   "core_spectre",
   "armsjam",

@@ -93,7 +93,6 @@ modConfig["BYAR"]["unitList"] = {
 	armvulc = { weapons = { 5 } },
 
 	-- CORTEX
-	cormaw = { weapons = { 1 } },
 	corexp = { weapons = { 1 } },
 	corllt = { weapons = { 1 } },
 	corhllt = { weapons = { 1 } },
@@ -102,19 +101,14 @@ modConfig["BYAR"]["unitList"] = {
 	corrl = { weapons = { 2 } },
 	cormadsam = { weapons = { 2 } },
 	corerad = { weapons = { 2 } },
-	cordl = { weapons = { 1 } },
-	corjuno = { weapons = { 1 } },
 
 	corfhlt = { weapons = { 1 } },  --floating hlt
 	cortl = { weapons = { 1 } }, --torp launcher
 	coratl = { weapons = { 1 } }, --T2 torp launcher
-	corfrt = { weapons = { 2 } }, --floating rocket laucher
-	corenaa = { weapons = { 2 } }, --floating flak AA
 
 	cortoast = { weapons = { 5 } },
 	corvipe = { weapons = { 1 } },
 	cordoom = { weapons = { 1, 1, 1} },
-	corflak = { weapons = { 2 } },
 	corscreamer = { weapons = { 2 } },
 	cortron = { weapons = { 1 } },
 	corfmd = { weapons = { 3 } },

@@ -1,5 +1,5 @@
 --==============================
---== TAPrime HELPER FUNCTIONS ==
+--== TAP HELPER FUNCTIONS ==
 --==============================
 --shard_include("luarules/gadgets/ai/ba/commonfunctions.lua") 	-- doesn' work here
 VFS.Include("LuaRules/colors.h.lua")

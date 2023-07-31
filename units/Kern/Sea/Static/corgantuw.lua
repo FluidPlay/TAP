@@ -45,10 +45,6 @@ return {
 		yardmap = "oooooooooooooooooooocccccoooocccccoooocccccoooocccccoooocccccoooocccccoooocccccoo",
 		buildoptions = {
 			"corkrog",
-			"corshiva",
-			--"corsok",
-			"corseal",
-			"corparrow",
 		},
 		customparams = {
 			bar_script = "BAR/bar_corgant.cob",

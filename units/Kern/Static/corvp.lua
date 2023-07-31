@@ -44,15 +44,6 @@ return {
 		yardmap = "yyoooyy ooooooo oocccoo oocccoo oocccoo oocccoo",
 		buildoptions = {
 			[1] = "corcv",
-			[2] = "cormuskrat",
-			[3] = "cormlv",
-			[4] = "corfav",
-			[5] = "corgator",
-			[6] = "corgarp",
-			[7] = "corraid",
-			[8] = "corlevlr",
-			[9] = "corwolv",
-			[10] = "cormist",
 		},
 		customparams = {
 			bar_buildinggrounddecalsizex = 9,
