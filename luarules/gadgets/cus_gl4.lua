@@ -266,14 +266,14 @@ do --save a ton of locals
 
 	uniformBins = {
 		armunit = {
-			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
 			baseVertexDisplacement = 0.0,
 			brightnessFactor = 1.5,
 		},
 		corunit = {
-			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.5,
+			brightnessFactor = 1.0,
 		},
 		--armscavenger = {
 		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
