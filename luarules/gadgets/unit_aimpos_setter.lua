@@ -46,7 +46,6 @@ local unitsToEdit = { [UnitDefNames.armllt.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.corshred.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.corrl.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.armrl.id] = {apo = {x=0,y=20,z=0}},
-                      --[UnitDefNames.armflak.id] = 13,
                       [UnitDefNames.corrad.id] = {apo = {x=0,y=15,z=0}},    -- Model bugfix
                       [UnitDefNames.armcir.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.corerad.id] = {apo = {x=0,y=20,z=0}},

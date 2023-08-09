@@ -214,18 +214,6 @@ local UnitEffects = {}
         {class='Bursts',options=shieldBursts550},
         {class='ShieldJitter', options={delay=0,life=math.huge, pos={0,20,0.0}, size=555, precision=0, strength   = 0.001, repeatEffect=true}},
       },
-
-        [UnitDefNames["armfgate"].id] = {
-        --{class='ShieldSphere',options=ShieldSphere600},
-        {class='Bursts',options=shieldBursts600},
-        {class='ShieldJitter', options={delay=0,life=math.huge, pos={0,20,0.0}, size=605, precision=0, strength   = 0.001, repeatEffect=true}},
-      },
-
-        [UnitDefNames["corfgate"].id] = {
-        --{class='ShieldSphere',options=ShieldSphere600},
-        {class='Bursts',options=shieldBursts600},
-        {class='ShieldJitter', options={delay=0,life=math.huge, pos={0,20,0.0}, size=605, precision=0, strength   = 0.001, repeatEffect=true}},
-      },
     }
 --end
 
@@ -238,11 +226,6 @@ local UnitEffects = {}
 --
 --    UnitEffectsBAR = {
 --
---        [UnitDefNames["armjuno"..nameSuffix].id] = {
---            --{class='GroundFlash',options=groundFlashJunoBar},
---            {class='ShieldSphere',options=ajunoShieldSphereBar},
---            {class='ShieldJitter',options={life=math.huge, pos={0,72,0}, size=13, precision=22, repeatEffect=true}},
---        },
 --        [UnitDefNames["cormakr"..nameSuffix].id] = {
 --            {class='StaticParticles',options=cormakrEffect},
 --        },
@@ -268,14 +251,6 @@ local UnitEffects = {}
 --        },
 --        [UnitDefNames["corgate"..nameSuffix].id] = {
 --            {class='Bursts',options=MergeTable({pos={0,40,0}},shieldBursts550)},
---            {class='ShieldJitter', options={delay=0,life=math.huge, pos={0,20,0.0}, size=555, precision=0, strength   = 0.001, repeatEffect=true}},
---            {class='ShieldSphere',options=corgateShieldSphere},
---            {class='SimpleParticles2', options=MergeTable({pos={0,42,0}, lifeSpread=300},shield_corgate)},
---            --{class='ShieldJitter',options={life=math.huge, pos={0,42,0}, size=20, precision=2, repeatEffect=true}},
---            --{class='GroundFlash',options=groundFlashShield},
---        },
---        [UnitDefNames["corfgate"..nameSuffix].id] = {
---            {class='Bursts',options=MergeTable({pos={0,40,0}},shieldBursts600)},
 --            {class='ShieldJitter', options={delay=0,life=math.huge, pos={0,20,0.0}, size=555, precision=0, strength   = 0.001, repeatEffect=true}},
 --            {class='ShieldSphere',options=corgateShieldSphere},
 --            {class='SimpleParticles2', options=MergeTable({pos={0,42,0}, lifeSpread=300},shield_corgate)},

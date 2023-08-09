@@ -296,10 +296,6 @@ function MakeBindsTable (swapYZ)
         --"bind shift+b buildunit_tawf001",
         --"bind b buildunit_hllt",
         --"bind shift+b buildunit_hllt",
-        --"bind b buildunit_armclaw",
-        --"bind shift+b buildunit_armclaw",
-        --"bind b buildunit_cormaw",
-        --"bind shift+b buildunit_cormaw",
         --"bind b buildunit_armhlt",
         --"bind shift+b buildunit_armhlt",
         --"bind b buildunit_corhlt",
@@ -342,12 +338,8 @@ function MakeBindsTable (swapYZ)
         -- Plasma Deflector
         "bind alt+i buildunit_armgate",
         "bind alt+shift+i buildunit_armgate",
-        "bind alt+i buildunit_armfgate",	-- floating
-        "bind alt+shift+i buildunit_armfgate",
         "bind alt+i buildunit_corgate",
         "bind alt+shift+i buildunit_corgate",
-        "bind alt+i buildunit_corfgate",	-- floating
-        "bind alt+shift+i buildunit_corfgate",
 
         -- Air Pads
         "bind p buildunit_armpad",

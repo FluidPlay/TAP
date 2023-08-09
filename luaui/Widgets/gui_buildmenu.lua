@@ -225,9 +225,6 @@ local armToCor = {
 	[UnitDefNames["armeyes"].id] = UnitDefNames["coreyes"].id,
 	[UnitDefNames["armdrag"].id] = UnitDefNames["cordrag"].id,
 	[UnitDefNames["armap"].id] = UnitDefNames["corap"].id,
-	[UnitDefNames["armuwms"].id] = UnitDefNames["coruwms"].id,
-	[UnitDefNames["armuwes"].id] = UnitDefNames["coruwes"].id,
-	[UnitDefNames["armfdrag"].id] = UnitDefNames["corfdrag"].id,
 	[UnitDefNames["armptl"].id] = UnitDefNames["corptl"].id,
 }
 local corToArm = table_invert(armToCor)

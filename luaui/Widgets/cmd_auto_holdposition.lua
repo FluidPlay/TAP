@@ -42,8 +42,6 @@ local initialized = false
 --  "armavp",
 --  "armsy",
 --  "armasy",
---  "armhp",
---  "armfhp",
 --  "armshtlx",
 --  "armcom",  "armcom2",  "armcom3",  "armcom4",
 --  "asubpen",

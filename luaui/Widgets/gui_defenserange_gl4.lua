@@ -10,7 +10,7 @@ function widget:GetInfo()
 		date      = "2021.04.26",
 		license   = "Lua: GPLv2, GLSL: (c) Beherith (mysterme@gmail.com)",
 		layer     = -100,
-		enabled   = false
+		enabled   = true, --false
 	}
 end
 
@@ -62,10 +62,9 @@ local modConfig = {}
 -- BAR
 --to support other mods
 --table initialized and unitList is needed!
-modConfig["BYAR"] = {}
-modConfig["BYAR"]["unitList"] = {
+modConfig["TAP"] = {}
+modConfig["TAP"]["unitList"] = {
 	-- ARMADA
-	armclaw = { weapons = { 1 } },
 	armllt = { weapons = { 1 } },
 	armbeamer = { weapons = { 1 } },
 	armhlt = { weapons = { 1 } },
@@ -73,8 +72,6 @@ modConfig["BYAR"]["unitList"] = {
 	armrl = { weapons = { 2 } }, --light aa
 	armferret = { weapons = { 2 } },
 	armcir = { weapons = { 2 } }, --chainsaw
-	armdl = { weapons = { 1 } }, --depthcharge
-	armjuno = { weapons = { 1 } },
 	armtl = { weapons = { 1 } }, --torp launcher
 	armfhlt = { weapons = { 1 } },  --floating hlt
 	armfrt = { weapons = { 2 } },  --floating rocket laucher
@@ -84,7 +81,6 @@ modConfig["BYAR"]["unitList"] = {
 	armamb = { weapons = { 5,5 } }, --ambusher
 	armpb = { weapons = { 5 } }, --pitbull
 	armanni = { weapons = { 1 } },
-	armflak = { weapons = { 2 } },
 	armmercury = { weapons = { 2 } },
 	armemp = { weapons = { 1 } },
 	armamd = { weapons = { 3 } }, --antinuke
@@ -102,7 +98,6 @@ modConfig["BYAR"]["unitList"] = {
 	cormadsam = { weapons = { 2 } },
 	corerad = { weapons = { 2 } },
 
-	corfhlt = { weapons = { 1 } },  --floating hlt
 	cortl = { weapons = { 1 } }, --torp launcher
 	coratl = { weapons = { 1 } }, --T2 torp launcher
 
@@ -120,34 +115,32 @@ modConfig["BYAR"]["unitList"] = {
 	cormabm =  { weapons = { 3 } },
 	corcarry =  { weapons = { 3 } },
 
-	-- SCAVENGERS
-	scavengerdroppodbeacon_scav = { weapons = { 1 } }
 }
 
--- add scavs
-local toscav = {}
-for k,v in pairs(modConfig["BYAR"]["unitList"]) do
-	toscav[#toscav+1] = k
-end
-for i,k in ipairs(toscav) do
-	modConfig["BYAR"]["unitList"][k..'_scav'] =  modConfig["BYAR"]["unitList"][k]
-end
+---- add scavs
+--local toscav = {}
+--for k,v in pairs(modConfig["TAP"]["unitList"]) do
+--	toscav[#toscav+1] = k
+--end
+--for i,k in ipairs(toscav) do
+--	modConfig["TAP"]["unitList"][k..'_scav'] =  modConfig["TAP"]["unitList"][k]
+--end
 
 --implement this if you want dps-depending ring-colors
 --colors will be interpolated by dps scores between min and max values. values outside range will be set to nearest value in range -> min or max
-modConfig["BYAR"]["armorTags"] = {}
-modConfig["BYAR"]["armorTags"]["air"] = "vtol"
-modConfig["BYAR"]["armorTags"]["ground"] = "else"
-modConfig["BYAR"]["dps"] = {}
-modConfig["BYAR"]["dps"]["ground"] = {}
-modConfig["BYAR"]["dps"]["air"] = {}
-modConfig["BYAR"]["dps"]["ground"]["min"] = 50
-modConfig["BYAR"]["dps"]["ground"]["max"] = 500
-modConfig["BYAR"]["dps"]["air"]["min"] = 80
-modConfig["BYAR"]["dps"]["air"]["max"] = 500
-modConfig["BYAR"]["dps"]["cannon"] = {}
-modConfig["BYAR"]["dps"]["cannon"]["min"] = 80
-modConfig["BYAR"]["dps"]["cannon"]["max"] = 500
+modConfig["TAP"]["armorTags"] = {}
+modConfig["TAP"]["armorTags"]["air"] = "vtol"
+modConfig["TAP"]["armorTags"]["ground"] = "else"
+modConfig["TAP"]["dps"] = {}
+modConfig["TAP"]["dps"]["ground"] = {}
+modConfig["TAP"]["dps"]["air"] = {}
+modConfig["TAP"]["dps"]["ground"]["min"] = 50
+modConfig["TAP"]["dps"]["ground"]["max"] = 500
+modConfig["TAP"]["dps"]["air"]["min"] = 80
+modConfig["TAP"]["dps"]["air"]["max"] = 500
+modConfig["TAP"]["dps"]["cannon"] = {}
+modConfig["TAP"]["dps"]["cannon"]["min"] = 80
+modConfig["TAP"]["dps"]["cannon"]["max"] = 500
 --end of dps-colors
 
 

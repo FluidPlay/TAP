@@ -46,7 +46,6 @@ unitArray["radarunitArray"] = {
 unitArray["jammerunitArray"] = {
   --jammer units
   -----TAP-----
-  "armaser",
   "arm_jammer",
   "core_spectre",
   "armsjam",

@@ -44,20 +44,6 @@ return {
 		--end move
 		buildoptions = {
 			"armtide",
-			"armuwmex",
-			"armfrad",
-			"armnanotcplat",
-			"armsy",
-			"armcs",
-			"armgplat",
-			"armtl",
-			"armfhlt",
-			"armfflak",
-			"armpt",
-			"armdecade",
-			"armroy",
-			"armamph",
-			"armfmine3",
 		},
 		customparams = {
 			techlevel = 2,

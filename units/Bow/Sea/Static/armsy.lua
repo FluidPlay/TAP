@@ -36,14 +36,6 @@ return {
 		yardmap = "oyyyyyyoyccccccyyccccccyyccccccyyccccccyyccccccyyccccccyoyyyyyyo",
 		buildoptions = {
 			"armcs",
-			"armrecl",
-			"armpt",
-			"armdecade",
-			"armpship",
-			"armroy",
-			"armsub",
-			"armdship",
-			"armtship",
 		},
 		customparams = {
 			bar_waterline = 1,

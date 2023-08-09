@@ -48,7 +48,6 @@ return {
 			-- "armanac",
 			-- "armserp",
 			-- "armlun",
-			-- "armmh",
 			-- "armepoch",
 			-- "armthovr",
 

@@ -526,7 +526,7 @@ function widget:UnitFromFactory(unit, unitDefId, team, factId, factDefId, userOr
 
   --Echo( widgetName .. ": checking user defined conditions for unit")
     if metalCost >= minHeavyCost or (metalCost >= minAACost and isUnitDefOnlyAA(unitDefId)) or 
-    (reportFactories and (isDefFactory(unitDefId) or uDef.name == "striderhub" or uDef.name == "armcsa")) or 
+    --(reportFactories and (isDefFactory(unitDefId) or uDef.name == "striderhub" or uDef.name == "armcsa")) or
     specificUnits[uDef.humanName] then
 
         local ux, uy, uz

@@ -43,13 +43,6 @@ return {
 		yardmap = "occccooccccooccccooccccooccccoocccco",
 		buildoptions = {
 			[1] = "armck",
-			[2] = "armpw",
-			[3] = "armrectr",
-			[4] = "armrock",
-			[5] = "armham",
-			[6] = "armjeth",
-			[7] = "armwar",
-			[8] = "armflea",
 		},
 		customparams = {
 			bar_collisionvolumescales = "95 22 95",

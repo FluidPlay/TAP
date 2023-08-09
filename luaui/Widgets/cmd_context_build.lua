@@ -7,16 +7,10 @@ local unitlist={--- Human friendly list. Automatically converted to unitdef IDs 
 --{'armdrag','armfdrag'},  --both can be built in shallow water -> do not touch
 --{'cordrag','corfdrag'},  --both can be built in shallow water -> do not touch
 {'armmstor', 'armuwms'},
-{'armestor', 'armuwes'},
-{'cormstor', 'coruwms'},
-{'corestor', 'coruwes'},
 {'armrl','armfrt'},
 {'armrad','armfrad'},
-{'armhlt','armfhlt'},
-{'corhlt','corfhlt'},
 {'armmmmkr','armuwmmm'},
 {'cormmmkr','coruwmmm'},
-{'armflak','armfflak'},
 {'armmoho','armuwmme'},
 {'cormoho','coruwmme'},
 {'armsolar','armtide'},

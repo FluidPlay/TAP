@@ -42,18 +42,12 @@ modConfig["TAP"]["unitList"] = {
 	armrl = { weapons = { 2 } }, --light aa
 	--armpacko = { weapons = { 2 } },
 	armcir = { weapons = { 2 } }, --chainsaw
-	armdl = { weapons = { 1 } }, --depthcharge
-	armjuno = { weapons = { 1 } },
 	armtl = { weapons = { 1 } }, --torp launcher
-	armfhlt = { weapons = { 1 } },  --floating hlt
-	armfrt = { weapons = { 2 } },  --floating rocket laucher
-	armfflak = { weapons = { 2 } },  --floating flak AA
 	armatl = { weapons = { 1 } },  --adv torpedo launcher
 
 	armamb = { weapons = { 1,1 } }, --ambusher
 	armpb = { weapons = { 1 } }, --pitbull
 	armanni = { weapons = { 1 } },
-	armflak = { weapons = { 2 } },
 	armmercury = { weapons = { 2 } },
 	armemp = { weapons = { 1 } },
 	armamd = { weapons = { 3 } }, --antinuke

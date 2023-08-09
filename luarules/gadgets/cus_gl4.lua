@@ -7,7 +7,7 @@ function gadget:GetInfo()
 		date 	= "20220310",
 		license = "Private while in testing mode",
 		layer	= 0,
-		enabled	= false, --true,
+		enabled	= true,
 	}
 end
 
@@ -936,18 +936,31 @@ local preloadedTextures = false
 local function PreloadTextures()
 	Spring.Echo("[CUS GL4] Cache Textures")
 	-- init the arm and core wrecks, and wreck normals
-	gl.Texture(0, "unittextures/Arm_wreck_color_normal.dds")
-	gl.Texture(0, "unittextures/Arm_wreck_color.dds")
-	gl.Texture(0, "unittextures/Arm_wreck_other.dds")
-	gl.Texture(0, "unittextures/Arm_normal.dds")
-	gl.Texture(0, "unittextures/Arm_color.dds")
-	gl.Texture(0, "unittextures/Arm_other.dds")
-	gl.Texture(0, "unittextures/cor_normal.dds")
-	gl.Texture(0, "unittextures/cor_other.dds")
-	gl.Texture(0, "unittextures/cor_color.dds")
-	gl.Texture(0, "unittextures/cor_other_wreck.dds")
-	gl.Texture(0, "unittextures/cor_color_wreck.dds")
-	gl.Texture(0, "unittextures/cor_color_wreck_normal.dds")
+	gl.Texture(0, "unittextures/tap_texture1.dds")
+	gl.Texture(0, "unittextures/tap_texture2.dds")
+	gl.Texture(0, "unittextures/tap_texture3.dds")
+	gl.Texture(0, "unittextures/tap_wreck1.dds")
+	gl.Texture(0, "unittextures/tap_wreck2.dds")
+	gl.Texture(0, "unittextures/tap_wreck3.dds")
+	gl.Texture(0, "unittextures/tap_wreck_normal.png")
+	gl.Texture(0, "unittextures/corota_tex1.dds")
+	gl.Texture(0, "unittextures/corota_tex2.dds")
+	gl.Texture(0, "unittextures/armota_tex1.dds")
+	gl.Texture(0, "unittextures/armota_tex2.dds")
+	gl.Texture(0, "unittextures/armOTA_normal.png")
+	gl.Texture(0, "unittextures/corOTA_normal.png")
+	--gl.Texture(0, "unittextures/Arm_wreck_color_normal.dds")
+	--gl.Texture(0, "unittextures/Arm_wreck_color.dds")
+	--gl.Texture(0, "unittextures/Arm_wreck_other.dds")
+	--gl.Texture(0, "unittextures/Arm_normal.dds")
+	--gl.Texture(0, "unittextures/Arm_color.dds")
+	--gl.Texture(0, "unittextures/Arm_other.dds")
+	--gl.Texture(0, "unittextures/cor_normal.dds")
+	--gl.Texture(0, "unittextures/cor_other.dds")
+	--gl.Texture(0, "unittextures/cor_color.dds")
+	--gl.Texture(0, "unittextures/cor_other_wreck.dds")
+	--gl.Texture(0, "unittextures/cor_color_wreck.dds")
+	--gl.Texture(0, "unittextures/cor_color_wreck_normal.dds")
 	gl.Texture(0, false)
 	preloadedTextures = true
 end

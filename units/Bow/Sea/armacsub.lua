@@ -46,19 +46,6 @@ return {
 		turnrate = 270,	
 		--end move
 		buildoptions = {
-			"armuwfus",
-			"armuwmmm",
-			"armuwmme",
-			"armuwadves",
-			"armuwadvms",
-			"armshltxuw",
-			"armasy",
-			"armsy",
-			"armason",
-			"armfatf",
-			"armatl",
-			"armfflak",
-			--"placeholderArmT2SurfaceDefenseTower",
 		},
 		customparams = {
 			techlevel = 2,

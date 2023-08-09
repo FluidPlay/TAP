@@ -144,7 +144,6 @@ end
 local Interest = {
 	armfus = true,
 	armafus = true,
-	armckfus = true,
 	armmmkr = true,
 	armlab = true,
 	armvp = true,

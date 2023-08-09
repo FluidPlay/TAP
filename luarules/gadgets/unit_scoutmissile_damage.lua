@@ -28,7 +28,6 @@ local tokillUnits = {
     [UnitDefNames.armmine3.id] = true,
     [UnitDefNames.cormine3.id] = true,
     --[UnitDefNames.armarad.id] = true,
-    --[UnitDefNames.armaser.id] = true,
     --[UnitDefNames.armason.id] = true,
     --[UnitDefNames.armeyes.id] = true,
     --[UnitDefNames.armfrad.id] = true,
@@ -53,13 +52,11 @@ local tokillUnits = {
     --
     --[UnitDefNames.corfav.id] = true,
     --[UnitDefNames.armfav.id] = true,
-    --[UnitDefNames.armflea.id] = true,
 }
 
 local todenyUnits = {
     [UnitDefNames.corvrad.id] = true,
     [UnitDefNames.armfav.id] = true,
-    --[UnitDefNames.armflea.id] = true,
 }
 
 --config -- see also in unsynced

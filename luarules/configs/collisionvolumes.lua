@@ -95,10 +95,6 @@ local dynamicPieceCollisionVolume = {}	--dynamic per piece collision volume defi
 --		on={39,88,39,0,0,-5,0,1,0},
 --		off={39,55,39,0,-17,0,0,1,0},
 --	}
---	unitCollisionVolume["armplat"] = {
---		on={105,66,105,0,33,0,2,1,0},
---		off={105,44,105,0,0,0,2,1,0},
---	}
 --	unitCollisionVolume["armsolar"] = {
 --		on={73,76,73,0,-18,1,0,1,0},
 --		off={50,76,50,0,-18,1,0,1,0},
@@ -168,10 +164,6 @@ local dynamicPieceCollisionVolume = {}	--dynamic per piece collision volume defi
 		on={95,22,95,0,-1,0,1,1,1},
 		off={95,22,95,0,-1,0,1,1,1},
 	}
-	unitCollisionVolume["armclaw"] = {
-		on={32,39,32,0,-6,0,1,1,1,0,19,0},
-		off={32,32,32,0,-13.5,0,0,1,1,0,10,0},
-	}	
 	unitCollisionVolume["armmmkr"] = {
 		on={60,70,60,0,7,0,1,1,1,0,38,0},
 		off={60,50,60,0,-4,0,1,1,1,0,25,0},
@@ -180,10 +172,6 @@ local dynamicPieceCollisionVolume = {}	--dynamic per piece collision volume defi
 		on={39,78,39,0,-11,0,1,1,1,0,23,0},
 		off={39,40,39,0,-20,0,1,1,1,0,10,0},
 	}
-	--unitCollisionVolume["armplat"] = {
-	--	on={105,66,105,0,33,0,2,1,0,0,45,0},
-	--	off={105,44,105,0,0,0,2,1,0,0,20,0},
-	--}
 	unitCollisionVolume["armsolar"] = {
 		on={83,76,83,0,-18,1,1,1,1},
 		off={50,76,50,0,-18,1,1,1,1},

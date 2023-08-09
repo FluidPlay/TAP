@@ -47,12 +47,6 @@ return {
 		workertime = 140,
 		buildoptions = {
 			[1] = "armsolar",
-			[2] = "armwin",
-			[3] = "armmex",
-			[4] = "armmakr",
-			[5] = "armeyes",
-			[6] = "armmark",
-			[7] = "armaser",
 		},
 		customparams = {
 			techlevel = 2,

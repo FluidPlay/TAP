@@ -46,7 +46,6 @@ return {
 			[3] = "cornecro",
 			[4] = "corstorm",
 			[5] = "corthud",
-			[6] = "corcrash",
 		},
 		customparams = {
 			bar_buildinggrounddecalsizex = 5.85,

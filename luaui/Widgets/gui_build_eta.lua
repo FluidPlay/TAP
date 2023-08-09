@@ -217,10 +217,10 @@ function widget:DrawWorld()
 			local dx, dy, dz = ux-cx, uy-cy, uz-cz
 			local dist = dx*dx + dy*dy + dz*dz
 			if dist < etaMaxDist then 
-				local unitName = UnitDefs[Spring.GetUnitDefID(unitID)].name
-					if unitName == "armomex" or unitName == "coromoex" then
-						bi.yoffset = 25
-					end
+				--local unitName = UnitDefs[Spring.GetUnitDefID(unitID)].name
+					--if unitName == "armomex" or unitName == "coromoex" then
+					--	bi.yoffset = 25
+					--end
 				gl.DrawFuncAtUnit(unitID, false, DrawEtaText, bi.timeLeft,bi.yoffset)
 			end
 		end

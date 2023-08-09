@@ -11,8 +11,8 @@ function gadget:GetInfo()
   }
 end
 
-local FIDOID = UnitDefNames["cormort"].id --UnitDefNames["armfido"].id
-local wDef2 = WeaponDefs[UnitDefs[FIDOID].weapons[1].weaponDef]
+local MORTID = UnitDefNames["cormort"].id
+local wDef2 = WeaponDefs[UnitDefs[MORTID].weapons[1].weaponDef]
 
 local Ranges = {}
 for unitDefID, defs in pairs(UnitDefs) do
@@ -47,7 +47,7 @@ if (gadgetHandler:IsSyncedCode()) then --SYNCED
   end
   
   function gadget:UnitCreated(unitID, unitDefID)
-	if unitDefID == FIDOID then
+	if unitDefID == MORTID then
 		Spring.SetUnitWeaponState(unitID, 1, "range", hplasmarange)
 		Spring.SetUnitMaxRange(unitID, hplasmarange)
 		return
@@ -59,7 +59,7 @@ if (gadgetHandler:IsSyncedCode()) then --SYNCED
   end
   
   function gadget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdOpts, cmdParams, cmdTag)
-	if unitDefID == FIDOID then
+	if unitDefID == MORTID then
 		if cmdID == CMD.ONOFF then
 			if cmdParams and cmdOpts[1] == 0 then -- DESACTIVATE (GAUSS)
 				Spring.SetUnitWeaponState(unitID, 2, "range", 0)

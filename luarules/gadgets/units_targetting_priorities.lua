@@ -55,7 +55,6 @@ if gadgetHandler:IsSyncedCode() then
 		armliche = "Bombers",
 		armpnix = "Bombers",
 		corstil = "Bombers",
-		armcsa = "Bombers",
 		armsaber = "Bombers",
 		armsb = "Bombers",
 		armseap = "Bombers",
