@@ -392,10 +392,10 @@ function widget:Initialize()
 	mexIds[UnitDefNames['cormex'].id] = UnitDefNames['cormex'].id 
 	mexIds[UnitDefNames['armmoho'].id] = UnitDefNames['armmoho'].id 
 	mexIds[UnitDefNames['cormoho'].id] = UnitDefNames['cormoho'].id 		
-	mexIds[UnitDefNames['armuwmex'].id] = UnitDefNames['armuwmex'].id 
-	mexIds[UnitDefNames['coruwmex'].id] = UnitDefNames['coruwmex'].id 
-	mexIds[UnitDefNames['armuwmme'].id] = UnitDefNames['armuwmme'].id 
-	mexIds[UnitDefNames['coruwmme'].id] = UnitDefNames['coruwmme'].id 
+	--mexIds[UnitDefNames['armuwmex'].id] = UnitDefNames['armuwmex'].id
+	--mexIds[UnitDefNames['coruwmex'].id] = UnitDefNames['coruwmex'].id
+	--mexIds[UnitDefNames['armuwmme'].id] = UnitDefNames['armuwmme'].id
+	--mexIds[UnitDefNames['coruwmme'].id] = UnitDefNames['coruwmme'].id
 	local units = spGetTeamUnits(spGetMyTeamID())
 	for i, id in ipairs(units) do 
 		widget:UnitCreated(id, spGetUnitDefID(id))

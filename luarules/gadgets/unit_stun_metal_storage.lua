@@ -26,12 +26,12 @@ end
 local storageDefs = {
   --Arm 
   [ UnitDefNames['armmstor'].id ] = true,
-  [ UnitDefNames['armuwms'].id ] = true,
+  --[ UnitDefNames['armuwms'].id ] = true,
   [ UnitDefNames['armuwadvms'].id ] = true,
 
   ---Core 
   [ UnitDefNames['cormstor'].id ] = true,
-  [ UnitDefNames['coruwms'].id ] = true,
+  --[ UnitDefNames['coruwms'].id ] = true,
   [ UnitDefNames['coruwadvms'].id ] = true,
  }
 

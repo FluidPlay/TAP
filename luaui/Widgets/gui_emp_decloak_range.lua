@@ -70,7 +70,7 @@ local armSpy = UnitDefNames["armspy"]
 local armGremlin = UnitDefNames["corst"]
 
 local coreMandoId = corMando.id
-local armSpyId = armSpy.id
+--local armSpyId = armSpy.id
 local armGremlinId = armGremlin.id
 
 local units = {}
@@ -91,7 +91,7 @@ function processGremlin(unitID)
 end
 
 function isSpy(unitDefID)
-    if unitDefID == coreMandoId or armSpyId == unitDefID then
+    if unitDefID == coreMandoId then  --or armSpyId == unitDefID then
         return true
     end
     return false

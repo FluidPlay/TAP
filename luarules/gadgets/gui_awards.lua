@@ -47,10 +47,10 @@ local econUnitDefIDs = { --better to hardcode these since its complicated to pic
     UnitDefNames.armuber.id,
     UnitDefNames.coruber.id,
 	--sea Adv.
-	UnitDefNames.armuwfus.id,
-	UnitDefNames.coruwfus.id,
-	UnitDefNames.armuwmmm.id,
-	UnitDefNames.coruwmmm.id,
+	--UnitDefNames.armuwfus.id,
+	--UnitDefNames.coruwfus.id,
+	--UnitDefNames.armuwmmm.id,
+	--UnitDefNames.coruwmmm.id,
 }
 
 function gadget:Initialize()

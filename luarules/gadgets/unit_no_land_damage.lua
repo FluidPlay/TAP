@@ -23,8 +23,8 @@ end
 local GetUnitBasePosition = Spring.GetUnitBasePosition
 
 local NO_LAND_DAMAGE = {
-  [WeaponDefNames['armlance_armair_torpedo'].id] = true,
-  [WeaponDefNames['cortitan_armair_torpedo'].id] = true,
+  --[WeaponDefNames['armlance_armair_torpedo'].id] = true,
+  --[WeaponDefNames['cortitan_armair_torpedo'].id] = true,
   --[WeaponDefNames['armseap_armseap_weapon1'].id] = true,
   --[WeaponDefNames['corseap_armseap_weapon1'].id] = true,
 }

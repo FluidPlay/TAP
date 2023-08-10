@@ -26,7 +26,7 @@ if gadgetHandler:IsSyncedCode() then
 local tokillUnits = {
     [UnitDefNames.armmine1.id] = true,
     [UnitDefNames.armmine3.id] = true,
-    [UnitDefNames.cormine3.id] = true,
+    [UnitDefNames.cormine4.id] = true,
     --[UnitDefNames.armarad.id] = true,
     --[UnitDefNames.armason.id] = true,
     --[UnitDefNames.armeyes.id] = true,

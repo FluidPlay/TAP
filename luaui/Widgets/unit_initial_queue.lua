@@ -80,8 +80,8 @@ local COROUTPOST = UnitDefNames["coroutpost"].id
 
 local ARMMEX = UnitDefNames["armmex"].id
 local CORMEX = UnitDefNames["cormex"].id
-local ARMUWMEX = UnitDefNames["armuwmex"].id
-local CORUWMEX = UnitDefNames["coruwmex"].id
+--local ARMUWMEX = UnitDefNames["armuwmex"].id
+--local CORUWMEX = UnitDefNames["coruwmex"].id
 
 local ARMSOLAR = UnitDefNames["armsolar"].id
 local CORSOLAR = UnitDefNames["corsolar"].id
@@ -145,7 +145,7 @@ local CORPTL = UnitDefNames["corptl"].id
 local armToCore = {}
 
 armToCore[ARMMEX] = CORMEX
-armToCore[ARMUWMEX] = CORUWMEX
+--armToCore[ARMUWMEX] = CORUWMEX
 armToCore[ARMSOLAR] = CORSOLAR
 armToCore[ARMWIN] = CORWIN
 armToCore[ARMTIDE] = CORTIDE
@@ -989,12 +989,12 @@ local VKEY = 118
 
 function widget:KeyPress(key,mods,isrepeat)
 	if sDef == UnitDefs[ARMCOM] then
-		if key == ZKEY then
-			if 		selDefID == ARMMEX then 	SetSelDefID(ARMUWMEX)
-			elseif 	selDefID == ARMUWMEX then	SetSelDefID(ARMMEX)
-			else								SetSelDefID(ARMMEX)
-			end		
-		elseif key == XKEY then
+		--if key == ZKEY then
+		--	if 		selDefID == ARMMEX then 	SetSelDefID(ARMUWMEX)
+		--	elseif 	selDefID == ARMUWMEX then	SetSelDefID(ARMMEX)
+		--	else								SetSelDefID(ARMMEX)
+		--	end
+		if key == XKEY then
 			if 		selDefID == ARMSOLAR then	SetSelDefID(ARMWIN)
 			elseif 	selDefID == ARMWIN then		SetSelDefID(ARMTIDE)
 			elseif 	selDefID == ARMTIDE then	SetSelDefID(ARMSOLAR)
@@ -1019,12 +1019,12 @@ function widget:KeyPress(key,mods,isrepeat)
 			--end
 		end	
 	elseif sDef == UnitDefs[CORCOM] then
-		if key == ZKEY then
-			if 		selDefID == CORMEX then 	SetSelDefID(CORUWMEX)
-			elseif 	selDefID == CORUWMEX then	SetSelDefID(CORMEX)
-			else								SetSelDefID(CORMEX)
-			end		
-		elseif key == XKEY then
+		--if key == ZKEY then
+		--	if 		selDefID == CORMEX then 	SetSelDefID(CORUWMEX)
+		--	elseif 	selDefID == CORUWMEX then	SetSelDefID(CORMEX)
+		--	else								SetSelDefID(CORMEX)
+		--	end
+		if key == XKEY then
 			if 		selDefID == CORSOLAR then	SetSelDefID(CORWIN)
 			elseif 	selDefID == CORWIN then		SetSelDefID(CORTIDE)
 			elseif 	selDefID == CORTIDE then	SetSelDefID(CORSOLAR)

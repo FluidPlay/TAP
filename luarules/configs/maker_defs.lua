@@ -9,8 +9,8 @@ local convertCapacities = {
     [UnitDefNames.cormakr.id]  = { c = (187.5), e = (AC0) },
     [UnitDefNames.armmmkr.id]  = { c = (2000), e = (AC2) }, --c=600
     [UnitDefNames.cormmkr.id]  = { c = (2000), e = (AC2) },
-    [UnitDefNames.armuwmmm.id] = { c = (2000), e = (AC2) },
-    [UnitDefNames.coruwmmm.id] = { c = (2000), e = (AC2) },
+    --[UnitDefNames.armuwmmm.id] = { c = (2000), e = (AC2) },
+    --[UnitDefNames.coruwmmm.id] = { c = (2000), e = (AC2) },
 }
 
 return convertCapacities

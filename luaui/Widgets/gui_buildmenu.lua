@@ -207,7 +207,7 @@ end
 local armToCor = {
     [UnitDefNames["armoutpost"].id] = UnitDefNames["coroutpost"].id,
 	[UnitDefNames["armmex"].id] = UnitDefNames["cormex"].id,
-	[UnitDefNames["armuwmex"].id] = UnitDefNames["coruwmex"].id,
+	--[UnitDefNames["armuwmex"].id] = UnitDefNames["coruwmex"].id,
 	[UnitDefNames["armsolar"].id] = UnitDefNames["corsolar"].id,
 	[UnitDefNames["armwin"].id] = UnitDefNames["corwin"].id,
 	[UnitDefNames["armtide"].id] = UnitDefNames["cortide"].id,

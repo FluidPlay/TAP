@@ -99,17 +99,17 @@ if gadgetHandler:IsSyncedCode() then
                   ["moho"] = {id = UnitDefNames["oremoho"].id},
                   ["uber"] = {id = UnitDefNames["oreuber"].id} }
     local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.125 },
-                        [UnitDefNames["armuwmex"].id] = { kind = "sml", multiplier = 1.125 },
+                        --[UnitDefNames["armuwmex"].id] = { kind = "sml", multiplier = 1.125 },
                         [UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.2 },
                         [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25 },
-                        [UnitDefNames["armuwmme"].id] = { kind = "moho", multiplier = 1.25 },
+                        --[UnitDefNames["armuwmme"].id] = { kind = "moho", multiplier = 1.25 },
                         [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3 },
 
                         [UnitDefNames["cormex"].id] = { kind = "sml", multiplier = 1.125 },
-                        [UnitDefNames["coruwmex"].id] = { kind = "sml", multiplier = 1.125 },
+                        --[UnitDefNames["coruwmex"].id] = { kind = "sml", multiplier = 1.125 },
                         [UnitDefNames["corexp"].id] = { kind = "lrg", multiplier = 1.2 },
                         [UnitDefNames["cormoho"].id] = { kind = "moho", multiplier = 1.25 },
-                        [UnitDefNames["coruwmme"].id] = { kind = "moho", multiplier = 1.25 },
+                        --[UnitDefNames["coruwmme"].id] = { kind = "moho", multiplier = 1.25 },
                         [UnitDefNames["coruber"].id] = { kind = "uber", multiplier = 1.3 },
     }
 

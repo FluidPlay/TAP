@@ -48,8 +48,8 @@ local AirTrans = {
   [UnitDefNames["armdfly"].id] = true,
 }
 local Nanos = {
-	[UnitDefNames["cornanotc"].id] = true,
-	[UnitDefNames["armnanotc"].id] = true,
+	--[UnitDefNames["cornanotc"].id] = true,
+	--[UnitDefNames["armnanotc"].id] = true,
 }
 
 local watchList = {}

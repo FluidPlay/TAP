@@ -27,11 +27,11 @@ local storageDefs = {
   --Arm 
   [ UnitDefNames['armestor'].id ] = true,
   [ UnitDefNames['armuwadves'].id ] = true,
-  [ UnitDefNames['armuwes'].id ] = true,
+  --[ UnitDefNames['armuwes'].id ] = true,
   --Core 
   [ UnitDefNames['corestor'].id ] = true,
   [ UnitDefNames['coruwadves'].id ] = true,
-  [ UnitDefNames['coruwes'].id ] = true,
+  --[ UnitDefNames['coruwes'].id ] = true,
  }
 
 local storageunits = {}

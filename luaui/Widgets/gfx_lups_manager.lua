@@ -132,12 +132,12 @@ local UnitEffects = {}
       [UnitDefNames["corfink"].id] = {
         {class='AirJet',options={color={0.3,0.1,0}, width=3, length=35, piece="thrustb", onActive=true}},
       },
-      [UnitDefNames["cortitan"].id] = {
-        {class='AirJet',options={color={0.3,0.1,0}, width=5, length=59, piece="thrustb", onActive=true, light=1}},
-      },
-      [UnitDefNames["armlance"].id] = {
-       {class='AirJet',options={color={0.1,0.4,0.6}, width=5, length=59, piece="thrust", onActive=true, light=1}},
-      },
+      --[UnitDefNames["cortitan"].id] = {
+      --  {class='AirJet',options={color={0.3,0.1,0}, width=5, length=59, piece="thrustb", onActive=true, light=1}},
+      --},
+      --[UnitDefNames["armlance"].id] = {
+      -- {class='AirJet',options={color={0.1,0.4,0.6}, width=5, length=59, piece="thrust", onActive=true, light=1}},
+      --},
       [UnitDefNames["corveng"].id] = {
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta1", onActive=true}},
         {class='AirJet',options={color={0.3,0.1,0}, width=3.4, length=40, piece="thrusta2", onActive=true}},

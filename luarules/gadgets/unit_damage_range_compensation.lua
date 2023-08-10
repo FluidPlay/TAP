@@ -45,7 +45,7 @@ local excluded = {
     [UnitDefNames.corshad.id] = true,
     [UnitDefNames.armpnix.id] = true,
     [UnitDefNames.corhurc.id] = true,
-    [UnitDefNames.cortitan.id] = true,
+    --[UnitDefNames.cortitan.id] = true,
     [UnitDefNames.corstil.id] = true,
     [UnitDefNames.armliche.id] = true,
     -- Long range stuff
