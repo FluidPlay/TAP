@@ -27,7 +27,7 @@ return {
 		movementclass = "KBOT2",
 		name = "Peewee",
 		nochasecategory = "VTOL",
-		objectname = "Units/Bow/ARMPW",
+		objectname = "Units/Bow/ARMPW.s3o",
 		seismicsignature = 0,
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 429,
