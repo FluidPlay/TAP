@@ -151,15 +151,22 @@ local CMD_INSERT = CMD.INSERT
 local CMD_OPT_RIGHT = CMD.OPT_RIGHT
 local CMD_WAIT = CMD.WAIT
 
+--local CMD_MORPH_UPGRADE_INTERNAL = 31207
+local CMD_MORPH = 31410
+local CMD_MORPH_STOP = 32410
+local CMD_MORPH_PAUSE = 33410
+local CMD_MORPH_QUEUE = 34410
+
+
 local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
 ----- Type Tables
 local canreclaim = {
     armcom = true, armcom1 = true, armcom2 = true, armcom3 = true, armcom4 = true,
     corcom = true, corcom1 = true, corcom2 = true, corcom3 = true, corcom4 = true,
-    armfark = true, cormuskrat = true, armconsul = true, corfast = true,
+    armfark = true, cormuskrat = true, armconsul = true, bowscrow = true,
     armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
-    armck2 = true,
+    armck2 = true, corck2 = true,
     armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
     armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
@@ -169,9 +176,9 @@ local canreclaim = {
 local canrepair = {
     armcom = true, armcom1 = true, armcom2 = true, armcom3 = true, armcom4 = true,
     corcom = true, corcom1 = true, corcom2 = true, corcom3 = true, corcom4 = true,
-    armfark = true, cormuskrat = true, armconsul = true, corfast = true,
+    armfark = true, cormuskrat = true, armconsul = true, bowscrow = true,
     armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
-    armck2 = true,
+    armck2 = true, corck2 = true,
     armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
     armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
@@ -182,7 +189,7 @@ local canrepair = {
 local canassist = {
     armcom = true, armcom1 = true, armcom2 = true, armcom3 = true, armcom4 = true,
     corcom = true, corcom1 = true, corcom2 = true, corcom3 = true, corcom4 = true,
-    armfark = true, cormuskrat = true, armconsul = true, corfast = true,
+    armfark = true, cormuskrat = true, armconsul = true, bowscrow = true,
     armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
     armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
     coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,
@@ -887,28 +894,40 @@ function widget:CommandNotify(cmdID, params, options)
     -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     if cmdID == CMD_WAIT then   -- prevents wait-state changes from inadvertently exiting wait status
         return end              -- awaitedUnits is set below, in widget:UnitCommand
+    -- Ignore all morph commands (TODO: Add upgrades here too)
+    local morphCmd
+    if (cmdID > 31500 and cmdID < 31690)  or cmdID == CMD_MORPH_STOP or cmdID == CMD_MORPH_PAUSE or cmdID == CMD_MORPH_QUEUE then
+        --Spring.Echo("Morph Command detected!")
+        morphCmd = true
+        return end
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
     for _, unitID in ipairs(selUnits) do
-        if unitTarget[unitID] and IsValidUnit(unitID) then
-            --Spring.Echo("Valid automatable unit got a user command "..unitID)
-            if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
-                --spEcho("CMD_ATTACK, params #: "..#params)
-                if #params == 1 then -- and isOreChunk(params[1]) then
-                    unitTarget[unitID] = params[1]    -- set Target
+        if morphCmd then
+            --local x,y,z = spGetUnitPosition(unitID)
+            --spGiveOrderToUnit(unitID, CMD_MOVE, {x+20, y, z+20}, { "" })
+            setAutomateState(unitID, "idle", "UnitCommandNotify")
+        else
+            if unitTarget[unitID] and IsValidUnit(unitID) then
+                --Spring.Echo("Valid automatable unit got a user command "..unitID)
+                if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
+                    --spEcho("CMD_ATTACK, params #: "..#params)
+                    if #params == 1 then -- and isOreChunk(params[1]) then
+                        unitTarget[unitID] = params[1]    -- set Target
+                    end
                 end
-            end
-            --- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
-            if automatedState[unitID] ~= "commanded" then
+                --- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
+                if automatedState[unitID] ~= "commanded" then
                     --and (cmdID == CMD_MOVE or cmdID == CMD_REPAIR or cmdID == CMD_RECLAIM) then
-                --Spring.Echo("Valid automatable unit got a move command "..unitID)
-                ---We do this to check if remove commands should be issued or not, down the pipe
-                if cmdID and cmdID < 0 then
-                    --unitIdleEvent[unitID] = nil
-                    --unitsToAutomate[unitID] = nil
-                    removeCommands(unitID)
-                    setAutomateState(unitID, "commanded", "UnitCommandBuild")
-                else
-                    setAutomateState(unitID, "commanded", "UnitCommand")
+                    --Spring.Echo("Valid automatable unit got a move command "..unitID)
+                    ---We do this to check if remove commands should be issued or not, down the pipe
+                    if cmdID and cmdID < 0 then
+                        --unitIdleEvent[unitID] = nil
+                        --unitsToAutomate[unitID] = nil
+                        removeCommands(unitID)
+                        setAutomateState(unitID, "commanded", "UnitCommandBuild")
+                    else
+                        setAutomateState(unitID, "commanded", "UnitCommand")
+                    end
                 end
             end
             --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))

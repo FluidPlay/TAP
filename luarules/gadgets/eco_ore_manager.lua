@@ -37,8 +37,8 @@ if gadgetHandler:IsSyncedCode() then
     local gaiaTeamID = Spring.GetGaiaTeamID()
     --local sprawlChance = 0.2
     local deadZone = 30
-    local startOreKind = "lrg"  -- the initial ore chunks on the map
-    local baseOreKind = "sml"   -- base ore type to be spawned in each global spawning, when no sprawler assigned to the spot
+    local startOreKind = "sml"  -- the initial ore chunks on the map (was: lrg)
+    --local baseOreKind = "sml"   -- base ore type to be spawned in each global spawning, when no sprawler assigned to the spot
     --local sprawlerMult = { ["sml"]=1.25, ["lrg"]=1.5, ["moho"]=2, ["uber"]=4 }
 
     local maxIter = 50 -- it'll quit trying to recurse (find an appropriate spot) after 50 attempts

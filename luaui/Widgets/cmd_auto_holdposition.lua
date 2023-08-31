@@ -58,7 +58,7 @@ local initialized = false
 --  "corcom",  "corcom2",  "corcom3",  "corcom4",
 --}
 local exceptionArray = {
-  armfark = true, cormuskrat = true, corfast = true, armconsul = true,
+  armfark = true, cormuskrat = true, bowscrow = true, armconsul = true,
   corcom = true,  corcom2=true,  corcom3=true,  corcom4=true,
   armoutpost = true, armoutpost2 = true, armoutpost3 = true, armoutpost4 = true,
   coroutpost = true, coroutpost2 = true, coroutpost3 = true, coroutpost4 = true,

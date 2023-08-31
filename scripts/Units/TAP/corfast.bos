@@ -753,7 +753,7 @@ UnitSpeed()
 {
 	while(TRUE)
 	{
-		currentSpeed = (get CURRENT_SPEED)*100/moveSpeed;
+		currentSpeed = (get CURRENT_SPEED)*100/(moveSpeed*2);
 		if (currentSpeed<20) currentSpeed=20;
 		sleep 142;
 	}
@@ -795,8 +795,12 @@ Create()
 	building = 0;
 	statechg_DesiredState = TRUE;
 	statechg_StateChanging = FALSE;
-	moveSpeed = get MAX_SPEED;
+	moveSpeed = 1; //get MAX_SPEED;
 	currentSpeed = 100;
+	turn LUArm to x-axis <8.000000> now;	
+	turn LLArm to x-axis <-15.000000> now;	
+	turn RUArm to x-axis <8.000000> now;	
+	turn RLArm to x-axis <-15.000000> now;
 	start-script SmokeUnit();
 }
 
@@ -805,8 +809,10 @@ StartBuilding(heading, pitch)
 	signal SIG_BUILD;
 	building = 1;	
 	turn torso to y-axis heading speed <250.000000>;
+	turn LUArm to x-axis <30> speed <200.000000>;	
 	turn LLArm to x-axis <-90> speed <150.000000>;
 	wait-for-turn torso around y-axis;
+	wait-for-turn LUArm around x-axis;	
 	wait-for-turn LLArm around x-axis;
 	set INBUILDSTANCE to 1;
 }
@@ -821,9 +827,15 @@ StopBuilding()
 	set INBUILDSTANCE to 0;
 	building = 0;	
 	turn torso to y-axis <0.000000> speed <250.000000>;
-	turn LLArm to x-axis <0.000000> speed <150.000000>;
+	turn LUArm to x-axis <8.000000> speed <200.000000>;	
+	turn LLArm to x-axis <-15.000000> speed <150.000000>;
+	turn RUArm to x-axis <8.000000> speed <200.000000>;		
+	turn RLArm to x-axis <-15.000000> speed <150.000000>;
 	wait-for-turn torso around y-axis;
+	wait-for-turn LUArm around x-axis;	
 	wait-for-turn LLArm around x-axis;
+	wait-for-turn RUArm around x-axis;	
+	wait-for-turn RLArm around x-axis;	
 }
 
 StartMoving()

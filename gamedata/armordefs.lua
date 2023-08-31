@@ -14,7 +14,7 @@ local armorDefs = {
 	superunit={"corkrog","armbanth", "armraz","corkarg","corthovr","meteor",},
 
 	--++++==== Vehicles
-	vehicle = {		"armflash", "armyork", "corsent", "cormuskrat", "cormls", "armacv", "armcv", "armmls", "coracv", "corfast",
+	vehicle = {		"armflash", "armyork", "corsent", "cormuskrat", "cormls", "armacv", "armcv", "armmls", "coracv", "bowscrow",
 					   "critter_ant", "critter_duck", "critter_goldfish", "critter_gull", "critter_penguin", "corcv", "corgator",
 					   "armlatnk","armfav","armsh","armspy","coresupp","corst",
 					   "corlevlr","corsh","decade","marauder","nsaclash","armmart","armsam", "cormist",

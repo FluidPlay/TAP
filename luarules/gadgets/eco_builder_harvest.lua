@@ -65,7 +65,7 @@ if gadgetHandler:IsSyncedCode() then
 		kernhq = true, kernhq2 = true, kernhq3 = true, kernhq4 = true, kernhq5 = true, kernhq6 = true,
 	}
 	local canharvest = {
-		armck = true, corck = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
+		armck = true, corck = true, armck2 = true, corck2 = true, armcv = true, corcv = true, armca = true, corca = true, armcs = true, corcs = true,
 		armack = true, corack = true, armacv = true, coracv = true, armaca = true, coraca = true, armacsub = true, coracsub = true,
 	}
 

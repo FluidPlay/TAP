@@ -26,6 +26,8 @@ local weaponDamageTypes = {
 
     armck = { ["Harvester"] = "harvest", },
     corck = { ["Harvester"] = "harvest", },
+	armck2 = { ["Harvester"] = "harvest", },
+	corck2 = { ["Harvester"] = "harvest", },
     armcv = { ["Harvester"] = "harvest", },
     corcv = { ["Harvester"] = "harvest", },
     armack = { ["Harvester"] = "harvest", },
