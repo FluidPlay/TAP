@@ -161,7 +161,7 @@ local weaponDamageTypes = {
 	armsam = { ["Missiles"] = "pierce", ["AAMissiles"] = "pierce", ["firerain"] = "thermo", },
 	armcir = { ["ExplosiveRockets"] = "pierce", ["ExplosiveRocketsAA"] = "pierce", },
 	corhrk = { ["HeavyFlak"] = "flak", },
-	armfast = { ["ThermoBurst"] = "thermo", },
+	kernfry = { ["ThermoBurst"] = "laser", },	--thermo
 	armdecade = { ["flash"] = "pierce", },
 	armliche = { ["PlasmaImplosionDumpRocket"] = "thermo", },
 	corbow = { ["FlakCannon"] = "flak", ["AA2Missile"] = "pierce", ["FlakAACannon"] = "flak", },

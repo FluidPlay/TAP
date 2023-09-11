@@ -887,16 +887,13 @@ function widget:UnitTaken(unitID, unitDefID, oldTeamID, teamID)
     widget:UnitDestroyed(unitID, unitDefID, oldTeamID)
 end
 
+local MAX_MORPH = 1024
 
 function widget:CommandNotify(cmdID, params, options)
-    --Spring.Echo("\nCommandID registered: "..(cmdID or "nil"))
-    --TODO: If guarding, interrupt what's doing, otherwise don't
-    -- User commands are tracked here, check what unit(s) is/are selected and remove it from automatedUnits
     if cmdID == CMD_WAIT then   -- prevents wait-state changes from inadvertently exiting wait status
         return end              -- awaitedUnits is set below, in widget:UnitCommand
-    -- Ignore all morph commands (TODO: Add upgrades here too)
     local morphCmd
-    if (cmdID > 31500 and cmdID < 31690)  or cmdID == CMD_MORPH_STOP or cmdID == CMD_MORPH_PAUSE or cmdID == CMD_MORPH_QUEUE then
+    if (cmdID > 31410 and cmdID < 31410+MAX_MORPH)  or cmdID == CMD_MORPH_STOP or cmdID == CMD_MORPH_PAUSE or cmdID == CMD_MORPH_QUEUE then
         --Spring.Echo("Morph Command detected!")
         morphCmd = true
         return end

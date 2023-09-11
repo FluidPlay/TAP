@@ -1126,7 +1126,7 @@ UnitSpeed()
 {
 	while(TRUE)
 	{
-		currentSpeed = (get CURRENT_SPEED)*100/moveSpeed;
+		currentSpeed = (get CURRENT_SPEED)*300/moveSpeed; // (get CURRENT_SPEED)*100/moveSpeed)
 		if (currentSpeed<20) currentSpeed=20;
 		sleep 142;
 	}
@@ -1181,7 +1181,7 @@ Create()
 	statechg_DesiredState = TRUE;
 	statechg_StateChanging = FALSE;
 	moveSpeed = get MAX_SPEED;
-	currentSpeed = 100;
+	currentSpeed = moveSpeed; //100
 	start-script SmokeUnit();
 }
 

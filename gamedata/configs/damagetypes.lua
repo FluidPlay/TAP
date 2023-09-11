@@ -15,7 +15,7 @@ local damageTypes = {
 
 	rocket={"armfig","armpship","corpship","armlance","armmerl","armsb","corcrw","cortitan","armseap","corape","corvipe","armtl","corptl","cortl","armpb","corerad","corcat","armrock","coraak","armaak","corstorm","armbanth","corbuzz","armmship","cormship","armptl","armaas","corbow","armsptk","corfrt","packo","armsub","corssub","tawf009","corah","armfrt",},
 
-	laser={"armfast","armwar","armsubk","corshark","corak","corgator",},
+	laser={"kernfry","armwar","armsubk","corshark","corak","corgator",},
 
 	hflaser={"armllt","corllt","armhlt","corhlt","corexp","corhllt","armfhlt",},
 

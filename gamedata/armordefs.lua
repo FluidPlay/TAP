@@ -1,12 +1,12 @@
 local armorDefs = {
 	robot = { "armack","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
-			  "corck","cornecro","corspy","corsub","armfast", "corsktl", "corpyro",
+			  "corck","cornecro","corspy","corsub","corsktl", "corpyro",
 			  "armaak","armsptk","armrock","coraak","corah",
 			  "corstorm","cortermite", "cordefiler","armsnipe", },
 	armorbot={"armmark", "armzeus", "corsumo","armfboy","armham","armvader","armwar","corcan","corthud",
-			  "cormando","armmav","armspid","cormort","corhrk",},
+			  "cormando","armmav","kernfry", "armspid","cormort","corhrk",},
 	--lightbot={"armack","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
-	--          "corck","cornecro","corspy","corsub","armfast", "corsktl", "corpyro",},
+	--          "corck","cornecro","corspy","corsub","kernfry", "corsktl", "corpyro",},
 	--supportbot={"armaak","armsptk","armrock","coraak","corhrk","corah",
 	--		"cormort","corstorm","cortermite", "cordefiler","armsnipe", },
 	--heavybot={"armmark", "armzeus", "corsumo","armfboy","armham","armvader","armwar","corcan","corroach","corthud",
@@ -68,6 +68,7 @@ local armorDefs = {
 			   "armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad",
 			   "corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
 			   "armkamturret", "corbwturret",
+			   "kernhq_rt", "kernhq_lt", "kernhq_mt", "kernhq_ct",
 	},
 	--defense={"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfmd","corgate","corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
 	--
@@ -110,7 +111,6 @@ local armorDefs = {
 	},
 
 	ore = { "orelrg", "oreuber", "oremoho", "oresml",
-			"kernhq_rt", "kernhq_lt", "kernhq_mt", "kernhq_ct", 	-- I know, that's a hack. We don't want them target-able.
 	},
 
 	["else"] = {},

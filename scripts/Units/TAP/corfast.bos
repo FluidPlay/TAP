@@ -795,7 +795,7 @@ Create()
 	building = 0;
 	statechg_DesiredState = TRUE;
 	statechg_StateChanging = FALSE;
-	moveSpeed = 1; //get MAX_SPEED;
+	moveSpeed = MAX_SPEED; //1
 	currentSpeed = 100;
 	turn LUArm to x-axis <8.000000> now;	
 	turn LLArm to x-axis <-15.000000> now;	

@@ -21,7 +21,7 @@ local SetUnitMaxRange = Spring.SetUnitMaxRange
 local GetUnitDefID = Spring.GetUnitDefID
 
 local maverickUnitDefID = UnitDefNames["armmav"].id
-local maverickOriginalRange = WeaponDefNames["armmav_armmav_weapon"].range
+local maverickOriginalRange = WeaponDefNames["armmav_buckshot"].range
 
 local updateList = {}
 

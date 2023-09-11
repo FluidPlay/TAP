@@ -174,7 +174,7 @@ function widget:DrawWorld()
 				glTexture('LuaUI/Images/bow.png') --arm.png
 				glBeginEnd(GL_QUADS, QuadVerts, tsx, spGetGroundHeight(tsx, tsz), tsz, 80)
 			else
-				glTexture('LuaUI/Images/kern.png') --kern.png
+				glTexture('LuaUI/Images/kern.png') --core.png
 				glBeginEnd(GL_QUADS, QuadVerts, tsx, spGetGroundHeight(tsx, tsz), tsz, 64)
 			end
 		end

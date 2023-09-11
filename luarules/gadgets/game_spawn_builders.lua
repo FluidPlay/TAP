@@ -115,13 +115,17 @@ if gadgetHandler:IsSyncedCode() then
             daemonID = bowdaemonid
         end
 
-        spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
-        spawnBuilder(builderID, x+40, y, z+100, teamID, unitDef)
-        spawnBuilder(builderID, x-40, y, z-100, teamID, unitDef)
-        spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
+        --spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
+        --spawnBuilder(builderID, x+40, y, z+100, teamID, unitDef)
+        --spawnBuilder(builderID, x-40, y, z-100, teamID, unitDef)
+        --spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
 
-        spCreateUnit(commanderID, x, y, z-50, 0, teamID)
-        spCreateUnit(daemonID, x, y, z+50, 0, teamID)
+        --spCreateUnit(commanderID, x, y, z-50, 0, teamID)
+        --spCreateUnit(daemonID, x, y, z+50, 0, teamID)
+        spCreateUnit(commanderID, x-40, y, z-100, 0, teamID)
+        spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
+        spCreateUnit(daemonID, x+40, y, z+100, 0, teamID)
+        spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
 
         local piecemap = Spring.GetUnitPieceMap(unitID)
         local pieceID = piecemap["plugBL"]
