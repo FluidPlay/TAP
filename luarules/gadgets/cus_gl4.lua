@@ -268,12 +268,12 @@ do --save a ton of locals
 		armunit = {
 			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.5,
+			brightnessFactor = 1.0,  --1.5
 		},
 		corunit = {
 			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.0,
+			brightnessFactor = 0.9,		--1.0
 		},
 		--armscavenger = {
 		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
@@ -293,7 +293,7 @@ do --save a ton of locals
 		otherunit = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.5,
+			brightnessFactor = 1.0, --5,
 		},
 		feature = {
 			bitOptions = defaultBitShaderOptions + OPTION_PBROVERRIDE,
@@ -303,24 +303,24 @@ do --save a ton of locals
 		featurepbr = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.3,
+			brightnessFactor = 1.1, --1.3,
 		},
 		treepbr = {
 			bitOptions = defaultBitShaderOptions + OPTION_TREEWIND + OPTION_PBROVERRIDE,
 			baseVertexDisplacement = 0.0,
 			hasAlphaShadows = 1.0,
-			brightnessFactor = 1.3,
+			brightnessFactor = 1.1, --1.3,
 		},
 		tree = {
 			bitOptions = defaultBitShaderOptions + OPTION_TREEWIND + OPTION_PBROVERRIDE,
 			baseVertexDisplacement = 0.0,
 			hasAlphaShadows = 1.0,
-			brightnessFactor = 1.3,
+			brightnessFactor = 1.1, --1.3,
 		},
 		wreck = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.3,
+			brightnessFactor = 1.0, --1.3,
 		},
 	} -- maps uniformbins to a table of uniform names/values
 end
