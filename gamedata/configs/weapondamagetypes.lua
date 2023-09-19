@@ -48,7 +48,7 @@ local weaponDamageTypes = {
 	armmercury = { ["ADVSAM"] = "plasma", },
 	armthund = { ["Bombs"] = "explosion", },
 	corcrw = { ["HighEnergyLaser"] = "pierce", ["PlasmaBeam"] = "plasma", },
-	armfig = { ["GuidedMissiles"] = "pierce", ["AAlaser"] = "laser",},
+	armfig = { ["GuidedMissiles"] = "pierce", ["AARifle"] = "bullet",},
 	armllt = { ["LightLaser"] = "laser", },
 	corssub = { ["advTorpedo"] = "pierce", },
 	corhurc = { ["AdvancedBombs"] = "omni", },
