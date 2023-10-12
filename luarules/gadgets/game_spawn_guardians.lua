@@ -42,13 +42,13 @@ local guardian = { sml = {id = UnitDefNames["guardsml"].id},   --TODO: add minSp
 --local guardianUnitDefId = UnitDefNames["guardsml"].id -- guardian.sml.id
 
 local spawnType = { [1] = "sml",    -- 0 mins
-                    [1] = "sml",    -- 4 mins
-                    [2] = "sml",    -- 8 mins
-                    [3] = "med",    -- 12 mins
-                    [4] = "med",    -- 16 mins
-                    [5] = "lrg",    -- 20 mins
-                    [6] = "lrg",    -- 24 mins
-                    [7] = "uber",   -- 28 mins
+                    [2] = "sml",    -- 4 mins
+                    [3] = "sml",    -- 8 mins
+                    [4] = "med",    -- 12 mins
+                    [5] = "med",    -- 16 mins
+                    [6] = "lrg",    -- 20 mins
+                    [7] = "lrg",    -- 24 mins
+                    [8] = "uber",   -- 28 mins
 }
 
 local currentIter = 1   -- This will be increased by 1 every spawn
@@ -59,7 +59,7 @@ local teamStartPos = {}    -- { [teamID] = { x=x, y=y, z=z }, ... }
 local minGuardianDistance = 50    -- This prevents duplicated objects
 local minStartposDistance = 600   -- Prevents guardians from being spawned near start Positions
 
---local updateRate = 30*10        -- test: 10s ; Guardian spawning frequency (every 4 minutes)
+--local updateRate = 30*60        -- test: 10s ; Guardian spawning frequency (every 4 minutes)
 local updateRate = 30*60*4        -- Guardian spawning frequency (every 4 minutes)
 
 local cmdFly = 145
@@ -87,6 +87,17 @@ local function guardianNearby(x, y, z)
     if x == nil or y == nil or z == nil then
         return false end
     for _, pos in pairs(guardians) do
+        if distance(pos.x, pos.y, pos.z, x, y, z) < 200 then
+            return true
+        end
+    end
+    return false
+end
+
+local function guardianNearbyInit(x, y, z)
+    if x == nil or y == nil or z == nil then
+        return false end
+    for _, pos in pairs(guardians) do
         if distance(pos.x, pos.y, pos.z, x, y, z) < minGuardianDistance then
             return true
         end
@@ -94,7 +105,7 @@ local function guardianNearby(x, y, z)
     return false
 end
 
-local function spawnGuardian(x, y, z, iter)
+local function spawnGuardian(x, y, z, iter, spotIdx)
     local guardianType = spawnType[iter]
     if not guardianType then
         guardianType = maxLevel end
@@ -102,7 +113,7 @@ local function spawnGuardian(x, y, z, iter)
     local guardianUnitDefId = guardian[guardianType].id
     local unitID = spCreateUnit(guardianUnitDefId, x, y, z, 0, gaiaTeamID)
 
-    guardians[unitID]={ x=x, y=y, z=z}
+    guardians[unitID]={ x=x, y=y, z=z, spotIdx=spotIdx }
 
     --if not oreSpots[spotIdx].chunks then
     --    oreSpots[spotIdx].chunks = {}
@@ -140,7 +151,7 @@ function gadget:GameFrame(frame)
                 isHQ[unitID] = { x=x, y=y, z=z }
             end
         end
-        for _, data in ipairs(oreSpots) do
+        for id, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             local doSpawnHere = true
             for _, hqp in pairs(isHQ) do
@@ -149,8 +160,9 @@ function gadget:GameFrame(frame)
                     break
                 end
             end
-            if doSpawnHere and not guardianNearby(x,y,z) then
-                spawnGuardian(x,y,z, 1) end --, data.spotIdx) end
+            if doSpawnHere and not guardianNearbyInit(x,y,z) then
+                oreSpots[id].allowGuardians = true
+                spawnGuardian(x,y,z, 1, id) end
         end
         initialized = true
     end
@@ -158,25 +170,34 @@ function gadget:GameFrame(frame)
     if not initialized or frame % updateRate > 0.001 then
         return end
     currentIter = currentIter + 1
-    for _, data in ipairs(oreSpots) do
-        local sx, sy, sz = data.x, data.y, data.z   -- spot center's x,y,z
-        local doSpawnHere = true
-        for _, hqp in pairs(isHQ) do
-            if distance(sx, sy, sz, hqp.x, hqp.y, hqp.z) < minStartposDistance then
-                doSpawnHere = false
-                break
+    for id, data in ipairs(oreSpots) do
+        if data.allowGuardians then
+            local sx, sy, sz = data.x, data.y, data.z   -- spot center's x,y,z
+            local doSpawnHere = true
+            for _, hqp in pairs(isHQ) do
+                if distance(sx, sy, sz, hqp.x, hqp.y, hqp.z) < minStartposDistance then
+                    doSpawnHere = false
+                    break
+                end
             end
+            local angle = math.random() * math.pi*2
+            local radius = 40
+            local x = math.cos(angle)*radius
+            local z = math.sin(angle)*radius
+            if doSpawnHere then
+                spawnGuardian(sx+x, sy,sz+z, currentIter, id) end --, data.spotIdx) end
         end
-        local angle = math.random() * math.pi*2
-        local radius = 40
-        local x = math.cos(angle)*radius
-        local z = math.sin(angle)*radius
-        if doSpawnHere then
-            spawnGuardian(sx+x, sy,sz+z, currentIter) end --, data.spotIdx) end
     end
 end
 
 function gadget:UnitDestroyed(unitID)
-    trackedUnits[unitID] = nil
+    if guardians[unitID] then
+        local x,y,z = spGetUnitPosition(unitID)
+        if not guardianNearby(x, y, z) then
+            local id = guardians[unitID].spotIdx
+            oreSpots[id].allowGuardians = nil
+        end
+        guardians[unitID] = nil
+    end
 end
 
