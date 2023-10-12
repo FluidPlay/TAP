@@ -20,7 +20,7 @@ VFS.Include("gamedata/taptools.lua")
 local fsm = { Spring = Spring, type = type, pairs = pairs, gl=gl, VFS=VFS}
 VFS.Include("luaui/widgets/Include/springfsm_debug.lua", fsm)
 
-local unitDefNameToTrack = { pandoreguard = true, }
+local unitDefNameToTrack = { guardsml = true, }
 local trackedUnits = {}
 
 function widget:UnitFinished(unitID, unitDefID, teamID)

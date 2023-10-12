@@ -106,7 +106,7 @@ local armorDefs = {
 		"bowdaemon", "kerndaemon", "bowadvdaemon", "kernadvdaemon",
 	},
 
-	guardian = { "pandoreguard", },
+	guardian = { "guardsml", "guardmed", "guardlrg", "guarduber", },
 
 	shield = {
 		"armflash_shield",

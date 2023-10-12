@@ -41,7 +41,8 @@ local function switchToFlyMode(unitID, unitDefID)
        unitDefID == UnitDefNames["armap"].id or unitDefID == UnitDefNames["corap"].id or
        unitDefID == UnitDefNames["armaap"].id or unitDefID == UnitDefNames["coraap"].id or
 
-       unitDefID == UnitDefNames["pandoreguard"].id
+       unitDefID == UnitDefNames["guardsml"].id or unitDefID == UnitDefNames["guardmed"].id or
+       unitDefID == UnitDefNames["guardlrg"].id or unitDefID == UnitDefNames["guarduber"].id
     then
         spGiveOrderToUnit(unitID, cmdFly, { 0 }, {})
         spGiveOrderToUnit(unitID, cmdAirRepairLevel, { 0 }, {})

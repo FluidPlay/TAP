@@ -45,7 +45,7 @@ local CMD_ATTACK = CMD.ATTACK
 local CMD_MOVE = CMD.MOVE
 
 local oreGuardianDef = {
-    pandoreguard = true,
+    guardsml = true, guardmed = true, guardlrg = true, guarduber = true,
 }
 
 --{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }

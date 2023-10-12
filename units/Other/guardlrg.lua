@@ -1,5 +1,5 @@
 return {
-	pandoreguard = {
+	guardlrg = {
 		acceleration = 0,
 		activatewhenbuilt = true,
 		autoheal = 0,
@@ -37,7 +37,7 @@ return {
 		turninplaceanglelimit = 140,
 		turninplacespeedlimit = 0,
 		turnrate = 0,
-		unitname = "spotter",
+		unitname = "Large Guardian",
 		upright = true,
 		waterline = 0,
 		workertime = 0,
