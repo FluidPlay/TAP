@@ -5,7 +5,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "May 2023",
         license   = "GNU GPL, v2 or later",
-        layer     = 0,
+        layer     = 200,
         enabled   = true,
     }
 end
@@ -43,8 +43,9 @@ local cmdFly = 145
 local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
 
 local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
+                    --         guardians = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
+                    --    }
 --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
---         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
 --       }, ...
 -- }
 
@@ -76,6 +77,12 @@ local function spawnGuardian(x, y, z)
 
     local unitID = spCreateUnit(guardianUnitDefId, x, y, z, 0, gaiaTeamID)
     guardians[unitID]={ x=x, y=y, z=z}
+
+    --if not oreSpots[spotIdx].chunks then
+    --    oreSpots[spotIdx].chunks = {}
+    --end
+    --(oreSpots[spotIdx].chunks)[unitID] = { pos = {x=x, z=z}, kind= startOreKind, spotIdx = spotIdx }
+
     --spSetUnitNeutral(unitID, true)
 
     spSetUnitRotation(unitID,0,math.random()*85,0) -- 0~85 degress after the spawn placement (N,S,E,W)
@@ -85,18 +92,9 @@ end
 
 function gadget:Initialize()
     gaiaTeamID = Spring.GetGaiaTeamID()
-    --local teamList = Spring.GetTeamList()
-    --for i = 1, #teamList do
-    --    local teamID = teamList[i]
-    --    if teamID ~= gaiaTeamID then
-    --        local x,y,z = Spring.GetTeamStartPosition (teamID)
-    --        teamStartPos[teamID] = { x=x, y=y, z=z }
-    --        Spring.Echo("Team: "..teamID.." posx: "..x.." posy: "..y.." posz: "..z)
-    --    end
-    --end
     oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
     if not istable(oreSpots) then
-        Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
+        Spring.Echo("Warning: GG.metalSpots not found by game_spawn_guardians.lua!")
         oreSpots = {}
     end
 end
@@ -126,7 +124,7 @@ function gadget:GameFrame(frame)
                 end
             end
             if doSpawnHere then
-                spawnGuardian(x,y,z) end
+                spawnGuardian(x,y,z) end --, data.spotIdx) end
         end
         initialized = true
     end

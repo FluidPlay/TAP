@@ -25,6 +25,7 @@ if gadgetHandler:IsSyncedCode() then
     -----------------
     ---- SYNCED
     -----------------
+    local spGetUnitHealth   = Spring.GetUnitHealth
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
     local updateRate = 120 * 30 -- 2 mins
@@ -98,12 +99,12 @@ if gadgetHandler:IsSyncedCode() then
                   ["lrg"] = {id = UnitDefNames["orelrg"].id},
                   ["moho"] = {id = UnitDefNames["oremoho"].id},
                   ["uber"] = {id = UnitDefNames["oreuber"].id} }
-    local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "lrg", multiplier = 1.0 },   --1.125
+    local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.5 },   --1.125
                         [UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.2 },
                         [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25 },
                         [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3 },
 
-                        [UnitDefNames["cormex"].id] = { kind = "lrg", multiplier = 1.0 }, --1.125
+                        [UnitDefNames["cormex"].id] = { kind = "sml", multiplier = 1.5 }, --1.125
                         [UnitDefNames["corexp"].id] = { kind = "lrg", multiplier = 1.2 },
                         [UnitDefNames["cormoho"].id] = { kind = "moho", multiplier = 1.25 },
                         [UnitDefNames["coruber"].id] = { kind = "uber", multiplier = 1.3 },
@@ -123,6 +124,10 @@ if gadgetHandler:IsSyncedCode() then
             local unitDefID = spGetUnitDefID(unitID)
             local sprawler = sprawlers[unitDefID]
             if sprawler then
+                local health,maxHealth,paralyzeDamage,captureProgress,buildProgress=spGetUnitHealth(unitID)
+                local done = buildProgress and buildProgress >= 1
+                if not done then
+                    break end
                 if sprawler.kind == "uber" then
                     sprawlerResult = "uber"
                     multiplier = sprawler.multiplier
@@ -130,6 +135,7 @@ if gadgetHandler:IsSyncedCode() then
                 elseif sprawler.kind == "moho" then
                     sprawlerResult = "moho"
                     multiplier = sprawler.multiplier
+                    break
                 elseif sprawler.kind == "lrg" and sprawlerResult ~= "moho" then
                     sprawlerResult = "lrg"
                     multiplier = sprawler.multiplier

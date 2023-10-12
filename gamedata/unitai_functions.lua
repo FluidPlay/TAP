@@ -78,12 +78,14 @@ function HasCommandQueue(unitID)
     return false
 end
 
-function getNearestUID (ud)
+-- Nearest repairable, including unfinished (under construction, can be assisted)
+function getNearestAnyUID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
             function(x) return (x.customParams.isorechunk == nil) end,
             function(x)
-                local health,maxHealth = spGetUnitHealth(x)
-                if not health or not maxHealth then
+                local health,maxHealth,paralyzeDamage,captureProgress,buildProgress=spGetUnitHealth(x)
+                --local done = buildProgress and buildProgress >= 1
+                if not health or not maxHealth then --or not done then
                     return nil end
                 return (health < (maxHealth * 0.99)) end,
                 ud.team
@@ -95,11 +97,12 @@ function getNearestRepairableID (ud)
             function(x)
                 return (x.customParams == nil or x.customParams.isorechunk == nil) end ,
             function(x)
-                local health,maxHealth,_,_,done = spGetUnitHealth(x)
-                if health == nil or maxHealth == nil then
+                local health,maxHealth,_,_,buildProgress = spGetUnitHealth(x)
+                local done = buildProgress and buildProgress >= 1
+                if health == nil or maxHealth == nil or not done then
                     return nil
                 end
-                return done and health < (maxHealth * 0.99) end ,
+                return health < (maxHealth * 0.99) end,
                 ud.team
             )
 end

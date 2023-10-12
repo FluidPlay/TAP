@@ -50,7 +50,7 @@ local options =
     name    = "Pathfinder",
     desc    = "Switch Pathfinding System",
     type    = "list",
-    def     = "normal",
+    def     = "normal", --"qtpfs",
     section = "tap_others",
 	items={
 	  {key="normal", name="Normal", desc="Spring vanilla pathfinder"},

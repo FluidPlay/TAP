@@ -107,7 +107,7 @@ local automatedState = {}   -- This is the automated state. It's always there fo
 
 --local orderRemovalDelay = 10    -- 10 frames of delay before removing commands, to prevent the engine from removing just given orders
 --local internalCommandUIDs = {}
---local autoassistEnableDelay = 60
+local autoassistEnableDelay = 60    -- automation delay, after unit is finished
 
 local vsx, vsy = gl.GetViewSizes()
 local widgetScale = (0.50 + (vsx*vsy / 5000000))
@@ -426,7 +426,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
                 or (unitDef.buildDistance or 1) * 1.8
         unitData[unitID] = { recheckFrame = spGetGameFrame() + recheckLatency, radius = radius,
                             unitDef = unitDef, team = spGetUnitTeam(unitID), harvestRange = harvestRange, }
-        unitFinishedNextFrame[unitID] = spGetGameFrame()
+        unitFinishedNextFrame[unitID] = spGetGameFrame() + autoassistEnableDelay
     end
 end
 
@@ -647,7 +647,7 @@ local automatedFunctions = {
                 --Spring.Echo("[3] Repair check")
                 local nearestTargetID
                 if canassist[ud.unitDef.name] then
-                    local nearestUID = getNearestUID(ud)
+                    local nearestUID = getNearestAnyUID(ud)
                     nearestTargetID = nearestUID
                 else
                     local nearestRepairableID = getNearestRepairableID(ud)

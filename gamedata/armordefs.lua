@@ -38,10 +38,10 @@ local armorDefs = {
 
 	--++++==== Air
 
-	air = { "armfig","armhawk","corveng","corvamp", },
+	air = { "armfig","armhawk","corveng","corvamp", "armbrawl", "corape", "armkameyes", "corkameyes"},
 	armorair={"corbw","armaca","armawac","armca","armsehak","armsfig","corawac","corca",
-			  "corhunt","armkam","armatlas","armbrawl","armdfly","armpeep","armsaber","armseap",
-			  "corseah","corape","corfink","corvalk","armblade","armliche","armlance",
+			  "corhunt","armkam","armatlas","armdfly","armpeep","armsaber","armseap",
+			  "corseah","corfink","corvalk","armblade","armliche","armlance",
 			  "armpnix","armsb","armthund","corstil","corhurc","corshad","cortitan","corcrw",},
 	--lightair={"corbw","armaca","armawac","armca","armcsa","armfig","armhawk","armsehak","armsfig","corawac","corca","corhunt","corsfig","corvamp","corveng",},
 	--supportair={"armkam","armatlas","armbrawl","armdfly","armpeep","armsaber","armseap","corseah","corape","corfink","corseap","corvalk","armblade",},
@@ -51,7 +51,7 @@ local armorDefs = {
 	structure = {"armsolar", "corsolar", "armmex", "cormex", "armmoho", "cormoho","armfus","corfus","armafus","corafus",
 				 "armuber","coruber","armgeo","armgmm","armageo","armuwmex","armuwmme","armtide","coruwmex","coruwmme","cortide",
 				 "armoutpost","armoutpost2","armoutpost3","armoutpost4","coroutpost","coroutpost2","coroutpost3","coroutpost4","armtech","armtech2", "armtech3","armtech4",
-				 "cortech","cortech2", "cortech3","cortech4","armawin","corawin","armaap","armadvsol","armalab","armap","armarad","armason",
+				 "cortech","cortech2", "cortech3","cortech4","armawin","corawin","armaap","armadvsol","armalab","armap","armarad","armason", "armamex",
 				 "armasp","armasy","armavp","armdf","armestor","armeyes","armfdrag","armfmine3","armfmkr","armfort","armfrad",
 				 "armgate","armjamt","armlab","armmakr","armmine1","armmine2","armmine3","armnanotc","armrad","armsd","armshltx",
 				 "armveil","armvp","armwin","asubpen","corageo","coraap","coradvsol","coralab","corap","corarad","corason","corasp","corasy","coravp",
@@ -59,17 +59,17 @@ local armorDefs = {
 				 "corjamt","corlab","cormakr","cormine4","cormmkr","cormstor","cornanotc","corrad",
 				 "corshroud","corsonar","corsy","cortron","coruwadves","coruwadvms",
 				 "corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav","armmstor", "armuwadvms",
-				 "armsilo", "corsilo", "armkameyes", "corkameyes"
+				 "armsilo", "corsilo",
 	},
 
 	defense = {"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt",
 			   "armpb","corbhmth","corbuzz","corexp","corfmd","corgate",
-			   "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",
-			   "armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad",
-			   "corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",
+			   "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint",
 			   "armkamturret", "corbwturret",
-			   "kernhq_rt", "kernhq_lt", "kernhq_mt", "kernhq_ct",
+			   "kernhq_rt", "kernhq_lt", "kernhq_ct",
 	},
+	armordefense={"armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad","corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl", "kernhq_mt", },
+
 	--defense={"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfmd","corgate","corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
 	--
 	--defenseaa={"armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad","corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",},
@@ -103,8 +103,10 @@ local armorDefs = {
 	--++++==== Extras
 	commander = {
 		"armcom", "armcom1", "armcom2", "armcom3", "armcom4", "armdecom", "corcom", "corcom1", "corcom2", "corcom3", "corcom4","cordecom","armcomboss","corcomboss",
-		"bowdaemon", "kerndaemon", "bowadvdaemon", "kernadvdaemon", "pandoreguard",
+		"bowdaemon", "kerndaemon", "bowadvdaemon", "kernadvdaemon",
 	},
+
+	guardian = { "pandoreguard", },
 
 	shield = {
 		"armflash_shield",
