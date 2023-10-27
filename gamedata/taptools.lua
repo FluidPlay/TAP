@@ -123,6 +123,16 @@ function ipairs_removeByElement(table, elementId, value)
 	end
 end
 
+-- Returns true if a table (tab) contains a certain value (searchVal)
+function ipairs_contains (tab, searchVal)
+	for idx,value in ipairs(tab) do
+		if value == searchVal then
+			return idx
+		end
+	end
+	return nil
+end
+
 -- Returns the index (if found) or nil if not found
 function ipairs_containsElement(table, elementId, value)
 	for k, v in ipairs(table) do
@@ -175,8 +185,7 @@ end
 
 -- Debug table keys and values, up to three nested levels
 ---TODO: Fix for iPairs, not really working (tested with weaponDef / damages itable)
-function DebugTable(tbl)
-	--Spring.Echo(" Debug Table: ")
+local function DebugTable(tbl)
 	for k, v in pairsByKeys(tbl) do
 		local str = ""
 		if type(v) == "table" then
@@ -186,32 +195,36 @@ function DebugTable(tbl)
 				if type(v2) == "table" then
 					str = str .. "{"
 					for k3, v3 in pairsByKeys(v2) do
-                        str = str .. k3 .. "="
+						str = str .. k3 .. "="
 						if type(v3) == "table" then
-                            str = str .. "{"
-                            for k4, v4 in pairsByKeys(v3) do
-                                str = str .. k4 .. "="
-                                if type(v4) == "table" then
-                                    str = str .. "{<table>}, "
-                                else
-                                    str = str .. tostring(v4) .. ", "
-                                end
-                            end
-                            str = str .. "}, "
+							str = str .. "{"
+							for k4, v4 in pairsByKeys(v3) do
+								str = str .. k4 .. "="
+								if type(v4) == "table" then
+									str = str .. "{<table>}, "
+								else
+									str = str .. tostring(v4) .. ", "
+								end
+							end
+							str = str .. "} "
+						elseif type(v3) == "string" then
+							str = str ..'"'..tostring(v2)..'", '
 						else
 							str = str .. tostring(v3) .. ", "
 						end
 					end
-					str = str .. "}, "
+					str = str .. "} "
+				elseif type(v2) == "string" then
+					str = str ..'"'..tostring(v2)..'", '
 				else
 					str = str ..tostring(v2)..", "
 				end
 			end
-			str = str .. "}, "
+			str = str .. "} "
 		else
 			str = tostring(v)..", "
 		end
-		Spring.Echo(tostring(k).."="..str..", ")
+		print(tostring(k).."="..str..", ")
 	end
 end
 
@@ -229,16 +242,6 @@ function DebugiTable(tbl)
 	--else
 	--	return tostring(tbl)
 	--end
-end
-
--- Returns true if a table (tab) contains a certain value (searchVal)
-function ipairs_contains (tab, searchVal)
-	for _,value in ipairs(tab) do
-		if value == searchVal then
-			return true
-		end
-	end
-	return false
 end
 
 -- Returns a key-sorted iterator which may be traversed by, eg:

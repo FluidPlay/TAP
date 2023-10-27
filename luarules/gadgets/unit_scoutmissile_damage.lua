@@ -85,7 +85,7 @@ local Mmin = math.min
 -- kill appropriate things from initial juno blast --
 
 local scoutWeapons = {
-	[WeaponDefNames.bowhq_rt_scout_pulse.id] = true,
+--	[WeaponDefNames.bowhq_rt_scout_pulse.id] = true,	--Only un-comment this once the unit/weapon is implemented
 	[WeaponDefNames.kernhq_rt_scout_pulse.id] = true,
 }
 
@@ -116,7 +116,7 @@ local counter = 1 --index each explosion of juno missile with this counter
 local gaiaTeamID = 1    -- initialized on.. erm.. Initialize.
 
 function gadget:Initialize()
-	Script.SetWatchWeapon(WeaponDefNames.biwhq_rt_scout_pulse.id, true)
+	--Script.SetWatchWeapon(WeaponDefNames.bowhq_rt_scout_pulse.id, true) --Only un-comment this once the unit/weapon is implemented
 	Script.SetWatchWeapon(WeaponDefNames.kernhq_rt_scout_pulse.id, true)
 
     gaiaTeamID = Spring.GetGaiaTeamID()
@@ -125,7 +125,7 @@ end
 local function CreateSpotter(firingUnitID, pos)
     local teamID = firingUnitID and spGetUnitTeam(firingUnitID) or gaiaTeamID
     local unitID = spCreateUnit(spotterDefID, pos.x, pos.y, pos.z, "north", teamID)
-    --Spring.Echo("Spawned "..unitID.." at: "..c.x..", "..c.y..", "..c.z)
+    --Spring.Echo("Spawned "..unitID.." at: "..pos.x..", "..pos.y..", "..pos.z)
     spSetUnitNoDraw(unitID, true)
     spSetUnitStealth(unitID, true)
     spSetUnitSonarStealth(unitID, true)
