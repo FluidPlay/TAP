@@ -5,7 +5,7 @@ function gadget:GetInfo()
         author    = "MaDDoX",
         date      = "May 2023",
         license   = "GNU GPL, v2 or later",
-        layer     = 200,
+        layer     = 50,
         enabled   = true,
     }
 end
@@ -16,6 +16,8 @@ if not gadgetHandler:IsSyncedCode() then
 -----------------
 ---- SYNCED
 -----------------
+
+GG.Guardians = {}
 
 VFS.Include("gamedata/taptools.lua")
 
@@ -135,6 +137,7 @@ end
 function gadget:Initialize()
     gaiaTeamID = Spring.GetGaiaTeamID()
     oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
+    GG.Guardians = guardians  -- used by unit_avoidshootingguardians.lua
     if not istable(oreSpots) then
         Spring.Echo("Warning: GG.metalSpots not found by game_spawn_guardians.lua!")
         oreSpots = {}
@@ -143,7 +146,7 @@ end
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
     if unitID and spValidUnitID(unitID) then
-    --TODO: Use GG.teamStartPoints = teamStartPoints instead of this
+        --TODO: Use GG.teamStartPoints = teamStartPoints instead of this
         local unitDef = unitDefID and UnitDefs[unitDefID] or nil
         if unitDef and unitDef.customParams and unitDef.customParams.ishq then
             local x, y, z = spGetUnitPosition(unitID)
@@ -169,14 +172,6 @@ local function removeGuardianFromSpot(guardianUID)
     ipairs_remove(spotGuardians, guardianUID)
     if #spotGuardians == 0 then
         oreSpots[data.spotIdx].allowGuardians = false end
-    --for id, data in ipairs(oreSpots) do
-    --    local idx = ipairs_contains (data.guardians, guardianUID)
-    --    if idx then
-    --        table.remove(data.guardians, idx)
-    --        if #data.guardians == 0 then
-    --            data.allowGuardians = false end     -- "Kill" further spawn of guardians at the spot
-    --    end
-    --end
 end
 
 --function gadget:GameStart()
@@ -237,6 +232,7 @@ function gadget:UnitDestroyed(unitID)
     --    guardians[unitID] = nil
     --end
     removeGuardianFromSpot(unitID)
+    guardians[unitID] = nil
     isHQ[unitID] = nil
 end
 

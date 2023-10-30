@@ -239,13 +239,13 @@ if (gadgetHandler:IsSyncedCode()) then
             return false end
 		techID = string.lower(techID)
 
-		if not isnumber(teamID) then
-			teamID = spGetUnitTeam(unitID)
-		end
 
 		-- TODO: Check for other local-upgrade (per-unit) requirement
 		-- Check if the morph setting is an "anim-morph" (plays animation and unlocks adv. build options)
 		if IsValidUnit(unitID) then
+			if not isnumber(teamID) then
+				teamID = spGetUnitTeam(unitID)
+			end
 			--local unitDef = UnitDefs[spGetUnitDefID(unitID)]
 			--local animationonly = unitDef.customParams and (tonumber(unitDef.customParams.morphdef__animationonly) == 1)
 			--Spring.Echo("Multi_tech: Checking for local tech "..techID.."; "..(animationonly and "TRUE" or "FALSE"))

@@ -1317,6 +1317,9 @@ function gadgetHandler:AllowWeaponTarget(attackerID, targetID, attackerWeaponNum
 			allowed = false; break
 		end
 
+        if not targetPriority or (not type(targetPriority) == "number") then
+          targetPriority = 1
+        end
 		priority = math.max(priority, targetPriority)
 	end
 

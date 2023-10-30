@@ -22,6 +22,8 @@ end
 if not gadgetHandler:IsSyncedCode() then
     return end
 
+GG.AggroedGuardians = {}
+
 VFS.Include("gamedata/taptools.lua")
 local fsm = { Spring = Spring, type = type, pairs = pairs, gl=gl, VFS=VFS, tostring=tostring}
 VFS.Include("common/include/springfsm.lua", fsm)
@@ -109,6 +111,7 @@ local fsmBehaviors = {
 }
 
 function gadget:Initialize()
+    GG.AggroedGuardians = aggroedGuardians  -- Used by unit_avoidshootingguardians.lua
     fsm.setup(fsmId, fsmBehaviors, 30, false) -- recheckLatency (idle->whatever), debug, updateRate = 6 (default)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
