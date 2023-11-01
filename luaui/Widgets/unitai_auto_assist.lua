@@ -375,11 +375,25 @@ end
 
 function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
     -- If unit just created is a mobile unit, add it to array
-    local uDef = UnitDefs[unitDefID]
-    if not uDef then
+    local unitDef = UnitDefs[unitDefID]
+    if not unitDef then
         return end
-    if not uDef.isImmobile then
+    if not unitDef.isImmobile then
         WIPmobileUnits[unitID] = true
+    end
+    local harvestRange = nil
+    local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+    if maxorestorage and maxorestorage > 0 then
+        local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"]   -- eg: armck_harvest_weapon
+        harvestRange = harvestWeapon and (harvestWeapon.range * harvestLeashMult)
+                or (160 * harvestLeashMult)
+    end
+    if canrepair[unitDef.name] or canresurrect[unitDef.name] then
+        local radius = (unitDef.isBuilding or unitDef.speed==0)
+                and (unitDef.buildDistance or 1)
+                or (unitDef.buildDistance or 1) * 1.8
+        unitData[unitID] = { recheckFrame = spGetGameFrame() + recheckLatency, radius = radius,
+                             unitDef = unitDef, team = teamID, harvestRange = harvestRange, }
     end
 end
 
@@ -407,6 +421,7 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
             end
         end
     end
+    --TODO: Optimize, get this from UnitData (set up in UnitCreated)
     local harvestRange = nil
     local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
     if maxorestorage and maxorestorage > 0 then
@@ -416,16 +431,11 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
         harvesters[unitID] = { maxorestorage = maxorestorage, parentOreTowerID = nil, returnPos = {}, targetChunkID = nil,
                                recheckFrame = spGetGameFrame() + recheckLatency,
                                harvestWeapon = harvestWeapon, harvestRange = harvestRange,
-                               unitDef = unitDef, team = spGetUnitTeam(unitID)
+                               unitDef = unitDef, team = unitTeam
         }
     end
 
     if canrepair[unitDef.name] or canresurrect[unitDef.name] then
-        local radius = (unitDef.isBuilding or unitDef.speed==0)
-                and (unitDef.buildDistance or 1)
-                or (unitDef.buildDistance or 1) * 1.8
-        unitData[unitID] = { recheckFrame = spGetGameFrame() + recheckLatency, radius = radius,
-                            unitDef = unitDef, team = spGetUnitTeam(unitID), harvestRange = harvestRange, }
         unitFinishedNextFrame[unitID] = spGetGameFrame() + autoassistEnableDelay
     end
 end
@@ -557,7 +567,8 @@ local automatedFunctions = {
     [1] = { id="enemyreclaim",
             condition = function(ud)  -- Commanders shouldn't prioritize enemy-reclaiming
                 return automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "harvest"
-                        and ud.unitDef.canMove
+                        and automatedState[ud.unitID] ~= "assist"
+                        --and ud.unitDef.canMove
                         and not ud.unitDef.customParams.iscommander
             end,
             action = function(ud) --unitData
@@ -576,11 +587,11 @@ local automatedFunctions = {
     },
     [2] = { id="harvest",
             condition = function(ud)
-                --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
-                local parentOreTowerID = getParentOreTowerID(ud, harvesters)
                 if harvesters[ud.unitID]
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "harvest" then
+                    --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
+                    local parentOreTowerID = getParentOreTowerID(ud, harvesters)
                     if not parentOreTowerID then
                         parentOreTowerID = getNearestOreTowerID (ud, oreTowers, maxOreTowerScanRange)
                         harvesters[ud.unitID].parentOreTowerID = parentOreTowerID
@@ -637,6 +648,7 @@ local automatedFunctions = {
     [4] = { id="repair",
             condition = function(ud) --
                 local hasEnergy = resourcesCheck("e")
+                --Spring.Echo("Has energy: "..(tostring(hasEnergy) or nil))
                 return canrepair[ud.unitDef.name]
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "reclaim"
@@ -644,10 +656,10 @@ local automatedFunctions = {
                         and automatedState[ud.unitID] ~= "repair" and hasEnergy
             end,
             action = function(ud)
-                --Spring.Echo("[3] Repair check")
+                --Spring.Echo("[3] Repair check - teamID: "..(tostring(ud.team) or "nil"))
                 local nearestTargetID
                 if canassist[ud.unitDef.name] then
-                    local nearestUID = getNearestAnyUID(ud)
+                    local nearestUID = getNearestAnyRepairableID(ud)    -- including factories & WIP/unfinished units
                     nearestTargetID = nearestUID
                 else
                     local nearestRepairableID = getNearestRepairableID(ud)

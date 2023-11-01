@@ -79,7 +79,8 @@ function HasCommandQueue(unitID)
 end
 
 -- Nearest repairable, including unfinished (under construction, can be assisted)
-function getNearestAnyUID (ud)
+function getNearestAnyRepairableID (ud)
+    --NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius,
             function(x) return (x.customParams.isorechunk == nil) end,
             function(x)
@@ -87,9 +88,10 @@ function getNearestAnyUID (ud)
                 --local done = buildProgress and buildProgress >= 1
                 if not health or not maxHealth then --or not done then
                     return nil end
-                return (health < (maxHealth * 0.99)) end,
-                ud.team
-            )
+                return (health < (maxHealth * 0.99))
+            end,
+            false,
+            ud.team)
 end
 
 function getNearestRepairableID (ud)
