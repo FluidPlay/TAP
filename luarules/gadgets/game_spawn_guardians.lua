@@ -63,6 +63,7 @@ local guardians = {}        -- { [unitID]={x,y,z,spotIdx}, ... }
 local teamStartPos = {}    -- { [teamID] = { x=x, y=y, z=z }, ... }
 local minGuardianDistance = 50    -- This prevents duplicated objects
 local minStartposDistance = 600   -- Prevents guardians from being spawned near start Positions
+local maxGuardiansPerSpot = 3
 
 --local updateRate = 30*60        -- test: 10s ; Guardian spawning frequency (every 4 minutes)
 local updateRate = 30*60*5        -- Guardian spawning frequency (every 5 minutes)
@@ -201,7 +202,12 @@ function gadget:GameFrame(frame)
         return end
     currentIter = currentIter + 1
     for id, data in ipairs(oreSpots) do
-        if data.allowGuardians then
+        local numGuardians = data.guardians and #data.guardians or 0
+        if not data.guardians then
+            data.guardians = {}
+        end
+        -- assert that the field hasn't been cleared of Guardians already, and it ain't reached max capacity
+        if data.allowGuardians and numGuardians <= maxGuardiansPerSpot then
             local sx, sy, sz = data.x, data.y, data.z   -- spot center's x,y,z
             local doSpawnHere = true
             for _, hqp in pairs(isHQ) do
@@ -215,8 +221,16 @@ function gadget:GameFrame(frame)
             local x = math.cos(angle)*radius
             local z = math.sin(angle)*radius
             if doSpawnHere then
-                local newGuardianUID = spawnGuardian(sx+x, sy,sz+z, currentIter, id)
-                addGuardianToSpot(newGuardianUID, id)
+                --local morphInteadOfSpawn = true --make it random chance
+                --if morphInteadOfSpawn then
+                --    local lowestTierGuardian = data.guardians[1]
+                --    for i, guardianId in ipairs(data.guardians) do
+                --
+                --    end
+                --else
+                    local newGuardianUID = spawnGuardian(sx+x, sy,sz+z, currentIter, id)
+                    addGuardianToSpot(newGuardianUID, id)
+                --end
             end --, data.spotIdx) end
         end
     end

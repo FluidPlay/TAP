@@ -244,6 +244,9 @@ if gadgetHandler:IsSyncedCode() then
 	end
 
 	local function distance(posA, posB)
+		if not posA[1] or not posB[1] or not posA[2] or not posB[2] or not posA[3] or not posB[3] then
+			return 0
+		end
 		diag(posA[1] - posB[1], posA[2] - posB[2], posA[3] - posB[3])
 	end
 
