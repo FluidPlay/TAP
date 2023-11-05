@@ -2366,8 +2366,17 @@ else
         end
     end
 
+    local cacheGameFrame, teamQueuedUnits, morphUnits
     function gadget:DrawWorld()
-        if not SYNCED.morphUnits or (not next(SYNCED.morphUnits)) then
+        gameFrame = GetGameFrame()
+        local localTeam = GetLocalTeamID()
+        if gameFrame ~= cacheGameFrame then
+            cacheGameFrame = gameFrame
+            morphUnits = SYNCED.morphUnits
+            teamQueuedUnits = SYNCED.teamQUnits[localTeam]
+        end
+
+        if not morphUnits or (not next(morphUnits)) then
             return --//no morphs to draw
         end
 
@@ -2376,15 +2385,14 @@ else
         glBlending(GL_SRC_ALPHA, GL_ONE)
         glDepthTest(GL_LEQUAL)
 
-        local localTeam = GetLocalTeamID()
         local spec, specFullView = GetSpectatingState()
         local readTeam = specFullView
                 and Script.ALL_ACCESS_TEAM or localTeam
 
         --- [BEGIN] Draw MorphQueue indexes
         --glBeginText()
-        for i = 1, #(SYNCED.teamQUnits[localTeam]) do
-            local unit = SYNCED.teamQUnits[localTeam][i]["unitID"]
+        for i = 1, #teamQueuedUnits do
+            local unit = teamQueuedUnits [i]["unitID"]
             if spIsUnitInView(unit) then
                 local ux, uy, uz = spGetUnitViewPosition(unit)
                 glPushMatrix()
@@ -2399,7 +2407,7 @@ else
         --- [END] Draw MorphQueue indexes
 
         CallAsTeam({ ['read'] = readTeam }, function()
-            for unitID, morphData in pairs(SYNCED.morphUnits) do
+            for unitID, morphData in pairs(morphUnits) do
                 if unitID and morphData and IsUnitVisible(unitID) then
                     DrawMorphUnit(unitID, morphData, readTeam)
                 end
