@@ -44,6 +44,7 @@ local spDestroyUnit = Spring.DestroyUnit
 local spSendMessageToTeam = Spring.SendMessageToTeam
 local spGetGameFrame = Spring.GetGameFrame
 local spGetUnitTeam = Spring.GetUnitTeam
+local spGetUnitBlocking = Spring.GetUnitBlocking
 local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitTransporter = Spring.GetUnitTransporter
 local spGetTeamUnits = Spring.GetTeamUnits
@@ -105,6 +106,7 @@ VFS.Include("gamedata/taptools.lua")
 --   30000 - 39999:  LuaRules
 --
 
+local CMD_EZ_MORPH = 31337 -- accepts target unitDefID as optional 1st parameter (1st found morph if missing)
 local CMD_MORPH = 31410
 local CMD_MORPH_STOP = 32410
 -- New buttons IDs (MaDDoX)
@@ -233,6 +235,22 @@ if (gadgetHandler:IsSyncedCode()) then
     local spGetTeamResources = Spring.GetTeamResources
     local spGetUnitBasePosition = Spring.GetUnitBasePosition
     local spGetUnitHeading = Spring.GetUnitHeading
+    local spGetUnitCommands = Spring.GetUnitCommands
+    local spGetGroundHeight = Spring.GetGroundHeight
+    local spGiveOrderToUnit = Spring.GiveOrderToUnit
+    local spGetUnitRulesParams = Spring.GetUnitRulesParams
+
+    local CMD_INSERT = CMD.INSERT
+    local CMD_OPT_SHIFT = CMD.OPT_SHIFT
+    local CMD_MOVE = CMD.MOVE
+    local CMD_PATROL  = CMD.PATROL
+    local CMD_ATTACK = CMD.ATTACK
+    local CMD_FIRE_STATE = CMD.FIRE_STATE
+    local CMD_MOVE_STATE = CMD.MOVE_STATE
+    local CMD_REPEAT = CMD.REPEAT
+    local CMD_CLOAK = CMD.CLOAK
+    local CMD_ONOFF = CMD.ONOFF
+    local CMD_TRAJECTORY = CMD.TRAJECTORY
 
     --- morphDefs[unitDef.name][cmdId]
                                     --{ unitDefName = { cmdId = morphDef, ... }, ... }
@@ -1225,14 +1243,17 @@ if (gadgetHandler:IsSyncedCode()) then
         local unitTeam = spGetUnitTeam(unitID) -- morphData.teamID
         local px, py, pz = spGetUnitBasePosition(unitID)
         local h = spGetUnitHeading(unitID)
+
+        --- Let's store the multiple 'blocking' settings, to later apply them to the new morphed-into unit
+        local bl = {}
+        bl.isBlocking, bl.isSolidObjectCollidable, bl.isProjectileCollidable, bl.isRaySegmentCollidable, bl.crushable, bl.blockEnemyPushing, bl.blockHeightChanges = spGetUnitBlocking (unitID)
+
         spSetUnitBlocking(unitID, false)
         morphingUnits[unitID] = nil
         spSetUnitRulesParam(unitID, "justmorphed", 1)
-        --[Deprecated] After 10 frames, we'll clean up this unitRulesParam, to allow explosions after this time frame
-        --cleanRulesParam[unitID] = Spring.GetGameFrame()+10
 
         --local oldHealth, oldMaxHealth, paralyzeDamage, captureProgress, buildProgress
-        local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
+        local oldHealth, oldMaxHealth, _, _, buildProgress = spGetUnitHealth(unitID)
         local isBeingBuilt = false
         if buildProgress < 1 then
             isBeingBuilt = true
@@ -1245,7 +1266,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local copystatsonly = morphData.def.copystatsonly
         local signal = morphData.def.signal
 
-
+        ---DEBUG:
         --Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
         --        "; animationonly = " .. (animationonly or "nil") ..
         --        ",  copystatsonly = " .. (copystatsonly or "nil") ..
@@ -1325,7 +1346,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --// Send to unsynced so it can broadcast to widgets (and update selection here)
             SendToUnsynced("unit_morph_finished", unitID, newUnit)
         else
-            --- Is it a structure?
+            --- Otherwise, if it's a structure:
             if defDest.isBuilding or defDest.isFactory then
                 --if udDst.isBuilding then
 
@@ -1363,8 +1384,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- Safe check. All code below should only run if a new unit was successfully created
         if newUnit == nil then
-            return
-        end
+            return end
 
         --if (extraUnitMorphDefs[unitID] ~= nil) then
         ---- nothing here for now
@@ -1415,28 +1435,28 @@ if (gadgetHandler:IsSyncedCode()) then
         --//copy some state
         local states = spGetUnitStates(unitID)
         spGiveOrderArrayToUnitArray({ newUnit }, {
-            { CMD.FIRE_STATE, { states.firestate }, { } },
-            { CMD.MOVE_STATE, { states.movestate }, { } },
-            { CMD.REPEAT, { states["repeat"] and 1 or 0 }, { } },
-            { CMD.CLOAK, { states.cloak and 1 or defDest.initCloaked }, { } },
-            { CMD.ONOFF, { 1 }, { } },
-            { CMD.TRAJECTORY, { states.trajectory and 1 or 0 }, { } },
+            { CMD_FIRE_STATE, { states.firestate }, { } },
+            { CMD_MOVE_STATE, { states.movestate }, { } },
+            { CMD_REPEAT, { states["repeat"] and 1 or 0 }, { } },
+            { CMD_CLOAK, { states.cloak and 1 or defDest.initCloaked }, { } },
+            { CMD_ONOFF, { 1 }, { } },
+            { CMD_TRAJECTORY, { states.trajectory and 1 or 0 }, { } },
         })
 
         --//Copy command queue        [deprecated]FIX : removed 04/2012, caused erros
         -- Now copies only move/patrol commands from queue, shouldn't pose any issues
-        local cmdqueuesize = Spring.GetUnitCommands(unitID, 0)
+        local cmdqueuesize = spGetUnitCommands(unitID, 0)
         if type(cmdqueuesize) == "number" then
-            local cmds = Spring.GetUnitCommands(unitID, 100)
+            local cmds = spGetUnitCommands(unitID, 100)
             for i = 1, cmdqueuesize do
                 -- skip the first command (CMD_MORPH)
                 local cmd = cmds[i]
-                if istable(cmd) and cmd.id and (cmd.id == CMD.MOVE or cmd.id == CMD.PATROL) then
+                if istable(cmd) and cmd.id and (cmd.id == CMD_MOVE or cmd.id == CMD_PATROL or cmd.id == CMD_ATTACK) then
                     local m = { x = cmd.params[1], z = cmd.params[3] }
                     if m.x and m.z then
-                        local y = Spring.GetGroundHeight(m.x, m.z)
-                        Spring.GiveOrderToUnit(newUnit, CMD.INSERT,
-                                { -1, cmd.id, CMD.OPT_SHIFT, m.x, y, m.z }, { "alt" }
+                        local y = spGetGroundHeight(m.x, m.z)
+                        spGiveOrderToUnit(newUnit, CMD_INSERT,
+                                { -1, cmd.id, CMD_OPT_SHIFT, m.x, y, m.z }, { "alt" }
                         )
                     end
                 end
@@ -1446,8 +1466,7 @@ if (gadgetHandler:IsSyncedCode()) then
         --//reassign assist commands to new unit
         ReAssignAssists(newUnit, unitID)
 
-        --// copy health
-        local oldHealth, oldMaxHealth, _, _, buildProgress = spGetUnitHealth(unitID)
+        --// copy health, proportionally to the new health
         local _, newMaxHealth = spGetUnitHealth(newUnit)
         local newHealth = (oldHealth / oldMaxHealth) * newMaxHealth
         if newHealth <= 1 then
@@ -1461,9 +1480,18 @@ if (gadgetHandler:IsSyncedCode()) then
             spSetUnitShieldState(newUnit, enabled, oldShieldState)
         end
 
-        --// FIXME: - re-attach to current transport?
+        --// copy all UnitRulesParam(s)
+        for ruleName, val in pairs(spGetUnitRulesParams (unitID)) do
+            spSetUnitRulesParam ( newUnit, ruleName, val)
+        end
+
+        --// copy over all 'blocking' settings
+        spSetUnitBlocking (newUnit, bl.isblocking, bl.isSolidObjectCollidable, bl.isProjectileCollidable, bl.isRaySegmentCollidable, bl.crushable, bl.blockEnemyPushing, bl.blockHeightChanges)
+
         --// Send to unsynced so it can broadcast to widgets (and update selection here)
         SendToUnsynced("unit_morph_finished", unitID, newUnit)
+
+        --// FIXME: - re-attach to current transport?
 
         spSetUnitBlocking(newUnit, true)
     end
@@ -1991,6 +2019,36 @@ if (gadgetHandler:IsSyncedCode()) then
         return true
     end
 
+    local function handleEzMorph(unitID, unitDefID, teamID, targetDefID)
+        --Spring.Echo("EzMorph triggered")
+
+        local morphDefs = getMorphDefs(unitID, unitDefID, "handleEzMorph")
+        local morphDef = morphDefs[getValidCmdID(morphDefs)]
+        --Spring.Echo("Allowcommand: Found morphDef: "..tostring(istable(morphDef)))
+        if morphDef then
+            StartMorph(unitID, morphDef, teamID)
+            return true, true
+        else
+            return true, false
+        end
+
+        --local morphData = morphingUnits[unitID] --morphUnits[unitID]
+        --if morphData then
+        --    return true, false
+        --end
+        --local morphSet = morphDefs[unitDefID]
+        --if not morphSet then
+        --    return true, true
+        --end
+        --for morphCmd, morphDef in pairs(morphSet) do
+        --    if not targetDefID or morphDef.into == targetDefID then
+        --        StartMorph(unitID, unitDefID, teamID) --, morphDef)
+        --        break
+        --    end
+        --end
+    end
+
+
     -- Fallback to process the Morph (start) command
     -- CommandFallback: called when the unit reaches a custom command in its queue
     function gadget:CommandFallback(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
@@ -2011,9 +2069,11 @@ if (gadgetHandler:IsSyncedCode()) then
             end
             return true, true
         end
-        -- Start Morph processing goes below
-        if cmdID < CMD_MORPH or cmdID >= CMD_MORPH + MAX_MORPH then
-            return false        --// command unknown, not used here
+        if cmdID == CMD_EZ_MORPH then
+            return handleEzMorph(unitID, unitDefID, teamID, cmdParams[1])
+        end
+        if (cmdID < CMD_MORPH or cmdID >= CMD_MORPH+MAX_MORPH) then
+            return false  --// command was not used
         end
         local morphDef = getSingleMorphdef(unitID, unitDefID, cmdID)
         if not morphDef then

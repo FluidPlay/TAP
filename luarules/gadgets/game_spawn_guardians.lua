@@ -28,6 +28,8 @@ local initialized
 local spGetAllFeatures = Spring.GetAllFeatures
 --local spGetGameFrame = Spring.GetGameFrame
 local spGetUnitPosition = Spring.GetUnitPosition
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spSetUnitRulesParam = Spring.SetUnitRulesParam
 local spCreateUnit = Spring.CreateUnit
 local spSetUnitNeutral = Spring.SetUnitNeutral
 local spSetUnitRotation = Spring.SetUnitRotation
@@ -36,6 +38,9 @@ local spGetAllUnits	= Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitTeam = Spring.GetUnitTeam
 local spValidUnitID = Spring.ValidUnitID
+local spGetGameFrame = Spring.GetGameFrame
+
+local CMD_EZ_MORPH = 31337
 
 local isHQ = {}  -- { unitID = true, ... }  -- TODO: Support HQs created after initial spawn
 
@@ -56,6 +61,15 @@ local spawnType = { [1] = "sml",    -- 0 mins
                     [8] = "uber",   -- 35 mins onwards
 }
 
+local morphChance = {   [1] = 0.25,    -- 25%     -- key == #guardians assigned to spot
+                        [2] = 0.5,    -- 50%
+                        [3] = 0.75,    -- 75%
+                        [4] = 1.0,    -- 100%
+}
+
+-- Reverse access table, to find the lowest level (for guardian timely morphs)
+local spawnTypeLevel = { ["sml"] = 1, ["med"] = 2, ["lrg"] = 3, ["uber"] = 4}
+
 local currentIter = 1   -- This will be increased by 1 every spawn
 local maxLevel = "uber"     -- Will use this if spawnType index fail (greater than 7, initially)
 
@@ -64,15 +78,17 @@ local teamStartPos = {}    -- { [teamID] = { x=x, y=y, z=z }, ... }
 local minGuardianDistance = 50    -- This prevents duplicated objects
 local minStartposDistance = 600   -- Prevents guardians from being spawned near start Positions
 local maxGuardiansPerSpot = 3
+local maxTier = 4                 -- maximum Guardian tier (1..4)
 
 --local updateRate = 30*60        -- test: 10s ; Guardian spawning frequency (every 4 minutes)
-local updateRate = 30*60*5        -- Guardian spawning frequency (every 5 minutes)
+local updateRate = 30*60*5 --2    -- Guardian spot-reinforcement frequency, either spawn or morph (every 5 minutes)
 
 local cmdFly = 145
 local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
+local nextFrameUnitSetup = {}
 
-local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
-                    --         guardians = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
+local oreSpots = {} -- { 1 = { chunks = { unitID = { pos = {x, y}, kind, spotIdx, idxInSpot }, ...},
+                    --         hostedGuardians = { unitID = { pos = {x, y}, level }, ...},
                     --    }
 --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
 --       }, ...
@@ -111,26 +127,47 @@ local function guardianNearbyInit(x, y, z)
     return false
 end
 
-local function spawnGuardian(x, y, z, iter, spotIdx)
+local function addGuardianToSpot(guardianUID, spotIdx, pos, guardianLevel)
+    local hostedGuardians = oreSpots[spotIdx].hostedGuardians
+    if not hostedGuardians then
+        oreSpots[spotIdx].hostedGuardians = {}
+    end
+    (oreSpots[spotIdx].hostedGuardians)[guardianUID] = { pos=pos, level=guardianLevel }
+
+    spSetUnitRotation(guardianUID,0,math.random()*85,0)            -- N + 0~85 degress (N,S,E,W)
+    spGiveOrderToUnit(guardianUID, cmdFly, { 0 }, {})
+    spGiveOrderToUnit(guardianUID, cmdAirRepairLevel, { 0 }, {})    -- don't land for anything!
+end
+
+local function addGuardian(x, y, z, iter, spotIdx)
     local guardianType = spawnType[iter]
     if not guardianType then
         guardianType = maxLevel end
+
+    local guardianLevel = spawnTypeLevel[guardianType]
+    if not guardianLevel then
+        guardianLevel = 0
+    end
+
     --Spring.Echo("Guardian type: "..(guardianType or "nil").." || Iter: "..(tostring(iter) or "nil"))
     local guardianUnitDefId = guardian[guardianType].id
     local guardianUID = spCreateUnit(guardianUnitDefId, x, y, z, 0, gaiaTeamID)
 
+    --Store info for further processing
+    spSetUnitRulesParam(guardianUID, "hotSpotIdx", tostring(spotIdx))
+    spSetUnitRulesParam(guardianUID, "guardPosX", tostring(x))
+    spSetUnitRulesParam(guardianUID, "guardPosY", tostring(y))
+    spSetUnitRulesParam(guardianUID, "guardPosZ", tostring(z))
+
     guardians[guardianUID]={ x=x, y=y, z=z, spotIdx=spotIdx }
 
-    --if not oreSpots[spotIdx].chunks then
-    --    oreSpots[spotIdx].chunks = {}
-    --end
-    --(oreSpots[spotIdx].chunks)[unitID] = { pos = {x=x, z=z}, kind= startOreKind, spotIdx = spotIdx }
+    --if not istable(oreSpots[id].guardians) then
+    --    oreSpots[id].guardians = {} end
+    --
+    --table.insert(oreSpots[id].guardians, guardianUID)
+    --table.insert(oreSpots[spotIdx].hostedGuardians, { id = guardianUID, pos = {x=x, z=z}, level=guardianLevel })
 
-    --spSetUnitNeutral(unitID, true)
-
-    spSetUnitRotation(guardianUID,0,math.random()*85,0) -- 0~85 degress after the spawn placement (N,S,E,W)
-    spGiveOrderToUnit(guardianUID, cmdFly, { 0 }, {})
-    spGiveOrderToUnit(guardianUID, cmdAirRepairLevel, { 0 }, {})
+    addGuardianToSpot(guardianUID, spotIdx, { x = x, y = y, z = z}, guardianLevel)
 
     return guardianUID
 end
@@ -146,38 +183,56 @@ function gadget:Initialize()
 end
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
-    if unitID and spValidUnitID(unitID) then
-        --TODO: Use GG.teamStartPoints = teamStartPoints instead of this
-        local unitDef = unitDefID and UnitDefs[unitDefID] or nil
-        if unitDef and unitDef.customParams and unitDef.customParams.ishq then
+    if not unitID or not spValidUnitID(unitID) then
+        return end
+
+    local unitDef = unitDefID and UnitDefs[unitDefID] or nil
+    if unitDef and unitDef.customParams then
+        if unitDef.customParams.ishq then
             local x, y, z = spGetUnitPosition(unitID)
             isHQ[unitID] = { x=x, y=y, z=z }
+        end
+        if unitDef.customParams.tedclass == "guardian" then
+            nextFrameUnitSetup[unitID] = { frame = spGetGameFrame() + 1, unitDef = unitDef }
         end
     end
 end
 
-local function addGuardianToSpot(guardianUID, id)
-    if not istable(oreSpots[id].guardians) then
-        oreSpots[id].guardians = {} end
-
-    table.insert(oreSpots[id].guardians, guardianUID)
+local function unitFinishedSetup(unitID, unitDef)
+    if unitDef and unitDef.customParams then
+        if unitDef.customParams.ishq then
+            local x, y, z = spGetUnitPosition(unitID)
+            isHQ[unitID] = { x=x, y=y, z=z }
+        end
+        -- This is stored in a Guardian, so the system may assign the spot Idx after morph
+        --Spring.GetUnitRulesParam ( number unitID, number index | string ruleName )
+        local hotSpotIdx = spGetUnitRulesParam(unitID, "hotSpotIdx")
+        if hotSpotIdx then
+            hotSpotIdx = tonumber(hotSpotIdx)
+            local x = tonumber(spGetUnitRulesParam(unitID, "guardPosX"))
+            local y = tonumber(spGetUnitRulesParam(unitID, "guardPosY"))
+            local z = tonumber(spGetUnitRulesParam(unitID, "guardPosZ"))
+            local guardianLevel = isnumber(unitDef.customParams.tier) and tonumber(unitDef.customParams.tier) or 1
+            addGuardianToSpot(unitID, hotSpotIdx, {x = x, y = y, z = z}, guardianLevel)
+        end
+    end
 end
 
-local function removeGuardianFromSpot(guardianUID)
-    --local guardians = {}        -- { [unitID]={x,y,z,spotIdx}, ... }
+local function cleanupGuardianData(guardianUID)
+    -- guardians = { [unitID]={x,y,z,spotIdx}, ... }
     local data = guardians[guardianUID]
     if not istable(data) or not istable(oreSpots[data.spotIdx]) then
         return end
     --Spring.Echo("Removing guardian: "..(guardianUID or "nil").." from spot idx: "..(tostring(data.spotIdx) or "nil"))
-    local spotGuardians = oreSpots[data.spotIdx].guardians
-    ipairs_remove(spotGuardians, guardianUID)
-    if #spotGuardians == 0 then
+    local hostedGuardiansInSpot = oreSpots[data.spotIdx].hostedGuardians
+    hostedGuardiansInSpot[guardianUID] = nil
+    if tablelength(hostedGuardiansInSpot) == 0 then
         oreSpots[data.spotIdx].allowGuardians = false end
 end
 
 --function gadget:GameStart()
 function gadget:GameFrame(frame)
-    -- Initial Spawn
+    --- Initial Spawn
     if not initialized and frame > 0 then
         for id, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
@@ -190,21 +245,34 @@ function gadget:GameFrame(frame)
             end
             if doSpawnHere and not guardianNearbyInit(x,y,z) then
                 oreSpots[id].allowGuardians = true
-                local newGuardianUID = spawnGuardian(x,y,z, 1, id)
-                addGuardianToSpot(newGuardianUID, id)
+                addGuardian(x,y,z, 1, id)
+                --local newGuardianUID = ...
+                --addGuardianToSpot(newGuardianUID, id)
                 --oreSpots[id].guardians = spawnGuardian(x,y,z, 1, id)
             end
         end
         initialized = true
     end
 
+    --- Next-frame unit setup (after morph); we add a startup delay to prevent any issues with starting guardians
+    if frame > 10 then
+        --nextFrameUnitSetup[unitID] = { frame = spGetGameFrame() + 1, unitDefID=unitDefID, unitDef = unitDef }
+        for unitID, v in pairs(nextFrameUnitSetup) do
+            if v.frame >= frame then
+                unitFinishedSetup(unitID, v.unitDef)
+                nextFrameUnitSetup[unitID] = nil
+            end
+        end
+    end
+
+    --- Timely Spawn / Morph of Guardians
     if not initialized or frame % updateRate > 0.001 then
         return end
     currentIter = currentIter + 1
     for id, data in ipairs(oreSpots) do
-        local numGuardians = data.guardians and #data.guardians or 0
-        if not data.guardians then
-            data.guardians = {}
+        local numGuardians = istable(data.hostedGuardians) and tablelength(data.hostedGuardians) or 0
+        if not data.hostedGuardians then
+            data.hostedGuardians = {}
         end
         -- assert that the field hasn't been cleared of Guardians already, and it ain't reached max capacity
         if data.allowGuardians and numGuardians <= maxGuardiansPerSpot then
@@ -221,32 +289,43 @@ function gadget:GameFrame(frame)
             local x = math.cos(angle)*radius
             local z = math.sin(angle)*radius
             if doSpawnHere then
-                --local morphInteadOfSpawn = true --make it random chance
-                --if morphInteadOfSpawn then
-                --    local lowestTierGuardian = data.guardians[1]
-                --    for i, guardianId in ipairs(data.guardians) do
-                --
-                --    end
-                --else
-                    local newGuardianUID = spawnGuardian(sx+x, sy,sz+z, currentIter, id)
-                    addGuardianToSpot(newGuardianUID, id)
-                --end
+                local morphInteadOfSpawn = math.random() < morphChance[numGuardians]
+                if morphInteadOfSpawn then
+                    -- Pick first one, for now. Will be the first 'lowest tier' one
+                    local hostedGuardians = data.hostedGuardians
+                    if istable(hostedGuardians) then
+                        local lowestTierFound = maxTier       -- starts with max, can only go down
+                        local lowestTierGuardian = nil
+                        for guardianUID, data in pairs(hostedGuardians) do
+                            if data.level < lowestTierFound then
+                                lowestTierFound = data.level
+                                lowestTierGuardian = guardianUID
+                            end
+                        end
+                        -- Won't try morphing after max tier was already reached
+                        if IsValidUnit(lowestTierGuardian) and lowestTierFound < maxTier then
+                            spGiveOrderToUnit(lowestTierGuardian, CMD_EZ_MORPH, {}, { "" }) end
+                    end
+                else
+                    addGuardian(sx+x, sy,sz+z, currentIter, id)
+                    --local newGuardianUID =
+                    --addGuardianToSpot(newGuardianUID, id)
+                end
             end --, data.spotIdx) end
         end
     end
 end
 
 function gadget:UnitDestroyed(unitID)
-    --if guardians[unitID] then
+    if guardians[unitID] then
+        cleanupGuardianData(unitID)
     --    local x,y,z = spGetUnitPosition(unitID)
     --    if not guardianNearby(x, y, z) then
     --        local id = guardians[unitID].spotIdx
     --        oreSpots[id].allowGuardians = nil
     --    end
     --    guardians[unitID] = nil
-    --end
-    removeGuardianFromSpot(unitID)
-    guardians[unitID] = nil
+    end
     isHQ[unitID] = nil
 end
 
