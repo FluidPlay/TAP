@@ -124,6 +124,14 @@ local options={
         def    = false,
         section= 'tap_modes',
     },
+	{
+		key    = 'CARTS',
+		name   = 'CARTS mode',
+		desc   = 'Cooperative-Action-RTS mode: Id-sharing teams will split commander (even Id) and daemon (odd Id) functions',
+		type   = 'bool',
+		def    = false,
+		section= 'tap_modes',
+	},
     {
       key    = "shareddynamicalliancevictory",
       name   = "Dynamic Ally Victory",
