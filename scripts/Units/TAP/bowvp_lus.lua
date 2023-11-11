@@ -154,11 +154,17 @@ local scriptEnv = { base = base,
 					SFX = SFX,
 }
 
-local buildPiece = build_pos --building_plate
 local PlayAnimation = VFS.Include("scripts/animations/bowvp_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 
-script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+script_create = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+
+function script_activate()
+	script_create()
+end
+
+function script_deactivate()
+end
 
 function script.Create()
 	script_create()
@@ -172,15 +178,7 @@ function script.Deactivate()
 	script_deactivate()
 end
 
-function script.Killed(recentDamage, maxHealth)
-	script_killed(recentDamage, maxHealth)
-end
+--function script.Killed(recentDamage, maxHealth)
+--	script_killed(recentDamage, maxHealth)
+--end
 
--- Assign the desired buildpiece to the variable above
-function script.QueryBuildInfo()
-	if buildPiece then
-		return buildPiece
-	else
-		return base
-	end
-end

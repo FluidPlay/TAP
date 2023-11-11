@@ -767,7 +767,8 @@ local wreckAtlases = {
 		"unittextures/cor_color_wreck_normal.dds",
 	},
 	["raptor"] = {
-		"luaui/images/lavadistortion.png",
+		"unittextures/tap_wreck_1.dds",
+		--"luaui/images/lavadistortion.png",
 	}
 }
 
