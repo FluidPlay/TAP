@@ -4,50 +4,50 @@
 -- Time: 11:38AM
 --
 
-local root_x = piece 'root_x'
-local c_thigh_b_r = piece 'c_thigh_b_r'
-local thigh_stretch_r = piece 'thigh_stretch_r'
-local leg_stretch_r = piece 'leg_stretch_r'
-local foot_r = piece 'foot_r'
-local leg_twist_r = piece 'leg_twist_r'
-local thigh_twist_r = piece 'thigh_twist_r'
-local c_thigh_b_dupli_001_l = piece 'c_thigh_b_dupli_001_l'
-local thigh_stretch_dupli_001_l = piece 'thigh_stretch_dupli_001_l'
-local leg_stretch_dupli_001_l = piece 'leg_stretch_dupli_001_l'
-local foot_dupli_001_l = piece 'foot_dupli_001_l'
-local leg_twist_dupli_001_l = piece 'leg_twist_dupli_001_l'
-local thigh_twist_dupli_001_l = piece 'thigh_twist_dupli_001_l'
-local c_thigh_b_dupli_001_r = piece 'c_thigh_b_dupli_001_r'
-local thigh_stretch_dupli_001_r = piece 'thigh_stretch_dupli_001_r'
-local leg_stretch_dupli_001_r = piece 'leg_stretch_dupli_001_r'
-local foot_dupli_001_r = piece 'foot_dupli_001_r'
-local leg_twist_dupli_001_r = piece 'leg_twist_dupli_001_r'
-local thigh_twist_dupli_001_r = piece 'thigh_twist_dupli_001_r'
-local c_tail_00_x = piece 'c_tail_00_x'
-local c_tail_01_x = piece 'c_tail_01_x'
-local c_tail_02_x = piece 'c_tail_02_x'
-local c_tail_03_x = piece 'c_tail_03_x'
-local c_tail_04_x = piece 'c_tail_04_x'
-local c_thigh_b_dupli_002_l = piece 'c_thigh_b_dupli_002_l'
-local thigh_stretch_dupli_002_l = piece 'thigh_stretch_dupli_002_l'
-local leg_stretch_dupli_002_l = piece 'leg_stretch_dupli_002_l'
-local foot_dupli_002_l = piece 'foot_dupli_002_l'
-local leg_twist_dupli_002_l = piece 'leg_twist_dupli_002_l'
-local thigh_twist_dupli_002_l = piece 'thigh_twist_dupli_002_l'
-local c_thigh_b_dupli_002_r = piece 'c_thigh_b_dupli_002_r'
-local thigh_stretch_dupli_002_r = piece 'thigh_stretch_dupli_002_r'
-local leg_stretch_dupli_002_r = piece 'leg_stretch_dupli_002_r'
-local foot_dupli_002_r = piece 'foot_dupli_002_r'
-local leg_twist_dupli_002_r = piece 'leg_twist_dupli_002_r'
-local thigh_twist_dupli_002_r = piece 'thigh_twist_dupli_002_r'
-local cc_wing_L = piece 'cc_wing_L'
-local cc_wing_R = piece 'cc_wing_R'
-local c_thigh_b_l = piece 'c_thigh_b_l'
-local thigh_stretch_l = piece 'thigh_stretch_l'
-local leg_stretch_l = piece 'leg_stretch_l'
-local foot_l = piece 'foot_l'
-local leg_twist_l = piece 'leg_twist_l'
-local thigh_twist_l = piece 'thigh_twist_l'
+local root_x = piece 'rig_Raptor_Artillery_root_x'
+local c_thigh_b_r = piece 'rig_Raptor_Artillery_c_thigh_b_r'
+local thigh_stretch_r = piece 'rig_Raptor_Artillery_thigh_stretch_r'
+local leg_stretch_r = piece 'rig_Raptor_Artillery_leg_stretch_r'
+local foot_r = piece 'rig_Raptor_Artillery_foot_r'
+local leg_twist_r = piece 'rig_Raptor_Artillery_leg_twist_r'
+local thigh_twist_r = piece 'rig_Raptor_Artillery_thigh_twist_r'
+local c_thigh_b_dupli_001_l = piece 'rig_Raptor_Artillery_c_thigh_b_dupli_001_l'
+local thigh_stretch_dupli_001_l = piece 'rig_Raptor_Artillery_thigh_stretch_dupli_001_l'
+local leg_stretch_dupli_001_l = piece 'rig_Raptor_Artillery_leg_stretch_dupli_001_l'
+local foot_dupli_001_l = piece 'rig_Raptor_Artillery_foot_dupli_001_l'
+local leg_twist_dupli_001_l = piece 'rig_Raptor_Artillery_leg_twist_dupli_001_l'
+local thigh_twist_dupli_001_l = piece 'rig_Raptor_Artillery_thigh_twist_dupli_001_l'
+local c_thigh_b_dupli_001_r = piece 'rig_Raptor_Artillery_c_thigh_b_dupli_001_r'
+local thigh_stretch_dupli_001_r = piece 'rig_Raptor_Artillery_thigh_stretch_dupli_001_r'
+local leg_stretch_dupli_001_r = piece 'rig_Raptor_Artillery_leg_stretch_dupli_001_r'
+local foot_dupli_001_r = piece 'rig_Raptor_Artillery_foot_dupli_001_r'
+local leg_twist_dupli_001_r = piece 'rig_Raptor_Artillery_leg_twist_dupli_001_r'
+local thigh_twist_dupli_001_r = piece 'rig_Raptor_Artillery_thigh_twist_dupli_001_r'
+local c_tail_00_x = piece 'rig_Raptor_Artillery_c_tail_00_x'
+local c_tail_01_x = piece 'rig_Raptor_Artillery_c_tail_01_x'
+local c_tail_02_x = piece 'rig_Raptor_Artillery_c_tail_02_x'
+local c_tail_03_x = piece 'rig_Raptor_Artillery_c_tail_03_x'
+local c_tail_04_x = piece 'rig_Raptor_Artillery_c_tail_04_x'
+local c_thigh_b_dupli_002_l = piece 'rig_Raptor_Artillery_c_thigh_b_dupli_002_l'
+local thigh_stretch_dupli_002_l = piece 'rig_Raptor_Artillery_thigh_stretch_dupli_002_l'
+local leg_stretch_dupli_002_l = piece 'rig_Raptor_Artillery_leg_stretch_dupli_002_l'
+local foot_dupli_002_l = piece 'rig_Raptor_Artillery_foot_dupli_002_l'
+local leg_twist_dupli_002_l = piece 'rig_Raptor_Artillery_leg_twist_dupli_002_l'
+local thigh_twist_dupli_002_l = piece 'rig_Raptor_Artillery_thigh_twist_dupli_002_l'
+local c_thigh_b_dupli_002_r = piece 'rig_Raptor_Artillery_c_thigh_b_dupli_002_r'
+local thigh_stretch_dupli_002_r = piece 'rig_Raptor_Artillery_thigh_stretch_dupli_002_r'
+local leg_stretch_dupli_002_r = piece 'rig_Raptor_Artillery_leg_stretch_dupli_002_r'
+local foot_dupli_002_r = piece 'rig_Raptor_Artillery_foot_dupli_002_r'
+local leg_twist_dupli_002_r = piece 'rig_Raptor_Artillery_leg_twist_dupli_002_r'
+local thigh_twist_dupli_002_r = piece 'rig_Raptor_Artillery_thigh_twist_dupli_002_r'
+local cc_wing_L = piece 'rig_Raptor_Artillery_cc_wing_L'
+local cc_wing_R = piece 'rig_Raptor_Artillery_cc_wing_R'
+local c_thigh_b_l = piece 'rig_Raptor_Artillery_c_thigh_b_l'
+local thigh_stretch_l = piece 'rig_Raptor_Artillery_thigh_stretch_l'
+local leg_stretch_l = piece 'rig_Raptor_Artillery_leg_stretch_l'
+local foot_l = piece 'rig_Raptor_Artillery_foot_l'
+local leg_twist_l = piece 'rig_Raptor_Artillery_leg_twist_l'
+local thigh_twist_l = piece 'rig_Raptor_Artillery_thigh_twist_l'
 
 VFS.Include("scripts/include/springtweener.lua")
 
@@ -136,10 +136,15 @@ local scriptEnv = { root_x = root_x,
 					SFX = SFX,
 }
 
-local buildPiece = build_pos --building_plate
 local PlayAnimation = VFS.Include("scripts/animations/raptorartillery_anim.lua", scriptEnv)
 --scriptEnv.PlayAnimation = PlayAnimation
 --script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3 = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+
+local function create()
+    Signal(1) -- Kill any other copies of this thread
+    SetSignalMask(1) -- Allow this thread to be killed by fresh copies
+    PlayAnimation.create()
+end
 
 function script.Create()
     --StartThread(function ()
@@ -149,7 +154,7 @@ function script.Create()
     --               }
     --    })
     --end)
-    PlayAnimation.create()
+    StartThread(create)
 end
 
 function script.Activate()
@@ -158,7 +163,7 @@ function script.Activate()
     --               [1]={cmd="move", axis=z_axis, targetValue=15.000000, firstFrame=0, lastFrame=36,},
     --           }
     --})
-	script_activate()
+    StartThread(create)
 end
 
 function script.Deactivate()
@@ -167,18 +172,18 @@ function script.Deactivate()
     --               [1]={cmd="move", axis=z_axis, targetValue=0.000000, firstFrame=0, lastFrame=20,},
     --           }
     --})
-	script_deactivate()
+	--script_deactivate()
 end
 
-function script.Killed(recentDamage, maxHealth)
-	script_killed(recentDamage, maxHealth)
-end
+--function script.Killed(recentDamage, maxHealth)
+--	script_killed(recentDamage, maxHealth)
+--end
 
 -- Assign the desired buildpiece to the variable above
-function script.QueryBuildInfo()
-	if buildPiece then
-		return buildPiece
-	else
-		return base
-	end
-end
+--function script.QueryBuildInfo()
+--	if buildPiece then
+--		return buildPiece
+--	else
+--		return base
+--	end
+--end
