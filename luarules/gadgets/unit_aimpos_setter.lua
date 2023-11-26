@@ -37,7 +37,7 @@ local vehicleBaseYOffset = 16
 local unitsToEdit = { [UnitDefNames.armllt.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.corllt.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.armbeamer.id] = {apo = {x=0,y=20,z=0}},
-                      [UnitDefNames.corhllt.id] = {apo = {x=0,y=20,z=0}},
+                      [UnitDefNames.cordlt.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.armamex.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.corexp.id] = {apo = {x=0,y=20,z=0}},
                       [UnitDefNames.armhlt.id] = {apo = {x=0,y=20,z=0}},

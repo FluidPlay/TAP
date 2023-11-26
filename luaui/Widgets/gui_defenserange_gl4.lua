@@ -67,6 +67,7 @@ modConfig["TAP"]["unitList"] = {
 	-- ARMADA
 	armllt = { weapons = { 1 } },
 	armbeamer = { weapons = { 1 } },
+	armmlt = { weapons = { 1 } },
 	armhlt = { weapons = { 1 } },
 	armguard = { weapons = { 5} },
 	armrl = { weapons = { 2 } }, --light aa
@@ -91,7 +92,8 @@ modConfig["TAP"]["unitList"] = {
 	-- CORTEX
 	corexp = { weapons = { 1 } },
 	corllt = { weapons = { 1 } },
-	corhllt = { weapons = { 1 } },
+	cordlt = { weapons = { 1 } },
+	corft = { weapons = { 1 } },
 	corhlt = { weapons = { 1 } },
 	corpun = { weapons = { 5} },
 	corrl = { weapons = { 2 } },

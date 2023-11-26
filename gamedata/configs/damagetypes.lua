@@ -17,7 +17,7 @@ local damageTypes = {
 
 	laser={"kernfry","armwar","armsubk","corshark","corak","corgator",},
 
-	hflaser={"armllt","corllt","armhlt","corhlt","corexp","corhllt","armfhlt",},
+	hflaser={"armllt","corllt","armhlt","corhlt","corexp","cordlt","armfhlt",},
 
 	flak={"armdeva","armyork","corsent","corshred","corhrk","cordefiler",},
 

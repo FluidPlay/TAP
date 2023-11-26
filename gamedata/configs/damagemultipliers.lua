@@ -9,7 +9,7 @@
 --
 local damageMultipliers = {
 
-    laser = { 	robot = 2, vehicle = 0.3, air = 0.5, ship = 1, armorbot = 0.75, armorveh = 0.25, armorair = 1.5, armorship = 0.5,
+    laser = { 	robot = 2, vehicle = 0.3, air = 0.5, ship = 1, armorbot = 0.66, armorveh = 0.25, armorair = 1.5, armorship = 0.5,
                 structure = 0.6, defense = 0.1, armordefense = 0.25, commander = 0.4, shield = 1, superunit = 1, ore = 0, guardian = 0.6, },
     --    laser={     lightbot = 1.72, supportbot = 1.4,  heavybot = 0.6, lightveh = 0.61,    supportveh = 0.28,  heavyveh = 0.16,
     --                lightair = 1.395,supportair = 0.5,  heavyair = 1,   lightship = 1.25,   supportship = 2,    heavyship = 0.5,
@@ -30,7 +30,7 @@ local damageMultipliers = {
     cannon  = { robot = 0.15, vehicle = 1.2, air = 1.3, ship = 1.5, armorbot = 0.6, armorveh = 1.0, armorair = 1.3, armorship = 1.5,
                 structure = 1.2, defense = 0.33, armordefense = 0.15, commander = 0.65, shield = 1, superunit = 0.7, ore = 0, guardian = 0.65, },
 
-    flak    = { robot = 0.4, vehicle = 0.4, air = 0.6, ship = 1.0, armorbot = 2.0, armorveh = 0.3, armorair = 0.5, armorship = 0.75,
+    flak    = { robot = 0.4, vehicle = 0.4, air = 0.6, ship = 1.0, armorbot = 1.6, armorveh = 0.3, armorair = 0.5, armorship = 0.75,
                 structure = 0.5, defense = 0.6, armordefense = 0.75, commander = 0.20, shield = 2, superunit = 2.5, ore = 0, guardian = 0.15, },
     --	bullet={ 	lightbot = 1.5,  supportbot = 1.5,	heavybot = 0.71,lightveh = 0.255,   supportveh = 0.4,   heavyveh = 0.4,
     --				lightair = 0.2,  supportair = 0.65,	heavyair = 1.5, lightship = 0.75,   supportship = 1,    heavyship = 0.25,
@@ -67,7 +67,7 @@ local damageMultipliers = {
     --,
 
     ---v3
-    plasma = { 	robot = 1.1, vehicle = 0.5, air = 1, ship = 1.5, armorbot = 0.6, armorveh = 0.3, armorair = 1.5, armorship = 1.5,
+    plasma = { 	robot = 1.1, vehicle = 0.5, air = 1, ship = 1.5, armorbot = 0.5, armorveh = 0.3, armorair = 1.5, armorship = 1.5,
                 structure = 1.4, defense = 0.3, armordefense = 0.6, commander = 0.85, shield = 1, superunit = 0.75, ore = 0, guardian = 0.3, },
 
     ---v2

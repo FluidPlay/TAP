@@ -62,15 +62,15 @@ local armorDefs = {
 				 "armsilo", "corsilo",
 	},
 
-	defense = {"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt",
+	defense = {"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armmlt",
 			   "armpb","corbhmth","corbuzz","corexp","corfmd","corgate",
-			   "corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint",
+			   "corhlt","corllt","cordlt","corft","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint",
 			   "armkamturret", "corbwturret",
 			   "kernhq_rt", "kernhq_lt", "kernhq_ct",
 	},
 	armordefense={"armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad","corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl", "kernhq_mt", },
 
-	--defense={"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfmd","corgate","corhlt","corllt","corhllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
+	--defense={"armvulc","armamb","armamd","armdrag","armemp","armfhlt","armguard","armhlt","armllt","armpb","corbhmth","corbuzz","corexp","corfmd","corgate","corhlt","corllt","corpun","cortoast","corvipe","hllt","armbeamer","armbrtha","corint","armamex",},
 	--
 	--defenseaa={"armrl","armatl","armcir","armdeva","armfflak","armfrt","coratl","corerad","corfrt","corrl","armmercury","corscreamer","cordoom","armanni","armptl","corptl","armtl","cortl",},
 	--

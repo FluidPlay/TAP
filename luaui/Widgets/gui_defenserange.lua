@@ -58,7 +58,7 @@ modConfig["TAP"]["unitList"] = {
 	--CORE
 	corexp = { weapons = { 1 } },
 	corllt = { weapons = { 1 } },
-	corhllt = { weapons = { 1 } },
+	cordlt = { weapons = { 1 } },
 	corhlt = { weapons = { 1 } },
 	corpun = { weapons = { 1, 1 } },
 	corrl = { weapons = { 2 } },
