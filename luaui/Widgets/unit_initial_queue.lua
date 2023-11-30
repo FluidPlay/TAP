@@ -100,7 +100,7 @@ local ARMTL = UnitDefNames["armtl"].id
 local CORTL = UnitDefNames["cortl"].id
 local ARMSONAR = UnitDefNames["armsonar"].id
 local CORSONAR = UnitDefNames["corsonar"].id
-local ARMFRT = UnitDefNames["armfrt"].id
+--local ARMFRT = UnitDefNames["armfrt"].id
 
 local ARMLAB = UnitDefNames["armlab"].id
 local CORLAB = UnitDefNames["corlab"].id
@@ -128,18 +128,18 @@ local CORDRAG = UnitDefNames["cordrag"].id
 
 local ARMAP = UnitDefNames["armap"].id
 local CORAP = UnitDefNames["corap"].id
-
-local ARMUWMS = UnitDefNames["armuwms"].id
-local CORUWMS = UnitDefNames["coruwms"].id
-
-local ARMUWES = UnitDefNames["armuwes"].id
-local CORUWES = UnitDefNames["coruwes"].id
+--
+--local ARMUWMS = UnitDefNames["armuwms"].id
+--local CORUWMS = UnitDefNames["coruwms"].id
+--
+--local ARMUWES = UnitDefNames["armuwes"].id
+--local CORUWES = UnitDefNames["coruwes"].id
 
 local ARMFDRAG = UnitDefNames["armfdrag"].id
 local CORFDRAG = UnitDefNames["corfdrag"].id
-
-local ARMPTL = UnitDefNames["armptl"].id
-local CORPTL = UnitDefNames["corptl"].id
+--
+--local ARMPTL = UnitDefNames["armptl"].id
+--local CORPTL = UnitDefNames["corptl"].id
 
 -- this info is used to switch buildings between factions
 local armToCore = {}
@@ -164,7 +164,7 @@ armToCore[ARMEYES] = COREYES
 armToCore[ARMDRAG] = CORDRAG
 armToCore[ARMAP] = CORAP
 armToCore[ARMFDRAG] = CORFDRAG
-armToCore[ARMPTL] = CORPTL
+--armToCore[ARMPTL] = CORPTL
 
 local CONVERT_TABLE = {
     [1] =  {[UnitDefNames["armsolar"].id] = "Bow", 		[UnitDefNames["corsolar"].id] = "Kern",	},

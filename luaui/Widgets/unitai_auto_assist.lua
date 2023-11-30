@@ -554,6 +554,10 @@ local function getLoadPercentage(unitID, unitDef)
     return (getUnitHarvestStorage(unitID) or 1) / maxorestorage
 end
 
+local function isOutpost(uDef)
+    return uDef.customParams and uDef.customParams.tedclass and uDef.customParams.tedclass == "outpost"
+end
+
 --- Decides and issues orders on what to do around the unit, in this order (1 == higher):
 --- 1. If is not harvesting and there's a chunk nearby, set it to 'harvest' (from there on, ai_harvester_brain takes control, until it's commanded)
 --- 2. If has no weapon (outpost, FARK, etc), reclaim enemy units;
@@ -566,10 +570,12 @@ end
 local automatedFunctions = {
     [1] = { id="enemyreclaim",
             condition = function(ud)  -- Commanders shouldn't prioritize enemy-reclaiming
-                return automatedState[ud.unitID] ~= "enemyreclaim" and automatedState[ud.unitID] ~= "harvest"
+                return automatedState[ud.unitID] ~= "enemyreclaim" -- and automatedState[ud.unitID] ~= "harvest"
                         and automatedState[ud.unitID] ~= "assist"
+                        and isOutpost(ud.unitDef)
                         --and ud.unitDef.canMove
-                        and not ud.unitDef.customParams.iscommander
+                        --and not ud.unitDef.customParams.iscommander
+
             end,
             action = function(ud) --unitData
                 --Spring.Echo("[1] Enemy-reclaim check")
@@ -588,7 +594,7 @@ local automatedFunctions = {
     [2] = { id="harvest",
             condition = function(ud)
                 if harvesters[ud.unitID]
-                        and automatedState[ud.unitID] ~= "enemyreclaim"
+                        --and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "harvest" then
                     --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
                     local parentOreTowerID = getParentOreTowerID(ud, harvesters)
@@ -613,11 +619,34 @@ local automatedFunctions = {
                 return "harvest"
             end
     },
-    [3] = { id="reclaim",
+    [3] = { id="assist",
+            condition =  function(ud) --
+                local hasResources = resourcesCheck()
+                --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." has Resources: "..tostring(hasResources))
+                return canassist[ud.unitDef.name] --and not ud.orderIssued
+                        and automatedState[ud.unitID] ~= "enemyreclaim"
+                        and automatedState[ud.unitID] ~= "harvest"
+                        and automatedState[ud.unitID] ~= "assist"
+                        and hasResources -- must have enough energy and ore to assist things being built
+            end,
+            action = function(ud)
+                --Spring.Echo("[3] Factory-assist check \nAutoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
+                --TODO: If during 'automation' it's assisting/guarding a factory but factory stopped production, de-automate it
+                local nearestFactoryID = getNearestFactoryID(ud)
+                if nearestFactoryID then
+                    giveInternalOrderToUnit(ud.unitID, CMD_GUARD, { nearestFactoryID }, {} )
+                    unitTarget[ud.unitID] = nearestFactoryID
+                    return "assist"
+                end
+                return nil
+            end
+    },
+    [4] = { id="reclaim",
             condition = function(ud) --
                 return canreclaim[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "enemyreclaim"
                         and automatedState[ud.unitID] ~= "harvest"
+                        and automatedState[ud.unitID] ~= "assist"
                         and automatedState[ud.unitID] ~= "reclaim"
                         and spGetUnitRulesParam(ud.unitID, "loadedHarvester") ~= 1
             end,
@@ -645,14 +674,15 @@ local automatedFunctions = {
                 return nil
             end
     },
-    [4] = { id="repair",
+    [5] = { id="repair",
             condition = function(ud) --
                 local hasEnergy = resourcesCheck("e")
                 --Spring.Echo("Has energy: "..(tostring(hasEnergy) or nil))
                 return canrepair[ud.unitDef.name]
                         and automatedState[ud.unitID] ~= "enemyreclaim"
-                        and automatedState[ud.unitID] ~= "reclaim"
                         and automatedState[ud.unitID] ~= "harvest"
+                        and automatedState[ud.unitID] ~= "assist"
+                        and automatedState[ud.unitID] ~= "reclaim"
                         and automatedState[ud.unitID] ~= "repair" and hasEnergy
             end,
             action = function(ud)
@@ -674,39 +704,15 @@ local automatedFunctions = {
                 return nil
             end
     },
-    [5] = { id="assist",
-            condition =  function(ud) --
-                local hasResources = resourcesCheck()
-                --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." has Resources: "..tostring(hasResources))
-                return canassist[ud.unitDef.name] --and not ud.orderIssued
-                        and automatedState[ud.unitID] ~= "enemyreclaim"
-                        and automatedState[ud.unitID] ~= "reclaim"
-                        and automatedState[ud.unitID] ~= "harvest"
-                        and automatedState[ud.unitID] ~= "repair"
-                        and automatedState[ud.unitID] ~= "assist"
-                        and hasResources -- must have enough energy and ore to assist things being built
-            end,
-            action = function(ud)
-                --Spring.Echo("[3] Factory-assist check \nAutoassisting factory: "..(nearestFactoryUnitID or "nil").." has eco: "..tostring(enoughEconomy()))
-                --TODO: If during 'automation' it's assisting/guarding a factory but factory stopped production, de-automate it
-                local nearestFactoryID = getNearestFactoryID(ud)
-                if nearestFactoryID then
-                    giveInternalOrderToUnit(ud.unitID, CMD_GUARD, { nearestFactoryID }, {} )
-                    unitTarget[ud.unitID] = nearestFactoryID
-                    return "assist"
-                end
-                return nil
-            end
-    },
     [6] = { id="resurrect",
             condition = function(ud)
                 local hasEnergy = resourcesCheck("e")
                 return canresurrect[ud.unitDef.name] --and not ud.orderIssued
                         and automatedState[ud.unitID] ~= "enemyreclaim"
-                        and automatedState[ud.unitID] ~= "reclaim"
                         and automatedState[ud.unitID] ~= "harvest"
-                        and automatedState[ud.unitID] ~= "repair"
                         and automatedState[ud.unitID] ~= "assist"
+                        and automatedState[ud.unitID] ~= "reclaim"
+                        and automatedState[ud.unitID] ~= "repair"
                         and automatedState[ud.unitID] ~= "resurrect"
                         and hasEnergy -- must have enough "E" to resurrect stuff
             end,
@@ -814,7 +820,7 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
     end
     --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
     if ud.orderIssued then
-        --spEcho ("New order Issued: "..ud.orderIssued)
+        Spring.Echo ("New order Issued: "..ud.orderIssued)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
         reallyIdleUnits[unitID] = nil
@@ -904,18 +910,19 @@ local MAX_MORPH = 1024
 function widget:CommandNotify(cmdID, params, options)
     if cmdID == CMD_WAIT then   -- prevents wait-state changes from inadvertently exiting wait status
         return end              -- awaitedUnits is set below, in widget:UnitCommand
-    local morphCmd
-    if (cmdID > 31410 and cmdID < 31410+MAX_MORPH)  or cmdID == CMD_MORPH_STOP or cmdID == CMD_MORPH_PAUSE or cmdID == CMD_MORPH_QUEUE then
-        --Spring.Echo("Morph Command detected!")
-        morphCmd = true
-        return end
+    ---TODO: Fix, not working atm
+    --local morphCmd
+    --if (cmdID > 31410 and cmdID < 31410+MAX_MORPH)  or cmdID == CMD_MORPH_STOP or cmdID == CMD_MORPH_PAUSE or cmdID == CMD_MORPH_QUEUE then
+    --    --Spring.Echo("Morph Command detected!")
+    --    morphCmd = true
+    --    return end
     local selUnits = spGetSelectedUnits()  --() -> { [1] = unitID, ... }
     for _, unitID in ipairs(selUnits) do
-        if morphCmd then
-            --local x,y,z = spGetUnitPosition(unitID)
-            --spGiveOrderToUnit(unitID, CMD_MOVE, {x+20, y, z+20}, { "" })
-            setAutomateState(unitID, "idle", "UnitCommandNotify")
-        else
+        --if morphCmd then
+        --    --local x,y,z = spGetUnitPosition(unitID)
+        --    --spGiveOrderToUnit(unitID, CMD_MOVE, {x+20, y, z+20}, { "" })
+        --    setAutomateState(unitID, "idle", "UnitCommandNotify")
+        --else
             if unitTarget[unitID] and IsValidUnit(unitID) then
                 --Spring.Echo("Valid automatable unit got a user command "..unitID)
                 if (cmdID == CMD_ATTACK or cmdID == CMD_UNIT_SET_TARGET) then
@@ -938,10 +945,11 @@ function widget:CommandNotify(cmdID, params, options)
                         setAutomateState(unitID, "commanded", "UnitCommand")
                     end
                 end
+                if unitIdleEvent[unitID] then
+                    Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
+                    unitIdleEvent[unitID] = nil
+                end
             end
-            --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
-            --unitIdleEvent[unitID] = nil
-        end
     end
 end
 
