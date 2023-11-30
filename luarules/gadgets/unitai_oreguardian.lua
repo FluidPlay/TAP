@@ -52,7 +52,6 @@ local oreGuardianDef = {
 
 --{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
 local oreGuardians = {}         -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
---local aggressors = {}           -- Everyone who fired an attack from within any guardian def range
 local aggroedGuardians = {}     -- { guardianUnitID = true|false, ... }
 
 local fsmId = "oreguardian"
@@ -177,37 +176,10 @@ function gadget:GameFrame(f)
 
     fsm.GameFrame(f)
 
-    --TODO: Remove this. Use state check instead, that's what it's for
-    --for aggressorID, data in pairs(aggressors) do
-    --    local nextCheckFrame = data.nextCheckFrame
-    --    local aggroedGuardian = data.aggroedGuardianID
-    --    if IsValidUnit(aggressorID) then
-    --        if f >= nextCheckFrame then
-    --            aggressors[aggressorID] = nil       -- Aggression Expired (if it hasn't shot since last check)
-    --            -- Set 'off' the guardian
-    --        end
-    --
-    --        -- Go through guardians and see if there's any of them around, if so, update its 'aggroed' check timer
-    --        for guardianID, nextGuardCheckFrame in pairs(aggroedGuardians) do
-    --            if IsValidUnit(guardianID) and f >= nextGuardCheckFrame then
-    --                if spGetUnitSeparation(guardianID, aggressorID) < guardRadius then
-    --                    aggroedGuardians[guardianID] = spGetGameFrame() + aggroRecheckDelay
-    --                end
-    --                local idlePos = oreGuardians[guardianID].idlePos
-    --                local x,y,z = spGetUnitPosition(guardianID)
-    --                if distance(x,y,z,idlePos.x,idlePos.y,idlePos.z) > (guardRadius/2) then
-    --                    aggroedGuardians[guardianID] = nil
-    --                end
-    --            end
-    --        end
-    --    end
-    --end
-
 end
 
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
-    --aggressors[unitID] = nil
     aggroedGuardians[unitID] = nil
 end
 

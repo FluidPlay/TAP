@@ -264,6 +264,7 @@ if  (gadgetHandler:IsSyncedCode()) then
 							featureinfo.diry = py-fy
 							featureinfo.dirz = dirz
 						end
+						-- TODO: Check for invalid feature direction
 						SetFeatureDirection(featureID, featureinfo.dirx , factor*factor , featureinfo.dirz )
 					end
 

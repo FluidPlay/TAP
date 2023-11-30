@@ -14,6 +14,18 @@ function gadget:GetInfo()
     }
 end
 
+---Invert the system:
+--	- Every time a sprawler is added, check if there's a nearby ore field
+--	- Orefields will store all sprawlers around it { .sprawlers[unitID] }
+--	- 'maxSprawlerlevel', if any, will be updated if a newly assigned sprawler has a higher level (unless it's already maxed out, 'Uber')
+--		-- add internal function 'add' to the Sprawlers table
+--		-- add internal function 'remove' to Sprawlers table
+--			when a sprawler dies, call it passing unitID
+--
+--	- Each Orefield will also store a new 'seedingPower', which is all the damage taken by one of its related sprawlers (cumulative)
+--	- Every Chunk-Spawn-interval (5 mins at the moment) the seedAmount will be added to the spawning calculation
+--		-- and reset to ZERO, so it starts being added up again
+
 --- Darken Map: (TODO) color_groundambient_g / r/ b (0.33)
 --GroundShadowDensity (half)
 --Unit tonemapping, unitExposureMult:
@@ -86,6 +98,7 @@ if gadgetHandler:IsSyncedCode() then
     --local mcSetRotation         = Spring.MoveCtrl.SetRotation
     local mcDisable             = Spring.MoveCtrl.Disable
     local mcEnable              = Spring.MoveCtrl.Enable
+    local math_max = math.max
 
     local cmdFly = 145
     local cmdAirRepairLevel = CMD.AUTOREPAIRLEVEL
@@ -341,27 +354,23 @@ if gadgetHandler:IsSyncedCode() then
         if f % updateRate > 0.0001 then
             return end
         spawnIter = spawnIter + 1
-        local chunkMult = math.max(minChunkMult, baseChunkMult - (spawnIter * spawnIterMult))
+        local chunkMult = math.max(minChunkMult, baseChunkMult - (spawnIter * spawnIterMult))   -- eg: max(0.2, 1 - (1 * 0.03))
         spEcho("Spawn Iteration: "..spawnIter.." chunkMult: "..chunkMult)
 
         for i, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             if not data.chunks then
-                spEcho("ore Spot idx "..i..".chunks not found")
+                spEcho("ore Spot idx "..i..". chunks not found")
             end
             local existingCount = data.chunks and tablelength(data.chunks) or 0
-            -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 1 => ceil(2 * (1 - 1 * 0.11) => round (2 * 0.89) = 2
-            -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 2 => ceil(2 * (1 - 2 * 0.11) => round (2 * 0.78) = 2
-            -- eg: 2 chunks, baseChunkMult 1, spawnIterChunkMult 0.11, iteration 3 => ceil(2 * (1 - 3 * 0.11) => round (2 * 0.67) = 1
-            -- eg: 1 chunk,  baseChunkMult 1, spawnIterChunkMult 0.75, iteration 1 => ceil(1 * 1 * ( 0.75 / 1)) => ceil (0.75) = 1
             local chunkTypeToSpawn, sprawlerMult = chunkToSpawn(i)
             local chunksToSpawnHere = 0
-            if existingCount > 0 then
-                local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)
-                chunksToSpawnHere = math_clamp( ((existingCount > 0) and 1 or 0), maxChunkCount - existingCount, targetNewChunks)
+            if existingCount < 1 and chunkTypeToSpawn == "uber" or chunkTypeToSpawn == "moho" then
+                chunksToSpawnHere = 1
             else
-                if chunkTypeToSpawn == "uber" or chunkTypeToSpawn == "moho"
-                    then chunksToSpawnHere = 1 end
+                local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)   -- eg: (1 * 0.97 * 1.5) => 1.455 || initial, small chunk
+                --TODO: Add seeding power here!
+                chunksToSpawnHere = math_clamp( 0, maxChunkCount - existingCount, targetNewChunks)   --min [((existingCount > 0) and 1 or 0)];  max;  n
             end
             --Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * baseChunkMult .."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)
             for j = 1, chunksToSpawnHere do

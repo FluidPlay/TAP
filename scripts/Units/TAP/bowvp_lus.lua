@@ -56,7 +56,7 @@ local left_arm3 = piece 'left_arm3'
 local left_head = piece 'left_head'
 local left_pointer = piece 'left_pointer'
 --
-local build_pos = piece 'build_pos'
+local buildPiece = piece 'build_pos'
 
 local pointer = { left_pointer, right_pointer }
 local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
@@ -157,14 +157,9 @@ local scriptEnv = { base = base,
 local PlayAnimation = VFS.Include("scripts/animations/bowvp_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 
-script_create = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+--script_create = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
 
-function script_activate()
-	script_create()
-end
-
-function script_deactivate()
-end
+script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
 
 function script.Create()
 	script_create()
@@ -178,7 +173,16 @@ function script.Deactivate()
 	script_deactivate()
 end
 
---function script.Killed(recentDamage, maxHealth)
---	script_killed(recentDamage, maxHealth)
---end
+function script.Killed(recentDamage, maxHealth)
+	script_killed(recentDamage, maxHealth)
+end
+
+-- Assign the desired buildpiece to the variable above
+function script.QueryBuildInfo()
+	if buildPiece then
+		return buildPiece
+	else
+		return base
+	end
+end
 

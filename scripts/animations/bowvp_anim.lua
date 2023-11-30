@@ -1,4 +1,3 @@
-local Animations = {};
 
 --- open_default
 local function openstd()

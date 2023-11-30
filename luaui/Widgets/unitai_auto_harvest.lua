@@ -166,6 +166,8 @@ local function deautomateUnit(unitID)
 end
 
 local function setHarvestState(unitID, state, caller) -- idle, attack, waitforunload, deliver, resume
+    if not IsValidUnit(unitID) or not harvesters[unitID] then
+        return end
     if state == "idle" then
         deautomateUnit(unitID)
         local randRecheckTime = math_random(1,3) * recheckLatency

@@ -7,8 +7,8 @@ function widget:GetInfo()
 		version   = "1.6",
 		date      = "7 April 2010",
 		license   = "GNU GPL, v2 or later",
-		layer     = -1, -- Puts it above minimap_startboxes with layer 0
-		enabled   = true,
+		layer     = -1, 	-- Puts it above minimap_startboxes with layer 0
+		enabled   = false, --true,
 		handler   = true
 	}
 end
@@ -1011,12 +1011,12 @@ function widget:KeyPress(key,mods,isrepeat)
 			end
 		elseif key == VKEY then
             if selDefID == ARMOUTPOST then      SetSelDefID(ARMOUTPOST)
-            end
-			--if		selDefID == ARMLAB then		SetSelDefID(ARMVP)
+            --end
+			--elseif	selDefID == ARMLAB then		SetSelDefID(ARMVP)
 			--elseif 	selDefID == ARMVP then		SetSelDefID(ARMSY)
 			--elseif 	selDefID == ARMSY then		SetSelDefID(ARMLAB)
 			--else 								SetSelDefID(ARMLAB)
-			--end
+			end
 		end	
 	elseif sDef == UnitDefs[CORCOM] then
 		--if key == ZKEY then
