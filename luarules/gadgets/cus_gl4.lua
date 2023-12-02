@@ -828,9 +828,9 @@ local function initBinsAndTextures()
 	for unitDefID, unitDef in pairs(UnitDefs) do
 		if unitDef.model then
 			objectDefToUniformBin[unitDefID] = "otherunit"
-			if unitDef.name:sub(1,3) == 'arm' then
+			if unitDef.name:sub(1,3) == 'arm' or unitDef.name:sub(1,3) == 'bow' then
 				objectDefToUniformBin[unitDefID] = 'armunit'
-			elseif 	unitDef.name:sub(1,3) == 'cor' then
+			elseif 	unitDef.name:sub(1,3) == 'cor' or unitDef.name:sub(1,4) == 'kern' then
 				objectDefToUniformBin[unitDefID] = 'corunit'
 			elseif 	unitDef.name:sub(1,3) == 'leg' then
 				objectDefToUniformBin[unitDefID] = 'armunit'
@@ -852,16 +852,28 @@ local function initBinsAndTextures()
 				--[10] = envLUT,
 			}
 
-			local lowercasetex1 = string.lower(unitDef.model.textures.tex1 or "")
-			local lowercasetex2 = string.lower(unitDef.model.textures.tex2 or "")
-			local lowercasenormaltex = string.lower(normalTex or "")
+			local lctex1 = string.lower(unitDef.model.textures.tex1 or "")
+			local lctex2 = string.lower(unitDef.model.textures.tex2 or "")
+			local lcnormaltex = string.lower(normalTex or "")
 
-			local wreckTex1 = (lowercasetex1:find("arm_color", nil, true) and "unittextures/Arm_wreck_color.dds") or
-								(lowercasetex1:find("cor_color", nil, true) and "unittextures/Cor_color_wreck.dds")  or false
-			local wreckTex2 = (lowercasetex2:find("arm_other", nil, true) and "unittextures/Arm_wreck_other.dds") or
-								(lowercasetex2:find("cor_other", nil, true) and "unittextures/Cor_other_wreck.dds")  or false
-			local wreckNormalTex = (lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
-					(lowercasenormaltex:find("cor_normal") and "unittextures/Cor_color_wreck_normal.dds") or false
+			--local wreckTex1 = (lowercasetex1:find("arm_color", nil, true) and "unittextures/Arm_wreck_color.dds") or
+			--					(lowercasetex1:find("cor_color", nil, true) and "unittextures/Cor_color_wreck.dds")  or false
+			--local wreckTex2 = (lowercasetex2:find("arm_other", nil, true) and "unittextures/Arm_wreck_other.dds") or
+			--					(lowercasetex2:find("cor_other", nil, true) and "unittextures/Cor_other_wreck.dds")  or false
+			--local wreckNormalTex = (lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
+			--		(lowercasenormaltex:find("cor_normal") and "unittextures/Cor_color_wreck_normal.dds") or false
+
+			---TODO: Add bots textures + normal
+			local wreckTex1 = (lctex1:find("tap_texture1", nil, true) and "unittextures/tap_wreck_1.dds") or
+					(lctex1:find("tap_texture2", nil, true) and "unittextures/tap_wreck_2.dds") or
+					(lctex1:find("bow_bot_texture1.dds", nil, true) and "unittextures/bow_bot_wreck1.dds") or
+					(lctex1:find("kern_bot_texture1.dds", nil, true) and "unittextures/bow_bot_wreck1.dds") or
+					false
+			local wreckTex2 = (lctex2:find("tap_texture3", nil, true) and "unittextures/tap_wreck_3.dds") or
+					(lctex2:find("bow_bot_texture2.dds", nil, true) and "unittextures/bow_bot_wreck2.dds")  or
+			false
+			local wreckNormalTex = (lcnormaltex:find("tap_normal") and "unittextures/tap_wreck_normal.png") or
+					(lcnormaltex:find("cor_normal") and "unittextures/Cor_color_wreck_normal.dds") or false
 
 			if unitDef.name:find("_scav", nil, true) then -- it better be a scavenger unit, or ill kill you
 				textureTable[3] = wreckTex1
@@ -940,9 +952,9 @@ local function PreloadTextures()
 	gl.Texture(0, "unittextures/tap_texture1.dds")
 	gl.Texture(0, "unittextures/tap_texture2.dds")
 	gl.Texture(0, "unittextures/tap_texture3.dds")
-	gl.Texture(0, "unittextures/tap_wreck1.dds")
-	gl.Texture(0, "unittextures/tap_wreck2.dds")
-	gl.Texture(0, "unittextures/tap_wreck3.dds")
+	gl.Texture(0, "unittextures/tap_wreck_1.dds")
+	gl.Texture(0, "unittextures/tap_wreck_2.dds")
+	gl.Texture(0, "unittextures/tap_wreck_3.dds")
 	gl.Texture(0, "unittextures/tap_wreck_normal.png")
 	gl.Texture(0, "unittextures/corota_tex1.dds")
 	gl.Texture(0, "unittextures/corota_tex2.dds")
