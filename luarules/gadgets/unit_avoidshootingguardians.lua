@@ -26,11 +26,13 @@ VFS.Include("gamedata/taptools.lua")
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
 local g_AggroedGuardians
+local g_GuardianAttackers
 local g_Guardians
 
 function gadget:Initialize()
     g_AggroedGuardians = GG.AggroedGuardians
     g_Guardians = GG.Guardians
+    g_GuardianAttackers = GG.GuardianAttackers
 
     --for _, unitID in ipairs(spGetAllUnits()) do
     --    local unitDefID = spGetUnitDefID(unitID)
@@ -45,9 +47,11 @@ function gadget:Initialize()
 end
 
 function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerWeaponDefID, defPriority)
-    if not (defPriority and attackerWeaponDefID) then
+    --if not (defPriority and attackerWeaponDefID) then
+    if not attackerWeaponDefID then
         -- This callin is effectively script.BlockShot but for CommandAI.
         -- The engine will discard target priority information.
+        Spring.Echo("no attacker weapon, returning")
         return true
     end
     --if not istable(GG.Guardians) then
@@ -60,7 +64,20 @@ function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerW
     --else
     --    Spring.Echo("GG.AggroedGuardians found")
     --end
-    if g_Guardians[targetID] and not g_AggroedGuardians[targetID] then
+    if g_Guardians[targetID] then
+        -- aggroedGuardians[guardianID][attackerID] = true
+        if g_AggroedGuardians[targetID] then
+            Spring.Echo("It's aggroed")
+            return true, defPriority
+        else
+            if istable(g_GuardianAttackers[targetID]) then
+                Spring.Echo("is table!")
+            end
+            if g_GuardianAttackers[targetID] and g_GuardianAttackers[targetID][unitID] then
+                Spring.Echo("Attacker found!")
+                return true, defPriority
+            end
+        end
         return false, defPriority
     end
     return true, defPriority --return "targetAllowed, targetPriority"

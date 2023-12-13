@@ -820,7 +820,7 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
     end
     --Spring.Echo("Can assist: "..tostring(canassist[ud.unitDef.name]).." order Issued: "..tostring(ud.orderIssued).." has Resources: "..tostring(ud.hasResources))
     if ud.orderIssued then
-        Spring.Echo ("New order Issued: "..ud.orderIssued)
+        --Spring.Echo ("New order Issued: "..ud.orderIssued)
         unitsToAutomate[unitID] = nil
         setAutomateState(unitID, ud.orderIssued, caller.."> automateCheck")
         reallyIdleUnits[unitID] = nil
@@ -946,7 +946,7 @@ function widget:CommandNotify(cmdID, params, options)
                     end
                 end
                 if unitIdleEvent[unitID] then
-                    Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
+                    --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
                     unitIdleEvent[unitID] = nil
                 end
             end

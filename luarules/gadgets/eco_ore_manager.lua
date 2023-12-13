@@ -43,6 +43,7 @@ if gadgetHandler:IsSyncedCode() then
     local updateRate = 120 * 30 -- 2 mins
     local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
                    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
+                   --         baseMetalLevel = 1..3,       // (metal < 0.5 => 1) ; (0.5 <= metal <= 1.35) => 2; (metal > 1.35 => 3) ;
                    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
                    --       }, ...
                    -- }
@@ -71,7 +72,8 @@ if gadgetHandler:IsSyncedCode() then
     local math_pi = math.pi
     local minSpawnDistance = 18  -- 12   -- This prevents stacked ore chunks when spawning
     local spotSearchRadius = 100
-    local startingChunkCount = 3 --
+    local startingChunkCount = { [1] = 2, [2] = 3, [3] = 5 }         -- default = 3
+    local bonusMultFromLevel = { [1] = 0.75, [2] = 1, [3] = 1.5 }    -- low = -25% penalty, average = no bonus, rich = +50% bonus
     local maxChunkCount = 10     -- Won't have more than this amount of chunks in a single spot (on respawn)
     local baseChunkMult = 1      -- existing chunks times this number will be spawned (up to maxChunkCount above)
     local spawnIterMult = 0.03   -- every global spawning iteration, this is multiplied by the iter and subtracted from baseChunkMult
@@ -277,6 +279,18 @@ if gadgetHandler:IsSyncedCode() then
         --gadget:GameStart()
     end
 
+    --(metal < 0.5 => 1) ; (0.5 <= metal <= 1.35) => 2; (metal > 1.35 => 3) ;
+    -- 1.6, 2.5 & 3.5 are typical poor, average and rich field numbers
+    local function getBaseMetalLevel (metal)
+        --Spring.Echo("metal: "..metal)
+        if metal < 2 then
+            return 1
+        elseif metal >= 3 then
+            return 3
+        end
+        return 2
+    end
+
     --function gadget:GameFrame(frame)
     function gadget:GameStart()
         if not istable(oreSpots) then
@@ -286,7 +300,9 @@ if gadgetHandler:IsSyncedCode() then
         for i, data in ipairs(oreSpots) do
             --Spring.Echo("Adding chunks to spot#: "..i)
             local x, y, z = data.x, data.y, data.z
-            for j = 1, startingChunkCount do
+            local metalLevel = getBaseMetalLevel (data.metal)
+            data.baseMetalLevel = metalLevel    -- initialize data
+            for j = 1, startingChunkCount[metalLevel] do    -- 3, 4, 6
                 local unitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, startOreKind, { value=1 })
                 spEcho("Chunk unitID: "..(unitID or "nil").." added to spot #: "..i)
             end
@@ -338,12 +354,9 @@ if gadgetHandler:IsSyncedCode() then
             local period = (math.pi * 2) / data.timePeriod
             local offset = heightDelta * math.sin(period * gameFrame/100)
             local pos = data.pos
-            --mcEnable(unitID)
             mcSetPosition( unitID, pos.x, pos.y + offset, pos.z)
-            --mcDisable(unitID)
         end
     end
-
 
     function gadget:GameFrame(f)
         if not istable(oreSpots) then
@@ -365,11 +378,12 @@ if gadgetHandler:IsSyncedCode() then
             local existingCount = data.chunks and tablelength(data.chunks) or 0
             local chunkTypeToSpawn, sprawlerMult = chunkToSpawn(i)
             local chunksToSpawnHere = 0
+            --TODO: Add seeding power here!
             if existingCount < 1 and chunkTypeToSpawn == "uber" or chunkTypeToSpawn == "moho" then
                 chunksToSpawnHere = 1
             else
-                local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult)   -- eg: (1 * 0.97 * 1.5) => 1.455 || initial, small chunk
-                --TODO: Add seeding power here!
+                local bonusFromLevel = bonusMultFromLevel[data.baseMetalLevel] or 1    -- low = -25% penalty, average = no bonus, rich = +50% bonus
+                local targetNewChunks = math_round (existingCount * chunkMult * sprawlerMult * bonusFromLevel)   -- eg: (1 * 0.97 * 1.5) => 1.455 || initial, small chunk
                 chunksToSpawnHere = math_clamp( 0, maxChunkCount - existingCount, targetNewChunks)   --min [((existingCount > 0) and 1 or 0)];  max;  n
             end
             --Spring.Echo("Existing: "..existingCount.."; Target: "..existingCount * baseChunkMult .."; max: "..maxChunkCount - existingCount.."; to spawn: "..chunksToSpawnHere)

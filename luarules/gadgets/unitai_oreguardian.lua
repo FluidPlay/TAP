@@ -53,6 +53,7 @@ local oreGuardianDef = {
 --{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
 local oreGuardians = {}         -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
 local aggroedGuardians = {}     -- { guardianUnitID = true|false, ... }
+local guardianAttackers = {}    -- { unitID = true, ... }
 
 local fsmId = "oreguardian"
 --local stateIDs = { [1] = "movetoattack", [2] = "combat", [2] = "return", [3] = "idle", }
@@ -111,6 +112,7 @@ local fsmBehaviors = {
 
 function gadget:Initialize()
     GG.AggroedGuardians = aggroedGuardians  -- Used by unit_avoidshootingguardians.lua
+    GG.GuardianAttackers = guardianAttackers
     fsm.setup(fsmId, fsmBehaviors, 30, false) -- recheckLatency (idle->whatever), debug, updateRate = 6 (default)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
@@ -164,6 +166,10 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                     data.targetUpdated = true
                 end
                 aggroedGuardians[guardianID] = true
+                if not guardianAttackers[guardianID] then
+                    guardianAttackers[guardianID] = {}
+                end
+                guardianAttackers[guardianID][attackerID] = true
                 data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
             end
         end
@@ -181,6 +187,7 @@ end
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
     aggroedGuardians[unitID] = nil
+    --TODO: Clear up guardianAttackers table
 end
 
 --local function insertOrdered(tbl, insertData, param)
