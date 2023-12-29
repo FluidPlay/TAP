@@ -65,7 +65,7 @@ function gadget:Initialize()
     --    else
     --        minMapHeight = Spring.GetGroundExtremes()
     --    end
-    Spring.Echo("unit_advwin :: Found MinMapHeight = "..minMapHeight)
+    --Spring.Echo("unit_advwin :: Found MinMapHeight = "..minMapHeight)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
         local unitDefID = Spring.GetUnitDefID(unitID)

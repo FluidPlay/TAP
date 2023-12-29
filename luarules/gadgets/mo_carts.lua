@@ -30,6 +30,8 @@ if gadgetHandler:IsSyncedCode() then
 	
 	local armcomDefID = UnitDefNames.armcom.id
 	local corcomDefID = UnitDefNames.corcom.id
+
+	local function istable(x)  return (type(x) == 'table') end
 	
 	----------------------------------------------------------------
 	-- Setting up
@@ -90,30 +92,38 @@ if gadgetHandler:IsSyncedCode() then
 		--Spring.GetPlayerInfo ( number playerID ) => nil | string "name", bool active, bool spectator, number teamID, number allyTeamID
 		local _, isActive, isSpec, teamID, allyTeamID = Spring.GetPlayerInfo(playerID)
 		--TODO: Make it work for AI players (non-active)
-		if not isSpec and isActive then
+		Spring.Echo("Player ID: "..playerID.." isSpec: "..tostring(isSpec)..", isActive: "..tostring(isActive))
+		if not isSpec then --and isActive
 			if not allyTeams[allyTeamID] then
 				allyTeams[allyTeamID] = {} end
 			if not allyTeams[allyTeamID][teamID] then
 				allyTeams[allyTeamID][teamID] = {} end
-			table.insert(allyTeams[allyTeamID][teamID], playerID )
+			allyTeams[allyTeamID][teamID][playerID]=true
 		end
 	end
-	--## Eg: allyTeams[1][2] = { 4, 8, 9 } => allyTeams = 1, teamID = 2, playerIDs = 4, 8, 9
+	--## Eg: allyTeams[1][2] = { [4] = true, [8] = true, [9] = true } => allyTeams = 1, teamID = 2, playerIDs = 4, 8, 9
 
 	--- TODO/WIP: if there's more than one playerID in the same allyTeam, tag it as a CARTS'ed team / allyTeam
 	--- lowest playerID # will be the Architect, highest will be the Warlord
 	local teamIDsInAlly = {}
+	Spring.Echo("Architects list: ")
 	for allyTeamID, teamIDtable in pairs(allyTeams) do
 		if istable(teamIDtable) then
 			local teamIDcount = 0
 			local architectTeamID = 999999	-- lowest teamID
 			local warlordTeamID = -1		-- highest teamID
-			for teamID, playerIDtable in pairs(teamIDtable) do
+			for playerID, _ in pairs(teamIDtable) do
 				teamIDcount = teamIDcount + 1
-				if teamID < architectTeamID then
-					architectTeamID = teamID end
-				if teamID > warlordTeamID then
-					warlordTeamID = teamID end
+				if playerID < architectTeamID then
+					architectTeamID = playerID
+					Spring.Echo("Architect team: "..tonumber(architectTeamID).." in allyTeam # "..tonumber(allyTeamID))
+				end
+				-- if this player is not an architect already, or he's got a higher ID than the current warlord, assign
+				-- him as warlord
+				if playerID > warlordTeamID and not architectTeamID == playerID then --and not (architectTeamID == 999999)
+					warlordTeamID = playerID
+					Spring.Echo("Warlord team: "..tonumber(warlordTeamID).." in allyTeam # "..tonumber(allyTeamID))
+				end
 			end
 			if teamIDcount > 0 then
 				CARTSallies[allyTeamID] = { architectTeamID = architectTeamID, warlordTeamID = warlordTeamID }
@@ -122,6 +132,10 @@ if gadgetHandler:IsSyncedCode() then
 			end
 		end
 	end
+
+	--for architectTeamID,_ in pairs(architects) do
+	--	Spring.Echo("Architect team: "..tonumber(architectTeamID))
+	--end
 
 	---TODO: Set warlord-teamID color to be a more "pale" shade of Architect's teamID color; or the same
 	--Spring.SetTeamColor ( number teamID, number r, number g, number b )

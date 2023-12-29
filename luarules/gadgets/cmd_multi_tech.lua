@@ -561,7 +561,7 @@ if (gadgetHandler:IsSyncedCode()) then
 					for _, techname in ipairs(providedTechs) do
 						--TODO: Support different local:xxx upgrades
 						if techname == "local:advanced" then
-							Spring.Echo("local tech provision detected")
+							--Spring.Echo("local tech provision detected")
 							local _, colonPos = string.find(techname, ":") -- Returns the index
 							local localTechName = string.sub(techname, colonPos + 1) -- Takes the position after the colon
 							LocalTechProviders[uDef.id] = localTechName
