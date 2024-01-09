@@ -323,7 +323,7 @@ function ModOptions_Post (UnitDefs, WeaponDefs)
                     or name == "armcom2" or name == "corcom2"
                     or name == "armcom3" or name == "corcom3"
                     or name == "armcom4" or name == "corcom4"
-                    or name == "armdecom" or name == "cordecom" then
+                    then
                         ud.transportbyenemy = false
                 end
             end

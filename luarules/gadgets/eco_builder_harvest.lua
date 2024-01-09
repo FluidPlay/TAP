@@ -291,7 +291,7 @@ if gadgetHandler:IsSyncedCode() then
 
 	-- attackerID => harvesterID, for legibility purposes
 	function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer, weaponDefID, projectileID, harvesterID, harvesterDefID, attackerTeam)
-		--Spring.Echo("Damage: "..(damage or "nil").." from: "..(attackerID or "nil"))
+		Spring.Echo("Damage: "..(damage or "nil").." from: "..(harvesterID or "nil"))
 		if not IsValidUnit(harvesterID) or loadedHarvesters[harvesterID] then
 			return end
 		local harvesterDef = UnitDefs[harvesterDefID]
