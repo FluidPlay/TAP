@@ -398,8 +398,7 @@ else
     ---- UNSYNCED
     -----------------
 
-    ---- Here we'll make the 'capture' cursor the default action on top of ore chunks
-    ---- for commanders and capture-enabled builders
+    ---- Here we'll send the chunk destroyed message for the autoharvest widget to handle that
 
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGetMouseState = Spring.GetMouseState
