@@ -25,10 +25,10 @@ local Sounds = {
 	},
 }
 
+local t = Sounds.SoundItems
 
 -- UI SOUNDS
 local files = VFS.DirList("sounds/ui/")
-local t = Sounds.SoundItems
 for i=1,#files do
 	local fileName = files[i]
 	fileNames = string.sub(fileName, 11, string.find(fileName, ".wav") -1)
@@ -45,7 +45,6 @@ end
 
 -- WEAPON SOUNDS
 local files = VFS.DirList("sounds/weapons/")
-local t = Sounds.SoundItems
 for i=1,#files do
    local fileName = files[i]
    fileNames = string.sub(fileName, 16, string.find(fileName, ".wav") -1)
@@ -58,7 +57,6 @@ for i=1,#files do
       maxconcurrent = 4,
 	  rolloff = 0.5,
    }
-   
    if fileNames == "disigun1" then
 	t[fileNames].gain = 0.075*0.3
 	end
@@ -73,7 +71,6 @@ end
 
 -- REPLY SOUNDS
 local files = VFS.DirList("sounds/replies/")
-local t = Sounds.SoundItems
 for i=1,#files do
 	local fileName = files[i]
 	fileNames = string.sub(fileName, 16, string.find(fileName, ".wav") -1)
@@ -89,7 +86,6 @@ for i=1,#files do
 end
 
 local files = VFS.DirList("sounds/critters/")
-local t = Sounds.SoundItems
 for i=1,#files do
    local fileName = files[i]
    fileNames = string.sub(fileName, 16, string.find(fileName, ".wav") -1)
