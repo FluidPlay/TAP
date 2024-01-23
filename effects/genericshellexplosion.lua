@@ -1765,7 +1765,6 @@ local definitions = {
     --},
   },
 
-
   [root.."-huge"] = {
     centerflare = {
       air                = true,
@@ -2212,7 +2211,6 @@ local definitions = {
       },
     },
   },
-
 }
 
 
