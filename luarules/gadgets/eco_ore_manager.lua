@@ -398,7 +398,7 @@ else
     ---- UNSYNCED
     -----------------
 
-    ---- Here we'll send the chunk destroyed message for the autoharvest widget to handle that
+    ---- Here we'll send the chunk destroyed message for the autoharvest widget to handle it
 
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGetMouseState = Spring.GetMouseState

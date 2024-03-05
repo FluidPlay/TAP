@@ -25,6 +25,7 @@ if not gadgetHandler:IsSyncedCode() then
 GG.AggroedGuardians = {}
 
 VFS.Include("gamedata/taptools.lua")
+
 local fsm = { Spring = Spring, type = type, pairs = pairs, gl=gl, VFS=VFS, tostring=tostring}
 VFS.Include("common/include/springfsm.lua", fsm)
 
@@ -34,6 +35,7 @@ local spSetUnitNeutral = Spring.SetUnitNeutral
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitTeam = Spring.GetUnitTeam
 local spGetUnitSeparation = Spring.GetUnitSeparation
+local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
 local spGetGameFrame = Spring.GetGameFrame
 local deaggroCheckDelay = 80
 
@@ -53,7 +55,7 @@ local oreGuardianDef = {
 --{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
 local oreGuardians = {}         -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
 local aggroedGuardians = {}     -- { guardianUnitID = true|false, ... }
-local guardianAttackers = {}    -- { unitID = true, ... }
+local guardianAttackers = {}    -- { unitID = attackerPower (unitDef.power), ... }
 
 local fsmId = "oreguardian"
 --local stateIDs = { [1] = "movetoattack", [2] = "combat", [2] = "return", [3] = "idle", }
@@ -94,7 +96,7 @@ local fsmBehaviors = {
                     isAway = distance(ax,ay,az, ip.x,ip.y,ip.z) > (guardRadius/2)
                 end
                 --Spring.Echo("hasTarget: "..tostring(hasTarget).." isAway: "..tostring(isAway))
-                return (not hasTarget) or isAway -- and fsm.state ~= "idle"
+                return ((not hasTarget) or isAway) and (not aggroedGuardians[ud.unitID]) -- and fsm.state ~= "idle"
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
@@ -141,9 +143,8 @@ end
 
 function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                             weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    if (oreGuardians[attackerID]) then
-        return
-    end
+    if (not oreGuardians[unitID]) or oreGuardians[attackerID] then
+        return end
     -- This will trigger 'combat' state for all guardians within guard range (from their idlepos);
     -- What will set back the idle state are the FSM conditions
     for guardianID, data in pairs(oreGuardians) do     -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
@@ -169,7 +170,7 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                 if not guardianAttackers[guardianID] then
                     guardianAttackers[guardianID] = {}
                 end
-                guardianAttackers[guardianID][attackerID] = true
+                guardianAttackers[guardianID][attackerID] = attackerPower
                 data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
             end
         end
@@ -182,12 +183,44 @@ function gadget:GameFrame(f)
 
     fsm.GameFrame(f)
 
+    ---TODO: Refactor with Spring.GetUnitsInCylinder ( number x, number z, number radius [, number teamID ] )
+    ---return: nil | table unitTable = { [1] = number unitID, etc... }
+    for guardianID, attackers in pairs(guardianAttackers) do
+        if not aggroedGuardians[guardianID] then
+            local data = oreGuardians[guardianID]
+            local ip = data.idlePos
+            local unitsAround = spGetUnitsInCylinder(ip.x, ip.z, guardRadius)
+            for i, unitID in ipairs(unitsAround) do
+                for attackerID, attackerPower in pairs(attackers) do
+                    if unitID == attackerID then
+                        if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
+                            data.targetPower = attackerPower
+                            data.targetID = attackerID
+                            data.targetUpdated = true
+                        end
+                        aggroedGuardians[guardianID] = true
+                        ---Update de-aggro time. Won't de-aggro before this long
+                        data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay
+                    end
+                end
+            end
+        end
+    end
 end
+
+---TODO: Forgiveness time? Or not? ==> guardianAttackers[guardianID][attackerID] = nil
 
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
     aggroedGuardians[unitID] = nil
-    --TODO: Clear up guardianAttackers table
+    --Clear up dead attackers from guardianAttackers table
+    for guardianID, attackers in pairs(guardianAttackers) do
+        for attackerID in pairs(attackers) do
+            if attackerID == unitID then
+                guardianAttackers[guardianID][attackerID] = nil
+            end
+        end
+    end
 end
 
 --local function insertOrdered(tbl, insertData, param)
