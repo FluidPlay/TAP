@@ -37,20 +37,8 @@ SmokeUnit(healthpercent, sleeptime, smoketype)
 
 Create(Func_Var_1)
 {
-	dont-cache sphere;
-	while( get BUILD_PERCENT_LEFT )
-	{
-		sleep 250;
-	}
-	Func_Var_1 = Rand( 1, 2 );
-	if( Func_Var_1 == 1 )
-	{
-		spin sphere around y-axis speed <-100.02198>;
-	}
-	if( Func_Var_1 == 2 )
-	{
-		spin sphere around y-axis speed <100.02198>;
-	}
+	//dont-cache sphere;
+	start-script SmokeUnit();
 	return (0);
 }
 
