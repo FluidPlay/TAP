@@ -5,7 +5,7 @@ function widget:GetInfo()
     author    = "Licho, CarRepairer",
     date      = "@2010",
     license   = "GNU GPL, v2 or later",
-    layer     = -100000,
+    layer     = 100000, -- -100000
     enabled   = true,
   }
 end
@@ -183,7 +183,7 @@ options_order = {
 	
 	'fancySkinning',
 }
-local options = {
+options = {
 	label_drawing = { type = 'label', name = 'Map Drawing and Messaging', path = hotkeysPath},
 	
 	drawinmap = {
