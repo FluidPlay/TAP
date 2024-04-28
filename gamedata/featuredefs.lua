@@ -21,7 +21,6 @@ local postProcFile = 'gamedata/featuredefs_post.lua'
 local TDF = TDFparser or VFS.Include('gamedata/parse_tdf.lua')
 
 local system = VFS.Include('gamedata/system.lua')
-VFS.Include('gamedata/VFSUtils.lua')
 local section='featuredefs.lua'
 
 
@@ -46,7 +45,7 @@ end
 --  Load the TDF featuredef files
 --
 
-local tdfFiles = RecursiveFileSearch('features/', '*.tdf')
+local tdfFiles = VFS.DirList('features/', '*.tdf', nil, true)
 
 for _, filename in ipairs(tdfFiles) do
   local fds, err = TDF.Parse(filename)
@@ -67,7 +66,7 @@ end
 --  (these will override the TDF versions)
 --
 
-local luaFiles = RecursiveFileSearch('features/', '*.lua')
+local luaFiles = VFS.DirList('features/', '*.lua', nil, true)
 
 for _, filename in ipairs(luaFiles) do
   local fdEnv = {}
