@@ -4,165 +4,146 @@
 ---
 function gadget:GetInfo()
     return {
-        name      = "Spawn Starting Units",
-        desc      = "Spawn builders, Avatar & Daemon next to the Starting Unit (HQ) at game start",
+        name      = "Spawn Builders",
+        desc      = "Spawn builders next to commanders at game start",
         author    = "MaDDoX",
         date      = "June 2022",
         license   = "GNU GPL v3",
         layer     = 0,
-        enabled   = true,
+        enabled   = false, --true,
     }
 end
 
-if gadgetHandler:IsSyncedCode() then
-    -----------------
-    ---- SYNCED
-    -----------------
-
-    VFS.Include("gamedata/taptools.lua")
-    VFS.Include("gamedata/unitai_functions.lua")
-
-    local spGetAllUnits	= Spring.GetAllUnits
-    local spGetUnitDefID = Spring.GetUnitDefID
-    --local spGetGameFrame = Spring.GetGameFrame
-    local spGetFeatureDefID = Spring.GetFeatureDefID
-    local spGetUnitPosition = Spring.GetUnitPosition
-    local spGiveOrderToUnit = Spring.GiveOrderToUnit
-    local spCreateUnit = Spring.CreateUnit
-    local init0, init2 = false, false
-    local spGetUnitTeam = Spring.GetUnitTeam
-    local spGetTeamInfo = Spring.GetTeamInfo
-
-    local bowcomid = UnitDefNames["armcom"].id
-    local kerncomid = UnitDefNames["corcom"].id
-    local bowhqid = UnitDefNames["bowhq"].id
-    local kernhqid = UnitDefNames["kernhq"].id
-    local armckid = UnitDefNames["armck"].id
-    local corckid = UnitDefNames["corck"].id
-    local bowdaemonid = UnitDefNames["bowdaemon"].id
-    local kerndaemonid = UnitDefNames["kerndaemon"].id
-
-    local startWeapName = "kernhq_lt"
-    local startTechName = "kernhq_rt"
-
-    local CMD_MOVE = CMD.MOVE
-    local moveUnitNextFrame = {}
-
-    local minSpawnDistance = 150    -- This prevents duplicated geothermals in faulty maps
-    --local respawnTime = 60 -- in frames; 60f = 2s
-    --local geosToRespawn = {}
-
-    --local function sqr (x)
-    --    return math.pow(x, 2)
-    --end
-    --local function distance (x1, y1, z1, x2, y2, z2 )
-    --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
-    --end
-    --
-    --local function GeoNearby(x,y,z)
-    --    if x == nil or y == nil or z == nil then
-    --        return false end
-    --    for _, pos in pairs(geoThermals) do
-    --        if distance(pos.x, pos.y, pos.z, x, y, z) < minSpawnDistance then
-    --            return true
-    --        end
-    --    end
-    --    return false
-    --end
-
-    local function moveTowardsNearestOre(unitID, unitDef)
-        --Spring.Echo("has nearest chunk: "..(ud.nearestChunkID or "nil").." load perc: "..(harvesters[ud.unitID] and harvesters[ud.unitID].loadPercent or "nil"))
-        local pos, cpos = {}, {}
-        pos.x, pos.y, pos.z = spGetUnitPosition(unitID)
-        local buildRange = unitDef.buildDistance
-        local ud = { unitID = unitID, pos = pos, unitDef = unitDef, harvestRange = buildRange * 2.2 } -- let's increase scan range
-        local nearestChunkID = getNearestChunkID(ud)
-        if not nearestChunkID then
-            return end
-        cpos.x, cpos.y, cpos.z = spGetUnitPosition(nearestChunkID)
-        local buffer = 0.7 --0.85
-        local offset = { x = (cpos.x - pos.x)*buffer,  y = (cpos.y - pos.y)*buffer,  z = (cpos.z - pos.z)*buffer}
-        pos.x, pos.y, pos.z = pos.x+offset.x, pos.y+offset.y, pos.z+offset.z
-        spGiveOrderToUnit(unitID, CMD_MOVE, { pos.x, pos.y, pos.z }, { "" })
-        --parentOreTowerID = getNearestOreTowerID(ud, oreTowers, maxOreTowerScanRange)
-        --harvesters[unitID].parentOreTowerID = parentOreTowerID
-    end
-
-    local function spawnBuilder(builderID, xPos, yPos, zPos, teamID, unitDef)
-        local unitID = spCreateUnit(builderID, xPos, yPos, zPos, 0, teamID)
-        moveUnitNextFrame[unitID] = unitDef
-        --moveTowardsNearestOre(unitID, unitDef)
-    end
-
-    local function spawnBuilders(unitID, teamID, unitDef)
-        --if not GeoNearby(x,y,z) then
-            -- Spring.GetGroundHeight(x, z)
-        local x,y,z = spGetUnitPosition(unitID)
-        local builderID, commanderID, daemonID
-
-        --Don't use it, just reads it from the lobby setting
-        --local _, _, _, _, teamSide = spGetTeamInfo(teamID)
-        --teamSide = string.lower(teamSide)
-        --Spring.Echo("Side : "..(teamSide or "nil"))  --(side or "nil").."|"..
-
-        if unitDef.id == kernhqid then
-            builderID = corckid
-            commanderID = kerncomid
-            daemonID = kerndaemonid
-        else
-            builderID = armckid
-            commanderID = bowcomid
-            daemonID = bowdaemonid
-        end
-
-        --spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
-        --spawnBuilder(builderID, x+40, y, z+100, teamID, unitDef)
-        --spawnBuilder(builderID, x-40, y, z-100, teamID, unitDef)
-        --spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
-
-        --spCreateUnit(commanderID, x, y, z-50, 0, teamID)
-        --spCreateUnit(daemonID, x, y, z+50, 0, teamID)
-        spCreateUnit(commanderID, x-40, y, z-100, 0, teamID)
-        spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
-        spCreateUnit(daemonID, x+40, y, z+100, 0, teamID)
-        spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
-
-        local piecemap = Spring.GetUnitPieceMap(unitID)
-        local pieceID = piecemap["plugBL"]
-
-        local px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
-        local spawnedUnitID = spCreateUnit(startWeapName, px, py, pz, 0, teamID)
-
-        --pieceID = piecemap["plugFL2"]
-        --px, py, pz = Spring.GetUnitPiecePosDir(unitID, pieceID)
-        --spawnedUnitID = spCreateUnit(startTechName, px, py, pz, 0, teamID)
-
-        --Spring.UnitAttach(unitID, spawnedUnitID, pieceID)
-    end
-
-    function gadget:GameFrame(frame)
-        -- Add all supported game-start spawned units (aka. commanders)
-        if not init0 and frame > 0 then
-            local allUnits = spGetAllUnits()
-            for _, unitID in ipairs(allUnits) do
-                local unitDefID = spGetUnitDefID(unitID)
-                local unitDef = unitDefID and UnitDefs[unitDefID] or nil
-                if unitDef and unitDef.customParams and unitDef.customParams.ishq then
-                    local teamID = spGetUnitTeam(unitID)
-                    spawnBuilders(unitID, teamID, unitDef)
-                end
-            end
-            init0 = true
-        end
-        if not init2 and frame > 2 then
-            for unitID, unitDef in pairs(moveUnitNextFrame) do
-                moveTowardsNearestOre(unitID, unitDef)
-            end
-            init2 = true
-        end
-    end
-
-end
+--if gadgetHandler:IsSyncedCode() then
+--    -----------------
+--    ---- SYNCED
+--    -----------------
+--
+--    local spGetAllUnits	= Spring.GetAllUnits
+--    local spGetUnitDefID = Spring.GetUnitDefID
+--    --local spGetGameFrame = Spring.GetGameFrame
+--    local spGetFeatureDefID = Spring.GetFeatureDefID
+--    local spGetUnitPosition = Spring.GetUnitPosition
+--    local spCreateUnit = Spring.CreateUnit
+--    local initialized = false
+--    local spGetUnitTeam = Spring.GetUnitTeam
+--    local spGetTeamInfo = Spring.GetTeamInfo
+--
+--    local armcomid = UnitDefNames["armcom"].id
+--    local corcomid = UnitDefNames["corcom"].id
+--    local armckid = UnitDefNames["armck"].id
+--    local corckid = UnitDefNames["corck"].id
+--
+--    local minSpawnDistance = 150    -- This prevents duplicated geothermals in faulty maps
+--    --local respawnTime = 60 -- in frames; 60f = 2s
+--    --local geosToRespawn = {}
+--
+--    --local function sqr (x)
+--    --    return math.pow(x, 2)
+--    --end
+--    --local function distance (x1, y1, z1, x2, y2, z2 )
+--    --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
+--    --end
+--    --
+--    --local function GeoNearby(x,y,z)
+--    --    if x == nil or y == nil or z == nil then
+--    --        return false end
+--    --    for _, pos in pairs(geoThermals) do
+--    --        if distance(pos.x, pos.y, pos.z, x, y, z) < minSpawnDistance then
+--    --            return true
+--    --        end
+--    --    end
+--    --    return false
+--    --end
+--
+--    local function spawnBuilders(unitID, teamID, unitDef)
+--        --if not GeoNearby(x,y,z) then
+--            -- Spring.GetGroundHeight(x, z)
+--        local x,y,z = spGetUnitPosition(unitID)
+--        local builderID
+--
+--        --Don't use it, just reads it from the lobby setting
+--        --local _, _, _, _, teamSide = spGetTeamInfo(teamID)
+--        --teamSide = string.lower(teamSide)
+--        --Spring.Echo("Side : "..(teamSide or "nil"))  --(side or "nil").."|"..
+--
+--        if unitDef.id == corcomid then
+--            builderID = corckid
+--        else
+--            builderID = armckid
+--        end
+--
+--        spCreateUnit(builderID, x+50, y, z, 0, teamID)
+--        spCreateUnit(builderID, x+100, y, z, 0, teamID)
+--        spCreateUnit(builderID, x-50, y, z, 0, teamID)
+--        spCreateUnit(builderID, x-100, y, z, 0, teamID)
+--
+--    end
+--
+--    function gadget:GameFrame(frame)
+--        -- Add all supported game-start spawned units (aka. commanders)
+--        if not initialized and frame > 0 then
+--            local allUnits = spGetAllUnits()
+--            for _, unitID in ipairs(allUnits) do
+--                local unitDefID = spGetUnitDefID(unitID)
+--                local unitDef = unitDefID and UnitDefs[unitDefID] or nil
+--                if unitDef and unitDef.customParams and unitDef.customParams.iscommander == "1" then
+--                    local teamID = spGetUnitTeam(unitID)
+--                    spawnBuilders(unitID, teamID, unitDef)
+--                end
+--            end
+--            initialized = true
+--        end
+--    end
+--
+--    ----function gadget:GameFrame(frame)
+--    --function gadget:GameStart()
+--    --    --if not initialized and frame > 0 then
+--    --        --Spring.Echo("Found gaia team id: "..gaiaTeamID)
+--    --        local allFeatures = spGetAllFeatures()
+--    --        for i, featureID in ipairs(allFeatures) do
+--    --            local featureDefID = spGetFeatureDefID(featureID)
+--    --            --Spring.Echo(FeatureDefs[featureDefID].name)
+--    --            if FeatureDefs[featureDefID].name == "geovent" then
+--    --                -- Spawn Geothermal at feature position
+--    --                local x,y,z = spGetFeaturePosition(featureID)
+--    --                SpawnGeothermal(x,y,z)
+--    --            end
+--    --        end
+--    --        --initialized = true
+--    --    --end
+--    --end
+--
+--    --function gadget:FeaturePreDamaged(featureID, featureDefID, featureTeam, damage, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
+--    --    --if featureID:find("geothermal") then
+--    --    --Spring.Echo("Dmg feature name: "..FeatureDefs[featureDefID].name)
+--    --    if FeatureDefs[featureDefID].name:lower():find("armgeo") then
+--    --        return 0, 0 -- newDamage, impulseMult
+--    --    end
+--    --end
+--
+--    --function gadget:UnitDestroyed(unitID, unitDefID, unitTeamID)
+--    --    local geo = geoThermals[unitID]
+--    --    if geo then
+--    --        geosToRespawn[unitID] = { x=geo.x, y=geo.y, z = geo.z, time = Spring.spGetGameFrame() + respawnTime }
+--    --    end
+--    --    --local featureDef   = FeatureDefs[featureDefID or -1] or {height=0,name=''}
+--    --end
+--    --
+--    --function gadget:GameFrame(n)
+--    --    for unitID, data in pairs(geosToRespawn) do
+--    --        if data.time >= n then
+--    --            Spring.CreateFeature("armgeo_heap", data.x, data.y, data.z)
+--    --        --    ( string "defName" | number featureDefID,
+--    --        --number x, number y, number z
+--    --        --[, number heading
+--    --        --[, number AllyTeamID
+--    --        --[, number featureID ]]] ) -> number featureID
+--    --
+--    --        end
+--    --    end
+--    --end
+--
 --else
 --    -----------------
 --    ---- UNSYNCED
