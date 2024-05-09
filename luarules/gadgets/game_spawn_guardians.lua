@@ -230,10 +230,9 @@ local function cleanupGuardianData(guardianUID)
         oreSpots[data.spotIdx].allowGuardians = false end
 end
 
---function gadget:GameStart()
 function gadget:GameFrame(frame)
     --- Initial Spawn
-    if not initialized and frame > 0 then
+    if frame == 0 then
         for id, data in ipairs(oreSpots) do
             local x, y, z = data.x, data.y, data.z
             local doSpawnHere = true
@@ -251,7 +250,7 @@ function gadget:GameFrame(frame)
                 --oreSpots[id].guardians = spawnGuardian(x,y,z, 1, id)
             end
         end
-        initialized = true
+		return
     end
 
     --- Next-frame unit setup (after morph); we add a startup delay to prevent any issues with starting guardians
@@ -266,7 +265,7 @@ function gadget:GameFrame(frame)
     end
 
     --- Timely Spawn / Morph of Guardians
-    if not initialized or frame % updateRate > 0.001 then
+    if frame % updateRate > 0.001 then
         return end
     currentIter = currentIter + 1
     for id, data in ipairs(oreSpots) do
