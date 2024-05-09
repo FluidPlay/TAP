@@ -47,15 +47,15 @@ function sqrDistance(x1,z1,x2,z2)
 	return dx*dx + dz*dz
 end
 
--- eg.: distance(pos1, pos2) | pos1 = { x=n, y=n }
+-- eg.: distance(pos1, pos2) | pos1 = { x=n, z=n }
 function distance(x1,y1,z1,x2,y2,z2)
-    if istable(x1) and istable(y1) and not z1 then -- (pos1, pos2) |.x, .z format
+    if istable(x1) and istable(y1) and not z1 then -- (pos1, pos2) | {x, z} format
         local pos1 = x1
         local pos2 = y1
-        if pos1.x == nil or pos2.x == nil or pos1.z == nil or pos2.z == nil then
+        if pos1[1] == nil or pos2[1] == nil or pos1[2] == nil or pos2[2] == nil then
             return 9999
         end
-        return math.sqrt(sqr(pos2.x-pos1.x) + sqr(pos2.z-pos1.z))
+        return math.sqrt(sqr(pos2[1]-pos1[1]) + sqr(pos2[2]-pos1[2]))
     else
         if x1 == nil or z1 == nil or x2 == nil or z2 == nil then
             return 9999
@@ -185,7 +185,7 @@ end
 
 -- Debug table keys and values, up to three nested levels
 ---TODO: Fix for iPairs, not really working (tested with weaponDef / damages itable)
-local function DebugTable(tbl)
+function DebugTable(tbl)
 	for k, v in pairsByKeys(tbl) do
 		local str = ""
 		if type(v) == "table" then

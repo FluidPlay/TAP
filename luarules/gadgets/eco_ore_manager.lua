@@ -299,7 +299,7 @@ if gadgetHandler:IsSyncedCode() then
         spEcho("Number of ore spots found: "..#oreSpots)
         startFrame = Spring.GetGameFrame()
         for i, data in ipairs(oreSpots) do
-            --Spring.Echo("Adding chunks to spot#: "..i)
+            spEcho("Adding chunks to spot#: "..i)
             local x, y, z = data.x, data.y, data.z
             local metalLevel = getBaseMetalLevel (data.metal)
             data.baseMetalLevel = metalLevel    -- initialize data
