@@ -35,7 +35,7 @@ return {
 		sightdistance = 380,
 		trackoffset = 2,
 		trackstrength = 8,
-		trackstretch = 0.325,
+		trackstretch = 3.077,
 		tracktype = "kbottrack1.bmp",
 		trackwidth = 26,
 		turninplaceanglelimit = 140,
