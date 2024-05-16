@@ -17,6 +17,37 @@ function widget:GetInfo()
 	}
 end
 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- UI Scaling
+
+local UI_SCALE_MESSAGE = "SetInterfaceScale "
+
+local function SetUiScale(scaleFactor)
+	-- Scale such that width is an integer, because the UI aligns along the bottom of the screen.
+	local realWidth = gl.GetViewSizes()
+	WG.uiScale = realWidth/math.floor(realWidth/scaleFactor)
+end
+SetUiScale((Spring.GetConfigInt("interfaceScale", 100) or 100)/100) --150) or 150)/100)
+WG.imageScale = 0.5 --0.5
+
+function widget:RecvLuaMsg(msg)
+	if string.find(msg, UI_SCALE_MESSAGE) == 1 then
+		local value = tostring(string.sub(msg, 19))
+		if value then
+			SetUiScale(value/100)
+			local vsx, vsy = Spring.Orig.GetViewSizes()
+			local widgets = widgetHandler.widgets
+			for i = 1, #widgets do
+				local w = widgets[i]
+				if w.ViewResize then
+					w:ViewResize(vsx, vsy)
+				end
+			end
+		end
+	end
+end
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -195,7 +226,7 @@ end
 
 
 function widget:ViewResize(vsx, vsy)
-	screen0:Resize(vsx, vsy)
+	screen0:Resize(vsx/(WG.uiScale or 1), vsy/(WG.uiScale or 1))
 end
 
 widget.TweakIsAbove      = widget.IsAbove
