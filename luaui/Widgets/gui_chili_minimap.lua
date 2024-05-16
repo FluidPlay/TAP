@@ -12,6 +12,7 @@ end
 
 VFS.Include("LuaRules/Configs/customcmds.h.lua")
 VFS.Include("LuaRules/Configs/constants.lua")
+VFS.Include("luarules/function_override.lua")
 include("Widgets/COFCTools/ExportUtilities.lua")
 
 --// gl const
