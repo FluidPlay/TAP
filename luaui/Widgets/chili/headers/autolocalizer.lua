@@ -153,26 +153,26 @@ local function MyLoadString(str, filename)
 end
 
 
-function VFS.Include(filename, enviroment, mode)
+function VFS.Include(filename, environment, mode)
   local str = LoadFileSafe(filename, mode)
 
   if (not str) then
     return
   end
 
-  if (not enviroment) then
+  if (not environment) then
     local status
-    status,enviroment = pcall(getfenv,3)
+    status, environment = pcall(getfenv,3)
     if (not status) then
-      status,enviroment = pcall(getfenv,2)
+      status, environment = pcall(getfenv,2)
       if (not status) then
-        enviroment = getfenv()
+        environment = getfenv()
       end
     end
   end
 
   local chunk = MyLoadString(str, filename)
-  setfenv(chunk, enviroment)
+  setfenv(chunk, environment)
 
   return chunk()
 end
