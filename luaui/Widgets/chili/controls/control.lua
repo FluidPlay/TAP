@@ -49,9 +49,12 @@ Control = Object:Inherit{
   fixedRatio      = false,
   tooltip         = nil, --// JUST TEXT
 
+  useDList        = true,
+  safeOpengl      = true, --// enables scissors
+
   font = {
-    font          = "FreeSansBold.otf",
-    size          = 14,
+    font          = "fonts/GeogrotesqueCompMedium.otf", --"FreeSansBold.otf",
+    size          = 18,
     shadow        = false,
     outline       = false,
     outlineWidth  = 3,
@@ -79,6 +82,8 @@ Control = Object:Inherit{
   useDLists = (gl.CreateList ~= nil) and false, --FIXME broken in combination with RTT (wrong blending)
 
   OnResize        = {},
+
+  noFont = true,
 }
 
 local this = Control
@@ -94,6 +99,10 @@ function Control:New(obj)
     obj._hasCustomDrawControl = true
   end
 
+  --//minimum size from minimum size table when minWidth & minHeight is not set (backward compatibility)
+  local minimumSize = obj.minimumSize or {}
+  obj.minWidth = obj.minWidth or minimumSize[1]
+  obj.minHeight = obj.minHeight or minimumSize[2]
 
   --// load the skin for this control
   obj.classname = self.classname
@@ -130,6 +139,20 @@ function Control:New(obj)
   obj.font = Font:New(obj.font)
   obj.font:SetParent(obj)
 
+  ---- We don't create fonts for controls that don't need them
+  ---- This should drastically use memory usage for some cases
+  --if obj.noFont then
+  --  obj.font = nil
+  --else
+  --  if obj.objectOverrideFont then
+  --    obj.font = obj.objectOverrideFont
+  --  else
+  --    --// create font
+  --    obj.font = Font:New(obj.font)
+  --    obj.font:SetParent(obj)
+  --  end
+  --end
+
   obj:DetectRelativeBounds()
   obj:AlignControl()
 
@@ -140,19 +163,35 @@ function Control:New(obj)
     end
   end
 
+  if WG.ChiliRedraw then
+    WG.ChiliRedraw.AddControl(obj, "New")
+  end
+
   return obj
 end
 
 --- Removes the control.
 function Control:Dispose(...)
-  gl.DeleteList(self._all_dlist)
-  self._all_dlist = nil
-
-  gl.DeleteList(self._children_dlist)
-  self._children_dlist = nil
-
-  gl.DeleteList(self._own_dlist)
-  self._own_dlist = nil
+  --gl.DeleteList(self._all_dlist)
+  --self._all_dlist = nil
+  --
+  --gl.DeleteList(self._children_dlist)
+  --self._children_dlist = nil
+  --
+  --gl.DeleteList(self._own_dlist)
+  --self._own_dlist = nil
+  if (self._all_dlist) then
+    gl.DeleteList(self._all_dlist)
+    self._all_dlist = nil
+  end
+  if (self._children_dlist) then
+    gl.DeleteList(self._children_dlist)
+    self._children_dlist = nil
+  end
+  if (self._own_dlist) then
+    gl.DeleteList(self._own_dlist)
+    self._own_dlist = nil
+  end
 
   gl.DeleteTexture(self._tex_all)
   self._tex_all = nil
@@ -171,7 +210,10 @@ function Control:Dispose(...)
   end
 
   inherited.Dispose(self,...)
-  self.font:SetParent()
+  --self.font:SetParent()
+  if (not self.noFont) and (not self.objectOverrideFont) and self.font and self.font.SetParent then
+    self.font:SetParent()
+  end
 end
 
 --//=============================================================================
@@ -641,7 +683,7 @@ function Control:SetPosRelative(x, y, w, h, clientArea, dontUpdateRelative)
   end
 end
 
---- Resize the control 
+--- Resize the control
 -- @int w width
 -- @int h height
 -- @param clientArea TODO
