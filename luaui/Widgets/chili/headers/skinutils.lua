@@ -26,7 +26,14 @@ end
 local _DrawTextureAspect = _DrawTextureAspect
 
 
-function _DrawTiledTexture(x,y,w,h, skLeft,skTop,skRight,skBottom, texw,texh, texIndex)
+--- That's the 9-slices texture drawing method. It'll apply WG.imageScale to the texture size, then apply the 'local'
+--- skHorScale and skVertScale. If the latter two aren't defined, it will auto-shrink when there's not enough space.
+--- Those params are set from the object's tileScale param, in the main method call (eg.: window, panel)
+function _DrawTiledTexture(x,y,w,h, skLeft,skTop,skRight,skBottom, texw,texh, texIndex, skHorScale, skVertScale)
+    texIndex = texIndex or 0 -- skHorScale, skVertScale should really be between skBottom and texw
+
+    texw = texw * (WG.imageScale or 1) --0.5
+    texh = texh * (WG.imageScale or 1) --0.5
     texIndex = texIndex or 0
 
     local txLeft   = skLeft/texw
@@ -34,16 +41,25 @@ function _DrawTiledTexture(x,y,w,h, skLeft,skTop,skRight,skBottom, texw,texh, te
     local txRight  = skRight/texw
     local txBottom = skBottom/texh
 
-    --//scale down the texture if we don't have enough space
+    skLeft = skLeft * (skHorScale or 1)
+    skRight = skRight * (skHorScale or 1)
+    skTop = skTop * (skVertScale or skHorScale or 1)		 -- if skVertScale is omitted, defaults to skHorScale
+    skBottom = skBottom * (skVertScale or skHorScale or 1)
 
-    local scaleY = h/(skTop+skBottom)
-    local scaleX = w/(skLeft+skRight)
-    local scale = (scaleX < scaleY) and scaleX or scaleY
+    --//if scale is not defined, scale down the texture if we don't have enough space
+    local scale
+    local scaleY, scaleX = 1, 1
+    if not (isnumber(skHorScale)) and not (isnumber(skVertScale)) then
+        scaleY = h/(skTop+skBottom)
+        scaleX = w/(skLeft+skRight)
+    end
+    scale = (scaleX < scaleY) and scaleX or scaleY
+    --scale = 0.2
     if (scale<1) then
-      skTop = skTop * scale
-      skBottom = skBottom * scale
-      skLeft = skLeft * scale
-      skRight = skRight * scale
+        skTop = skTop * scale
+        skBottom = skBottom * scale
+        skLeft = skLeft * scale
+        skRight = skRight * scale
     end
 
     --//topleft
@@ -113,84 +129,86 @@ local _DrawTiledTexture = _DrawTiledTexture
 
 
 function _DrawTiledBorder(x,y,w,h, skLeft,skTop,skRight,skBottom, texw,texh, texIndex)
-  texIndex = texIndex or 0
+    --texw = texw * (WG.imageScale or 1) --0.5
+    --texh = texh * (WG.imageScale or 1) --0.5
+    texIndex = texIndex or 0
 
-  local txLeft   = skLeft/texw
-  local txTop    = skTop/texh
-  local txRight  = skRight/texw
-  local txBottom = skBottom/texh
+    local txLeft   = skLeft/texw
+    local txTop    = skTop/texh
+    local txRight  = skRight/texw
+    local txBottom = skBottom/texh
 
-  --//scale down the texture if we don't have enough space
-  local scaleY = h/(skTop+skBottom)
-  local scaleX = w/(skLeft+skRight)
-  local scale = (scaleX < scaleY) and scaleX or scaleY
-  if (scale<1) then
-    skTop = skTop * scale
-    skBottom = skBottom * scale
-    skLeft = skLeft * scale
-    skRight = skRight * scale
-  end
+    --//scale down the texture if we don't have enough space
+    local scaleY = h/(skTop+skBottom)
+    local scaleX = w/(skLeft+skRight)
+    local scale = (scaleX < scaleY) and scaleX or scaleY
+    if (scale<1) then
+        skTop = skTop * scale
+        skBottom = skBottom * scale
+        skLeft = skLeft * scale
+        skRight = skRight * scale
+    end
 
-  --//topleft
-  gl.MultiTexCoord(texIndex,0,0)
-  gl.Vertex(x,      y)
-  gl.MultiTexCoord(texIndex,0,txTop)
-  gl.Vertex(x,      y+skTop)
-  gl.MultiTexCoord(texIndex,txLeft,0)
-  gl.Vertex(x+skLeft, y)
-  gl.MultiTexCoord(texIndex,txLeft,txTop)
-  gl.Vertex(x+skLeft, y+skTop)
+    --//topleft
+    gl.MultiTexCoord(texIndex,0,0)
+    gl.Vertex(x,      y)
+    gl.MultiTexCoord(texIndex,0,txTop)
+    gl.Vertex(x,      y+skTop)
+    gl.MultiTexCoord(texIndex,txLeft,0)
+    gl.Vertex(x+skLeft, y)
+    gl.MultiTexCoord(texIndex,txLeft,txTop)
+    gl.Vertex(x+skLeft, y+skTop)
 
-  --//topcenter
-  gl.MultiTexCoord(texIndex,1-txRight,0)
-  gl.Vertex(x+w-skRight, y)
-  gl.MultiTexCoord(texIndex,1-txRight,txTop)
-  gl.Vertex(x+w-skRight, y+skTop)
+    --//topcenter
+    gl.MultiTexCoord(texIndex,1-txRight,0)
+    gl.Vertex(x+w-skRight, y)
+    gl.MultiTexCoord(texIndex,1-txRight,txTop)
+    gl.Vertex(x+w-skRight, y+skTop)
 
-  --//topright
-  gl.MultiTexCoord(texIndex,1,0)
-  gl.Vertex(x+w,       y)
-  gl.MultiTexCoord(texIndex,1,txTop)
-  gl.Vertex(x+w,       y+skTop)
+    --//topright
+    gl.MultiTexCoord(texIndex,1,0)
+    gl.Vertex(x+w,       y)
+    gl.MultiTexCoord(texIndex,1,txTop)
+    gl.Vertex(x+w,       y+skTop)
 
-  --//right center
-  gl.Vertex(x+w,         y+skTop)    --//degenerate
-  gl.MultiTexCoord(texIndex,1-txRight,txTop)
-  gl.Vertex(x+w-skRight, y+skTop)
-  gl.MultiTexCoord(texIndex,1,1-txBottom)
-  gl.Vertex(x+w,         y+h-skBottom)
-  gl.MultiTexCoord(texIndex,1-txRight,1-txBottom)
-  gl.Vertex(x+w-skRight, y+h-skBottom)
+    --//right center
+    gl.Vertex(x+w,         y+skTop)    --//degenerate
+    gl.MultiTexCoord(texIndex,1-txRight,txTop)
+    gl.Vertex(x+w-skRight, y+skTop)
+    gl.MultiTexCoord(texIndex,1,1-txBottom)
+    gl.Vertex(x+w,         y+h-skBottom)
+    gl.MultiTexCoord(texIndex,1-txRight,1-txBottom)
+    gl.Vertex(x+w-skRight, y+h-skBottom)
 
-  --//bottom right
-  gl.MultiTexCoord(texIndex,1,1)
-  gl.Vertex(x+w,         y+h)
-  gl.MultiTexCoord(texIndex,1-txRight,1)
-  gl.Vertex(x+w-skRight, y+h)
+    --//bottom right
+    gl.MultiTexCoord(texIndex,1,1)
+    gl.Vertex(x+w,         y+h)
+    gl.MultiTexCoord(texIndex,1-txRight,1)
+    gl.Vertex(x+w-skRight, y+h)
 
-  --//bottom center
-  gl.Vertex(x+w-skRight, y+h)    --//degenerate
-  gl.MultiTexCoord(texIndex,1-txRight,1-txBottom)
-  gl.Vertex(x+w-skRight, y+h-skBottom)
-  gl.MultiTexCoord(texIndex,txLeft,1)
-  gl.Vertex(x+skLeft,    y+h)
-  gl.MultiTexCoord(texIndex,txLeft,1-txBottom)
-  gl.Vertex(x+skLeft,    y+h-skBottom)
+    --//bottom center
+    gl.Vertex(x+w-skRight, y+h)    --//degenerate
+    gl.MultiTexCoord(texIndex,1-txRight,1-txBottom)
+    gl.Vertex(x+w-skRight, y+h-skBottom)
+    gl.MultiTexCoord(texIndex,txLeft,1)
+    gl.Vertex(x+skLeft,    y+h)
+    gl.MultiTexCoord(texIndex,txLeft,1-txBottom)
+    gl.Vertex(x+skLeft,    y+h-skBottom)
 
-  --//bottom left
-  gl.MultiTexCoord(texIndex,0,1)
-  gl.Vertex(x,        y+h)
-  gl.MultiTexCoord(texIndex,0,1-txBottom)
-  gl.Vertex(x,        y+h-skBottom)
+    --//bottom left
+    gl.MultiTexCoord(texIndex,0,1)
+    gl.Vertex(x,        y+h)
+    gl.MultiTexCoord(texIndex,0,1-txBottom)
+    gl.Vertex(x,        y+h-skBottom)
 
-  --//left center
-  gl.Vertex(x,        y+h-skBottom)    --//degenerate
-  gl.MultiTexCoord(texIndex,0,txTop)
-  gl.Vertex(x,        y+skTop)
-  gl.MultiTexCoord(texIndex,txLeft,1-txBottom)
-  gl.Vertex(x+skLeft, y+h-skBottom)
-  gl.MultiTexCoord(texIndex,txLeft,txTop)
-  gl.Vertex(x+skLeft, y+skTop)
+    --//left center
+    gl.Vertex(x,        y+h-skBottom)    --//degenerate
+    gl.MultiTexCoord(texIndex,0,txTop)
+    gl.Vertex(x,        y+skTop)
+    gl.MultiTexCoord(texIndex,txLeft,1-txBottom)
+    gl.Vertex(x+skLeft, y+h-skBottom)
+    gl.MultiTexCoord(texIndex,txLeft,txTop)
+    gl.Vertex(x+skLeft, y+skTop)
 end
 local _DrawTiledBorder = _DrawTiledBorder
 
