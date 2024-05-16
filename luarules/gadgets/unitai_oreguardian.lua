@@ -215,6 +215,9 @@ function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     aggroedGuardians[unitID] = nil
     --Clear up dead attackers from guardianAttackers table
     for guardianID, attackers in pairs(guardianAttackers) do
+        if guardianID == unitID then
+            guardianAttackers[guardianID] = nil
+        end
         for attackerID in pairs(attackers) do
             if attackerID == unitID then
                 guardianAttackers[guardianID][attackerID] = nil
