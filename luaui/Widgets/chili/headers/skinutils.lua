@@ -379,115 +379,194 @@ end
 
 
 function DrawEditBox(obj)
-	local skLeft,skTop,skRight,skBottom = unpack4(obj.tiles)
+    local skLeft,skTop,skRight,skBottom = unpack4(obj.tiles)
 
-	gl.Color(obj.backgroundColor)
-	TextureHandler.LoadTexture(0,obj.TileImageBK,obj)
-	local texInfo = gl.TextureInfo(obj.TileImageBK) or {xsize=1, ysize=1}
-	local tw,th = texInfo.xsize, texInfo.ysize
-	gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawTiledTexture, 0, 0, obj.width, obj.height,  skLeft,skTop,skRight,skBottom, tw,th)
-	--gl.Texture(0,false)
+    gl.Translate(obj.x, obj.y, 0) -- Remove with new chili, does translates for us.
 
-	if obj.state.focused or obj.state.hovered then
-		gl.Color(obj.focusColor)
-	else
-		gl.Color(obj.borderColor)
-	end
-	TextureHandler.LoadTexture(0,obj.TileImageFG,obj)
-	local texInfo = gl.TextureInfo(obj.TileImageFG) or {xsize=1, ysize=1}
-	local tw,th = texInfo.xsize, texInfo.ysize
-	gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawTiledTexture, 0, 0, obj.width, obj.height,  skLeft,skTop,skRight,skBottom, tw,th)
-	gl.Texture(0,false)
+    gl.Color(obj.backgroundColor)
+    TextureHandler.LoadTexture(0,obj.TileImageBK,obj)
+    local texInfo = gl.TextureInfo(obj.TileImageBK) or {xsize=1, ysize=1}
+    local tw,th = texInfo.xsize, texInfo.ysize
+    local skHorScale, skVertScale = unpack2(obj.tileScale)
+    gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawTiledTexture, 0, 0, obj.width, obj.height,  skLeft,skTop,skRight,skBottom, tw,th, false, skHorScale, skVertScale)
+    --gl.Texture(0,false)
 
-	local text = obj.text	
-	local font = obj.font
-	local displayHint = false
-	
-	if text == "" and not obj.state.focused then
-		text = obj.hint		
-		displayHint = true
-		font = obj.hintFont
-	end
-	
-	if (text) then        
-        if obj.passwordInput and not displayHint then 
+    if obj.state.focused or obj.state.hovered then
+        gl.Color(obj.focusColor)
+    else
+        gl.Color(obj.borderColor)
+    end
+    TextureHandler.LoadTexture(0,obj.TileImageFG,obj)
+    local texInfo = gl.TextureInfo(obj.TileImageFG) or {xsize=1, ysize=1}
+    local tw,th = texInfo.xsize, texInfo.ysize
+    local skHorScale, skVertScale = unpack2(obj.tileScale)
+    gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawTiledTexture, 0, 0, obj.width, obj.height,  skLeft,skTop,skRight,skBottom, tw,th, false, skHorScale, skVertScale)
+    gl.Texture(0,false)
+
+    local text = obj.text and tostring(obj.text)
+    local font = obj.font
+    local displayHint = false
+
+    if text == "" and not obj.state.focused then
+        if obj.noHint then
+            text = false
+        else
+            text = obj.hint
+            displayHint = true
+            font = obj.hintFont
+        end
+    end
+
+    if (text) then
+        if obj.passwordInput and not displayHint then
             text = string.rep("*", #text)
         end
-            
-		if (obj.offset > obj.cursor) then
-			obj.offset = obj.cursor
-		end
 
-		local clientX,clientY,clientWidth,clientHeight = unpack4(obj.clientArea)
+        local clientX,clientY,clientWidth,clientHeight = unpack4(obj.clientArea)
+        if (obj.offset and obj.cursor) then
+            if (obj.offset > obj.cursor) and not obj.multiline then
+                obj.offset = obj.cursor
+            end
 
-		--// make cursor pos always visible (when text is longer than editbox!)
-		repeat
-			local txt = text:sub(obj.offset, obj.cursor)
-			local wt = font:GetTextWidth(txt)
-			if (wt <= clientWidth) then
-				break
-			end
-			if (obj.offset >= obj.cursor) then
-				break
-			end
-			obj.offset = obj.offset + 1
-		until (false)
 
-		local txt = text:sub(obj.offset)
+            --// make cursor pos always visible (when text is longer than editbox!)
+            if not obj.multiline then
+                repeat
+                    local txt = text:sub(obj.offset, obj.cursor)
+                    local wt = font:GetTextWidth(txt)
+                    if (wt <= clientWidth) then
+                        break
+                    end
+                    if (obj.offset >= obj.cursor) then
+                        break
+                    end
+                    obj.offset = obj.offset + 1
+                until (false)
+            end
 
-		--// strip part at the end that exceeds the editbox
-		local lsize = math.max(0, font:WrapText(txt, clientWidth, clientHeight):len() - 3) -- find a good start (3 dots at end if stripped)
-		while (lsize <= txt:len()) do
-			local wt = font:GetTextWidth(txt:sub(1, lsize))
-			if (wt > clientWidth) then
-				break
-			end
-			lsize = lsize + 1
-		end
-		txt = txt:sub(1, lsize - 1)
+            text = text:sub(obj.offset)
+        end
 
-		gl.Color(1,1,1,1)
-		font:DrawInBox(txt, clientX, clientY, clientWidth, clientHeight, obj.align, obj.valign)
+        --// strip part at the end that exceeds the editbox
+        local lsize = math.max(0, font:WrapText(text, clientWidth, clientHeight):len() - 3) -- find a good start (3 dots at end if stripped)
+        while (lsize <= text:len()) do
+            local wt = font:GetTextWidth(text:sub(1, lsize))
+            if (wt > clientWidth) then
+                break
+            end
+            lsize = lsize + 1
+        end
+        text = text:sub(1, lsize - 1)
 
-		if obj.state.focused then
-			local cursorTxt = text:sub(obj.offset, obj.cursor - 1)
-			local cursorX = font:GetTextWidth(cursorTxt)
+        gl.Color(1,1,1,1)
+        if obj.multiline then
 
-			local dt = Spring.DiffTimers(Spring.GetTimer(), obj._interactedTime)
-			local as = math.sin(dt * 8);
-			local ac = math.cos(dt * 8);
-			if (as < 0) then as = 0 end
-			if (ac < 0) then ac = 0 end
-			local alpha = as + ac
-			if (alpha > 1) then alpha = 1 end
-			alpha = 0.8 * alpha
+            if obj.parent and obj.parent:InheritsFrom("scrollpanel") then
+                local scrollPosY = obj.parent.scrollPosY
+                local scrollHeight = obj.parent.clientArea[4]
 
-			local cc = obj.cursorColor
-			gl.Color(cc[1], cc[2], cc[3], cc[4] * alpha)
-			gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawCursor, cursorX + clientX - 1, clientY, 3, clientHeight)
-		end
+                local h, d, numLines = obj.font:GetTextHeight(tostring(obj.text));
+                local minDrawY = scrollPosY - (h or 0)
+                local maxDrawY = scrollPosY + scrollHeight + (h or 0)
+
+                for _, line in pairs(obj.physicalLines) do
+                    local drawPos = clientY + line.y
+                    if drawPos > minDrawY and drawPos < maxDrawY then
+                        font:Draw(line.text, clientX, clientY + line.y)
+                    end
+                end
+            else
+                for _, line in pairs(obj.physicalLines) do
+                    font:Draw(line.text, clientX, clientY + line.y)
+                end
+            end
+
+        else
+            font:DrawInBox(text, clientX, clientY, clientWidth, clientHeight, obj.align, obj.valign)
+        end
+
+        if obj.state.focused and obj.editable then
+            local cursorTxt = text:sub(obj.offset, obj.cursor - 1)
+            local cursorX = font:GetTextWidth(cursorTxt)
+
+            local dt = Spring.DiffTimers(Spring.GetTimer(), obj._interactedTime)
+            local alpha
+            if obj.cursorFramerate then
+                if math.floor(dt*obj.cursorFramerate)%2 == 0 then
+                    alpha = 0.8
+                else
+                    alpha = 0
+                end
+            else
+                local as = math.sin(dt * 8);
+                local ac = math.cos(dt * 8);
+                if (as < 0) then
+                    as = 0
+                end
+                if (ac < 0) then
+                    ac = 0
+                end
+                alpha = as + ac
+                if (alpha > 1) then
+                    alpha = 1
+                end
+                alpha = 0.8 * alpha
+            end
+
+            local cc = obj.cursorColor
+            gl.Color(cc[1], cc[2], cc[3], cc[4] * alpha)
+            gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawCursor, cursorX + clientX - 1, clientY, 3, clientHeight)
+        end
         if obj.selStart and obj.state.focused then
-			local cursorTxt = text:sub(obj.offset, obj.cursor - 1)
-			local cursorX = font:GetTextWidth(cursorTxt)
-			local cc = obj.selectionColor
-			gl.Color(cc[1], cc[2], cc[3], cc[4])
-            
-            local left, right = obj.selStart, obj.selEnd
-            if left > right then
+            local cc = obj.selectionColor
+            gl.Color(cc[1], cc[2], cc[3], cc[4])
+
+            local top, bottom = obj.selStartPhysicalY, obj.selEndPhysicalY
+            local left, right = obj.selStartPhysical,  obj.selEndPhysical
+            if obj.multiline and top > bottom then
+                top, bottom = bottom, top
+                left, right = right, left
+            elseif top == bottom and left > right then
                 left, right = right, left
             end
-			
-            local leftTxt = text:sub(obj.offset, left - 1)
-			local leftX = font:GetTextWidth(leftTxt)
-            local rightTxt = text:sub(obj.offset, right - 1)
-			local rightX = font:GetTextWidth(rightTxt)
 
-            local w = rightX - leftX
-            -- limit the selection to the editbox width
-            w = math.min(w, obj.width - leftX - 3)
-			gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawSelection, leftX + clientX - 1, clientY, w, clientHeight)
+            local y = clientY
+            local height = clientHeight
+            if obj.multiline and top == bottom then
+                local line = obj.physicalLines[top]
+                text = line.text
+                y = y + line.y
+                height = line.lh
+            end
+            if not obj.multiline or top == bottom then
+                local leftTxt = text:sub(obj.offset, left - 1)
+                local leftX = font:GetTextWidth(leftTxt)
+                local rightTxt = text:sub(obj.offset, right - 1)
+                local rightX = font:GetTextWidth(rightTxt)
+
+                local w = rightX - leftX
+                -- limit the selection to the editbox width
+                w = math.min(w, obj.width - leftX - 3)
+
+                gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawSelection, leftX + clientX - 1, y, w, height)
+            else
+                local topLine, bottomLine = obj.physicalLines[top], obj.physicalLines[bottom]
+                local leftTxt = topLine.text:sub(obj.offset, left - 1)
+                local leftX = font:GetTextWidth(leftTxt)
+                local rightTxt = bottomLine.text:sub(obj.offset, right - 1)
+                local rightX = font:GetTextWidth(rightTxt)
+
+                gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawSelection, leftX + clientX - 1, clientY + topLine.y, topLine.tw - leftX, topLine.lh)
+                for i = top+1, bottom-1 do
+                    local line = obj.physicalLines[i]
+                    gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawSelection, clientX - 1, clientY + line.y, line.tw, line.lh)
+                end
+                gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawSelection, clientX - 1, clientY + bottomLine.y, rightX, bottomLine.lh)
+            end
         end
-	end
+    end
+
+    gl.Translate(-obj.x, -obj.y, 0) -- Remove with new chili, does translates for us.
 end
 
 --//=============================================================================

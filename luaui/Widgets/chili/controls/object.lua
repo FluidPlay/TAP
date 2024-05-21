@@ -506,6 +506,9 @@ function Object:SetLayer(layer)
   end
 end
 
+function Object:SendToBack()
+  self:SetLayer(-1)
+end
 
 function Object:BringToFront()
   self:SetLayer(1)
