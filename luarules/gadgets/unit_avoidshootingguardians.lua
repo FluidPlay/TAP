@@ -67,14 +67,11 @@ function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerW
     if g_Guardians[targetID] then
         -- aggroedGuardians[guardianID][attackerID] = true
         if g_AggroedGuardians[targetID] then
-            Spring.Echo("It's aggroed")
+            --Spring.Echo("It's aggroed")
             return true, defPriority
         else
-            if istable(g_GuardianAttackers[targetID]) then
-                Spring.Echo("is table!")
-            end
-            if g_GuardianAttackers[targetID] and g_GuardianAttackers[targetID][unitID] then
-                Spring.Echo("Attacker found!")
+            if istable(g_GuardianAttackers[targetID]) and g_GuardianAttackers[targetID][unitID] then
+                --Spring.Echo("Attacker found!")
                 return true, defPriority
             end
         end

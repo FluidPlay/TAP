@@ -375,7 +375,7 @@ function Object:HideChild(obj)
 
   if (not self.children[objDirect]) then
     --if (self.debug) then
-      Spring.Log("Chili", "error", "Tried to hide a non-child (".. (obj.name or "") ..")")
+    --  Spring.Log("Chili", "error", "Tried to hide a non-child (".. (obj.name or "") ..")") --##TEST: MaDDOX
     --end
     return
   end
@@ -412,7 +412,7 @@ function Object:ShowChild(obj)
 
   if (not self.children_hidden[objDirect]) then
     --if (self.debug) then
-      Spring.Log("Chili", "error", "Tried to show a non-child (".. (obj.name or "") ..")")
+    --  Spring.Log("Chili", "error", "Tried to show a non-child (".. (obj.name or "") ..")") --##TEST: MaDDOX
     --end
     return
   end

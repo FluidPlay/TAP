@@ -154,12 +154,16 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
             local ax,ay,az = spGetUnitPosition(unitID)
             local ip = data.idlePos
             local isInGuardRange = distance(ax,ay,az, ip.x,ip.y,ip.z) <= guardRadius/2
+            local attackerDef = UnitDefs[attackerDefID]
+            local attackerPower = attackerDef.power
+            if not guardianAttackers[guardianID] then
+                guardianAttackers[guardianID] = {}
+            end
+            guardianAttackers[guardianID][attackerID] = attackerPower
             if isInGuardRange then
                 --Spring.Echo("Unit has attacked within guarding radius of guardianID: "..(tostring(guardianID) or "nil"))
                 --unitFireState[guardianID] = returnFireState
 
-                local attackerDef = UnitDefs[attackerDefID]
-                local attackerPower = attackerDef.power
                 -- If new nearby aggressor is not there, or has a stronger power, aim at it instead
                 if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
                     data.targetPower = attackerPower
@@ -167,10 +171,7 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                     data.targetUpdated = true
                 end
                 aggroedGuardians[guardianID] = true
-                if not guardianAttackers[guardianID] then
-                    guardianAttackers[guardianID] = {}
-                end
-                guardianAttackers[guardianID][attackerID] = attackerPower
+
                 data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
             end
         end
@@ -186,8 +187,8 @@ function gadget:GameFrame(f)
     ---TODO: Refactor with Spring.GetUnitsInCylinder ( number x, number z, number radius [, number teamID ] )
     ---return: nil | table unitTable = { [1] = number unitID, etc... }
     for guardianID, attackers in pairs(guardianAttackers) do
-        if not aggroedGuardians[guardianID] then
-            local data = oreGuardians[guardianID]
+        local data = oreGuardians[guardianID]
+        if not aggroedGuardians[guardianID] and data then
             local ip = data.idlePos
             local unitsAround = spGetUnitsInCylinder(ip.x, ip.z, guardRadius)
             for i, unitID in ipairs(unitsAround) do
@@ -213,11 +214,9 @@ end
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
     aggroedGuardians[unitID] = nil
-    --Clear up dead attackers from guardianAttackers table
+    guardianAttackers[unitID] = nil
+    --Clear up dead guardians or attackers from guardianAttackers table
     for guardianID, attackers in pairs(guardianAttackers) do
-        if guardianID == unitID then
-            guardianAttackers[guardianID] = nil
-        end
         for attackerID in pairs(attackers) do
             if attackerID == unitID then
                 guardianAttackers[guardianID][attackerID] = nil

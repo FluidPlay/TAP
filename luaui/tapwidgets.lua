@@ -25,6 +25,8 @@ include("callins.lua")
 include("savetable.lua")
 
 Spring.Utilities = {}
+
+VFS.Include("LuaRules/Utilities/globals.lua") --          , nil, vfsGame)
 VFS.Include("LuaRules/Utilities/tablefunctions.lua")
 VFS.Include("LuaUI/flowui.lua")
 
