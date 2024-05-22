@@ -2686,7 +2686,7 @@ local function MakeSaveLoadButtons()
 					end
 				end,
 				key='Save Game',
-				icon = imgPath .. 'commands/Bold/unload.png',
+				icon = imgPath .. 'epicmenu/unload.png',
 				DisableFunc = function() return not CanSaveGame() end
 			})
 
