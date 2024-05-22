@@ -5,7 +5,7 @@ function widget:GetInfo()
 		author    = "CarRepairer",
 		date      = "2009-06-02", --2014-05-3
 		license   = "GNU GPL, v2 or later",
-		layer     = -100001,
+		layer     = -100, --001,
 		handler   = true,
 		enabled   = true,
 		alwaysStart = true,

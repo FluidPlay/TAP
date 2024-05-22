@@ -28,7 +28,7 @@ Spring.Utilities = {}
 
 VFS.Include("LuaRules/Utilities/globals.lua") --          , nil, vfsGame)
 VFS.Include("LuaRules/Utilities/tablefunctions.lua")
-VFS.Include("LuaUI/flowui.lua")
+--VFS.Include("LuaUI/flowui.lua")
 
 local gl = gl
 
@@ -855,6 +855,10 @@ function widgetHandler:UpdateCallIn(name)
       ((name == 'RecvFromSynced') and actionHandler.HaveSyncAction())) then
     -- always assign these call-ins
     local selffunc = self[name]
+    --## Debug: MaDD
+    --if not selffunc then
+    --  Spring.Echo("tapwidgets Error: "..(name or "nil").." not in widgetHandler")
+    --end
     _G[name] = function(...)
       return selffunc(self, ...)
     end

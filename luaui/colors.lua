@@ -17,7 +17,10 @@ BlackStr      = "\255\001\001\001";    function GetBlackStr   (str) return Black
 GreyStr       = "\255\128\128\128";    function GetGreyStr    (str) return GreyStr    .. str .. ResetColorStr end
 RedStr        = "\255\255\001\001";    function GetRedStr     (str) return RedStr     .. str .. ResetColorStr end
 PinkStr       = "\255\255\123\128";    function GetPinkStr    (str) return PinkStr    .. str .. ResetColorStr end
-GreenStr      = "\255\001\255\001";    function GetGreenStr   (str) return GreenStr   .. str .. ResetColorStr end
+GreenStr      = "\255\001\255\001";
+function GetGreenStr (str)
+    return GreenStr   .. str .. ResetColorStr
+end
 BlueStr       = "\255\001\001\255";    function GetBlueStr    (str) return BlueStr    .. str .. ResetColorStr end
 CyanStr       = "\255\001\255\255";    function GetCyanStr    (str) return CyanStr    .. str .. ResetColorStr end
 YellowStr     = "\255\255\255\001";    function GetYellowStr  (str) return YellowStr  .. str .. ResetColorStr end
