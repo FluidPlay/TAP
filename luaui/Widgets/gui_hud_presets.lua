@@ -12,6 +12,8 @@ function widget:GetInfo()
   }
 end
 
+--//Requires: api_chili_docking.lua (SetWindowPosAndSize)
+
 ----------------------------------------------------
 ----------------------------------------------------
 -- Widget option functions

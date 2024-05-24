@@ -17,7 +17,6 @@ function pwl() -- ???  (print widget list)
   end
 end
 
-
 include("keysym.h.lua")
 include("utils.lua")
 include("system.lua")
@@ -26,8 +25,11 @@ include("savetable.lua")
 
 Spring.Utilities = {}
 
-VFS.Include("LuaRules/Utilities/globals.lua") --          , nil, vfsGame)
-VFS.Include("LuaRules/Utilities/tablefunctions.lua")
+VFS.Include("luarules/Utilities/globals.lua") --          , nil, vfsGame)
+VFS.Include("luarules/Utilities/tablefunctions.lua")
+VFS.Include("luarules/Utilities/debugFunctions.lua") --  , nil, vfsGame)
+VFS.Include("luarules/Utilities/versionCompare.lua") --, nil, VFS.GAME)
+VFS.Include("luarules/Utilities/unitStates.lua")
 --VFS.Include("LuaUI/flowui.lua")
 
 local gl = gl

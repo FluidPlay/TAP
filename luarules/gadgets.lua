@@ -24,7 +24,7 @@ local SAFEWRAP = 0
 
 
 local HANDLER_DIR = 'LuaGadgets/'
-local GADGETS_DIR = Script.GetName():gsub('US$', '') .. '/Gadgets/'
+local GADGETS_DIR = Script.GetName():gsub('US$', '') .. '/gadgets/'
 local SCRIPT_DIR = Script.GetName() .. '/'
 local LOG_SECTION = "" -- FIXME: "LuaRules" section is not registered anywhere
 

@@ -534,13 +534,13 @@ end
 function Object:GetChildByName(name)
   local cn = self.children
   for i=1,#cn do
-    if (name == cn[i].name) then
+    if (type(cn[i])=="table" and name == cn[i].name) then
       return cn[i]
     end
   end
 
   for c in pairs(self.children_hidden) do
-    if (name == c.name) then
+    if (type(c)=="table" and name == c.name) then
       return MakeWeakLink(c)
     end
   end
