@@ -28,6 +28,7 @@ local GADGETS_DIR = Script.GetName():gsub('US$', '') .. '/gadgets/'
 local SCRIPT_DIR = Script.GetName() .. '/'
 local LOG_SECTION = "" -- FIXME: "LuaRules" section is not registered anywhere
 
+local ECHO_DESCRIPTIONS = true --false
 
 local VFSMODE = VFS.ZIP_ONLY -- FIXME: ZIP_FIRST ?
 if (Spring.IsDevLuaEnabled()) then
@@ -155,6 +156,10 @@ function gadgetHandler:Initialize()
 --    Spring.Echo('gf1 = ' .. gf) -- FIXME
 --  end
 
+  if ECHO_DESCRIPTIONS then
+    Spring.Echo("=== Start Gadgets ===")
+  end
+
   -- stuff the gadgets into unsortedGadgets
   for k,gf in ipairs(gadgetFiles) do
 --    Spring.Echo('gf2 = ' .. gf) -- FIXME
@@ -162,6 +167,10 @@ function gadgetHandler:Initialize()
     if (gadget) then
       table.insert(unsortedGadgets, gadget)
     end
+  end
+
+  if ECHO_DESCRIPTIONS then
+    Spring.Echo("=== End Gadgets ===")
   end
 
   -- sort the gadgets

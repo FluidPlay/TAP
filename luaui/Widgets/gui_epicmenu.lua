@@ -3235,10 +3235,10 @@ function widget:SetConfigData(data)
 
 	WG.lang(settings.lang)
 
-	--TODO: Hack/test ##MaDDoX
-	if not settings.config then
-		settings.config = {}
-	end
+	----TODO: Hack/test ##MaDDoX
+	--if not settings.config then
+	--	settings.config = {}
+	--end
 
 	if settings.music_volume then
 		settings.config["epic_Settings/Audio_Music_Volume"] = settings.music_volume

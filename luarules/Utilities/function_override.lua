@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------------
 -- Overrides some inbuilt spring functions
 
-VFS.Include("LuaRules/Utilities/versionCompare.lua", nil, VFS.GAME)
+VFS.Include("luarules/Utilities/versionCompare.lua", nil, VFS.GAME)
 
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ end
 -- hack window geometry
 
 -- gl.GetViewSizes intentionally not overridden
-Spring.Orig = Spring.Orig or {}
+Spring.Orig = {} --Spring.Orig or
 Spring.Orig.GetWindowGeometry = Spring.GetWindowGeometry
 Spring.Orig.GetViewGeometry = Spring.GetViewGeometry
 Spring.Orig.GetViewSizes = gl and gl.GetViewSizes
@@ -36,9 +36,11 @@ Spring.GetWindowGeometry = function()
 	return vsx/((WG and WG.uiScale) or 1), vsy/((WG and WG.uiScale) or 1), vx, vy
 end
 
-Spring.GetViewGeometry = function()
-	local vsx, vsy, vx, vy = Spring.Orig.GetViewGeometry()
-	return vsx/((WG and WG.uiScale) or 1), vsy/((WG and WG.uiScale) or 1), vx, vy
+if Spring.GetViewGeometry == Spring.Orig.GetViewGeometry then
+	Spring.GetViewGeometry = function()
+		local vsx, vsy, vx, vy = Spring.Orig.GetViewGeometry()
+		return vsx/((WG and WG.uiScale) or 1), vsy/((WG and WG.uiScale) or 1), vx, vy
+	end
 end
 
 Spring.GetViewSizes = function()

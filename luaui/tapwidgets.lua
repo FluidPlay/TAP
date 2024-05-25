@@ -30,6 +30,7 @@ VFS.Include("luarules/Utilities/tablefunctions.lua")
 VFS.Include("luarules/Utilities/debugFunctions.lua") --  , nil, vfsGame)
 VFS.Include("luarules/Utilities/versionCompare.lua") --, nil, VFS.GAME)
 VFS.Include("luarules/Utilities/unitStates.lua")
+VFS.Include("luarules/Utilities/function_override.lua")
 --VFS.Include("LuaUI/flowui.lua")
 
 local gl = gl
