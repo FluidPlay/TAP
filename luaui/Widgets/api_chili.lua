@@ -111,12 +111,12 @@ function widget:DrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
+			gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
 	gl.Color(1,1,1,1)
 end
-
 
 function widget:DrawLoadScreen()
 	gl.Color(1,1,1,1)
@@ -126,6 +126,7 @@ function widget:DrawLoadScreen()
 			gl.Scale(1/vsx,1/vsy,1)
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
+			gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
@@ -140,6 +141,7 @@ function widget:TweakDrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
+			gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:TweakDraw()
 		gl.PopMatrix()
 	end
@@ -157,14 +159,18 @@ end
 
 
 function widget:IsAbove(x,y)
-	if Spring.IsGUIHidden() then return false end
-
-	return screen0:IsAbove(x,y)
+	local x, y, lmb, mmb, rmb, outsideSpring = Spring.ScaledGetMouseState()
+	return (not outsideSpring) and (not screen0:IsEmpty()) and screen0:IsAbove(x,y)
+	--if Spring.IsGUIHidden() then return false end
+	--return screen0:IsAbove(x,y)
 end
 
 
 local mods = {}
 function widget:MousePress(x,y,button)
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y = x/WG.uiScale, y/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -174,6 +180,9 @@ end
 
 
 function widget:MouseRelease(x,y,button)
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y = x/WG.uiScale, y/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -183,6 +192,9 @@ end
 
 
 function widget:MouseMove(x,y,dx,dy,button)
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y, dx, dy = x/WG.uiScale, y/WG.uiScale, dx/WG.uiScale, dy/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -192,7 +204,7 @@ end
 
 
 function widget:MouseWheel(up,value)
-	if Spring.IsGUIHidden() then return false end
+--	if Spring.IsGUIHidden() then return false end
 
 	local x,y = Spring.GetMouseState()
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -203,16 +215,13 @@ end
 
 local keyPressed = true
 function widget:KeyPress(key, mods, isRepeat, label, unicode)
-	if Spring.IsGUIHidden() then return false end
-
+--	if Spring.IsGUIHidden() then return false end
 	keyPressed = screen0:KeyPress(key, mods, isRepeat, label, unicode)
 	return keyPressed
 end
 
-
 function widget:KeyRelease()
-	if Spring.IsGUIHidden() then return false end
-
+--	if Spring.IsGUIHidden() then return false end
 	local _keyPressed = keyPressed
 	keyPressed = false
 	return _keyPressed -- block engine actions when we processed it
