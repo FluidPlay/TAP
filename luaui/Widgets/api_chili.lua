@@ -111,7 +111,7 @@ function widget:DrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			gl.Scale(WG.uiScale,WG.uiScale,1)
+			--gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
@@ -126,7 +126,7 @@ function widget:DrawLoadScreen()
 			gl.Scale(1/vsx,1/vsy,1)
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			gl.Scale(WG.uiScale,WG.uiScale,1)
+			--gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
@@ -141,7 +141,7 @@ function widget:TweakDrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			gl.Scale(WG.uiScale,WG.uiScale,1)
+			--gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:TweakDraw()
 		gl.PopMatrix()
 	end
@@ -168,9 +168,9 @@ end
 
 local mods = {}
 function widget:MousePress(x,y,button)
-	if WG.uiScale and WG.uiScale ~= 1 then
-		x, y = x/WG.uiScale, y/WG.uiScale
-	end
+	--if WG.uiScale and WG.uiScale ~= 1 then
+	--	x, y = x/WG.uiScale, y/WG.uiScale
+	--end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -180,9 +180,9 @@ end
 
 
 function widget:MouseRelease(x,y,button)
-	if WG.uiScale and WG.uiScale ~= 1 then
-		x, y = x/WG.uiScale, y/WG.uiScale
-	end
+	--if WG.uiScale and WG.uiScale ~= 1 then
+	--	x, y = x/WG.uiScale, y/WG.uiScale
+	--end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -192,9 +192,9 @@ end
 
 
 function widget:MouseMove(x,y,dx,dy,button)
-	if WG.uiScale and WG.uiScale ~= 1 then
-		x, y, dx, dy = x/WG.uiScale, y/WG.uiScale, dx/WG.uiScale, dy/WG.uiScale
-	end
+	--if WG.uiScale and WG.uiScale ~= 1 then
+	--	x, y, dx, dy = x/WG.uiScale, y/WG.uiScale, dx/WG.uiScale, dy/WG.uiScale
+	--end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()

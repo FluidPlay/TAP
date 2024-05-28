@@ -49,9 +49,14 @@ Object = {
   OnMouseOut      = {},
   OnKeyPress      = {},
   OnTextInput     = {},
+  OnTextModified  = {},
+  OnTextEditing   = {},
   OnFocusUpdate   = {},
   OnHide          = {},
   OnShow          = {},
+  OnOrphan        = {},
+  OnParent        = {},
+  OnParentPost    = {}, -- Called after parent is set
 
   disableChildrenHitTest = false, --// if set childrens are not clickable/draggable etc - their mouse events are not processed
 } 
@@ -241,12 +246,22 @@ function Object:SetParent(obj)
 
   if (typ ~= "table") then
     self.parent = nil
+    self:CallListeners(self.OnOrphan, self)
     return
   end
+
+  self:CallListeners(self.OnParent, self)
+
+  -- Children always appear to visible when they recieve new parents because they
+  -- are added to the visible child list.
+  self.visible = true
+  self.hidden = false
 
   self.parent = MakeWeakLink(obj, self.parent)
 
   self:Invalidate()
+
+  self:CallListeners(self.OnParentPost, self)
 end
 
 --- Adds the child object
@@ -799,6 +814,14 @@ function Object:LocalToScreen(x,y)
 end
 
 
+function Object:UnscaledLocalToScreen(x,y)
+  if (not self.parent) then
+    return x,y
+  end
+  --Spring.Echo((not self.parent) and debug.traceback())
+  return (self.parent):UnscaledClientToScreen(self:LocalToParent(x,y))
+end
+
 function Object:ClientToScreen(x,y)
   if (not self.parent) then
     return self:ClientToParent(x,y)
@@ -806,6 +829,12 @@ function Object:ClientToScreen(x,y)
   return (self.parent):ClientToScreen(self:ClientToParent(x,y))
 end
 
+function Object:UnscaledClientToScreen(x,y)
+  if (not self.parent) then
+    return self:ClientToParent(x,y)
+  end
+  return (self.parent):UnscaledClientToScreen(self:ClientToParent(x,y))
+end
 
 function Object:ScreenToLocal(x,y)
   if (not self.parent) then
@@ -814,14 +843,12 @@ function Object:ScreenToLocal(x,y)
   return self:ParentToLocal((self.parent):ScreenToClient(x,y))
 end
 
-
 function Object:ScreenToClient(x,y)
   if (not self.parent) then
     return self:ParentToClient(x,y)
   end
   return self:ParentToClient((self.parent):ScreenToClient(x,y))
 end
-
 
 function Object:LocalToObject(x, y, obj)
   if CompareLinks(self,obj) then
@@ -832,6 +859,13 @@ function Object:LocalToObject(x, y, obj)
   end
   x, y = self:LocalToParent(x, y)
   return self.parent:LocalToObject(x, y, obj)
+end
+
+function Object:IsVisibleOnScreen()
+  if (not self.parent) or (not self.visible) then
+    return false
+  end
+  return (self.parent):IsVisibleOnScreen()
 end
 
 --//=============================================================================
