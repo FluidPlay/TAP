@@ -11,6 +11,11 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+local ignorelist = {count = 0, ignorees = {} } -- Ignore workaround for WG table.
+local playerstate = {} -- for PlayerChangedTeam, PlayerResigned
+local resetWidgetDetailLevel = false -- has widget detail level changed
+local myPlayerID = Spring.GetLocalPlayerID()
+
 function pwl() -- ???  (print widget list)
   for k,v in ipairs(widgetHandler.widgets) do
     print(k, v.whInfo.layer, v.whInfo.name)
@@ -30,15 +35,34 @@ VFS.Include("luarules/Utilities/tablefunctions.lua")
 VFS.Include("luarules/Utilities/debugFunctions.lua") --  , nil, vfsGame)
 VFS.Include("luarules/Utilities/versionCompare.lua") --, nil, VFS.GAME)
 VFS.Include("luarules/Utilities/unitStates.lua")
+VFS.Include("luarules/Utilities/gametype.lua") --new
+VFS.Include("luarules/Utilities/vector.lua")   --new (and below ones too)
 VFS.Include("luarules/Utilities/function_override.lua")
+VFS.Include("luarules/Utilities/minimap.lua"          )
+VFS.Include("luarules/Utilities/lobbyStuff.lua"       )
+VFS.Include("luaui/Utilities/truncate.lua"            )
+VFS.Include("luaui/keysym.lua"                        )
+VFS.Include("luaui/system.lua"                        )
+VFS.Include("luaui/cache.lua"                         )
+VFS.Include("luaui/callins.lua"                       )
+VFS.Include("luaui/savetable.lua"                     )
 --VFS.Include("LuaUI/flowui.lua")
+
+local CheckLUAFileAndBackup = VFS.Include("LuaUI/file_backups.lua")
+local MessageProcessor = VFS.Include("LuaUI/chat_preprocess.lua") --, nil, vfsGame
 
 local gl = gl
 
-local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/' .. Game.modShortName .. '.lua'
+--local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/' .. Game.modShortName .. '.lua'
+local ORDER_FILENAME     = LUAUI_DIRNAME .. 'Config/TAP_order.lua'
+local CONFIG_FILENAME    = LUAUI_DIRNAME .. 'Config/TAP_data.lua'
 local WIDGET_DIRNAME     = LUAUI_DIRNAME .. 'Widgets/'
 local WIDGET_DIRNAME_MAP = LUAUI_DIRNAME .. 'Widgets/'
 
+-- make/load backup config in case of corruption
+CheckLUAFileAndBackup(ORDER_FILENAME)
+
+local HANDLER_BASENAME = "tapwidgets.lua"
 local SELECTOR_BASENAME = 'selector.lua'
 
 local SAFEWRAP = 1
@@ -50,6 +74,9 @@ local SAFEDRAW = false  -- requires SAFEWRAP to work
 local glPopAttrib  = gl.PopAttrib
 local glPushAttrib = gl.PushAttrib
 
+local MUTE_SPECTATORS = Spring.GetModOptions().mutespec or 'autodetect'
+local MUTE_LOBBY = Spring.GetModOptions().mutelobby or 'autodetect'
+local playerNameToID
 
 --------------------------------------------------------------------------------
 
@@ -114,6 +141,9 @@ widgetHandler = {
 -- these call-ins are set to 'nil' if not used
 -- they are setup in UpdateCallIns()
 local flexCallIns = {
+  'AlliedUnitAdded',
+  'AlliedUnitRemoved',
+  'AlliedUnitsChanged',
   'AddConsoleMessage',
   'DefaultCommand',
   'DrawAlphaFeaturesLua',
@@ -148,6 +178,7 @@ local flexCallIns = {
   'MapDrawCmd',
   'PlayerAdded',
   'PlayerChanged',
+  'PlayerChangedTeam',
   'PlayerRemoved',
   'PlayerResigned',
   'RecvLuaMsg',
@@ -194,6 +225,27 @@ for _,ci in ipairs(flexCallIns) do
   flexCallInMap[ci] = true
 end
 
+local reverseCallIns = {
+  'DrawScreen',
+  'DrawGenesis',
+  'DrawWorld',
+  'DrawWorldPreUnit',
+  'DrawWorldPreParticles',
+  'DrawWorldShadow',
+  'DrawWorldReflection',
+  'DrawWorldRefraction',
+  'DrawUnitsPostDeferred',
+  'DrawFeaturesPostDeferred',
+  'DrawScreenEffects',
+  'DrawScreenPost',
+  'DrawInMiniMap',
+  'DefaultCommand',
+}
+local reverseCallInMap = {}
+for _, ci in ipairs(reverseCallIns) do
+  reverseCallInMap[ci] = true
+end
+
 local callInLists = {
   'AddConsoleLine',
   'AlliedUnitAdded',
@@ -220,6 +272,11 @@ local callInLists = {
   'PlayerChangedTeam',
   'PlayerResigned',
   'ReceiveUserInfo',
+  -- widget:ReceiveUserInfo(info)
+  -- info is a table with keys name, avatar, icon, badges, admin, clan, faction, country
+  -- values are strings except:
+  -- badges: comma separated string of badge names
+  -- admin: boolean
   'Shutdown',
   'TextCommand',
   'TextInput',
@@ -264,20 +321,28 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
---  Reverse integer iterator for drawing
+--  array-table reverse iterator
+--
+--  all callin handlers use this so that widgets can
+--  RemoveWidget() themselves (during iteration over
+--  a callin list) without causing a miscount
+--
+--  Reverse iteration for drawing is achieved by adding
+--  callins to the lists in the non-reverse order.
+--
+--  c.f. Array{Insert,Remove,InsertReverse}
 --
 
-local function rev_iter(t, key)
+local function r_iter(tbl, key)
   if (key <= 1) then
     return nil
-  else
-    local nkey = key - 1
-    return nkey, t[nkey]
   end
+  -- next idx, next val
+  return (key - 1), tbl[key - 1]
 end
 
-local function ripairs(t)
-  return rev_iter, t, (1 + #t)
+local function r_ipairs(t)
+  return r_iter, t, (1 + #t)
 end
 
 
@@ -847,18 +912,13 @@ end
 
 function widgetHandler:UpdateCallIn(name)
   local listName = name .. 'List'
-  if ((name == 'Update')     or
-      (name == 'DrawScreen')) then
+  if ((name == 'Update') or (name == 'DrawScreen')) then
     return
   end
 
-  if ((#self[listName] > 0) or
-      (not flexCallInMap[name]) or
-      ((name == 'GotChatMsg')     and actionHandler.HaveChatAction()) or
-      ((name == 'RecvFromSynced') and actionHandler.HaveSyncAction())) then
+  if ((#self[listName] > 0) or (not flexCallInMap[name]) or ((name == 'GotChatMsg') and actionHandler.HaveChatAction()) or ((name == 'RecvFromSynced') and actionHandler.HaveSyncAction())) then
     -- always assign these call-ins
     local selffunc = self[name]
-    --## Debug: MaDD
     --if not selffunc then
     --  Spring.Echo("tapwidgets Error: "..(name or "nil").." not in widgetHandler")
     --end
@@ -870,6 +930,32 @@ function widgetHandler:UpdateCallIn(name)
   end
   Script.UpdateCallIn(name)
 end
+
+--function widgetHandler:UpdateCallIn(name)
+--  local listName = name .. 'List'
+--  if ((name == 'Update')     or
+--      (name == 'DrawScreen')) then
+--    return
+--  end
+--
+--  if ((#self[listName] > 0) or
+--      (not flexCallInMap[name]) or
+--      ((name == 'GotChatMsg')     and actionHandler.HaveChatAction()) or
+--      ((name == 'RecvFromSynced') and actionHandler.HaveSyncAction())) then
+--    -- always assign these call-ins
+--    local selffunc = self[name]
+--    --## Debug: MaDD
+--    --if not selffunc then
+--    --  Spring.Echo("tapwidgets Error: "..(name or "nil").." not in widgetHandler")
+--    --end
+--    _G[name] = function(...)
+--      return selffunc(self, ...)
+--    end
+--  else
+--    _G[name] = nil
+--  end
+--  Script.UpdateCallIn(name)
+--end
 
 
 function widgetHandler:UpdateWidgetCallIn(name, w)
@@ -1126,7 +1212,8 @@ end
 
 
 function widgetHandler:GetViewSizes()
-  return self.xViewSize, self.yViewSize
+  --return self.xViewSize, self.yViewSize
+  return gl.GetViewSizes()  --Remove?
 end
 
 
@@ -1237,13 +1324,113 @@ function widgetHandler:CommandNotify(id, params, options)
 end
 
 
+--function widgetHandler:AddConsoleLine(msg, priority)
+--  for _,w in ipairs(self.AddConsoleLineList) do
+--    w:AddConsoleLine(msg, priority)
+--  end
+--  return
+--end
 function widgetHandler:AddConsoleLine(msg, priority)
-  for _,w in ipairs(self.AddConsoleLineList) do
-    w:AddConsoleLine(msg, priority)
-  end
-  return
-end
 
+  if StringStarts(msg, "Error: Invalid command received") or StringStarts(msg, "Error: Dropped command ") then
+    return
+  else
+    --censor message for muted player. This is mandatory, everyone is forced to close ears to muted players (ie: if it is optional, then everyone will opt to hear muted player for spec-cheat info. Thus it will defeat the purpose of mute)
+    local newMsg = { text = msg, priority = priority }
+    MessageProcessor:ProcessConsoleLine(newMsg) --chat_preprocess.lua
+    if newMsg.msgtype ~= 'other' and newMsg.msgtype ~= 'autohost' and newMsg.msgtype ~= 'userinfo' and newMsg.msgtype ~= 'game_message' and newMsg.msgtype ~= 'game_priority_message' then
+      if MUTE_SPECTATORS and newMsg.msgtype == 'spec_to_everyone' then
+        local spectating = select(1, Spring.GetSpectatingState())
+        if not spectating then
+          return
+        end
+        newMsg.msgtype = 'spec_to_specs'
+      end
+      local playerID_msg = newMsg.player and newMsg.player.id --retrieve playerID from message.
+      local customkeys = select(10, Spring.GetPlayerInfo(playerID_msg))
+      if customkeys and (customkeys.muted or (newMsg.msgtype == 'spec_to_everyone' and ((customkeys.can_spec_chat or '1') == '0'))) then
+        local myPlayerID = Spring.GetLocalPlayerID()
+        if myPlayerID == playerID_msg then --if I am the muted, then:
+          newMsg.argument = "<your message was blocked by mute>"	--remind myself that I am muted.
+          msg = "<your message was blocked by mute>"
+        else --if I am NOT the muted, then: delete this message
+          return
+        end
+        --TODO: improve chili_chat2 spam-filter/dedupe-detection too.
+      end
+      -- IGNORE FEATURE--
+      if ignorelist.ignorees[select(1, Spring.GetPlayerInfo(playerID_msg, false))] then
+        return
+      end
+    end
+
+    if MUTE_LOBBY and newMsg.msgtype == 'autohost' then
+      local spectating = select(1, Spring.GetSpectatingState())
+      if (not spectating) and newMsg.argument then
+        -- Chat from lobby has format '<PlayerName>message'
+        if string.sub(newMsg.argument, 1, 1) == "<" then
+          local endChar = string.find(newMsg.argument, ">")
+          if endChar then
+            local name = string.sub(newMsg.argument, 2, endChar-1)
+            if playerNameToID[name] then
+              local spectating = select(3, Spring.GetPlayerInfo(playerNameToID[name], false))
+              if spectating then
+                playerNameToID[name] = nil
+                return
+              end
+            else
+              return
+            end
+          else
+            return
+          end
+        end
+      end
+    end
+    --Ignore's lobby blocker.--
+    if newMsg.msgtype == 'autohost' and newMsg.argument and string.sub(newMsg.argument, 1, 1) == "<" then
+      local endChar = string.find(newMsg.argument, ">")
+      if endChar then
+        local name = string.sub(newMsg.argument, 2, endChar-1)
+        if ignorelist.ignorees[name] then
+          return -- block chat
+        end
+      end
+    end
+    if newMsg.msgtype == 'userinfo' and newMsg.argument then
+
+      local list = newMsg.argument:split("|")
+      local info = {
+        name = list[1],
+        avatar = list[2],
+        icon = list[3],
+        badges = list[4],
+        admin = list[5] and string.lower(list[5]) == 'true',
+        clan = list[6],
+        faction = list[7],
+        country = list[8],
+      }
+
+      --send message to widget:ReceiveUserInfo
+      for _, w in r_ipairs(self.ReceiveUserInfoList) do
+        w:ReceiveUserInfo(info)
+      end
+      return
+    end
+    --send message to widget:AddConsoleLine
+    for _, w in r_ipairs(self.AddConsoleLineList) do
+      w:AddConsoleLine(msg, priority)
+    end
+
+    --send message to widget:AddConsoleMessage
+    if newMsg.msgtype == 'point' or newMsg.msgtype == 'label' then
+      return -- ignore all console messages about points... those come in through the MapDrawCmd callin
+    end
+    for _, w in r_ipairs(self.AddConsoleMessageList) do
+      w:AddConsoleMessage(newMsg)
+    end
+  end
+end
 
 function widgetHandler:GroupChanged(groupID)
   for _,w in ipairs(self.GroupChangedList) do
@@ -1287,11 +1474,11 @@ function widgetHandler:ViewResize(vsx, vsy)
   if (type(vsx) == 'table') then
     vsy = vsx.viewSizeY
     vsx = vsx.viewSizeX
-    print('real ViewResize') -- FIXME
+    --print('real ViewResize') -- FIXME
   end
-  if Spring.FlowUI then
-      Spring.FlowUI.ViewResize(vsx, vsy)
-  end
+  --if Spring.FlowUI then
+  --    Spring.FlowUI.ViewResize(vsx, vsy)
+  --end
   for _,w in ipairs(self.ViewResizeList) do
     w:ViewResize(vsx, vsy)
   end
@@ -1308,10 +1495,10 @@ function widgetHandler:DrawScreen()
     })
     gl.Color(1, 1, 1)
   end
-  if Spring.FlowUI then
-      Spring.FlowUI.DrawScreen()
-  end
-  for _,w in ripairs(self.DrawScreenList) do
+  --if Spring.FlowUI then
+  --    Spring.FlowUI.DrawScreen()
+  --end
+  for _,w in r_ipairs(self.DrawScreenList) do
     w:DrawScreen()
     if (self.tweakMode and w.TweakDrawScreen) then
       w:TweakDrawScreen()
@@ -1322,7 +1509,7 @@ end
 
 
 function widgetHandler:DrawGenesis()
-  for _,w in ripairs(self.DrawGenesisList) do
+  for _,w in r_ipairs(self.DrawGenesisList) do
     w:DrawGenesis()
   end
   return
@@ -1330,15 +1517,17 @@ end
 
 
 function widgetHandler:DrawWorld()
-  for _,w in ripairs(self.DrawWorldList) do
+  for _,w in r_ipairs(self.DrawWorldList) do
+    gl.Fog(true)
     w:DrawWorld()
   end
+  gl.Fog(false)
   return
 end
 
 
 function widgetHandler:DrawWorldPreUnit()
-  for _,w in ripairs(self.DrawWorldPreUnitList) do
+  for _,w in r_ipairs(self.DrawWorldPreUnitList) do
     w:DrawWorldPreUnit()
   end
   return
@@ -1346,7 +1535,7 @@ end
 
 
 function widgetHandler:DrawWorldShadow()
-  for _,w in ripairs(self.DrawWorldShadowList) do
+  for _,w in r_ipairs(self.DrawWorldShadowList) do
     w:DrawWorldShadow()
   end
   return
@@ -1354,7 +1543,7 @@ end
 
 
 function widgetHandler:DrawWorldReflection()
-  for _,w in ripairs(self.DrawWorldReflectionList) do
+  for _,w in r_ipairs(self.DrawWorldReflectionList) do
     w:DrawWorldReflection()
   end
   return
@@ -1362,7 +1551,7 @@ end
 
 
 function widgetHandler:DrawWorldRefraction()
-  for _,w in ripairs(self.DrawWorldRefractionList) do
+  for _,w in r_ipairs(self.DrawWorldRefractionList) do
     w:DrawWorldRefraction()
   end
   return
@@ -1370,7 +1559,7 @@ end
 
 
 function widgetHandler:DrawScreenEffects(vsx, vsy)
-  for _,w in ripairs(self.DrawScreenEffectsList) do
+  for _,w in r_ipairs(self.DrawScreenEffectsList) do
     w:DrawScreenEffects(vsx, vsy)
   end
   return
@@ -1378,7 +1567,7 @@ end
 
 
 function widgetHandler:DrawInMiniMap(xSize, ySize)
-  for _,w in ripairs(self.DrawInMiniMapList) do
+  for _,w in r_ipairs(self.DrawInMiniMapList) do
     w:DrawInMiniMap(xSize, ySize)
   end
   return
@@ -1751,7 +1940,7 @@ end
 
 
 function widgetHandler:DefaultCommand(...)
-  for _,w in ripairs(self.DefaultCommandList) do
+  for _,w in r_ipairs(self.DefaultCommandList) do
     local result = w:DefaultCommand(...)
     if (type(result) == 'number') then
       return result
