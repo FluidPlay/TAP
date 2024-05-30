@@ -8,6 +8,8 @@ Window = Control:Inherit{
   classname = 'window',
   resizable = true,
   draggable = true,
+  bringToFrontOnClick = true,
+  noFont = true,
 
   minWidth  = 50,
   minHeight = 50,
@@ -37,6 +39,9 @@ end
 --//=============================================================================
 
 function Window:New(obj)
+  if obj.noFont == nil and obj.caption then
+    obj.noFont = false
+  end
   obj = inherited.New(self,obj)
   obj:BringToFront()
   return obj
@@ -47,7 +52,9 @@ function Window:DrawControl()
 end
 
 function Window:MouseDown(...)
-  self:BringToFront()
+  if self.bringToFrontOnClick then
+    self:BringToFront()
+  end
   return inherited.MouseDown(self,...)
 end
 

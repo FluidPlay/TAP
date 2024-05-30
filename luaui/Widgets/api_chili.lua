@@ -126,7 +126,6 @@ function widget:DrawLoadScreen()
 			gl.Scale(1/vsx,1/vsy,1)
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			--gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
@@ -141,7 +140,7 @@ function widget:TweakDrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			--gl.Scale(WG.uiScale,WG.uiScale,1)
+			gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:TweakDraw()
 		gl.PopMatrix()
 	end
@@ -206,7 +205,7 @@ end
 function widget:MouseWheel(up,value)
 --	if Spring.IsGUIHidden() then return false end
 
-	local x,y = Spring.GetMouseState()
+	local x,y = Spring.ScaledGetMouseState() --GetMouseState()
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
 	mods.alt=alt; mods.ctrl=ctrl; mods.meta=meta; mods.shift=shift;
 	return screen0:MouseWheel(x,y,up,value,mods)
@@ -235,7 +234,8 @@ end
 
 
 function widget:ViewResize(vsx, vsy)
-	screen0:Resize(vsx/(WG.uiScale or 1), vsy/(WG.uiScale or 1))
+	screen0:Resize(vsx, vsy)
+	--screen0:Resize(vsx/(WG.uiScale or 1), vsy/(WG.uiScale or 1))
 end
 
 widget.TweakIsAbove      = widget.IsAbove

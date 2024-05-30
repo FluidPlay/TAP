@@ -2531,6 +2531,7 @@ local function GetSelectionWindow()
 	}
 	mainPanel.padding[1] = mainPanel.padding[1] + options.leftPadding.value
 	mainPanel:Hide()
+	--mainPanel:BringToFront() #TAP
 
 	local singleUnitDisplay = GetSingleUnitInfoPanel(mainPanel, false)
 	local multiUnitDisplay = GetMultiUnitInfoPanel(mainPanel)
@@ -2691,11 +2692,9 @@ function widget:Initialize()
 	Spring.SetDrawSelectionInfo(false)
 
 	local hotkeys = WG.crude.GetHotkeys("drawinmap")
-	if hotkeys then
-		for k,v in pairs(hotkeys) do
-			drawHotkeyBytesCount = drawHotkeyBytesCount + 1
-			drawHotkeyBytes[drawHotkeyBytesCount] = v:byte(-1)
-		end
+	for k,v in pairs(hotkeys) do
+		drawHotkeyBytesCount = drawHotkeyBytesCount + 1
+		drawHotkeyBytes[drawHotkeyBytesCount] = v:byte(-1)
 	end
 
 	selectionWindow = GetSelectionWindow()

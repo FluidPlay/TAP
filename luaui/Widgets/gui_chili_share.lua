@@ -1082,9 +1082,10 @@ local function InitName(subject, playerPanel)
 			noFont = true,
 		}
 	end
-	local icon, elo, badges, clan, avatar, faction, admin
+	local country,icon, elo, badges, clan, avatar, faction, admin
 	if (subject.player) then
 		local pdata = select(10, Spring.GetPlayerInfo(subject.player))
+		country = select(8, Spring.GetPlayerInfo(subject.player, false))
 		icon = pdata.icon
 		elo = pdata.elo
 		badges = pdata.badges

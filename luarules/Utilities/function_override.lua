@@ -26,7 +26,7 @@ end
 -- hack window geometry
 
 -- gl.GetViewSizes intentionally not overridden
-Spring.Orig = {} --Spring.Orig or
+Spring.Orig = Spring.Orig or {}
 Spring.Orig.GetWindowGeometry = Spring.GetWindowGeometry
 Spring.Orig.GetViewGeometry = Spring.GetViewGeometry
 Spring.Orig.GetViewSizes = gl and gl.GetViewSizes

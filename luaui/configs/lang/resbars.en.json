@@ -32,12 +32,12 @@
 	"resbar_nano_value" : "Ongoing Projects Value",
 	"resbar_metal_storage_tooltip" : "Your stored metal.",
 	"resbar_energy_storage_tooltip" : "Your stored energy.",
-	"resbar_metal_income_tooltip" : "Your metal income.\nGained from metal extractors, overdrive and reclaim.",
-	"resbar_energy_income_tooltip" : "Your energy income.\nGained from power plants.",
-	"resbar_metal_bar_tooltip" : "Represents your storage capacity. Filled portion is used storage.\nFlashes if maximum storage is reached and you start wasting metal.",
-	"resbar_energy_bar_tooltip" : "Represents your storage capacity. Filled portion is used storage.\nFlashes if maximum storage is reached and you start wasting energy.",
-	"resbar_metal_expense_tooltip" : "Your metal demand. Construction and morph demand metal.",
-	"resbar_energy_expense_tooltip" : "This is this total energy demand of your economy and abilities which require energy upkeep.",
+	"resbar_metal_income_tooltip" : "Your metal income.\nGained from harvesting builders, metal makers and reclaim.",
+	"resbar_energy_income_tooltip" : "Your energy income.\nGained from power plants, solars and fusions.",
+	"resbar_metal_bar_tooltip" : "Represents your metal storage capacity. Filled portion is used storage.\nFlashes if maximum storage is reached and you start wasting metal.",
+	"resbar_energy_bar_tooltip" : "Represents your energy storage capacity. Filled portion is used storage.\nFlashes if maximum storage is reached and you start wasting energy.",
+	"resbar_metal_expense_tooltip" : "Your metal demand. Construction and morph demands metal.",
+	"resbar_energy_expense_tooltip" : "This is this total energy demand of your production, units and abilities which require energy upkeep.",
 	"metal_excess_warning" : "Build more FARCs/Outposts to spend your metal.",
 	"energy_stall_warning" : "Build more solar plants or wind generators to prevent energy stall."
 }

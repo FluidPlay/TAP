@@ -171,7 +171,6 @@ local function PushScissor(_,x,y,w,h)
 	return true
 end
 
-
 local function PopScissor()
 	FreeVector4(curScissor)
 	stack[stackN] = nil
@@ -188,7 +187,42 @@ local function PopScissor()
 	end
 end
 
+function g_PushScissor(x,y,w,h)
+    local right = x+w
+    local bottom = y+h
+    if (right  > curScissor[3]) then right  = curScissor[3] end
+    if (bottom > curScissor[4]) then bottom = curScissor[4] end
+    if (x < curScissor[1]) then x = curScissor[1] end
+    if (y < curScissor[2]) then y = curScissor[2] end
 
+    curScissor = {x,y,right,bottom}
+    stackN = stackN + 1
+    stack[stackN] = curScissor
+
+    local width = right  - x
+    local height = bottom - y
+    if (width < 0) or (height < 0) then
+        --// scissor is null space -> don't render at all
+        return false
+    end
+    gl.Scissor(x,y,width,height)
+end
+
+function g_PopScissor()
+    stack[stackN] = nil
+    stackN = stackN - 1
+    curScissor = stack[stackN]
+    if (stackN == 1) then
+        gl.Scissor(false)
+    else
+        local x,y, right,bottom = unpack4(curScissor)
+        local w = right  - x
+        local h = bottom - y
+        if w >= 0 and h >= 0 then
+            gl.Scissor(x,y,w,h)
+        end
+    end
+end
 
 local function PushStencilMask(obj, x,y,w,h)
 	obj._stencilMask = (obj.parent and obj.parent._stencilMask or 0) + 1
