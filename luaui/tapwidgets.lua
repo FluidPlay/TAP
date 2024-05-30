@@ -701,6 +701,12 @@ function widgetHandler:NewWidget()
 
   wh.ConfigLayoutHandler = function(_, d) self:ConfigLayoutHandler(d) end
 
+  ----
+  widget.ProcessConsoleBuffer = function(_, _, num)	-- FIXME: probably not the least hacky way to make ProcessConsoleBuffer accessible to widgets
+    return MessageProcessor:ProcessConsoleBuffer(num) --chat_preprocess.lua
+  end
+  ----
+
   return widget
 end
 
@@ -923,6 +929,9 @@ function widgetHandler:UpdateCallIn(name)
     --  Spring.Echo("tapwidgets Error: "..(name or "nil").." not in widgetHandler")
     --end
     _G[name] = function(...)
+      if not selffunc then  --#TAP Test
+        return nil
+      end
       return selffunc(self, ...)
     end
   else

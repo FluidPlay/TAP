@@ -36,9 +36,10 @@ if (Spring.IsDevLuaEnabled()) then
 end
 
 
+VFS.Include('LuaRules/engine_compat.lua',   nil, VFSMODE)
 VFS.Include(HANDLER_DIR .. 'setupdefs.lua', nil, VFSMODE)
 VFS.Include(HANDLER_DIR .. 'system.lua',    nil, VFSMODE)
-VFS.Include(HANDLER_DIR .. 'callins.lua',   nil, VFSMODE)
+--VFS.Include(HANDLER_DIR .. 'callins.lua',   nil, VFSMODE)
 VFS.Include(SCRIPT_DIR .. 'utilities.lua', nil, VFSMODE)
 
 local actionHandler = VFS.Include(HANDLER_DIR .. 'actions.lua', nil, VFSMODE)
@@ -86,10 +87,171 @@ gadgetHandler = {
   mouseOwner = nil,
 }
 
+--- For Gadgets. Not sure if luaui/callins.lua would fit here.
+-- these call-ins are set to 'nil' if not used
+-- they are setup in UpdateCallIns()
+local callInLists = {
+  "Shutdown",
+
+  "GamePreload",
+  "GameStart",
+  "GameOver",
+  "GameID",
+  "TeamDied",
+
+  "GamePaused",
+
+  "PlayerAdded",
+  "PlayerChanged",
+  "PlayerRemoved",
+
+  "GameFrame",
+
+  "ViewResize",  -- FIXME ?
+
+  "TextCommand",  -- FIXME ?
+  "GotChatMsg",
+  "RecvLuaMsg",
+
+  -- Unit CallIns
+  "UnitCreated",
+  "UnitFinished",
+  "UnitReverseBuilt",
+  "UnitFromFactory",
+  "UnitDestroyed",
+  "RenderUnitDestroyed",
+  "UnitExperience",
+  "UnitIdle",
+  "UnitCmdDone",
+  "UnitPreDamaged",
+  "UnitDamaged",
+  "UnitStunned",
+  "UnitTaken",
+  "UnitGiven",
+  "UnitEnteredRadar",
+  "UnitEnteredLos",
+  "UnitLeftRadar",
+  "UnitLeftLos",
+  "UnitSeismicPing",
+  "UnitLoaded",
+  "UnitUnloaded",
+  "UnitCloaked",
+  "UnitDecloaked",
+  -- optional
+  -- "UnitUnitCollision",
+  -- "UnitFeatureCollision",
+  -- "UnitMoveFailed",
+  "UnitArrivedAtGoal",
+  "StockpileChanged",
+
+  -- Feature CallIns
+  "FeatureCreated",
+  "FeatureDestroyed",
+  --[[ FeatureDamaged and FeaturePreDamaged missing on purpose. Basic damage control
+       can be achieved via armordefs (use the "default" class, make sure to populate
+       the others including "else" explicitly) so this way we avoid the perf cost. ]]
+
+  -- Projectile CallIns
+  "ProjectileCreated",
+  "ProjectileDestroyed",
+
+  -- Shield CallIns
+  "ShieldPreDamaged",
+
+  -- Misc Synced CallIns
+  "Explosion",
+
+  -- LUS callins
+  "ScriptFireWeapon",
+  "ScriptEndBurst",
+
+  -- LuaRules CallIns (note: the *PreDamaged calls belong here too)
+  "CommandFallback",
+  "AllowCommand",
+  "AllowStartPosition",
+  "AllowUnitCreation",
+  "AllowUnitTransfer",
+  "AllowUnitBuildStep",
+  "AllowUnitTransport",
+  "AllowUnitTransportLoad",
+  "AllowUnitTransportUnload",
+  "AllowUnitCloak",
+  "AllowUnitDecloak",
+  "AllowUnitTargetRange",
+  "AllowFeatureBuildStep",
+  "AllowFeatureCreation",
+  "AllowResourceLevel",
+  "AllowResourceTransfer",
+  "AllowDirectUnitControl",
+  "AllowBuilderHoldFire",
+  "MoveCtrlNotify",
+  "TerraformComplete",
+  "AllowWeaponTargetCheck",
+  "AllowWeaponTarget",
+  "AllowWeaponInterceptTarget",
+  -- unsynced
+  "DrawUnit",
+  "DrawFeature",
+  "DrawShield",
+  "DrawProjectile",
+  "RecvSkirmishAIMessage",
+
+  "SunChanged",
+
+  -- COB CallIn  (FIXME?)
+  "CobCallback",
+
+  -- Unsynced CallIns
+  "Update",
+  "DefaultCommand",
+  "DrawGenesis",
+  "DrawWorld",
+  "DrawWorldPreUnit",
+  "DrawWorldShadow",
+  "DrawWorldReflection",
+  "DrawWorldRefraction",
+  "DrawScreenEffects",
+  "DrawScreenPost",
+  "DrawScreen",
+  "DrawInMiniMap",
+  'DrawOpaqueUnitsLua',
+  'DrawOpaqueFeaturesLua',
+  'DrawAlphaUnitsLua',
+  'DrawAlphaFeaturesLua',
+  'DrawShadowUnitsLua',
+  'DrawShadowFeaturesLua',
+
+  "RecvFromSynced",
+
+  -- moved from LuaUI
+  "KeyPress",
+  "KeyRelease",
+  "MousePress",
+  "MouseRelease",
+  "MouseMove",
+  "MouseWheel",
+  "IsAbove",
+  "GetTooltip",
+
+  -- FIXME -- not implemented  (more of these?)
+  "WorldTooltip",
+  "MapDrawCmd",
+  "GameSetup",
+  "DefaultCommand",
+
+  -- FIXME: NOT IN BASE
+  "UnitCommand",
+  "UnitEnteredWater",
+  "UnitEnteredAir",
+  "UnitLeftWater",
+  "UnitLeftAir",
+
+  "UnsyncedHeightMapUpdate"
+}
 
 -- initialize the call-in lists
 do
-  for _,listname in ipairs(CALLIN_LIST) do
+  for _,listname in ipairs(callInLists) do
     gadgetHandler[listname .. 'List'] = {}
   end
 end
@@ -433,7 +595,7 @@ local function SafeWrapGadget(gadget)
     end
   end
 
-  for _,ciName in ipairs(CALLIN_LIST) do
+  for _,ciName in ipairs(callInLists) do
     if (gadget[ciName]) then
       gadget[ciName] = SafeWrap(gadget[ciName], ciName)
     end
@@ -479,7 +641,7 @@ function gadgetHandler:InsertGadget(gadget)
   end
 
   ArrayInsert(self.gadgets, true, gadget)
-  for _,listname in ipairs(CALLIN_LIST) do
+  for _,listname in ipairs(callInLists) do
     local func = gadget[listname]
     if (type(func) == 'function') then
       ArrayInsert(self[listname..'List'], func, gadget)
@@ -508,7 +670,7 @@ function gadgetHandler:RemoveGadget(gadget)
   ArrayRemove(self.gadgets, gadget)
   self:RemoveGadgetGlobals(gadget)
   actionHandler.RemoveGadgetActions(gadget)
-  for _,listname in ipairs(CALLIN_LIST) do
+  for _,listname in ipairs(callInLists) do
     ArrayRemove(self[listname..'List'], gadget)
   end
 
@@ -574,9 +736,8 @@ function gadgetHandler:RemoveGadgetCallIn(name, g)
   end
 end
 
-
 function gadgetHandler:UpdateCallIns()
-  for _,name in ipairs(CALLIN_LIST) do
+  for _,name in ipairs(callInLists) do
     self:UpdateCallIn(name)
   end
 end
@@ -677,7 +838,7 @@ function gadgetHandler:RaiseGadget(gadget)
     end
   end
   Raise(self.gadgets, true, gadget)
-  for _,listname in ipairs(CALLIN_LIST) do
+  for _,listname in ipairs(callInLists) do
     Raise(self[listname..'List'], gadget[listname], gadget)
   end
 end
@@ -709,7 +870,7 @@ function gadgetHandler:LowerGadget(gadget)
     end
   end
   Lower(self.gadgets, true, gadget)
-  for _,listname in ipairs(CALLIN_LIST) do
+  for _,listname in ipairs(callInLists) do
     Lower(self[listname..'List'], gadget[listname], gadget)
   end
 end
@@ -735,11 +896,12 @@ end
 --
 
 function gadgetHandler:RegisterGlobal(owner, name, value)
-  if (name == nil) then return false end
-  if (_G[name] ~= nil) then return false end
-  if (self.globals[name] ~= nil) then return false end
-  if (CALLIN_MAP[name] ~= nil) then return false end
-
+  if ((name == nil)        or
+          (_G[name])           or
+          (self.globals[name]) or
+          ((CallInsMap and CallInsMap[name]) or (CALLIN_MAP and CALLIN_MAP[name]))) then
+    return false
+  end
   _G[name] = value
   self.globals[name] = owner
   return true

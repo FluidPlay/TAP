@@ -34,6 +34,7 @@ local spGetUnitRepeat = Spring.Utilities.GetUnitRepeat
 local spGetViewGeometry = Spring.GetViewGeometry
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
 local spSetActiveCommand = Spring.SetActiveCommand
+local spForceLayoutUpdate = Spring.ForceLayoutUpdate
 
 -- Configuration
 include("colors.lua")
@@ -117,7 +118,7 @@ end
 --------------------------------------------------------------------------------
 -- Command Handling and lower variables
 
-local commandPanels, commandPanelMap, commandDisplayConfig, hiddenCommands, textConfig, buttonLayoutConfig, instantCommands, cmdPosDef = include("Configs/integral_menu_config.lua")
+local commandPanels, commandPanelMap, commandDisplayConfig, hiddenCommands, textConfig, buttonLayoutConfig, instantCommands, cmdPosDef = VFS.Include("LuaUI/Configs/integral_menu_config.lua")
 
 local statePanel = {}
 local tabPanel
@@ -1171,7 +1172,7 @@ local function GetButton(parent, name, selectionIndex, x, y, xStr, yStr, width, 
 				file2 = texture2,
 				parent = button,
 			}
-			image:SendToBack()
+			--image:SendToBack()
 			return
 		end
 
@@ -2258,7 +2259,7 @@ local function InitializeControls()
 		parent = mainWindow,
 	}
 
-	buildTabHolder:SendToBack() -- behind background
+	--buildTabHolder:SendToBack() -- behind background
 
 	local function ReturnToOrders(cmdID)
 		if options.selectionClosesTabOnSelect.value then
@@ -2585,7 +2586,22 @@ function widget:GameFrame(n)
 	end
 end
 
+local function OverrideDefaultMenu()
+	local function layoutHandler(xIcons, yIcons, cmdCount, commands)
+		widgetHandler.commands = commands
+		widgetHandler.commands.n = cmdCount
+		widgetHandler:CommandsChanged()
+		local customCmds = widgetHandler.customCommands
+		return '', xIcons, yIcons, {}, customCmds, {}, {}, {}, {}, {}, {[1337]=9001}
+	end
+	widgetHandler:ConfigLayoutHandler(layoutHandler)
+	spForceLayoutUpdate()
+end --OverrideDefaultMenu
+
 function widget:Initialize()
+
+	OverrideDefaultMenu()
+
 	RemoveAction("nextmenu")
 	RemoveAction("prevmenu")
 	initialized = true

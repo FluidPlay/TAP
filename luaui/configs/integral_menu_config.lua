@@ -526,11 +526,27 @@ local commandPanels = {
 		buttonLayoutConfig = buttonLayoutConfig.build,
 		buttonLayoutOverride = factoryButtonLayoutOverride,
 	},
+	--{
+	--	humanName = "Units",
+	--	name = "units_mobile",
+	--	inclusionFunction = function(cmdID, factoryUnitDefID)
+	--		return not factoryUnitDefID -- Only called if previous funcs don't
+	--	end,
+	--	isBuild = true,
+	--	gridHotkeys = true,
+	--	returnOnClick = "orders",
+	--	optionName = "tab_units",
+	--	buttonLayoutConfig = buttonLayoutConfig.build,
+	--},
 	{
 		humanName = "Units",
 		name = "units_mobile",
 		inclusionFunction = function(cmdID, factoryUnitDefID)
-			return not factoryUnitDefID -- Only called if previous funcs don't
+			-- This has to be perfect to predict the size of the units tab in integral menu.
+			return (cmdID < 0 and not factoryUnitDefID and
+					not buildCmdEconomy[cmdID] and not buildCmdFactory[cmdID] and
+					not buildCmdSpecial[cmdID] and not buildCmdDefence[cmdID])
+					--and	not plateCommandID[cmdID])
 		end,
 		isBuild = true,
 		gridHotkeys = true,

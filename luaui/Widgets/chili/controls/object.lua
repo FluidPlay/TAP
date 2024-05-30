@@ -497,9 +497,29 @@ end
 
 --//=============================================================================
 
+--function Object:SetChildLayer(child,layer)
+--  child = UnlinkSafe(child)
+--  local children = self.children
+--
+--  layer = math.min(layer, #children)
+--
+--  --// it isn't at the same pos anymore, search it!
+--  for i=1,#children do
+--    if CompareLinks(children[i], child) then
+--      table.remove(children,i)
+--      break
+--    end
+--  end
+--  table.insert(children,layer,child)
+--  self:Invalidate()
+--end
 function Object:SetChildLayer(child,layer)
   child = UnlinkSafe(child)
   local children = self.children
+
+  if layer < 0 then
+    layer = layer + #children + 1
+  end
 
   layer = math.min(layer, #children)
 
