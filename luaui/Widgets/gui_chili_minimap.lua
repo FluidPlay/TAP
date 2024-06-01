@@ -689,7 +689,7 @@ local function MakeMinimapButton(file, params)
 	hotkey = WG.crude.GetHotkey(action)
 	command = params.command
 
-	if hotkey ~= '' then
+	if hotkey and hotkey ~= '' then
 		hotkey = ' (\255\0\255\0' .. hotkey:upper() .. '\008)'
 	end
 
