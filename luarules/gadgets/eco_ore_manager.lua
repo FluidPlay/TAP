@@ -14,7 +14,7 @@ function gadget:GetInfo()
     }
 end
 
----Invert the system:
+---
 --	- Every time a sprawler is added, check if there's a nearby ore field
 --	- Orefields will store all sprawlers around it { .sprawlers[unitID] }
 --	- 'maxSprawlerlevel', if any, will be updated if a newly assigned sprawler has a higher level (unless it's already maxed out, 'Uber')
@@ -37,16 +37,30 @@ if gadgetHandler:IsSyncedCode() then
     -----------------
     ---- SYNCED
     -----------------
-    local spGetUnitHealth   = Spring.GetUnitHealth
+    local _, _, oreTypes, sprawlerTypes = VFS.Include("common/include/harvestsystemtypes.lua")
+    --local oreTypes = { 	["sml"] = { id = UnitDefNames["oresml"].id},   --TODO: add minSpawnDistance, per type
+    --              		["lrg"] = {id = UnitDefNames["orelrg"].id},
+    --				   	["moho"] = {id = UnitDefNames["oremoho"].id},
+    --				   	["uber"] = {id = UnitDefNames["oreuber"].id} }
+    --local sprawlerTypes = {[UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.5 },   --1.125
+    --                    	[UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.2 },
+    --						[UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25 },
+    --						[UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3 },
+    --
+    --						[UnitDefNames["cormex"].id] = { kind = "sml", multiplier = 1.5 }, --1.125
+    --                    	[UnitDefNames["corexp"].id] = { kind = "lrg", multiplier = 1.2 },
+    --						[UnitDefNames["cormoho"].id] = { kind = "moho", multiplier = 1.25 },
+    --						[UnitDefNames["coruber"].id] = { kind = "uber", multiplier = 1.3 },
+    --						}
 
     --harvest_eco = 1 --(tonumber(Spring.GetModOptions().harvest_eco)) or 1
     local updateRate = 120 * 30 -- 2 mins
     local oreSpots = {} -- { 1 = { chunks = { unitID = { pos, kind, spotIdx, idxInSpot }, ...},
-                   --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
-                   --         baseMetalLevel = 1..3,       // (metal < 0.5 => 1) ; (0.5 <= metal <= 1.35) => 2; (metal > 1.35 => 3) ;
-                   --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
-                   --       }, ...
-                   -- }
+    --TODO:    sprawlLevel = 1..5,   //1 = no Sprawler; 2 = basic Sprawler, 3 = large, 4 = moho, 5 = mantle
+    --         baseMetalLevel = 1..3,       // (metal < 0.5 => 1) ; (0.5 <= metal <= 1.35) => 2; (metal > 1.35 => 3) ;
+    --         ringCap = 2..4,       //2 = close to Map edges; 4 = close to the center of the Map
+    --       }, ...
+    -- }
     local startFrame
     local gaiaTeamID = Spring.GetGaiaTeamID()
     --local sprawlChance = 0.2
@@ -59,7 +73,7 @@ if gadgetHandler:IsSyncedCode() then
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
     local spawnHeight = 50   -- how high above the ground the chunks are spawned
-    local localDebug = true --false -- true
+    local localDebug = false -- true
     ---####
     local testMode = false --true   -- Speeds up the respawn cycle (updateRate) to whatever's defined below
     local testModeUpdateRate = 30
@@ -81,13 +95,14 @@ if gadgetHandler:IsSyncedCode() then
     local spawnRadius = 55       -- starting spawn radius from oreSpot's center
     local spawnIter = 0          -- how many times the global spawning of pandore has occured
     local chunks = {} --{ unitID = { pos = {x=x, y=y, z=z}, kind="sml | lrg | moho | uber", spotIdx = idx {oreSpots[idx]}),
-                      --             idxInSpot = n}
+    --             idxInSpot = n}
     local forceChunkRespawnThreshold = 1.24
 
     -- currently unused/obsolete, we're using the health of the chunk. 1 hp = 1 ore
     --local oreValue = { sml = 240, lrg = 360, moho = 720, mantle = 2160 } --calculating 4s for a drop cycle (reclaim/drop)
 
     local spGetUnitPosition = Spring.GetUnitPosition
+    local spGetUnitHealth   = Spring.GetUnitHealth
     local spCreateUnit = Spring.CreateUnit
     local spSetUnitNeutral = Spring.SetUnitNeutral
     local spSetUnitRotation = Spring.SetUnitRotation
@@ -110,20 +125,6 @@ if gadgetHandler:IsSyncedCode() then
             Spring.Echo("gadget|eco_ore_mgr:: "..string) end
     end
 
-    local ore = { ["sml"] = {id = UnitDefNames["oresml"].id},   --TODO: add minSpawnDistance, per type
-                  ["lrg"] = {id = UnitDefNames["orelrg"].id},
-                  ["moho"] = {id = UnitDefNames["oremoho"].id},
-                  ["uber"] = {id = UnitDefNames["oreuber"].id} }
-    local sprawlers = { [UnitDefNames["armmex"].id] = { kind = "sml", multiplier = 1.5 },   --1.125
-                        [UnitDefNames["armamex"].id] = { kind = "lrg", multiplier = 1.2 },
-                        [UnitDefNames["armmoho"].id] = { kind = "moho", multiplier = 1.25 },
-                        [UnitDefNames["armuber"].id] = { kind = "uber", multiplier = 1.3 },
-
-                        [UnitDefNames["cormex"].id] = { kind = "sml", multiplier = 1.5 }, --1.125
-                        [UnitDefNames["corexp"].id] = { kind = "lrg", multiplier = 1.2 },
-                        [UnitDefNames["cormoho"].id] = { kind = "moho", multiplier = 1.25 },
-                        [UnitDefNames["coruber"].id] = { kind = "uber", multiplier = 1.3 },
-    }
 
     --local function distance (x1, y1, z1, x2, y2, z2 )
     --    return math.sqrt(sqr(x2-x1) + sqr(y2-y1) + sqr(z2-z1))
@@ -137,7 +138,7 @@ if gadgetHandler:IsSyncedCode() then
         local multiplier = 1
         for _,unitID in ipairs(unitsNearSpot) do
             local unitDefID = spGetUnitDefID(unitID)
-            local sprawler = sprawlers[unitDefID]
+            local sprawler = sprawlerTypes[unitDefID]
             if sprawler then
                 local health,maxHealth,paralyzeDamage,captureProgress,buildProgress=spGetUnitHealth(unitID)
                 local done = buildProgress and buildProgress >= 1
@@ -175,7 +176,7 @@ if gadgetHandler:IsSyncedCode() then
                 end
             end
         end
---        return false
+        --        return false
     end
 
     --local function nudgeNearbyUnits(x, _, z)
@@ -198,7 +199,7 @@ if gadgetHandler:IsSyncedCode() then
     --end
 
     local function tooCloseToSpot (x, z, cx, cz)
-        return distance({x=x, z=z}, {x=cx, z=cz}) < deadZone
+        return distance({x, z}, {cx, cz}) < deadZone
     end
 
     --- Returns: Spawned unitID
@@ -234,7 +235,7 @@ if gadgetHandler:IsSyncedCode() then
             --Spring.Echo("ID: "..(ore[tostring(kind)] and (ore[tostring(kind)]).id or "nil"))
             --local unitID = spCreateUnit((UnitDefs[(ore["lrg"]).id]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID)
             --nudgeNearbyUnits(x,cy,z)
-            local unitID = spCreateUnit((UnitDefs[ore[kind]]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID) --cy+spawnHeight
+            local unitID = spCreateUnit((UnitDefs[oreTypes[kind]]).id, x, cy+spawnHeight, z, math_random(0, 3), gaiaTeamID) --cy+spawnHeight
             if unitID then
                 --Spring.MoveCtrl.Enable(unitID)
                 --Spring.MoveCtrl.SetGravity(unitID, 0.1)
@@ -266,11 +267,8 @@ if gadgetHandler:IsSyncedCode() then
         --if not harvest_eco == 1 then
         --    gadgetHandler:RemoveGadget(self)
         --end
-        ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oreuber"].id }
+        oreTypes = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oreuber"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
-        if not istable(oreSpots) then
-            Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
-            oreSpots = {} end
         if testMode then
             updateRate = testModeUpdateRate * 30
         end
@@ -321,28 +319,30 @@ if gadgetHandler:IsSyncedCode() then
         SendToUnsynced("chunkDestroyedEvent", gaiaTeamID, unitID) --should be 'gaiaAllyTeam' (irrelevant here)
         --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
         local chunk = chunks[unitID]
-        if chunk then
-            local spotIdx = chunk.spotIdx
-            if not oreSpots[spotIdx].chunks then
-                oreSpots[spotIdx].chunks = {}
-            end
-            if (oreSpots[spotIdx].chunks)[unitID] then
-                (oreSpots[spotIdx].chunks)[unitID] = nil
-                chunks[unitID] = nil
-                --spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
-                --_G.oreSpots = oreSpots;
-                --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
+        if not chunk then
+            return end
+        -- Chunk destruction management
+        local spotIdx = chunk.spotIdx
+        if not oreSpots[spotIdx].chunks then
+            oreSpots[spotIdx].chunks = {}
+        end
+        if (oreSpots[spotIdx].chunks)[unitID] then
+            (oreSpots[spotIdx].chunks)[unitID] = nil
+            chunks[unitID] = nil
+            --spSendLuaUIMsg("chunkDestroyed_"..unitID, "allies") --(message, mode)
+            --_G.oreSpots = oreSpots;
+            --Spring.Echo("Sending message: chunkDestroyed_"..unitID)
+        else
+            spEcho("WARNING: Destroyed chunk "..(unitID or "nil").." not found in list of spot# "..spotIdx)
+            if istable(oreSpots[spotIdx].chunks) then
+                if localDebug then
+                    DebugTable(oreSpots[spotIdx].chunks) end
             else
-                spEcho("WARNING: Destroyed chunk "..(unitID or "nil").." not found in list of spot# "..spotIdx)
-                if istable(oreSpots[spotIdx].chunks) then
-                    if localDebug then
-                        DebugTable(oreSpots[spotIdx].chunks) end
-                else
-                    spEcho("chunks not found at oreSpot #: "..spotIdx)
-                end
+                spEcho("chunks not found at oreSpot #: "..spotIdx)
             end
         end
     end
+    --end
 
     --local timePeriod = 2
     local height = 2
@@ -401,7 +401,7 @@ else
     ---- UNSYNCED
     -----------------
 
-    ---- Here we'll send the chunk destroyed message for the autoharvest widget to handle it
+    ---- Here we'll send the chunk destroyed message for the autoharvest widget to handle that
 
     local spSendLuaUIMsg = Spring.SendLuaUIMsg
     local spGetMouseState = Spring.GetMouseState

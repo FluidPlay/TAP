@@ -15,7 +15,7 @@ end
 --------------------------------------------------------------------------------
 -- SYNCED
 --------------------------------------------------------------------------------
-if (gadgetHandler:IsSyncedCode()) then
+if gadgetHandler:IsSyncedCode() then
 
 	------------------------------------------------------------
 	-- Config
@@ -467,6 +467,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
 	GG.metalSpots = {}
 
+	--function gadget:GameStart()
 	function gadget:Initialize()
 		Spring.Log(gadget:GetInfo().name, LOG.INFO, "Mex Spot Finder Initialising")
 		local gameConfig = VFS.FileExists(GAMESIDE_METALMAP) and VFS.Include(GAMESIDE_METALMAP) or false
