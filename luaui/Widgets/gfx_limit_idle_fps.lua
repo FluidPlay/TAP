@@ -7,7 +7,7 @@ function widget:GetInfo()
 		date = "2020",
 		license = "",
 		layer = 0,
-		enabled = false, --true
+		enabled = true
 	}
 end
 

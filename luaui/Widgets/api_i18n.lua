@@ -70,7 +70,7 @@ local function addListener(l, widgetName)
 end
 
 local function loadLocale(i18n,database,locale)
-	local path="Luaui/Configs/lang/"..database.."."..locale..".json"
+	local path="LuaUI/Configs/lang/"..database.."."..locale..".json"
 	if VFS.FileExists(path, VFS.ZIP) then
 		local lang=Spring.Utilities.json.decode(VFS.LoadFile(path, VFS.ZIP))
 		local t={}

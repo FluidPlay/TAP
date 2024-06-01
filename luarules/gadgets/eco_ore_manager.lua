@@ -59,7 +59,7 @@ if gadgetHandler:IsSyncedCode() then
     --local respawnTime = 60 -- in frames; 60f = 2s
     --local geosToRespawn = {}
     local spawnHeight = 50   -- how high above the ground the chunks are spawned
-    local localDebug = false -- true
+    local localDebug = true --false -- true
     ---####
     local testMode = false --true   -- Speeds up the respawn cycle (updateRate) to whatever's defined below
     local testModeUpdateRate = 30
@@ -268,6 +268,9 @@ if gadgetHandler:IsSyncedCode() then
         --end
         ore = { sml = UnitDefNames["oresml"].id, lrg = UnitDefNames["orelrg"].id, moho = UnitDefNames["oremoho"].id, uber = UnitDefNames["oreuber"].id }
         oreSpots = GG.metalSpots  -- Set by mex_spot_finder.lua
+        if not istable(oreSpots) then
+            Spring.Echo("Warning: GG.metalSpots not found by eco_ore_manager.lua!")
+            oreSpots = {} end
         if testMode then
             updateRate = testModeUpdateRate * 30
         end
