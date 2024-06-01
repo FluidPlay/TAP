@@ -2227,7 +2227,7 @@ local function GetTooltipWindow()
 		color = {1, 1, 1, options.tooltip_opacity.value},
 		parent = screen0
 	}
-	window:Hide()
+	window:Hide()	--#TAP
 
 	local textTooltip = Chili.TextBox:New{
 		name = "textTooltip",
@@ -2504,7 +2504,7 @@ local function GetSelectionWindow()
 		color = {0, 0, 0, 0},
 		parent = screen0,
 	}
-	holderWindow:SendToBack()
+	--holderWindow:SendToBack()
 
 	local mainPanel = Chili.Panel:New{
 		name = "mainPanel",
@@ -2530,8 +2530,8 @@ local function GetSelectionWindow()
 		parent = holderWindow
 	}
 	mainPanel.padding[1] = mainPanel.padding[1] + options.leftPadding.value
-	mainPanel:Hide()
-	--mainPanel:BringToFront() #TAP
+	--mainPanel:Hide() --#TAP
+	mainPanel:BringToFront() --#TAP
 
 	local singleUnitDisplay = GetSingleUnitInfoPanel(mainPanel, false)
 	local multiUnitDisplay = GetMultiUnitInfoPanel(mainPanel)

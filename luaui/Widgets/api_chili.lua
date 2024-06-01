@@ -23,13 +23,13 @@ end
 
 local UI_SCALE_MESSAGE = "SetInterfaceScale "
 
+WG.imageScale = 0.5 --0.5
 local function SetUiScale(scaleFactor)
 	-- Scale such that width is an integer, because the UI aligns along the bottom of the screen.
 	local realWidth = gl.GetViewSizes()
 	WG.uiScale = realWidth/math.floor(realWidth/scaleFactor)
 end
 SetUiScale((Spring.GetConfigInt("interfaceScale", 100) or 100)/100) --150) or 150)/100)
-WG.imageScale = 0.5 --0.5
 
 function widget:RecvLuaMsg(msg)
 	if string.find(msg, UI_SCALE_MESSAGE) == 1 then
@@ -69,7 +69,7 @@ end
 assert(debug)
 local source = debug and debug.getinfo(1).source
 local DIR = GetDirectory(source) or ((LUA_DIRNAME or LUAUI_DIRNAME) .."Widgets/")
-CHILI_DIRNAME = DIR .. "chili/"
+CHILI_DIRNAME = DIR .. "chili_old/"
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ function widget:DrawScreen()
 			local vsx,vsy = gl.GetViewSizes()
 			gl.Translate(0,vsy,0)
 			gl.Scale(1,-1,1)
-			--gl.Scale(WG.uiScale,WG.uiScale,1)
+			gl.Scale(WG.uiScale,WG.uiScale,1)
 			screen0:Draw()
 		gl.PopMatrix()
 	end
@@ -122,11 +122,11 @@ function widget:DrawLoadScreen()
 	gl.Color(1,1,1,1)
 	if (not screen0:IsEmpty()) then
 		gl.PushMatrix()
-			local vsx,vsy = gl.GetViewSizes()
-			gl.Scale(1/vsx,1/vsy,1)
-			gl.Translate(0,vsy,0)
-			gl.Scale(1,-1,1)
-			screen0:Draw()
+		local vsx,vsy = gl.GetViewSizes()
+		gl.Scale(1/vsx,1/vsy,1)
+		gl.Translate(0,vsy,0)
+		gl.Scale(1,-1,1)
+		screen0:Draw()
 		gl.PopMatrix()
 	end
 	gl.Color(1,1,1,1)
@@ -137,11 +137,11 @@ function widget:TweakDrawScreen()
 	gl.Color(1,1,1,1)
 	if (not screen0:IsEmpty()) then
 		gl.PushMatrix()
-			local vsx,vsy = gl.GetViewSizes()
-			gl.Translate(0,vsy,0)
-			gl.Scale(1,-1,1)
-			gl.Scale(WG.uiScale,WG.uiScale,1)
-			screen0:TweakDraw()
+		local vsx,vsy = gl.GetViewSizes()
+		gl.Translate(0,vsy,0)
+		gl.Scale(1,-1,1)
+		gl.Scale(WG.uiScale,WG.uiScale,1)
+		screen0:TweakDraw()
 		gl.PopMatrix()
 	end
 	gl.Color(1,1,1,1)
@@ -158,18 +158,30 @@ end
 
 
 function widget:IsAbove(x,y)
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y = x/WG.uiScale, y/WG.uiScale
+	end
+	if Spring.IsGUIHidden() then
+		return false
+	end
 	local x, y, lmb, mmb, rmb, outsideSpring = Spring.ScaledGetMouseState()
-	return (not outsideSpring) and (not screen0:IsEmpty()) and screen0:IsAbove(x,y)
-	--if Spring.IsGUIHidden() then return false end
-	--return screen0:IsAbove(x,y)
+	if outsideSpring then
+		return false
+	end
+
+	return screen0:IsAbove(x,y)
+	--local x, y, lmb, mmb, rmb, outsideSpring = Spring.ScaledGetMouseState()
+	--return (not outsideSpring) and (not screen0:IsEmpty()) and screen0:IsAbove(x,y)
+	----if Spring.IsGUIHidden() then return false end
+	----return screen0:IsAbove(x,y)
 end
 
 
 local mods = {}
 function widget:MousePress(x,y,button)
-	--if WG.uiScale and WG.uiScale ~= 1 then
-	--	x, y = x/WG.uiScale, y/WG.uiScale
-	--end
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y = x/WG.uiScale, y/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -179,9 +191,9 @@ end
 
 
 function widget:MouseRelease(x,y,button)
-	--if WG.uiScale and WG.uiScale ~= 1 then
-	--	x, y = x/WG.uiScale, y/WG.uiScale
-	--end
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y = x/WG.uiScale, y/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -191,9 +203,9 @@ end
 
 
 function widget:MouseMove(x,y,dx,dy,button)
-	--if WG.uiScale and WG.uiScale ~= 1 then
-	--	x, y, dx, dy = x/WG.uiScale, y/WG.uiScale, dx/WG.uiScale, dy/WG.uiScale
-	--end
+	if WG.uiScale and WG.uiScale ~= 1 then
+		x, y, dx, dy = x/WG.uiScale, y/WG.uiScale, dx/WG.uiScale, dy/WG.uiScale
+	end
 	if Spring.IsGUIHidden() then return false end
 
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
@@ -203,9 +215,9 @@ end
 
 
 function widget:MouseWheel(up,value)
---	if Spring.IsGUIHidden() then return false end
+	if Spring.IsGUIHidden() then return false end
 
-	local x,y = Spring.ScaledGetMouseState() --GetMouseState()
+	local x,y = Spring.ScaledGetMouseState()
 	local alt, ctrl, meta, shift = Spring.GetModKeyState()
 	mods.alt=alt; mods.ctrl=ctrl; mods.meta=meta; mods.shift=shift;
 	return screen0:MouseWheel(x,y,up,value,mods)
@@ -213,14 +225,16 @@ end
 
 
 local keyPressed = true
-function widget:KeyPress(key, mods, isRepeat, label, unicode)
---	if Spring.IsGUIHidden() then return false end
-	keyPressed = screen0:KeyPress(key, mods, isRepeat, label, unicode)
+function widget:KeyPress(key, mods, isRepeat, label, unicode, scanCode)
+	if Spring.IsGUIHidden() then return false end
+
+	keyPressed = screen0:KeyPress(key, mods, isRepeat, label, unicode, scanCode)
 	return keyPressed
 end
 
 function widget:KeyRelease()
---	if Spring.IsGUIHidden() then return false end
+	if Spring.IsGUIHidden() then return false end
+
 	local _keyPressed = keyPressed
 	keyPressed = false
 	return _keyPressed -- block engine actions when we processed it
@@ -234,8 +248,8 @@ end
 
 
 function widget:ViewResize(vsx, vsy)
-	screen0:Resize(vsx, vsy)
-	--screen0:Resize(vsx/(WG.uiScale or 1), vsy/(WG.uiScale or 1))
+	--screen0:Resize(vsx, vsy)
+	screen0:Resize(vsx/(WG.uiScale or 1), vsy/(WG.uiScale or 1))
 end
 
 widget.TweakIsAbove      = widget.IsAbove
