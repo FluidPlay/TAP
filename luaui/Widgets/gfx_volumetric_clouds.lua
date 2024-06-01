@@ -189,7 +189,7 @@ local offsetZ = 0
 --------------------------------------------------------------------------------
 
 function widget:ViewResize()
-	vsx, vsy = gl.GetViewSizes()
+	vsx, vsy = Spring.GetViewSizes() --gl.GetViewSizes()
 	if (Spring.GetMiniMapDualScreen()=='left') then
 		vsx=vsx/2
 	end

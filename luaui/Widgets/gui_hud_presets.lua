@@ -1,18 +1,16 @@
 
 function widget:GetInfo()
-  return {
-    name      = "HUD Presets",
-    desc      = "Sets the default UI and provides presets for different HUD setups.",
-    author    = "Google Frog",
-    date      = "24 August, 2014",
-    license   = "GNU GPL, v2 or later",
-    layer     = 51,
-    enabled   = true,
-    handler   = true,
-  }
+	return {
+		name      = "HUD Presets",
+		desc      = "Sets the default UI and provides presets for different HUD setups.",
+		author    = "Google Frog",
+		date      = "24 August, 2014",
+		license   = "GNU GPL, v2 or later",
+		layer     = 51,
+		enabled   = true,
+		handler   = true,
+	}
 end
-
---//Requires: api_chili_docking.lua (SetWindowPosAndSize)
 
 ----------------------------------------------------
 ----------------------------------------------------
@@ -220,10 +218,10 @@ local function SetupMissionGUI(preset)
 	end
 
 	WG.SetWindowPosAndSize("objectivesButtonWindow",
-		objX,
-		objY,
-		64,
-		64
+			objX,
+			objY,
+			64,
+			64
 	)
 
 	local persistentOnLeft = (preset == "newMinimapRight") or (preset == "westwood") -- or (preset == "crafty")
@@ -240,10 +238,10 @@ local function SetupMissionGUI(preset)
 
 	-- mission persistent messagebox
 	WG.SetWindowPosAndSize("msgPersistentWindow",
-		persistentOnLeft and 0 or screenWidth - 64,	-- let it be auto-pushed to the left
-		persistentY,
-		360,
-		160
+			persistentOnLeft and 0 or screenWidth - 64,	-- let it be auto-pushed to the left
+			persistentY,
+			360,
+			160
 	)
 
 	-- tutorial next button
@@ -263,10 +261,10 @@ local function SetupMissionGUI(preset)
 	end
 
 	WG.SetWindowPosAndSize("uitutorial_nextButtonWindow",
-		nextButtonX,
-		nextButtonY,
-		80,
-		nextButtonHeight
+			nextButtonX,
+			nextButtonY,
+			80,
+			nextButtonHeight
 	)
 end
 
@@ -304,20 +302,20 @@ local function SetupDefaultPreset()
 	local minimapHeight = math.ceil(screenWidth*2/11 + 20)
 	WG.Minimap_SetOptions("arwindow", 0, false, false, false)
 	WG.SetWindowPosAndSize("Minimap Window",
-		0,
-		0,
-		minimapWidth,
-		minimapHeight
+			0,
+			0,
+			minimapWidth,
+			minimapHeight
 	)
 
 	-- Integral Menu
 	local integralWidth = math.max(350, math.min(480, screenWidth*screenHeight*0.0004))
 	local integralHeight = math.min(screenHeight/4.5, 200*integralWidth/450)  + 8
 	WG.SetWindowPosAndSize("integralwindow",
-		0,
-		screenHeight - integralHeight,
-		integralWidth,
-		integralHeight
+			0,
+			screenHeight - integralHeight,
+			integralWidth,
+			integralHeight
 	)
 
 	-- Selection Bar
@@ -327,10 +325,10 @@ local function SetupDefaultPreset()
 	local coreSelectorWidth = selectorButtonWidth*selectionButtonCount
 
 	WG.SetWindowPosAndSize("selector_window",
-		0,
-		screenHeight - coreSelectorHeight - integralHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			0,
+			screenHeight - coreSelectorHeight - integralHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 
 	-- Selections
@@ -338,20 +336,20 @@ local function SetupDefaultPreset()
 	local selectionsWidth = 450
 	Selections_SetOptions(false, true, false, GetSelectionIconSize(selectionsHeight), false, true, false)
 	WG.SetWindowPosAndSize("selections",
-		integralWidth,
-		screenHeight - selectionsHeight,
-		selectionsWidth,
-		selectionsHeight
+			integralWidth,
+			screenHeight - selectionsHeight,
+			selectionsWidth,
+			selectionsHeight
 	)
 
 	-- Player List
 	local playerlistWidth = 296
 	local playerlistHeight = 150
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - playerlistHeight,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - playerlistHeight,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
@@ -364,20 +362,20 @@ local function SetupDefaultPreset()
 		chatY = screenHeight - selectionsHeight
 	end
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		chatY,
-		chatWidth,
-		selectionsHeight
+			chatX,
+			chatY,
+			chatWidth,
+			selectionsHeight
 	)
 
 	-- Menu
 	local menuWidth = 380
 	local menuHeight = 50
 	WG.SetWindowPosAndSize("epicmenubar",
-		screenWidth - menuWidth,
-		0,
-		menuWidth,
-		menuHeight
+			screenWidth - menuWidth,
+			0,
+			menuWidth,
+			menuHeight
 	)
 
 	-- Resource Bar
@@ -386,20 +384,20 @@ local function SetupDefaultPreset()
 	local resourceBarX = math.min(screenWidth/2 - resourceBarWidth/2, screenWidth - resourceBarWidth - menuWidth)
 	local resourceBarRight = resourceBarWidth + resourceBarX
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	-- Console
 	local consoleWidth = math.min(screenWidth * 0.30, screenWidth - minimapWidth, resourceBarRight - 2)
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		screenWidth - consoleHeight,
-		menuHeight,
-		consoleWidth,
-		consoleHeight
+			screenWidth - consoleHeight,
+			menuHeight,
+			consoleWidth,
+			consoleHeight
 	)
 
 	SetupMissionGUI("default")
@@ -451,20 +449,20 @@ local function SetupNewPreset()
 		end
 	end
 	WG.SetWindowPosAndSize("Minimap Window",
-		0,
-		screenHeight - minimapSize,
-		minimapSize,
-		minimapSize
+			0,
+			screenHeight - minimapSize,
+			minimapSize,
+			minimapSize
 	)
 
 	local _,_, coreSelectorWidth, coreSelectorHeight = WG.GetWindowPosAndSize("selector_window")
 	coreSelectorHeight = coreSelectorHeight or 150
 	coreSelectorWidth = math.ceil(coreSelectorWidth or 60)
 	WG.SetWindowPosAndSize("selector_window",
-		minimapSize,
-		screenHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			minimapSize,
+			screenHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 
 	-- Integral Menu
@@ -489,10 +487,10 @@ local function SetupNewPreset()
 	integralWidth = math.floor(integralWidth)
 
 	WG.SetWindowPosAndSize("integralwindow",
-		minimapSize + coreSelectorWidth,
-		screenHeight - integralHeight,
-		integralWidth,
-		integralHeight
+			minimapSize + coreSelectorWidth,
+			screenHeight - integralHeight,
+			integralWidth,
+			integralHeight
 	)
 
 	local thinMode = screenWidth < 1645
@@ -509,10 +507,10 @@ local function SetupNewPreset()
 
 	Selections_SetOptions(false, true, false, GetSelectionIconSize(selectionsHeight), false, true, false)
 	WG.SetWindowPosAndSize("selections",
-		math.max(screenWidth/2, minimapSize + coreSelectorWidth + integralWidth),
-		screenHeight - selectionsHeight,
-		selectionsWidth,
-		selectionsHeight
+			math.max(screenWidth/2, minimapSize + coreSelectorWidth + integralWidth),
+			screenHeight - selectionsHeight,
+			selectionsWidth,
+			selectionsHeight
 	)
 
 	WG.SetWidgetOption(coreName, corePath, "specSpaceOverride", selectionsHeight, integralHeight)
@@ -521,18 +519,18 @@ local function SetupNewPreset()
 	local playerlistWidth = 296
 	local playerlistHeight = 150
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - playerlistHeight - ((thinMode and selectionsHeight) or 0),
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - playerlistHeight - ((thinMode and selectionsHeight) or 0),
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	WG.SetWindowPosAndSize("ProChat",
-		0,
-		screenHeight - minimapSize - selectionsHeight,
-		minimapSize,
-		selectionsHeight
+			0,
+			screenHeight - minimapSize - selectionsHeight,
+			minimapSize,
+			selectionsHeight
 	)
 
 	-- Commander Upgrade
@@ -540,17 +538,17 @@ local function SetupNewPreset()
 	local commUpgradeHeight = 325
 	local commUpgradeY = screenHeight - integralHeight - commUpgradeHeight - 25
 	WG.SetWindowPosAndSize("CommanderUpgradeWindow",
-		minimapSize + coreSelectorWidth,
-		commUpgradeY,
-		commUpgradeWidth,
-		commUpgradeHeight
+			minimapSize + coreSelectorWidth,
+			commUpgradeY,
+			commUpgradeWidth,
+			commUpgradeHeight
 	)
 
 	WG.SetWindowPosAndSize("ModuleSelectionWindow",
-		minimapSize + coreSelectorWidth + commUpgradeWidth,
-		commUpgradeY,
-		500,
-		500
+			minimapSize + coreSelectorWidth + commUpgradeWidth,
+			commUpgradeY,
+			500,
+			500
 	)
 
 	------------------------------------------------------------------------
@@ -565,17 +563,17 @@ local function SetupNewPreset()
 	local resourceBarHeight = DEFAULT_RESOURCE_BAR_HEIGHT
 	local resourceBarX = math.floor(math.min(screenWidth/2 - resourceBarWidth/2, screenWidth - resourceBarWidth - menuWidth))
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	WG.SetWindowPosAndSize("SpectatorPlayerPanel",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		menuHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			menuHeight
 	)
 
 	-- Menu
@@ -583,28 +581,28 @@ local function SetupNewPreset()
 		menuWidth = screenWidth - (resourceBarX + resourceBarWidth)
 	end
 	WG.SetWindowPosAndSize("epicmenubar",
-		screenWidth - menuWidth,
-		0,
-		menuWidth,
-		menuHeight
+			screenWidth - menuWidth,
+			0,
+			menuWidth,
+			menuHeight
 	)
 
 	-- Global build buttons
 	WG.SetWindowPosAndSize("globalCommandsWindow",
-		0,
-		0,
-		resourceBarX,
-		menuHeight
+			0,
+			0,
+			resourceBarX,
+			menuHeight
 	)
 
 	-- Console
 	local consoleWidth = 380
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		screenWidth - consoleHeight,
-		menuHeight,
-		consoleWidth,
-		consoleHeight
+			screenWidth - consoleHeight,
+			menuHeight,
+			consoleWidth,
+			consoleHeight
 	)
 
 	SetupMissionGUI("new")
@@ -713,7 +711,7 @@ local function GetBottomSizes(screenWidth, screenHeight, parity)
 	--local chatWidth = math.max(300, minimapWidth)
 	--local chatHeight = 0.2*screenHeight
 
-		-- Player List
+	-- Player List
 	local playerlistWidth = 310
 	local playerlistHeight = screenHeight/2
 	local playerListControl = WG.Chili.Screen0:GetChildByName("Player List")
@@ -722,11 +720,11 @@ local function GetBottomSizes(screenWidth, screenHeight, parity)
 	end
 
 	return integralWidth, integralHeight,
-		coreSelectorWidth, coreSelectorHeight,
-		minimapWidth, minimapHeight,
-		selectionsWidth, selectionsHeight,
-		chatWidth, chatHeight,
-		playerlistWidth, playerlistHeight
+	coreSelectorWidth, coreSelectorHeight,
+	minimapWidth, minimapHeight,
+	selectionsWidth, selectionsHeight,
+	chatWidth, chatHeight,
+	playerlistWidth, playerlistHeight
 end
 
 local function SetupNewUITop()
@@ -770,57 +768,57 @@ local function SetupNewUITop()
 
 	-- Set Window Positions
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	WG.SetWindowPosAndSize("SpectatorPlayerPanel",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		55
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			55
 	)
 
 	-- Right Side
 	WG.SetWindowPosAndSize("epicmenubar",
-		screenWidth - menuWidth - 3,
-		0,
-		menuWidth + 3,
-		sideHeight
+			screenWidth - menuWidth - 3,
+			0,
+			menuWidth + 3,
+			sideHeight
 	)
 
 	WG.SetWindowPosAndSize("chickenpanel",
-		screenWidth - chickenWidth - 1,
-		resourceBarHeight,
-		chickenWidth,
-		chickenHeight
+			screenWidth - chickenWidth - 1,
+			resourceBarHeight,
+			chickenWidth,
+			chickenHeight
 	)
 
 	-- Left Side
 	WG.SetWindowPosAndSize("votes",
-		0,
-		resourceBarHeight,
-		300 * SIZE_FACTOR,
-		120 * SIZE_FACTOR
+			0,
+			resourceBarHeight,
+			300 * SIZE_FACTOR,
+			120 * SIZE_FACTOR
 	)
 
 	WG.SetWindowPosAndSize("globalCommandsWindow",
-		0,
-		0,
-		globalWidth + 3,
-		sideHeight
+			0,
+			0,
+			globalWidth + 3,
+			sideHeight
 	)
 
 	-- Console
 	local consoleWidth = 380 * SIZE_FACTOR
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		screenWidth - consoleWidth,
-		sideHeight,
-		consoleWidth,
-		consoleHeight
+			screenWidth - consoleWidth,
+			sideHeight,
+			consoleWidth,
+			consoleHeight
 	)
 end
 
@@ -847,11 +845,11 @@ local function SetupMinimapLeftPreset()
 	-- Bottom of the UI
 
 	local integralWidth, integralHeight,
-		coreSelectorWidth, coreSelectorHeight,
-		minimapWidth, minimapHeight,
-		selectionsWidth, selectionsHeight,
-		chatWidth, chatHeight,
-		playerlistWidth, playerlistHeight = GetBottomSizes(screenWidth, screenHeight, -1)
+	coreSelectorWidth, coreSelectorHeight,
+	minimapWidth, minimapHeight,
+	selectionsWidth, selectionsHeight,
+	chatWidth, chatHeight,
+	playerlistWidth, playerlistHeight = GetBottomSizes(screenWidth, screenHeight, -1)
 
 	--local chatX = 0
 	--local chatY = screenHeight - chatHeight - minimapHeight
@@ -864,44 +862,44 @@ local function SetupMinimapLeftPreset()
 
 	-- Player List
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - playerlistHeight - minimapHeight - 5,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - playerlistHeight - minimapHeight - 5,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		chatY,
-		chatWidth,
-		chatHeight
+			chatX,
+			chatY,
+			chatWidth,
+			chatHeight
 	)
 
 	-- Set Windows
 	WG.SetWindowPosAndSize("Minimap Window",
-		0,
-		screenHeight - minimapHeight,
-		minimapWidth,
-		minimapHeight
+			0,
+			screenHeight - minimapHeight,
+			minimapWidth,
+			minimapHeight
 	)
 	WG.SetWindowPosAndSize("selections",
-		minimapWidth - 3,
-		screenHeight - selectionsHeight,
-		selectionsWidth + 3,
-		selectionsHeight
+			minimapWidth - 3,
+			screenHeight - selectionsHeight,
+			selectionsWidth + 3,
+			selectionsHeight
 	)
 	WG.SetWindowPosAndSize("integralwindow",
-		minimapWidth + selectionsWidth,
-		screenHeight - integralHeight,
-		integralWidth + 3,
-		integralHeight
+			minimapWidth + selectionsWidth,
+			screenHeight - integralHeight,
+			integralWidth + 3,
+			integralHeight
 	)
 	WG.SetWindowPosAndSize("selector_window",
-		minimapWidth + selectionsWidth + integralWidth,
-		screenHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			minimapWidth + selectionsWidth + integralWidth,
+			screenHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 	WG.SetWidgetOption(coreName, corePath, "leftsideofscreen", false)
 
@@ -910,17 +908,17 @@ local function SetupMinimapLeftPreset()
 	local commUpgradeHeight = 325
 	local commUpgradeY = screenHeight - integralHeight - commUpgradeHeight - 25
 	WG.SetWindowPosAndSize("CommanderUpgradeWindow",
-		minimapWidth + selectionsWidth,
-		commUpgradeY,
-		commUpgradeWidth,
-		commUpgradeHeight
+			minimapWidth + selectionsWidth,
+			commUpgradeY,
+			commUpgradeWidth,
+			commUpgradeHeight
 	)
 
 	WG.SetWindowPosAndSize("ModuleSelectionWindow",
-		minimapWidth + selectionsWidth + commUpgradeWidth,
-		commUpgradeY,
-		500,
-		500
+			minimapWidth + selectionsWidth + commUpgradeWidth,
+			commUpgradeY,
+			500,
+			500
 	)
 
 	SetupNewUITop()
@@ -952,11 +950,11 @@ local function SetupMinimapRightPreset()
 	-- Bottom of the UI
 
 	local integralWidth, integralHeight,
-		coreSelectorWidth, coreSelectorHeight,
-		minimapWidth, minimapHeight,
-		selectionsWidth, selectionsHeight,
-		chatWidth, chatHeight,
-		playerlistWidth, playerlistHeight = GetBottomSizes(screenWidth, screenHeight, 1)
+	coreSelectorWidth, coreSelectorHeight,
+	minimapWidth, minimapHeight,
+	selectionsWidth, selectionsHeight,
+	chatWidth, chatHeight,
+	playerlistWidth, playerlistHeight = GetBottomSizes(screenWidth, screenHeight, 1)
 
 	--local chatX = screenWidth - chatWidth
 	--local chatY = screenHeight - chatHeight - minimapHeight
@@ -969,44 +967,44 @@ local function SetupMinimapRightPreset()
 
 	-- Player List
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - playerlistHeight - minimapHeight - 5,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - playerlistHeight - minimapHeight - 5,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		chatY,
-		chatWidth,
-		chatHeight
+			chatX,
+			chatY,
+			chatWidth,
+			chatHeight
 	)
 
 	-- Set Windows
 	WG.SetWindowPosAndSize("Minimap Window",
-		coreSelectorWidth + integralWidth + selectionsWidth,
-		screenHeight - minimapHeight,
-		minimapWidth,
-		minimapHeight
+			coreSelectorWidth + integralWidth + selectionsWidth,
+			screenHeight - minimapHeight,
+			minimapWidth,
+			minimapHeight
 	)
 	WG.SetWindowPosAndSize("selections",
-		coreSelectorWidth + integralWidth,
-		screenHeight - selectionsHeight,
-		selectionsWidth + 3,
-		selectionsHeight
+			coreSelectorWidth + integralWidth,
+			screenHeight - selectionsHeight,
+			selectionsWidth + 3,
+			selectionsHeight
 	)
 	WG.SetWindowPosAndSize("integralwindow",
-		coreSelectorWidth - 3,
-		screenHeight - integralHeight,
-		integralWidth + 3,
-		integralHeight
+			coreSelectorWidth - 3,
+			screenHeight - integralHeight,
+			integralWidth + 3,
+			integralHeight
 	)
 	WG.SetWindowPosAndSize("selector_window",
-		0,
-		screenHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			0,
+			screenHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 	WG.SetWidgetOption(coreName, corePath, "leftsideofscreen", true)
 
@@ -1015,17 +1013,17 @@ local function SetupMinimapRightPreset()
 	local commUpgradeHeight = 325
 	local commUpgradeY = screenHeight - integralHeight - commUpgradeHeight - 25
 	WG.SetWindowPosAndSize("CommanderUpgradeWindow",
-		coreSelectorWidth,
-		commUpgradeY,
-		commUpgradeWidth,
-		commUpgradeHeight
+			coreSelectorWidth,
+			commUpgradeY,
+			commUpgradeWidth,
+			commUpgradeHeight
 	)
 
 	WG.SetWindowPosAndSize("ModuleSelectionWindow",
-		coreSelectorWidth + commUpgradeWidth,
-		commUpgradeY,
-		500,
-		500
+			coreSelectorWidth + commUpgradeWidth,
+			commUpgradeY,
+			500,
+			500
 	)
 
 	SetupNewUITop()
@@ -1066,10 +1064,10 @@ local function SetupCraftyPreset()
 	local minimapHeight = screenWidth*9/44
 	WG.Minimap_SetOptions("armap", 0.8, false, true, false)
 	WG.SetWindowPosAndSize("Minimap Window",
-		0,
-		screenHeight - minimapHeight,
-		minimapWidth,
-		minimapHeight
+			0,
+			screenHeight - minimapHeight,
+			minimapWidth,
+			minimapHeight
 	)
 
 	-- Quick Selection Bar
@@ -1078,20 +1076,20 @@ local function SetupCraftyPreset()
 	local selectionButtonCount = math.min(12,math.max(4,math.floor(minimapWidth/selectorButtonWidth)))
 	local coreSelectorWidth = selectorButtonWidth*selectionButtonCount
 	WG.SetWindowPosAndSize("selector_window",
-		0,
-		screenHeight - minimapHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			0,
+			screenHeight - minimapHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 
 	-- Integral Menu
 	local integralWidth = math.max(350, math.min(500, screenWidth*screenHeight*0.0004))
 	local integralHeight = math.min(screenHeight/4.5, 200*integralWidth/450)  + 8
 	WG.SetWindowPosAndSize("integralwindow",
-		screenWidth - integralWidth,
-		screenHeight - integralHeight,
-		integralWidth,
-		integralHeight
+			screenWidth - integralWidth,
+			screenHeight - integralHeight,
+			integralWidth,
+			integralHeight
 	)
 
 	-- Selections
@@ -1099,40 +1097,40 @@ local function SetupCraftyPreset()
 	local selectionsWidth = screenWidth - integralWidth - minimapWidth
 	Selections_SetOptions(false, true, false, GetSelectionIconSize(selectionsHeight), false, true, true)
 	WG.SetWindowPosAndSize("selections",
-		minimapWidth,
-		screenHeight - selectionsHeight,
-		selectionsWidth,
-		selectionsHeight
+			minimapWidth,
+			screenHeight - selectionsHeight,
+			selectionsWidth,
+			selectionsHeight
 	)
 
 	-- Player List
 	local playerlistWidth = 296
 	local playerlistHeight = 150
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - integralHeight - playerlistHeight,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - integralHeight - playerlistHeight,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	local chatWidth = math.min(screenWidth*0.25, selectionsWidth)
 	local chatX = math.max(minimapWidth, math.min(screenWidth/2 - chatWidth/2, screenWidth - integralWidth - chatWidth))
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		screenHeight - 2*selectionsHeight,
-		chatWidth,
-		selectionsHeight
+			chatX,
+			screenHeight - 2*selectionsHeight,
+			chatWidth,
+			selectionsHeight
 	)
 
 	-- Menu
 	local menuWidth = 380
 	local menuHeight = 50
 	WG.SetWindowPosAndSize("epicmenubar",
-		0,
-		0,
-		menuWidth,
-		menuHeight
+			0,
+			0,
+			menuWidth,
+			menuHeight
 	)
 
 	-- Resource Bar
@@ -1140,20 +1138,20 @@ local function SetupCraftyPreset()
 	local resourceBarHeight = DEFAULT_RESOURCE_BAR_HEIGHT
 	local resourceBarX = math.min(screenWidth/2 - resourceBarWidth/2, screenWidth - resourceBarWidth - menuWidth + 4)
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0 - 4,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0 - 4,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	-- Console
 	local consoleWidth = math.min(screenWidth * 0.30, screenWidth - menuWidth - resourceBarWidth)
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		0,
-		0,
-		consoleWidth,
-		consoleHeight
+			0,
+			0,
+			consoleWidth,
+			consoleHeight
 	)
 
 	SetupMissionGUI("crafty")
@@ -1193,10 +1191,10 @@ local function SetupEnsemblePreset()
 	local integralWidth = math.max(350, math.min(500, screenWidth*screenHeight*0.0004))
 	local integralHeight = math.min(screenHeight/4.5, 200*integralWidth/450)  + 8
 	WG.SetWindowPosAndSize("integralwindow",
-		0,
-		screenHeight - integralHeight,
-		integralWidth,
-		integralHeight
+			0,
+			screenHeight - integralHeight,
+			integralWidth,
+			integralHeight
 	)
 
 	-- Minimap
@@ -1204,10 +1202,10 @@ local function SetupEnsemblePreset()
 	local minimapHeight = screenWidth*9/44
 	WG.Minimap_SetOptions("armap", 0.8, false, true, false)
 	WG.SetWindowPosAndSize("Minimap Window",
-		screenWidth - minimapWidth,
-		screenHeight - minimapHeight,
-		minimapWidth,
-		minimapHeight
+			screenWidth - minimapWidth,
+			screenHeight - minimapHeight,
+			minimapWidth,
+			minimapHeight
 	)
 
 	-- Selections
@@ -1215,10 +1213,10 @@ local function SetupEnsemblePreset()
 	local selectionsWidth = screenWidth - integralWidth - minimapWidth
 	Selections_SetOptions(false, true, false, GetSelectionIconSize(selectionsHeight), false, true, true)
 	WG.SetWindowPosAndSize("selections",
-		integralWidth,
-		screenHeight - selectionsHeight,
-		selectionsWidth,
-		selectionsHeight
+			integralWidth,
+			screenHeight - selectionsHeight,
+			selectionsWidth,
+			selectionsHeight
 	)
 
 	-- Quick Selection Bar
@@ -1227,40 +1225,40 @@ local function SetupEnsemblePreset()
 	local selectionButtonCount = math.min(12,math.max(4,math.floor(integralWidth/selectorButtonWidth)))
 	local coreSelectorWidth = selectorButtonWidth*selectionButtonCount
 	WG.SetWindowPosAndSize("selector_window",
-		integralWidth,
-		screenHeight - selectionsHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			integralWidth,
+			screenHeight - selectionsHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 
 	-- Player List
 	local playerlistWidth = 296
 	local playerlistHeight = 150
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth,
-		screenHeight - integralHeight - playerlistHeight,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth,
+			screenHeight - integralHeight - playerlistHeight,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	local chatWidth = math.min(screenWidth*0.25, selectionsWidth)
 	local chatX = 0
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		screenHeight - integralHeight,
-		chatWidth,
-		selectionsHeight
+			chatX,
+			screenHeight - integralHeight,
+			chatWidth,
+			selectionsHeight
 	)
 
 	-- Menu
 	local menuWidth = 380
 	local menuHeight = 50
 	WG.SetWindowPosAndSize("epicmenubar",
-		screenWidth - menuWidth,
-		0,
-		menuWidth,
-		menuHeight
+			screenWidth - menuWidth,
+			0,
+			menuWidth,
+			menuHeight
 	)
 
 	-- Resource Bar
@@ -1268,20 +1266,20 @@ local function SetupEnsemblePreset()
 	local resourceBarHeight = DEFAULT_RESOURCE_BAR_HEIGHT
 	local resourceBarX = math.min(screenWidth/2 - resourceBarWidth/2, screenWidth - resourceBarWidth - menuWidth)
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	-- Console
 	local consoleWidth = math.min(screenWidth * 0.30, screenWidth - menuWidth - resourceBarWidth)
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		0,
-		0,
-		consoleWidth,
-		consoleHeight
+			0,
+			0,
+			consoleWidth,
+			consoleHeight
 	)
 
 	SetupMissionGUI("ensemble")
@@ -1321,10 +1319,10 @@ local function SetupWestwoodPreset()
 	local resourceBarHeight = DEFAULT_RESOURCE_BAR_HEIGHT
 	local resourceBarX = screenWidth - resourceBarWidth
 	WG.SetWindowPosAndSize("EconomyPanelDefaultTwo",
-		resourceBarX,
-		0,
-		resourceBarWidth,
-		resourceBarHeight
+			resourceBarX,
+			0,
+			resourceBarWidth,
+			resourceBarHeight
 	)
 
 	-- Minimap
@@ -1332,20 +1330,20 @@ local function SetupWestwoodPreset()
 	local minimapHeight = screenWidth*1/4
 	WG.Minimap_SetOptions("armap", 0.8, false, true, false)
 	WG.SetWindowPosAndSize("Minimap Window",
-		screenWidth - minimapWidth,
-		resourceBarHeight,
-		minimapWidth,
-		minimapHeight
+			screenWidth - minimapWidth,
+			resourceBarHeight,
+			minimapWidth,
+			minimapHeight
 	)
 
 	-- Integral Menu
 	local integralWidth = math.max(350, math.min(500, resourceBarWidth))
 	local integralHeight = math.min(screenHeight/4.5, 200*integralWidth/450)  + 8
 	WG.SetWindowPosAndSize("integralwindow",
-		screenWidth - integralWidth,
-		resourceBarHeight + minimapHeight,
-		integralWidth,
-		integralHeight
+			screenWidth - integralWidth,
+			resourceBarHeight + minimapHeight,
+			integralWidth,
+			integralHeight
 	)
 
 	-- Selections
@@ -1353,10 +1351,10 @@ local function SetupWestwoodPreset()
 	local selectionsWidth = resourceBarWidth
 	Selections_SetOptions(false, true, false, GetSelectionIconSize(selectionsHeight), false, true, true)
 	WG.SetWindowPosAndSize("selections",
-		screenWidth - selectionsWidth,
-		screenHeight - selectionsHeight,
-		selectionsWidth,
-		selectionsHeight
+			screenWidth - selectionsWidth,
+			screenHeight - selectionsHeight,
+			selectionsWidth,
+			selectionsHeight
 	)
 
 	-- Quick Selection Bar
@@ -1365,50 +1363,50 @@ local function SetupWestwoodPreset()
 	local selectionButtonCount = math.min(12,math.max(4,math.floor(resourceBarWidth/selectorButtonWidth)))
 	local coreSelectorWidth = selectorButtonWidth*selectionButtonCount
 	WG.SetWindowPosAndSize("selector_window",
-		screenWidth - selectionsWidth,
-		screenHeight - selectionsHeight - coreSelectorHeight,
-		coreSelectorWidth,
-		coreSelectorHeight
+			screenWidth - selectionsWidth,
+			screenHeight - selectionsHeight - coreSelectorHeight,
+			coreSelectorWidth,
+			coreSelectorHeight
 	)
 
 	-- Player List
 	local playerlistWidth = 296
 	local playerlistHeight = 150
 	WG.SetWindowPosAndSize("Player List",
-		screenWidth - playerlistWidth - selectionsWidth,
-		screenHeight - playerlistHeight,
-		playerlistWidth,
-		playerlistHeight
+			screenWidth - playerlistWidth - selectionsWidth,
+			screenHeight - playerlistHeight,
+			playerlistWidth,
+			playerlistHeight
 	)
 
 	-- Chat
 	local chatWidth = math.min(screenWidth*0.25, selectionsWidth)
 	local chatX = 0
 	WG.SetWindowPosAndSize("ProChat",
-		chatX,
-		screenHeight,
-		chatWidth,
-		selectionsHeight
+			chatX,
+			screenHeight,
+			chatWidth,
+			selectionsHeight
 	)
 
 	-- Menu
 	local menuWidth = 380
 	local menuHeight = 50
 	WG.SetWindowPosAndSize("epicmenubar",
-		0,
-		0,
-		menuWidth,
-		menuHeight
+			0,
+			0,
+			menuWidth,
+			menuHeight
 	)
 
 	-- Console
 	local consoleWidth = math.min(screenWidth * 0.30, screenWidth - menuWidth - resourceBarWidth)
 	local consoleHeight = screenHeight * 0.20
 	WG.SetWindowPosAndSize("ProConsole",
-		0,
-		0,
-		consoleWidth,
-		consoleHeight
+			0,
+			0,
+			consoleWidth,
+			consoleHeight
 	)
 
 	SetupMissionGUI("westwood")

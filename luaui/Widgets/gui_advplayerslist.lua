@@ -302,7 +302,7 @@ local desiredLosmodeChanged = 0
 -- GEOMETRY VARIABLES
 --------------------------------------------------------------------------------
 
-local vsx,vsy  			= gl.GetViewSizes()
+local vsx,vsy  			= Spring.GetViewSizes()
 
 local widgetTop     	= 0
 local widgetRight   	= 1
@@ -999,7 +999,7 @@ function RecvPlayerScores(newPlayerScores)
 end
 
 function widget:Initialize()
-	widget:ViewResize(gl.GetViewSizes())
+	widget:ViewResize(Spring.GetViewSizes())
 
 	widgetHandler:RegisterGlobal('getPlayerScoresAdvplayerslist', RecvPlayerScores)
 	widgetHandler:RegisterGlobal('CameraBroadcastEvent', CameraBroadcastEvent)

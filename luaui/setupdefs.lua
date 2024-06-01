@@ -12,7 +12,13 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-for _,ud in pairs(UnitDefs) do
+if (not UnitDefs) then
+	--// Defs aren't loaded in LuaIntro
+	return
+end
+
+for _, ud in pairs(UnitDefs) do
+
 	-- set the cost value  (same as shown in the tooltip)
 	ud.cost = ud.metalCost + (ud.energyCost / 60.0)
 
@@ -34,13 +40,14 @@ for _,ud in pairs(UnitDefs) do
 	end
 end
 
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 -- setup the UnitDefNames{} table
 do
 	local tbl = {}
-	for _,def in pairs(UnitDefs) do
+	for _, def in pairs(UnitDefs) do
 		tbl[def.name] = def
 	end
 	UnitDefNames = tbl
@@ -49,7 +56,7 @@ end
 -- setup the FeatureDefNames{} table
 do
 	local tbl = {}
-	for _,def in pairs(FeatureDefs) do
+	for _, def in pairs(FeatureDefs) do
 		tbl[def.name] = def
 	end
 	FeatureDefNames = tbl
@@ -58,14 +65,12 @@ end
 -- setup the WeaponDefNames{} table
 do
 	local tbl = {}
-	for _,def in pairs(WeaponDefs) do
+	for _, def in pairs(WeaponDefs) do
 		tbl[def.name] = def
 	end
 	WeaponDefNames = tbl
 end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
 
-local i18nDefs = VFS.Include('luaui/i18nhelpers.lua')
-i18nDefs.RefreshDefs()
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

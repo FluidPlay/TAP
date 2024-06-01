@@ -1,3 +1,4 @@
+-- $Id: tapmain.lua 3171 2008-11-06 09:06:29Z det $
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
@@ -11,51 +12,36 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-Spring.SendCommands({"ctrlpanel " .. LUAUI_DIRNAME .. "ctrlpanel.txt"})
+local vfsInclude = VFS.Include
+local vfsGame = VFS.GAME
+local spSendCommands = Spring.SendCommands
 
-VFS.Include(LUAUI_DIRNAME .. 'utils.lua', utilFile)
+spSendCommands("ctrlpanel LuaUI/ctrlpanel.txt")
 
 WG = {}
 Spring.Utilities = {}
 VFS.Include("LuaRules/Utilities/glvolumes.lua")
 
-include("setupdefs.lua")
-include("savetable.lua")
+vfsInclude("LuaUI/utils.lua"    , nil, vfsGame)
+vfsInclude("LuaUI/setupdefs.lua", nil, vfsGame)
+vfsInclude("LuaUI/savetable.lua", nil, vfsGame)
+vfsInclude("LuaUI/debug.lua"    , nil, vfsGame)
+vfsInclude("LuaUI/modfonts.lua" , nil, vfsGame)
+vfsInclude("LuaUI/layout.lua"   , nil, vfsGame)   -- contains a simple LayoutButtons()
+vfsInclude("LuaUI/tapwidgets.lua", nil, vfsGame)  -- the widget handler
 
-include("debug.lua")
-include("fonts.lua")
-include("layout.lua")   -- contains a simple LayoutButtons()
--- include("tapwidgets.lua")  -- the widget handler
-VFS.Include(LUAUI_DIRNAME .. 'tapwidgets.lua', nil, VFS.ZIP)
+spSendCommands("echo " .. LUAUI_VERSION)
 
---------------------------------------------------------------------------------
---
--- print the header
---
+local gl = Spring.Draw  --  easier to use
 
-if (RestartCount == nil) then
-  RestartCount = 0
-else 
-  RestartCount = RestartCount + 1
-end
-
-do
-  local restartStr = ""
-  if (RestartCount > 0) then
-    restartStr = "  (" .. RestartCount .. " Restarts)"
-  end
-  Spring.SendCommands({"echo " .. LUAUI_VERSION .. restartStr})
-end
-
-
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 --
 --  A few helper functions
 --
 
 function Say(msg)
-  Spring.SendCommands({'say ' .. msg})
+  spSendCommands('say ' .. msg)
 end
 
 
@@ -104,17 +90,24 @@ function CommandNotify(id, params, options)
   return widgetHandler:CommandNotify(id, params, options)
 end
 
+function UnitCommandNotify(unitID, id, params, options)
+  return widgetHandler:UnitCommandNotify(unitID, id, params, options)
+end
+
 function DrawScreen(vsx, vsy)
-  widgetHandler:SetViewSize(vsx, vsy)
   return widgetHandler:DrawScreen()
 end
 
-function KeyPress(key, mods, isRepeat, label, unicode, scanCode)
-  return widgetHandler:KeyPress(key, mods, isRepeat, label, unicode, scanCode)
+function KeyPress(key, mods, isRepeat)
+  return widgetHandler:KeyPress(key, mods, isRepeat)
 end
 
-function KeyRelease(key, mods, label, unicode, scanCode)
-  return widgetHandler:KeyRelease(key, mods, label, unicode, scanCode)
+function KeyRelease(key, mods)
+  return widgetHandler:KeyRelease(key, mods)
+end
+
+function TextInput(utf8, ...)
+  return widgetHandler:TextInput(utf8, ...)
 end
 
 function MouseMove(x, y, dx, dy, button)
@@ -145,6 +138,18 @@ function GroupChanged(groupID)
   return widgetHandler:GroupChanged(groupID)
 end
 
+local allModOptions = Spring.GetModOptions()
+function Spring.GetModOption(s,bool,default)
+  if (bool) then
+    local modOption = allModOptions[s]
+    if (modOption==nil) then modOption = (default and "1") end
+    return (modOption=="1")
+  else
+    local modOption = allModOptions[s]
+    if (modOption==nil) then modOption = default end
+    return modOption
+  end
+end
 
 --
 -- The unit (and some of the Draw) call-ins are handled

@@ -1106,6 +1106,9 @@ local function DrawMiniMap()
 end
 
 function widget:DrawScreen()
+	if not cs then
+		cs = Spring.GetCameraState()
+	end
 	if (options.disableMinimap.value or window.hidden or cs.name == "ov") then
 		gl.ConfigMiniMap(0,0,0,0) --// a phantom map still clickable if this is not present.
 		lx = 0

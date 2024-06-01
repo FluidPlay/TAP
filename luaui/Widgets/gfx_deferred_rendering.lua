@@ -3,72 +3,127 @@
 
 function widget:GetInfo()
     return {
-        name = "Deferred rendering",
-        version = 3,
-        desc = "Collects and renders point and beam lights",
-        author = "beherith, aeonios",
-        date = "2015 Sept.",
-        license = "GPL V2",
-        layer = -99999990,
-        enabled = true
+        name      = "Deferred rendering",
+        version   = 3,
+        desc      = "Collects and renders point and beam lights using HDR and applies bloom.",
+        author    = "beherith, aeonios",
+        date      = "2015 Sept.",
+        license   = "GPL V2",
+        layer     = -99999,
+        enabled   = true
     }
 end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local glBeginEnd = gl.BeginEnd
-local glBillboard = gl.Billboard
-local glBlending = gl.Blending
-local glCallList = gl.CallList
-local glClear = gl.Clear
-local glColor = gl.Color
-local glCreateList = gl.CreateList
-local glCreateShader = gl.CreateShader
-local glCreateTexture = gl.CreateTexture
-local glDeleteShader = gl.DeleteShader
-local glDeleteTexture = gl.DeleteTexture
-local glDepthMask = gl.DepthMask
-local glDepthTest = gl.DepthTest
-local glGetShaderLog = gl.GetShaderLog
-local glGetUniformLocation = gl.GetUniformLocation
-local glGetViewSizes = gl.GetViewSizes
-local glPopMatrix = gl.PopMatrix
-local glPushMatrix = gl.PushMatrix
-local glTexCoord = gl.TexCoord
-local glTexture = gl.Texture
-local glTexRect = gl.TexRect
-local glRect = gl.Rect
-local glRenderToTexture = gl.RenderToTexture
-local glUniform = gl.Uniform
-local glUniformInt = gl.UniformInt
-local glUniformMatrix = gl.UniformMatrix
-local glUseShader = gl.UseShader
-local glVertex = gl.Vertex
-local glTranslate = gl.Translate
-local spEcho = Spring.Echo
-local spGetCameraPosition = Spring.GetCameraPosition
-local spWorldToScreenCoords = Spring.WorldToScreenCoords
-local spGetGroundHeight = Spring.GetGroundHeight
+local GL_RGB16F_ARB          = 0x881B
+local GL_RGB32F_ARB          = 0x8815
+local GL_RGB8				 = 0x8051
+local GL_MODELVIEW           = GL.MODELVIEW
+local GL_NEAREST             = GL.NEAREST
+local GL_ONE                 = GL.ONE
+local GL_ONE_MINUS_SRC_ALPHA = GL.ONE_MINUS_SRC_ALPHA
+local GL_PROJECTION          = GL.PROJECTION
+local GL_QUADS               = GL.QUADS
+local GL_SRC_ALPHA           = GL.SRC_ALPHA
+local glActiveTexture      	 = gl.ActiveTexture
+local glBeginEnd             = gl.BeginEnd
+local glBillboard            = gl.Billboard
+local glBlending             = gl.Blending
+local glCallList             = gl.CallList
+local glClear				 = gl.Clear
+local glColor                = gl.Color
+local glColorMask            = gl.ColorMask
+local glCopyToTexture        = gl.CopyToTexture
+local glCreateList           = gl.CreateList
+local glCreateShader         = gl.CreateShader
+local glCreateTexture        = gl.CreateTexture
+local glDeleteShader         = gl.DeleteShader
+local glDeleteTexture        = gl.DeleteTexture
+local glGetMatrixData        = gl.GetMatrixData
+local glGetShaderLog         = gl.GetShaderLog
+local glGetUniformLocation   = gl.GetUniformLocation
+local glGetViewSizes         = gl.GetViewSizes
+local glLoadIdentity         = gl.LoadIdentity
+local glLoadMatrix           = gl.LoadMatrix
+local glMatrixMode           = gl.MatrixMode
+local glMultiTexCoord        = gl.MultiTexCoord
+local glOrtho            	 = gl.Ortho
+local glPopMatrix            = gl.PopMatrix
+local glPushMatrix           = gl.PushMatrix
+local glResetMatrices        = gl.ResetMatrices
+local glTexCoord             = gl.TexCoord
+local glTexture              = gl.Texture
+local glTexRect              = gl.TexRect
+local glRect                 = gl.Rect
+local glRenderToTexture      = gl.RenderToTexture
+local glRotate				 = gl.Rotate
+local glUniform              = gl.Uniform
+local glUniformInt           = gl.UniformInt
+local glUniformMatrix        = gl.UniformMatrix
+local glUseShader            = gl.UseShader
+local glVertex               = gl.Vertex
+local glTranslate            = gl.Translate
+local spEcho                 = Spring.Echo
+local spGetCameraPosition    = Spring.GetCameraPosition
+local spGetCameraVectors     = Spring.GetCameraVectors
+local spGetDrawFrame         = Spring.GetDrawFrame
+local spIsSphereInView       = Spring.IsSphereInView
+local spWorldToScreenCoords  = Spring.WorldToScreenCoords
+local spTraceScreenRay       = Spring.TraceScreenRay
+local spGetSmoothMeshHeight  = Spring.GetSmoothMeshHeight
 
-local math_sqrt = math.sqrt
-local math_min = math.min
-local math_max = math.max
-
-local glowImg = "LuaUI/Images/glow2.dds"
-local beamGlowImg = ":n:LuaUI/Images/barglow-center.png"
-local beamGlowEndImg = ":n:LuaUI/Images/barglow-edge.png"
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- Config
 
 local GLSLRenderer = true
 
-local vsx, vsy, chobbyInterface, forceNonGLSL
+options_path = 'Settings/Graphics/HDR (experimental)'
+options_order = {'enableHDR', 'enableBloom', 'illumThreshold', 'maxBrightness'}
+
+options = {
+    enableHDR      = {type = 'bool',   name = 'Use High Dynamic Range Color',  value = true,},
+    enableBloom    = {type = 'bool',   name = 'Apply Bloom Effect (HDR Only)', value = true,},
+
+    -- how bright does a fragment need to be before being considered a glow source? [0, 1]
+    illumThreshold = {type = 'number', name = 'Illumination Threshold',       value = 0.85, min = 0,    max = 1, step = 0.05,},
+
+    -- maximum brightness of bloom additions [1, n]
+    maxBrightness  = {type = 'number', name = 'Maximum Highlight Brightness', value = 0.35, min = 0.05, max = 1, step = 0.05,},
+}
+
+for key,option in pairs(options) do
+    option.OnChange = InitialiseShaders
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+local vsx, vsy
 local ivsx = 1.0
 local ivsy = 1.0
 local screenratio = 1.0
+local kernelRadius = 32
 
 -- dynamic light shaders
 local depthPointShader = nil
 local depthBeamShader = nil
+
+-- bloom shaders
+local brightShader = nil
+local blurShaderH71 = nil
+local blurShaderV71 = nil
+local combineShader = nil
+
+-- HDR textures
+local screenHDR = nil
+local brightTexture1 = nil
+local brightTexture2 = nil
 
 -- shader uniforms
 local lightposlocPoint = nil
@@ -77,12 +132,37 @@ local lightparamslocPoint = nil
 local uniformEyePosPoint
 local uniformViewPrjInvPoint
 
-local lightposlocBeam = nil
-local lightpos2locBeam = nil
-local lightcolorlocBeam = nil
-local lightparamslocBeam = nil
+local lightposlocBeam  = nil
+local lightpos2locBeam  = nil
+local lightcolorlocBeam  = nil
+local lightparamslocBeam  = nil
 local uniformEyePosBeam
 local uniformViewPrjInvBeam
+
+-- bloom shader uniform locations
+local brightShaderText0Loc = nil
+local brightShaderInvRXLoc = nil
+local brightShaderInvRYLoc = nil
+local brightShaderIllumLoc = nil
+
+local blurShaderH51Text0Loc = nil
+local blurShaderH51InvRXLoc = nil
+local blurShaderH51FragLoc = nil
+local blurShaderV51Text0Loc = nil
+local blurShaderV51InvRYLoc = nil
+local blurShaderV51FragLoc = nil
+
+local blurShaderH71Text0Loc = nil
+local blurShaderH71InvRXLoc = nil
+local blurShaderH71FragLoc = nil
+local blurShaderV71Text0Loc = nil
+local blurShaderV71InvRYLoc = nil
+local blurShaderV71FragLoc = nil
+
+local combineShaderUseBloomLoc = nil
+local combineShaderTexture0Loc = nil
+local combineShaderTexture1Loc = nil
+local combineShaderFragLoc = nil
 
 --------------------------------------------------------------------------------
 --Light falloff functions: http://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
@@ -101,24 +181,60 @@ local collectionFunctionCount = 0
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+local function initBloomTextures()
+    local width, height = vsx/2, vsy/2
 
-function widget:RecvLuaMsg(msg, playerID)
-    if msg:sub(1, 18) == 'LobbyOverlayActive' then
-        chobbyInterface = (msg:sub(1, 19) == 'LobbyOverlayActive1')
+    brightTexture1 = glCreateTexture(width, height, {
+        fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+        format = GL_RGB8, wrap_s = GL.CLAMP, wrap_t = GL.CLAMP,
+    })
+    brightTexture2 = glCreateTexture(width, height, {
+        fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+        format = GL_RGB8, wrap_s = GL.CLAMP, wrap_t = GL.CLAMP,
+    })
+
+    if not brightTexture1 or not brightTexture2 then
+        Spring.Echo('Deferred Rendering: Failed to create bloom buffers!')
+        options.enableBloom.value = false
     end
 end
 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 function widget:ViewResize()
+
     vsx, vsy = gl.GetViewSizes()
     ivsx = 1.0 / vsx --we can do /n here!
     ivsy = 1.0 / vsy
-    if Spring.GetMiniMapDualScreen() == 'left' then
+    if (Spring.GetMiniMapDualScreen() == 'left') then
         vsx = vsx / 2
     end
-    if Spring.GetMiniMapDualScreen() == 'right' then
+    if (Spring.GetMiniMapDualScreen() == 'right') then
         vsx = vsx / 2
     end
     screenratio = vsy / vsx --so we dont overdraw and only always draw a square
+
+    glDeleteTexture(brightTexture1 or "")
+    glDeleteTexture(brightTexture2 or "")
+    glDeleteTexture(screenHDR or "")
+    screenHDR, brightTexture1, brightTexture2 = nil, nil, nil
+
+    if options.enableHDR.value then
+        screenHDR = glCreateTexture(vsx, vsy, {
+            fbo = true, min_filter = GL.LINEAR, mag_filter = GL.LINEAR,
+            format = GL_RGB32F_ARB, wrap_s = GL.CLAMP, wrap_t = GL.CLAMP,
+        })
+
+        if options.enableBloom.value then
+            initBloomTextures()
+        end
+
+        if not screenHDR then
+            Spring.Echo('Deferred Rendering: Failed to create HDR buffer!')
+            options.enableHDR.value = false
+        end
+    end
 end
 
 widget:ViewResize()
@@ -133,197 +249,33 @@ local vertSrc = [[
 	gl_Position    = gl_Vertex;
   }
 ]]
-local fragSrc = [[
-//This code authored by Peter Sarkozy aka Beherith (mysterme@gmail.com )
-//License is GPL V2
-// old version with calced normals is 67 fps for 10 beamers full screen at 1440p
-// new version with buffered normals is 88 fps for 10 beamers full screen at 1440p
+local fragSrc
 
-
-//#define DEBUG
-
-#define LIGHTRADIUS lightpos.w
-uniform sampler2D modelnormals;
-uniform sampler2D modeldepths;
-uniform sampler2D mapnormals;
-uniform sampler2D mapdepths;
-uniform sampler2D modelExtra;
-
-uniform vec3 eyePos;
-uniform vec4 lightpos;
-#if (BEAM_LIGHT == 1)
-	uniform vec4 lightpos2;
-#endif
-uniform vec4 lightcolor;
-uniform mat4 viewProjectionInv;
-
-float attenuate(float dist, float radius) {
-	// float raw = constant-linear * dist / radius - squared * dist * dist / (radius * radius);
-	// float att = clamp(raw, 0.0, 0.5);
-	float raw = 0.7 - 0.3 * dist / radius - lightcolor.a * dist * dist / (radius * radius);
-	float att = clamp(raw, 0.0, 1.0);
-	return (att * att);
-}
-
-void main(void)
-{
-	float mapDepth = texture2D(  mapdepths, gl_TexCoord[0].st).x;
-	float mdlDepth = texture2D(modeldepths, gl_TexCoord[0].st).x;
-
-	#if (CLIP_CONTROL == 1)
-	vec4 mappos4   = vec4(  vec3(gl_TexCoord[0].st * 2.0 - 1.0, mapDepth),  1.0);
-	vec4 modelpos4 = vec4(  vec3(gl_TexCoord[0].st * 2.0 - 1.0, mdlDepth),  1.0);
-	#else
-	vec4 mappos4   = vec4(  vec3(gl_TexCoord[0].st, mapDepth) * 2.0 - 1.0,  1.0);
-	vec4 modelpos4 = vec4(  vec3(gl_TexCoord[0].st, mdlDepth) * 2.0 - 1.0,  1.0);
-	#endif
-
-	vec4 map_normals4   = texture2D(mapnormals  , gl_TexCoord[0].st) * 2.0 - 1.0;
-	vec4 model_normals4 = texture2D(modelnormals, gl_TexCoord[0].st) * 2.0 - 1.0;
-	vec4 model_extra4   = texture2D(modelExtra  , gl_TexCoord[0].st) * 2.0 - 1.0;
-
-
-	float specularHighlight = 1.0;
-	float model_lighting_multiplier = 1.0; //models recieve additional lighting, looks better.
-
-
-	if ((mappos4.z - modelpos4.z) > 0.0) {
-		// this means we are processing a model fragment, not a map fragment
-		if (model_extra4.a > 0.5) {
-			map_normals4 = model_normals4;
-			mappos4 = modelpos4;
-			model_lighting_multiplier = 1.5;
-			specularHighlight = specularHighlight + 2.0 * model_extra4.g;
-		}
-	}
-
-
-	mappos4 = viewProjectionInv * mappos4;
-	mappos4.xyz = mappos4.xyz / mappos4.w;
-
-	vec3 light_direction;
-
-	#if (BEAM_LIGHT == 0)
-		light_direction = normalize(lightpos.xyz - mappos4.xyz);
-
-		float dist_light_here = dot(lightpos.xyz - mappos4.xyz, light_direction);
-		float cosphi = max(0.0, dot(normalize(map_normals4.xyz), light_direction));
-		float attenuation = attenuate(dist_light_here, LIGHTRADIUS);
-
-	#else
-
-		/*distance( Point P,  Segment P0:P1 ) // http://geomalgorithms.com/a02-_lines.html
-		{
-			v = P1 - P0
-			w = P - P0
-			if ( (c1 = w dot v) <= 0 )  // before P0
-				return d(P, P0)
-			if ( (c2 = v dot v) <= c1 ) // after P1
-				return d(P, P1)
-			b = c1 / c2
-			Pb = P0 + bv
-			return d(P, Pb)
-		}
-		*/
-
-		vec3 v = lightpos2.xyz - lightpos.xyz;
-		vec3 w = mappos4.xyz   - lightpos.xyz;
-		float c1 = dot(v, w);
-		float c2 = dot(v, v);
-
-		if (c1 <= 0.0){
-			v = mappos4.xyz;
-			w = lightpos.xyz;
-		} else if (c2 < c1) {
-			v = mappos4.xyz;
-			w = lightpos2.xyz;
-		} else {
-			w = lightpos.xyz + (c1 / c2) * v;
-			v = mappos4.xyz;
-		}
-
-		light_direction = normalize(w.xyz - v.xyz);
-
-		float dist_light_here = dot(w - v, light_direction);
-		float cosphi = max(0.0, dot(normalize(map_normals4.xyz), light_direction));
-		// float attenuation = max(0.0, (1.0 * LIGHT_CONSTANT - LIGHT_SQUARED * (dist_light_here * dist_light_here) / (LIGHTRADIUS * LIGHTRADIUS) - LIGHT_LINEAR * (dist_light_here) / (LIGHTRADIUS)));
-		float attenuation = attenuate(dist_light_here, LIGHTRADIUS);
-	#endif
-
-	vec3 viewDirection = normalize(vec3(eyePos - mappos4.xyz));
-
-	// light source on the wrong side?
-	if (dot(map_normals4.xyz, light_direction) > 0.02) {
-		vec3 reflection = reflect(-1.0 * light_direction, map_normals4.xyz);
-
-		float glossiness = dot(reflection, viewDirection);
-		float highlight = pow(max(0.0, glossiness), 8.0);
-
-		specularHighlight *= (0.5 * highlight);
-	} else {
-		specularHighlight = 0.0;
-	}
-
-
-	//OK, our blending func is the following: Rr=Lr*Dr+1*Dr
-	float lightalpha = cosphi * attenuation + attenuation * specularHighlight;
-	//dont light underwater:
-	lightalpha = clamp(lightalpha, 0.0, lightalpha * ((mappos4.y + 50.0) * (0.02)));
-
-	gl_FragColor = vec4(lightcolor.rgb * lightalpha * model_lighting_multiplier, 1.0);
-
-	#ifdef DEBUG
-		gl_FragColor = vec4(map_normals4.xyz, 1.0); //world normals debugging
-		gl_FragColor = vec4(fract(modelpos4.z * 0.01),sign(mappos4.z - modelpos4.z), 0.0, 1.0); //world pos debugging, very useful
-		if (length(lightcolor.rgb * lightalpha * model_lighting_multiplier) < (1.0 / 256.0)){ //shows light boudaries
-			gl_FragColor=vec4(vec3(0.5, 0.0, 0.5), 0.0);
-		}
-	#endif
-}
-
-]]
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 local function DeferredLighting_RegisterFunction(func)
     collectionFunctionCount = collectionFunctionCount + 1
     collectionFunctions[collectionFunctionCount] = func
-    return collectionFunctionCount
 end
 
-local function DeferredLighting_UnRegisterFunction(functionID)
-    collectionFunctions[functionID] = nil
-end
+function InitialiseShaders()
 
-function widget:Initialize()
-
-    if glCreateShader == nil then
-        Spring.Echo('Deferred Rendering requires shader support!')
-        widgetHandler:RemoveWidget(self)
-        return
-    end
-
-    Spring.SetConfigInt("AllowDeferredMapRendering", 1)
-    Spring.SetConfigInt("AllowDeferredModelRendering", 1)
-
-    if Spring.GetConfigString("AllowDeferredMapRendering") == '0' or Spring.GetConfigString("AllowDeferredModelRendering") == '0' then
-        Spring.Echo('Deferred Rendering (gfx_deferred_rendering.lua) requires  AllowDeferredMapRendering and AllowDeferredModelRendering to be enabled in springsettings.cfg!')
-        widgetHandler:RemoveWidget(self)
-        return
-    end
-    if not forceNonGLSL and Spring.GetMiniMapDualScreen() ~= 'left' then
-        --FIXME dualscreen
-        if not glCreateShader then
+    if ((not forceNonGLSL) and Spring.GetMiniMapDualScreen() ~= 'left') then --FIXME dualscreen
+        if (not glCreateShader) then
             spEcho("gfx_deferred_rendering.lua: Shaders not found, removing self.")
             GLSLRenderer = false
-            widgetHandler:RemoveWidget(self)
-            return
+            widgetHandler:RemoveWidget()
         else
+            fragSrc = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\deferred_lighting.fs", VFS.ZIP)
+
+            --Spring.Echo('gfx_deferred_rendering.lua: Shader code:', fragSrc)
+
             depthPointShader = depthPointShader or glCreateShader({
                 defines = {
-                    "#version 150 compatibility\n",
+                    "#version 120\n",
                     "#define BEAM_LIGHT 0\n",
-                    "#define CLIP_CONTROL " .. (Platform ~= nil and Platform.glSupportClipSpaceControl and 1 or 0) .. "\n"
+                    "#define CLIP_CONTROL " .. (Platform.glSupportClipSpaceControl and 1 or 0) .. "\n"
                 },
                 vertex = vertSrc,
                 fragment = fragSrc,
@@ -336,24 +288,23 @@ function widget:Initialize()
                 },
             })
 
-            if not depthPointShader then
+            if (not depthPointShader) then
                 spEcho(glGetShaderLog())
                 spEcho("gfx_deferred_rendering.lua: Bad depth point shader, removing self.")
                 GLSLRenderer = false
-                widgetHandler:RemoveWidget(self)
-                return
+                widgetHandler:RemoveWidget()
             else
-                lightposlocPoint = glGetUniformLocation(depthPointShader, "lightpos")
-                lightcolorlocPoint = glGetUniformLocation(depthPointShader, "lightcolor")
-                uniformEyePosPoint = glGetUniformLocation(depthPointShader, 'eyePos')
+                lightposlocPoint       = glGetUniformLocation(depthPointShader, "lightpos")
+                lightcolorlocPoint     = glGetUniformLocation(depthPointShader, "lightcolor")
+                uniformEyePosPoint     = glGetUniformLocation(depthPointShader, 'eyePos')
                 uniformViewPrjInvPoint = glGetUniformLocation(depthPointShader, 'viewProjectionInv')
             end
-            --fragSrc = "#define BEAM_LIGHT \n" .. fragSrc
+
             depthBeamShader = depthBeamShader or glCreateShader({
                 defines = {
-                    "#version 150 compatibility\n",
+                    "#version 120\n",
                     "#define BEAM_LIGHT 1\n",
-                    "#define CLIP_CONTROL " .. (Platform ~= nil and Platform.glSupportClipSpaceControl and 1 or 0) .. "\n"
+                    "#define CLIP_CONTROL " .. (Platform.glSupportClipSpaceControl and 1 or 0) .. "\n"
                 },
                 vertex = vertSrc,
                 fragment = fragSrc,
@@ -366,22 +317,99 @@ function widget:Initialize()
                 },
             })
 
-            if not depthBeamShader then
+            if (not depthBeamShader) then
                 spEcho(glGetShaderLog())
                 spEcho("gfx_deferred_rendering.lua: Bad depth beam shader, removing self.")
                 GLSLRenderer = false
-                widgetHandler:RemoveWidget(self)
-                return
+                widgetHandler:RemoveWidget()
             else
-                lightposlocBeam = glGetUniformLocation(depthBeamShader, 'lightpos')
-                lightpos2locBeam = glGetUniformLocation(depthBeamShader, 'lightpos2')
-                lightcolorlocBeam = glGetUniformLocation(depthBeamShader, 'lightcolor')
-                uniformEyePosBeam = glGetUniformLocation(depthBeamShader, 'eyePos')
+                lightposlocBeam       = glGetUniformLocation(depthBeamShader, 'lightpos')
+                lightpos2locBeam      = glGetUniformLocation(depthBeamShader, 'lightpos2')
+                lightcolorlocBeam     = glGetUniformLocation(depthBeamShader, 'lightcolor')
+                uniformEyePosBeam     = glGetUniformLocation(depthBeamShader, 'eyePos')
                 uniformViewPrjInvBeam = glGetUniformLocation(depthBeamShader, 'viewProjectionInv')
             end
 
+            if options.enableHDR.value and options.enableBloom.value then
+                brightShader = brightShader or glCreateShader({
+                    defines = {"#version 120\n"},
+                    fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\bloom_bright.fs", VFS.ZIP),
+
+                    uniformInt = {texture0 = 0},
+                    uniformFloat = {illuminationThreshold, inverseRX, inverseRY}
+                })
+
+                if not brightShader then
+                    Spring.Echo('Deferred Rendering Widget: brightShader failed to compile!')
+                    Spring.Echo(gl.GetShaderLog())
+                end
+
+                blurShaderH71 = blurShaderH71 or glCreateShader({
+                    defines = {"#version 120\n"},
+                    fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\bloom_blurH.fs", VFS.ZIP),
+
+                    uniformInt = {texture0 = 0},
+                    uniformFloat = {inverseRX}
+                })
+
+                if not blurShaderH71 then
+                    Spring.Echo('Deferred Rendering Widget: blurshaderH71 failed to compile!')
+                    Spring.Echo(gl.GetShaderLog())
+                end
+
+                blurShaderV71 = blurShaderV71 or glCreateShader({
+                    defines = {"#version 120\n"},
+                    fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\bloom_blurV.fs", VFS.ZIP),
+
+                    uniformInt = {texture0 = 0},
+                    uniformFloat = {inverseRY}
+                })
+
+                if not blurShaderV71 then
+                    Spring.Echo('Deferred Rendering Widget: blueShaderV71 failed to compile!')
+                    Spring.Echo(gl.GetShaderLog())
+                end
+
+                if not brightShader or not blurShaderH71 or not blurShaderV71 then
+                    Spring.Echo('Deferred Rendering Widget: Failed to create bloom shaders!')
+                    options.enableBloom.value = false
+                else
+                    brightShaderText0Loc = glGetUniformLocation(brightShader, "texture0")
+                    brightShaderInvRXLoc = glGetUniformLocation(brightShader, "inverseRX")
+                    brightShaderInvRYLoc = glGetUniformLocation(brightShader, "inverseRY")
+                    brightShaderIllumLoc = glGetUniformLocation(brightShader, "illuminationThreshold")
+
+                    blurShaderH71Text0Loc = glGetUniformLocation(blurShaderH71, "texture0")
+                    blurShaderH71InvRXLoc = glGetUniformLocation(blurShaderH71, "inverseRX")
+                    blurShaderH71FragLoc = glGetUniformLocation(blurShaderH71, "fragKernelRadius")
+                    blurShaderV71Text0Loc = glGetUniformLocation(blurShaderV71, "texture0")
+                    blurShaderV71InvRYLoc = glGetUniformLocation(blurShaderV71, "inverseRY")
+                    blurShaderV71FragLoc = glGetUniformLocation(blurShaderV71, "fragKernelRadius")
+                end
+            end
+
+            if options.enableHDR.value then
+                combineShader = combineShader or glCreateShader({
+                    defines = {"#version 120\n"},
+                    fragment = VFS.LoadFile("LuaUI\\Widgets\\Shaders\\bloom_combine.fs", VFS.ZIP),
+
+                    uniformInt = { texture0 = 0, texture1 = 1, useBloom = 1, useHDR = 1},
+                    uniformFloat = {fragMaxBrightness}
+                })
+
+                if not combineShader then
+                    Spring.Echo('Deferred Rendering Widget: combineShader failed to compile!')
+                    options.enableHDR.value = false
+                    Spring.Echo(gl.GetShaderLog())
+                else
+                    combineShaderUseBloomLoc = glGetUniformLocation(combineShader, "useBloom")
+                    combineShaderTexture0Loc = glGetUniformLocation(combineShader, "texture0")
+                    combineShaderTexture1Loc = glGetUniformLocation(combineShader, "texture1")
+                    combineShaderFragLoc = glGetUniformLocation(combineShader, "fragMaxBrightness")
+                end
+            end
+
             WG.DeferredLighting_RegisterFunction = DeferredLighting_RegisterFunction
-            WG.DeferredLighting_UnRegisterFunction = DeferredLighting_UnRegisterFunction
         end
         screenratio = vsy / vsx --so we dont overdraw and only always draw a square
     else
@@ -391,30 +419,51 @@ function widget:Initialize()
     widget:ViewResize()
 end
 
+function widget:Initialize()
+    if (glCreateShader == nil) then
+        Spring.Echo('Deferred Rendering requires shader support!')
+        widgetHandler:RemoveWidget()
+        return
+    end
+
+    if (Spring.GetConfigInt("AllowDeferredMapRendering") ~= 1 or Spring.GetConfigInt("AllowDeferredModelRendering") ~= 1) then
+        Spring.Echo('Deferred Rendering (gfx_deferred_rendering.lua) requires  AllowDeferredMapRendering and AllowDeferredModelRendering to be enabled in springsettings.cfg!')
+        widgetHandler:RemoveWidget()
+        return
+    end
+
+    InitialiseShaders()
+end
+
 function widget:Shutdown()
-    if GLSLRenderer then
-        if glDeleteShader then
+    if (GLSLRenderer) then
+        if (glDeleteShader) then
             glDeleteShader(depthPointShader)
             glDeleteShader(depthBeamShader)
+            glDeleteShader(brightShader)
+            glDeleteShader(blurShaderH71)
+            glDeleteShader(blurShaderV71)
+            glDeleteShader(combineShader)
         end
+        glDeleteTexture(brightTexture1 or "")
+        glDeleteTexture(brightTexture2 or "")
+        glDeleteTexture(screenHDR or "")
+        screenHDR, brightTexture1, brightTexture2 = nil, nil, nil
     end
 end
 
-local function DrawLightType(lights, lightsCount, lighttype)
-    -- point = 0 beam = 1
+local function DrawLightType(lights, lightsCount, lighttype) -- point = 0 beam = 1
     --Spring.Echo('Camera FOV = ', Spring.GetCameraFOV()) -- default TA cam fov = 45
     --set uniforms:
     local cpx, cpy, cpz = spGetCameraPosition()
-    if lighttype == 0 then
-        --point
+    if lighttype == 0 then --point
         glUseShader(depthPointShader)
         glUniform(uniformEyePosPoint, cpx, cpy, cpz)
-        glUniformMatrix(uniformViewPrjInvPoint, "viewprojectioninverse")
-    else
-        --beam
+        glUniformMatrix(uniformViewPrjInvPoint,  "viewprojectioninverse")
+    else --beam
         glUseShader(depthBeamShader)
         glUniform(uniformEyePosBeam, cpx, cpy, cpz)
-        glUniformMatrix(uniformViewPrjInvBeam, "viewprojectioninverse")
+        glUniformMatrix(uniformViewPrjInvBeam,  "viewprojectioninverse")
     end
 
     glTexture(0, "$model_gbuffer_normtex")
@@ -431,83 +480,73 @@ local function DrawLightType(lights, lightsCount, lighttype)
             VerboseEcho('gfx_deferred_rendering.lua: Light being drawn:', i)
             Spring.Utilities.TableEcho(light)
         end
-        if lighttype == 0 then
-            -- point
+        if lighttype == 0 then -- point
             local lightradius = param.radius
-            local falloffsquared = param.falloffsquared or 1.0
             --Spring.Echo("Drawlighttype position = ", light.px, light.py, light.pz)
-            local groundheight = math_max(0, spGetGroundHeight(light.px, light.pz))
-            local sx, sy, sz = spWorldToScreenCoords(light.px, groundheight, light.pz) -- returns x, y, z, where x and y are screen pixels, and z is z buffer depth.
-            sx = sx / vsx
-            sy = sy / vsy --since FOV is static in the Y direction, the Y ratio is the correct one
-            --local dist_sq = (light.px-cx)^2 + (groundheight-cy)^2 + (light.pz-cz)^2
-            local dist_sq = (light.px - cx) ^ 2 + (groundheight - cy) ^ 2 + (light.pz - cz) ^ 2
-            local ratio = lightradius / math_sqrt(dist_sq) * 1.5
+            local sx, sy, sz = spWorldToScreenCoords(light.px, light.py, light.pz) -- returns x, y, z, where x and y are screen pixels, and z is z buffer depth.
+
+            -- prevent sharp cutoffs when projectile is slightly offscreen
+            sx = math.max(0,sx)
+            sx = math.min(sx,vsx)
+
+            sx = sx/vsx
+            sy = sy/vsy --since FOV is static in the Y direction, the Y ratio is the correct one
+            local dist_sq = (light.px-cx)^2 + (light.py-cy)^2 + (light.pz-cz)^2
+            local ratio = lightradius / math.sqrt(dist_sq) * 1.5
             glUniform(lightposlocPoint, light.px, light.py, light.pz, param.radius) --in world space
-            glUniform(lightcolorlocPoint, param.r * light.colMult, param.g * light.colMult, param.b * light.colMult, falloffsquared)
-            local tx1 = (sx - 0.5) * 2 - ratio * screenratio
-            local ty1 = (sy - 0.5) * 2 - ratio
-            local tx2 = (sx - 0.5) * 2 + ratio * screenratio
-            local ty2 = (sy - 0.5) * 2 + ratio
-            --PtaQ uncomment this if you want to debug:
-            --Spring.Echo(string.format("sx=%.4f sy = %.4f dist_sq=%.1f ratio = %.4f, {%.4f : %.4f}-{%.4f :  %.4f}",sx,sy,dist_sq,ratio,tx1,ty1,tx2,ty2))
-
+            glUniform(lightcolorlocPoint, param.r * light.colMult, param.g * light.colMult, param.b * light.colMult, 1)
             glTexRect(
-                    math_max(-1, tx1),
-                    math_max(-1, ty1),
-                    math_min(1, tx2),
-                    math_min(1, ty2),
-                    math_max(0, sx - 0.5 * ratio * screenratio),
-                    math_max(0, sy - 0.5 * ratio),
-                    math_min(1, sx + 0.5 * ratio * screenratio),
-                    math_min(1, sy + 0.5 * ratio)
+                    math.max(-1 , (sx-0.5)*2-ratio*screenratio),
+                    math.max(-1 , (sy-0.5)*2-ratio),
+                    math.min( 1 , (sx-0.5)*2+ratio*screenratio),
+                    math.min( 1 , (sy-0.5)*2+ratio),
+                    math.max( 0 , sx - 0.5*ratio*screenratio),
+                    math.max( 0 , sy - 0.5*ratio),
+                    math.min( 1 , sx + 0.5*ratio*screenratio),
+                    math.min( 1 , sy + 0.5*ratio)
             ) -- screen size goes from -1, -1 to 1, 1; uvs go from 0, 0 to 1, 1
-
         end
-        if lighttype == 1 then
-            -- beam
+        if lighttype == 1 then -- beam
             local lightradius = 0
-
-            local falloffsquared = param.falloffsquared or 1.0
-            local px = light.px + light.dx * 0.5
-            local py = light.py + light.dy * 0.5
-            local pz = light.pz + light.dz * 0.5
-            local lightradius = param.radius + math_sqrt(light.dx * light.dx + light.dy * light.dy + light.dz * light.dz) * 0.5
+            local px = light.px+light.dx*0.5
+            local py = light.py+light.dy*0.5
+            local pz = light.pz+light.dz*0.5
+            local lightradius = param.radius + math.sqrt(light.dx^2 + light.dy^2 + light.dz^2)*0.5
             VerboseEcho("Drawlighttype position = ", light.px, light.py, light.pz)
             local sx, sy, sz = spWorldToScreenCoords(px, py, pz) -- returns x, y, z, where x and y are screen pixels, and z is z buffer depth.
-            sx = sx / vsx
-            sy = sy / vsy --since FOV is static in the Y direction, the Y ratio is the correct one
-            local dist_sq = (px - cx) ^ 2 + (py - cy) ^ 2 + (pz - cz) ^ 2
-            local ratio = lightradius / math_sqrt(dist_sq)
-            ratio = ratio * 2
+
+            -- prevent sharp cutoffs when beam is slightly offscreen
+            sx = math.max(0,sx)
+            sx = math.min(sx,vsx)
+
+            sx = sx/vsx
+            sy = sy/vsy --since FOV is static in the Y direction, the Y ratio is the correct one
+            local dist_sq = (px-cx)^2 + (py-cy)^2 + (pz-cz)^2
+            local ratio = lightradius / math.sqrt(dist_sq)
+            ratio = ratio*2
 
             glUniform(lightposlocBeam, light.px, light.py, light.pz, param.radius) --in world space
-            glUniform(lightpos2locBeam, light.px + light.dx, light.py + light.dy + 24, light.pz + light.dz, param.radius) --in world space, the magic constant of +24 in the Y pos is needed because of our beam distance calculator function in GLSL
-            glUniform(lightcolorlocBeam, param.r * light.colMult, param.g * light.colMult, param.b * light.colMult, falloffsquared)
+            glUniform(lightpos2locBeam, light.px+light.dx, light.py+light.dy+24, light.pz+light.dz, param.radius) --in world space, the magic constant of +24 in the Y pos is needed because of our beam distance calculator function in GLSL
+            glUniform(lightcolorlocBeam, param.r * light.colMult, param.g * light.colMult, param.b * light.colMult, 1)
             --TODO: use gl.Shape instead, to avoid overdraw
             glTexRect(
-                    math_max(-1, (sx - 0.5) * 2 - ratio * screenratio),
-                    math_max(-1, (sy - 0.5) * 2 - ratio),
-                    math_min(1, (sx - 0.5) * 2 + ratio * screenratio),
-                    math_min(1, (sy - 0.5) * 2 + ratio),
-                    math_max(0, sx - 0.5 * ratio * screenratio),
-                    math_max(0, sy - 0.5 * ratio),
-                    math_min(1, sx + 0.5 * ratio * screenratio),
-                    math_min(1, sy + 0.5 * ratio)
+                    math.max(-1 , (sx-0.5)*2-ratio*screenratio),
+                    math.max(-1 , (sy-0.5)*2-ratio),
+                    math.min( 1 , (sx-0.5)*2+ratio*screenratio),
+                    math.min( 1 , (sy-0.5)*2+ratio),
+                    math.max( 0 , sx - 0.5*ratio*screenratio),
+                    math.max( 0 , sy - 0.5*ratio),
+                    math.min( 1 , sx + 0.5*ratio*screenratio),
+                    math.min( 1 , sy + 0.5*ratio)
             ) -- screen size goes from -1, -1 to 1, 1; uvs go from 0, 0 to 1, 1
         end
     end
     glUseShader(0)
-    glTexture(0, false)
-    glTexture(1, false)
-    glTexture(2, false)
-    glTexture(3, false)
-    glTexture(4, false)
 end
 
 local function renderToTextureFunc(tex, s, t)
     glTexture(tex)
-    glTexRect(-1 * s, -1 * t, 1 * s, 1 * t)
+    glTexRect(-1 * s, -1 * t,  1 * s, 1 * t)
     glTexture(false)
 end
 
@@ -515,63 +554,95 @@ local function mglRenderToTexture(FBOTex, tex, s, t)
     glRenderToTexture(FBOTex, renderToTextureFunc, tex, s, t)
 end
 
-local beamLights = {}
-local beamLightCount = 0
-local pointLights = {}
-local pointLightCount = 0
-function widget:Update()
-    beamLights = {}
-    beamLightCount = 0
-    pointLights = {}
-    pointLightCount = 0
-    for i = 1, collectionFunctionCount do
-        if collectionFunctions[i] then
-            beamLights, beamLightCount, pointLights, pointLightCount = collectionFunctions[i](beamLights, beamLightCount, pointLights, pointLightCount)
-        end
-    end
-end
+local function Bloom()
+    gl.Color(1, 1, 1, 1)
 
--- adding a glow to Cannon projectiles
-function widget:DrawWorld()
-    local lights = pointLights
-    glBlending(GL.SRC_ALPHA, GL.ONE)
-    gl.Texture(glowImg)
-    local size = 1
-    for i = 1, pointLightCount do
-        local light = lights[i]
-        local param = light.param
-        if param.gib == nil and param.type == "Cannon" then
-            size = param.glowradius * 0.44
-            gl.PushMatrix()
-            local colorMultiplier = 1 / math_max(param.r, param.g, param.b)
-            gl.Color(param.r * colorMultiplier, param.g * colorMultiplier, param.b * colorMultiplier, 0.015 + (size / 4000))
-            gl.Translate(light.px, light.py, light.pz)
-            gl.Billboard(true)
-            gl.TexRect(-(size / 2), -(size / 2), (size / 2), (size / 2))
-            gl.PopMatrix()
+    if options.enableHDR.value and options.enableBloom.value then
+        if not brightTexture1 or not brightTexture2 then
+            Spring.Echo("Bloom textures (HDR) did not initialize on resize. Trying again.")
+            initBloomTextures()
+            if not options.enableBloom.value then
+                return
+            end
         end
+        glUseShader(brightShader)
+        glUniformInt(brightShaderText0Loc, 0)
+        glUniform(   brightShaderInvRXLoc, ivsx)
+        glUniform(   brightShaderInvRYLoc, ivsy)
+        glUniform(   brightShaderIllumLoc, options.illumThreshold.value)
+        mglRenderToTexture(brightTexture1, screenHDR, 1, -1)
+        glUseShader(0)
+
+        glUseShader(blurShaderH71)
+        glUniformInt(blurShaderH71Text0Loc, 0)
+        glUniform(   blurShaderH71InvRXLoc, ivsx)
+        glUniform(	 blurShaderH71FragLoc, kernelRadius)
+        mglRenderToTexture(brightTexture2, brightTexture1, 1, -1)
+        glUseShader(0)
+
+        glUseShader(blurShaderV71)
+        glUniformInt(blurShaderV71Text0Loc, 0)
+        glUniform(   blurShaderV71InvRYLoc, ivsy)
+        glUniform(	 blurShaderV71FragLoc, kernelRadius)
+        mglRenderToTexture(brightTexture1, brightTexture2, 1, -1)
+        glUseShader(0)
     end
-    gl.Billboard(false)
-    gl.Texture(false)
-    glBlending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+
+    glUseShader(combineShader)
+    glUniformInt(combineShaderUseBloomLoc, options.enableBloom.value and 1 or 0)
+    glUniformInt(combineShaderTexture0Loc, 0)
+    glUniformInt(combineShaderTexture1Loc, 1)
+    glUniform(   combineShaderFragLoc, options.maxBrightness.value)
+    glTexture(0, screenHDR)
+    if options.enableBloom.value then
+        glTexture(1, brightTexture1)
+    end
+    glTexRect(0, 0, vsx, vsy, false, true)
+    glTexture(0, false)
+    glTexture(1, false)
+    glUseShader(0)
 end
 
 function widget:DrawScreenEffects()
     if not (GLSLRenderer) then
         Spring.Echo('Removing deferred rendering widget: failed to use GLSL shader')
-        widgetHandler:RemoveWidget(self)
+        widgetHandler:RemoveWidget()
         return
     end
 
-    --glBlending(GL.DST_COLOR, GL.ONE) -- Set add blending mode
-    glBlending(GL.SRC_ALPHA, GL.ONE)
-    if beamLightCount > 0 then
-        DrawLightType(beamLights, beamLightCount, 1)
-    end
-    --glBlending(GL.ONE_MINUS_SRC_COLOR, GL.ONE)
-    if pointLightCount > 0 then
-        DrawLightType(pointLights, pointLightCount, 0)
+    if options.enableHDR.value then
+        glCopyToTexture(screenHDR, 0, 0, 0, 0, vsx, vsy) -- copy the screen to an HDR texture
     end
 
-    glBlending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+    local beamLights = {}
+    local beamLightCount = 0
+    local pointLights = {}
+    local pointLightCount = 0
+
+    for i = 1, collectionFunctionCount do
+        beamLights, beamLightCount, pointLights, pointLightCount = collectionFunctions[i](beamLights, beamLightCount, pointLights, pointLightCount)
+    end
+
+    glBlending(GL.DST_COLOR, GL.ONE) -- Set add blending mode
+
+    if beamLightCount > 0 then
+        if options.enableHDR.value then
+            glRenderToTexture(screenHDR, DrawLightType, beamLights, beamLightCount, 1)
+        else
+            DrawLightType(beamLights, beamLightCount, 1)
+        end
+    end
+    if pointLightCount > 0 then
+        if options.enableHDR.value then
+            glRenderToTexture(screenHDR, DrawLightType, pointLights, pointLightCount, 0)
+        else
+            DrawLightType(pointLights, pointLightCount, 0)
+        end
+    end
+
+    glBlending(false)
+
+    if options.enableHDR.value then
+        Bloom()
+    end
 end

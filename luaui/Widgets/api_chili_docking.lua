@@ -511,7 +511,7 @@ end
 
 function widget:GetConfigData()
 	local data = Spring.Utilities.CopyTable(settings, true)
-	local vsx, vsy = gl.GetViewSizes()
+	local vsx, vsy = Spring.GetViewSizes() -- gl.GetViewSizes()
 	if WG.uiScale and WG.uiScale > 0 then
 		vsx, vsy = vsx/WG.uiScale, vsy/WG.uiScale
 	end

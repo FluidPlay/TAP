@@ -23,6 +23,50 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+Spring.Utilities = Spring.Utilities or {}
+
+function Spring.Utilities.GetTruncatedString(myString, myFont, maxLength)
+	if (not maxLength) then
+		return myString
+	end
+	local length = string.len(myString)
+	while myFont:GetTextWidth(myString) > maxLength do
+		length = length - 1
+		myString = string.sub(myString, 0, length)
+		if length < 1 then
+			return ""
+		end
+	end
+	return myString
+end
+
+function Spring.Utilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
+	if (not maxLength) or (myFont:GetTextWidth(myString) <= maxLength) then
+		return myString
+	end
+	local truncation = Spring.Utilities.GetTruncatedString(myString, myFont, maxLength)
+	local dotDotWidth = myFont:GetTextWidth("..")
+	truncation = Spring.Utilities.GetTruncatedString(truncation, myFont, maxLength - dotDotWidth)
+	return truncation .. ".."
+end
+
+function Spring.Utilities.TruncateStringIfRequired(myString, myFont, maxLength)
+	if (not maxLength) or (myFont:GetTextWidth(myString) <= maxLength) then
+		return false
+	end
+	return Spring.Utilities.GetTruncatedString(myString, myFont, maxLength)
+end
+
+function Spring.Utilities.TruncateStringIfRequiredAndDotDot(myString, myFont, maxLength)
+	if (not maxLength) or (myFont:GetTextWidth(myString) <= maxLength) then
+		return false
+	end
+	return Spring.Utilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 local myAllyTeamID          = Spring.GetMyAllyTeamID()
 local myTeamID              = Spring.GetMyTeamID()
 local myPlayerID            = Spring.GetMyPlayerID()
@@ -102,7 +146,7 @@ local function GetName(name, font, state)
 	elseif state.isAfk then
 		name = "<AFK> " .. name
 	end
-	
+
 	if not font then
 		return name
 	end
@@ -139,18 +183,18 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 	local newIsLagging = entryData.isLagging
 	local newIsWaiting = entryData.isWaiting
 	local isSpectator = false
-	
+
 	if entryData.playerID then
 		local playerName, active, spectator, teamID, allyTeamID, pingTime, cpuUsage, country, rank = Spring.GetPlayerInfo(entryData.playerID, false)
 		newTeamID, newAllyTeamID = teamID, allyTeamID
-		
+
 		entryData.isMe = (entryData.playerID == myPlayerID)
-		
+
 		if spectator then
 			isSpectator = true
 			newTeamID, newAllyTeamID = entryData.initTeamID,  entryData.initAllyTeamID
 		end
-		
+
 		local pingBucket = (active and math.max(1, math.min(5, math.ceil(math.min(pingTime, 1) * 5)))) or 6
 		if forceUpdateControls or pingBucket ~= entryData.pingBucket then
 			entryData.pingBucket = pingBucket
@@ -159,7 +203,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 				controls.imPing:Invalidate()
 			end
 		end
-		
+
 		local cpuBucket = (active and math.max(1, math.min(5, math.ceil(cpuUsage * 5)))) or 6
 		if forceUpdateControls or cpuBucket ~= entryData.cpuBucket then
 			entryData.cpuBucket = cpuBucket
@@ -168,12 +212,12 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 				controls.imCpu:Invalidate()
 			end
 		end
-		
+
 		if controls then
 			controls.imCpu.tooltip = CpuUsageOut(cpuUsage)
 			controls.imPing.tooltip = PingTimeOut(pingTime)
 		end
-		
+
 		newIsLagging = ((pingTime > PING_TIMEOUT) and true) or false
 		if forceUpdateControls or newIsLagging ~= entryData.isLagging then
 			entryData.isLagging = newIsLagging
@@ -181,7 +225,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 				controls.textName:SetCaption(GetName(entryData.name, controls.textName.font, entryData))
 			end
 		end
-		
+
 		newIsWaiting = (not active)
 		if forceUpdateControls or newIsWaiting ~= entryData.isWaiting then
 			entryData.isWaiting = newIsWaiting
@@ -189,7 +233,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 				controls.textName:SetCaption(GetName(entryData.name, controls.textName.font, entryData))
 			end
 		end
-		
+
 		newIsAfk = (spGetPlayerRulesParam(entryData.playerID, "lagmonitor_lagging") and true) or false
 		if forceUpdateControls or newIsAfk ~= entryData.isAfk then
 			entryData.isAfk = newIsAfk
@@ -197,17 +241,17 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 				controls.textName:SetCaption(GetName(entryData.name, controls.textName.font, entryData))
 			end
 		end
-		
+
 		if pingCpuOnly then
 			return false
 		end
 	elseif pingCpuOnly then
 		return false
 	end
-	
+
 	-- Ping and CPU cannot resort
 	local resortRequired = false
-	
+
 	if forceUpdateControls or newTeamID ~= entryData.teamID then
 		entryData.teamID = newTeamID
 		entryData.isMyTeam = (entryData.teamID == myTeamID)
@@ -217,7 +261,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 			controls.textName:Invalidate()
 		end
 	end
-	
+
 	if forceUpdateControls or newAllyTeamID ~= entryData.allyTeamID then
 		entryData.allyTeamID = newAllyTeamID
 		resortRequired = true
@@ -225,7 +269,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 			controls.textAllyTeam:SetCaption(entryData.allyTeamID + 1)
 		end
 	end
-	
+
 	local isMyAlly = (entryData.allyTeamID == (myAllyTeamID or fallbackAllyTeamID))
 	if forceUpdateControls or isMyAlly ~= entryData.isMyAlly then
 		entryData.isMyAlly = isMyAlly
@@ -234,11 +278,11 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 		if controls then
 			controls.textAllyTeam.font.color = entryData.allyTeamColor
 			controls.textAllyTeam:Invalidate()
-			
+
 			controls.btnShare:SetVisibility((myAllyTeamID and entryData.isMyAlly and not entryData.isDead and (entryData.teamID ~= myTeamID) and true) or false)
 		end
 	end
-	
+
 	local newIsDead = ((isSpectator or Spring.GetTeamRulesParam(entryData.teamID, "isDead")) and true) or false
 	if forceUpdateControls or newIsDead ~= entryData.isDead then
 		entryData.isDead = newIsDead
@@ -248,7 +292,7 @@ local function UpdateEntryData(entryData, controls, pingCpuOnly, forceUpdateCont
 			controls.textName:Invalidate()
 		end
 	end
-	
+
 	return resortRequired
 end
 
@@ -262,34 +306,34 @@ local function GetEntryData(playerID, teamID, allyTeamID, isAiTeam, isDead)
 		isAiTeam = isAiTeam,
 		isDead = isDead,
 	}
-	
+
 	if playerID then
 		local playerName, active, spectator, teamID, allyTeamID, pingTime, cpuUsage, country, rank, customKeys = Spring.GetPlayerInfo(playerID, true)
 		customKeys = customKeys or {}
-		
+
 		entryData.isMe = (entryData.playerID == myPlayerID)
 		entryData.name = playerName
-		entryData.country = Spring.Utilities.GetCountryFlagPath(country)
+		entryData.country = (country and country ~= '' and ("LuaUI/Images/flags/" .. country ..".png"))
 		entryData.rank = ("LuaUI/Images/LobbyRanks/" .. (customKeys.icon or "0_0") .. ".png")
-		
+
 		if customKeys.clan and customKeys.clan ~= "" then
 			entryData.clan = "LuaUI/Configs/Clans/" .. customKeys.clan ..".png"
 		elseif customKeys.faction and customKeys.faction ~= "" then
 			entryData.clan = "LuaUI/Configs/Factions/" .. customKeys.faction .. ".png"
 		end
 	end
-	
+
 	if isAiTeam then
 		local _, name = Spring.GetAIInfo(teamID)
 		entryData.name = name
 	end
-	
+
 	if not entryData.name then
 		entryData.name = "noname"
 	end
-	
+
 	UpdateEntryData(entryData)
-	
+
 	return entryData
 end
 
@@ -343,7 +387,7 @@ local function GetUserControls(playerID, teamID, allyTeamID, isAiTeam, isDead, p
 		}
 	end
 	offset = offset + options.text_height.value + 3
-	
+
 	offset = offset + 1
 	if userControls.entryData.clan then
 		userControls.imClan = Chili.Image:New {
@@ -358,7 +402,7 @@ local function GetUserControls(playerID, teamID, allyTeamID, isAiTeam, isDead, p
 		}
 	end
 	offset = offset + options.text_height.value + 3
-	
+
 	offset = offset + 15
 	userControls.textAllyTeam = Chili.Label:New {
 		name = "textAllyTeam",
@@ -374,7 +418,7 @@ local function GetUserControls(playerID, teamID, allyTeamID, isAiTeam, isDead, p
 		autosize = false,
 	}
 	offset = offset + options.text_height.value + 3
-	
+
 	offset = offset + 2
 	userControls.textName = Chili.Label:New {
 		name = "textName",
@@ -437,7 +481,7 @@ local function GetUserControls(playerID, teamID, allyTeamID, isAiTeam, isDead, p
 		function userControls.imCpu:HitTest(x,y) return self end
 	end
 	offset = offset + options.text_height.value
-	
+
 	offset = offset + 1
 	if userControls.entryData.pingBucket then
 		userControls.imPing = Chili.Image:New {
@@ -470,31 +514,31 @@ local teamByTeamID = {}
 
 local function Compare(ac, bc)
 	local a, b = ac.entryData, bc.entryData
-	
+
 	if not a.isMe ~= not b.isMe then
 		return b.isMe
 	end
-	
+
 	if not a.isMyTeam ~= not b.isMyTeam then
 		return b.isMyTeam
 	end
-	
+
 	if not a.isMyAlly ~= not b.isMyAlly then
 		return b.isMyAlly
 	end
-	
+
 	if a.allyTeamID ~= b.allyTeamID then
 		return a.allyTeamID > b.allyTeamID
 	end
-	
+
 	if not a.isAiTeam ~= not b.isAiTeam then
 		return a.isAiTeam
 	end
-	
+
 	if a.teamID ~= b.teamID then
 		return a.teamID > b.teamID
 	end
-	
+
 	if a.playerID then
 		return (not b.playerID) or a.playerID > b.playerID
 	end
@@ -505,9 +549,9 @@ local function SortEntries()
 	if not playerlistWindow then
 		return
 	end
-	
+
 	table.sort(listControls, Compare)
-	
+
 	local toTop = options.alignToTop.value
 	local offset = 0
 	for i = 1, #listControls do
@@ -519,7 +563,7 @@ local function SortEntries()
 			listControls[i].mainControl._relativeBounds.bottom = offset
 		end
 		listControls[i].mainControl:UpdateClientArea(false)
-		
+
 		offset = offset + options.text_height.value + 2
 	end
 end
@@ -532,7 +576,7 @@ local function UpdateTeam(teamID)
 	if not controls then
 		return
 	end
-	
+
 	local toSort = UpdateEntryData(controls.entryData, controls)
 	if toSort then
 		SortEntries()
@@ -544,7 +588,7 @@ local function UpdatePlayer(playerID)
 	if not controls then
 		return
 	end
-	
+
 	local toSort = UpdateEntryData(controls.entryData, controls)
 	if toSort then
 		SortEntries()
@@ -559,7 +603,7 @@ local function InitializePlayerlist()
 		playerlistWindow:Dispose()
 		playerlistWindow = nil
 	end
-	
+
 	if listControls then
 		for i = 1, #listControls do
 			if listControls[i].mainControl then
@@ -593,7 +637,7 @@ local function InitializePlayerlist()
 		tweakResizable = true,
 		minimizable = false,
 	}
-	
+
 	local gaiaTeamID = Spring.GetGaiaTeamID
 	local teamList = Spring.GetTeamList()
 	for i = 1, #teamList do
@@ -603,14 +647,14 @@ local function InitializePlayerlist()
 			if leaderID < 0 then
 				leaderID = Spring.GetTeamRulesParam(teamID, "initLeaderID") or leaderID
 			end
-			
+
 			if leaderID >= 0 then
 				if isAiTeam then
 					leaderID = nil
 				end
-				
+
 				local controls = GetUserControls(leaderID, teamID, allyTeamID, isAiTeam, isDead, playerlistWindow)
-				
+
 				listControls[#listControls + 1] = controls
 				teamByTeamID[teamID] = controls
 				if leaderID then
@@ -619,7 +663,7 @@ local function InitializePlayerlist()
 			end
 		end
 	end
-	
+
 	SortEntries()
 end
 
@@ -666,7 +710,7 @@ function widget:Update(dt)
 		return
 	end
 	lastUpdate = 0
-	
+
 	for i = 1, #listControls do
 		UpdateEntryData(listControls[i].entryData, listControls[i], true)
 	end
@@ -675,7 +719,7 @@ end
 function widget:PlayerChanged(playerID)
 	if playerID == myPlayerID then
 		local updateAll = false
-		
+
 		if mySpectating ~= Spring.GetSpectatingState() then
 			updateAll = true
 			mySpectating = Spring.GetSpectatingState()
@@ -688,20 +732,20 @@ function widget:PlayerChanged(playerID)
 			updateAll = true
 			myTeamID = (not mySpectating and Spring.GetMyTeamID())
 		end
-		
+
 		if changedTeam then
 			local toSort = false
 			for i = 1, #listControls do
 				toSort = UpdateEntryData(listControls[i].entryData, listControls[i], false, true) or toSort
 			end
-			
+
 			if toSort then
 				SortEntries()
 			end
 			return
 		end
 	end
-	
+
 	UpdatePlayer(playerID)
 end
 
