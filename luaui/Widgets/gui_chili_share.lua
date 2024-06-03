@@ -50,7 +50,7 @@ local images = {
 	report = 'LuaUI/Images/Crystal_Clear_app_error.png', -- REPLACE ME
 	merge = 'LuaUI/Images/Commshare_Merge.png',
 	give = 'LuaUI/Images/gift2.png',
-	giftmetal = 'LuaUI/Images/ibeam.png',
+	giftmetal = 'LuaUI/Images/ore.png',
 	giftenergy = 'LuaUI/Images/energy.png',
 }
 local defaultamount = 100

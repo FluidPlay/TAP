@@ -65,6 +65,7 @@ local drawShadow = fontShadow
 local usedFontSize = fontSize
 
 local vsx,vsy = Spring.GetViewGeometry()
+local widgetScale = (0.75 + (vsx*vsy / 7500000))
 
 local gl = gl  --  use a local copy for faster access
 
@@ -469,7 +470,7 @@ function widget:DrawScreen()
 			gl.Scale(1*widgetScale, 1*widgetScale, 1)
 		  gl.CallList(infotextList)
 	  gl.PopMatrix()
-  end
+    end
 end
 
 --------------------------------------------------------------------------------

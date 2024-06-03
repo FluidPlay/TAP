@@ -712,7 +712,7 @@ end
 --					glRotate(90,1,0,0)
 --					glTranslate(0,0,-y-10)
 --					glColor(1,1,1)
---					glTexture("LuaUI/Images/ibeam.png")
+--					glTexture("LuaUI/Images/ore.png")
 --					local width = metal*size
 --					glTexRect(x-width/2, z+42, x+width/2, z+40+size,0,0,metal,1)
 --					glTexture(false)

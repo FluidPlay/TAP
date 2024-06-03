@@ -201,7 +201,7 @@ confdata.subMenuIcons = {
 	['Settings/Tips/Clippy Comments']				= imgPath..'settings/docking.png',
 
 	['Settings/HUD Panels/Minimap']                 = imgPath..'settings/map.png',
-	['Settings/HUD Panels/Economy Panel']           = imgPath..'settings/resources.png',	--ibeam
+	['Settings/HUD Panels/Economy Panel']           = imgPath..'settings/resources.png',
 	['Settings/HUD Panels/Commander Selector']      = imgPath..'epicmenu/corcommander.png',
 	['Settings/HUD Panels/Tooltip']                 = imgPath..'settings/tooltip.png',
 	['Settings/HUD Panels/Chat']                    = imgPath..'settings/chat.png',

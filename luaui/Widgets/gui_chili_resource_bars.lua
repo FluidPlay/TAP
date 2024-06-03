@@ -584,7 +584,7 @@ function CreateWindow()
 		width  = 25,
 		y      = p(100/bars),
 		right  = 0,
-		file   = 'LuaUI/Images/ibeam.png',
+		file   = 'LuaUI/Images/ore.png',
 	}
 	
 	bar_metal_reserve_overlay = Chili.Progressbar:New{

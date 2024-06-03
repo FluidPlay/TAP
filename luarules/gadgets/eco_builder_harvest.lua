@@ -150,15 +150,15 @@ if gadgetHandler:IsSyncedCode() then
 		end
 
 		local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
-		Spring.Echo("finished unit harvestStorage: "..(maxorestorage or "nil")) --maxorestorage
+		spEcho("finished unit harvestStorage: "..(maxorestorage or "nil")) --maxorestorage
 		if maxorestorage and maxorestorage > 0 then
 			local harvesterDef = UnitDefs[spGetUnitDefID(unitID)]
 			local harvestWeaponDef = WeaponDefNames[harvesterDef.name.."_harvest_weapon"]
 			local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
 			harvesters[unitID] = { max=maxorestorage, cur=0, delivery = deliveryAmount }
-			Spring.Echo("Harvester added: "..unitID.." storage: "..maxorestorage.." delivery = "..deliveryAmount)
+			spEcho("Harvester added: "..unitID.." storage: "..maxorestorage.." delivery = "..deliveryAmount)
 		else
-			Spring.Echo("Harvester not detected")
+			spEcho("Harvester not detected")
 		end
 	end
 

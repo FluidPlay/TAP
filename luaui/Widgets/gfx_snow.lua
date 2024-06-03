@@ -50,7 +50,6 @@ snowMaps['sacrifice_v1'] = false
 snowMaps['xenolithic_v4'] = false
 snowMaps['thecoldplace'] = false
 
-
 local particleTypes = {}
 table.insert(particleTypes, {
 		texture = 'snow1.dds',

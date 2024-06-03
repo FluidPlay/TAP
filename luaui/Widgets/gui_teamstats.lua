@@ -158,6 +158,7 @@ function roundNumber(num,useFirstDecimal)
 end
 
 function convertSIPrefix(value,thresholdmodifier,noSmallValues,useFirstDecimal)
+	value = tonumber(value)
 	if value == 0 or not value then
 		return value
 	end
@@ -166,7 +167,7 @@ function convertSIPrefix(value,thresholdmodifier,noSmallValues,useFirstDecimal)
 		useFirstDecimal = useFirstDecimal + halfScale
 	end
 	useFirstDecimal = useFirstDecimal or #SIsuffixes+1
-	local sign = value > 0
+	local sign = (value > 0)
 	value = abs(value)
 	thresholdmodifier = thresholdmodifier or 1
 	local startIndex = 1
