@@ -14,7 +14,7 @@
 
 
 -- ":n:" sets it to nearest texture filtering
-local DefaultFontName = ":n:" .. LUAUI_DIRNAME .. "Fonts/FreeMonoBold_12"
+local DefaultFontName = ":l:" .. LUAUI_DIRNAME .. "Fonts/GeogrotesqueCompMedium.otf" --:n: ... FreeMonoBold_12
 
 
 --------------------------------------------------------------------------------

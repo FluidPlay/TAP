@@ -74,14 +74,14 @@ if gadgetHandler:IsSyncedCode() then
 	local defaultMaxStorage = 400 --620
 	local defaultOreTowerRange = 330
 
-	local harvesters = {} -- { unitID = { cur = 9999, max = unitDef.customparams.maxorestorage}, delivery = 0.999 }. ... }
+	local harvesters = {} -- { unitID = { cur = 9999, max = unitDef.customparams.maxorestorage}, delivery = 0.999, team = n, }. ... }
 	--local partialLoadHarvesters = {} --{ unitID = true, ... }    -- Harvesters with ore load > 0% and < 100%
 	local loadedHarvesters = {}
 	local featureRemainingMetal = {}
 	local previousHarvestStorage = {}
-	local oreTowers = {}
-	local workingHarvesters = {} -- Harvesters "in action"
-	local chunksUnderAttack = {}
+	local oreTowers = {}	-- { unitID = { range = (unitDef.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) }, ...}
+	local workingHarvesters = {} -- Harvesters "in action"	--{ unitID = spGetGameFrame() + 1
+	local chunksUnderAttack = {} -- { [targetID] = harvesterID, ... }
 
 	local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
 	local defaultDeliveryAmount = 20
@@ -155,7 +155,7 @@ if gadgetHandler:IsSyncedCode() then
 			local harvesterDef = UnitDefs[spGetUnitDefID(unitID)]
 			local harvestWeaponDef = WeaponDefNames[harvesterDef.name.."_harvest_weapon"]
 			local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
-			harvesters[unitID] = { max=maxorestorage, cur=0, delivery = deliveryAmount }
+			harvesters[unitID] = { max=maxorestorage, cur=0, delivery = deliveryAmount, team = unitTeam }
 			spEcho("Harvester added: "..unitID.." storage: "..maxorestorage.." delivery = "..deliveryAmount)
 		else
 			spEcho("Harvester not detected")
@@ -164,9 +164,9 @@ if gadgetHandler:IsSyncedCode() then
 
 	function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID, attackerDefID, attackerTeam)
 		chunksUnderAttack[unitID] = nil
-		local attackingHarvester = workingHarvesters[chunksUnderAttack[unitID]]
-		if attackingHarvester then
-			attackingHarvester = nil end
+		--local attackingHarvester = workingHarvesters[chunksUnderAttack[unitID]]
+		if workingHarvesters[chunksUnderAttack[unitID]] then
+			workingHarvesters[chunksUnderAttack[unitID]] = nil end
 
 		harvesters[unitID] = nil
 		oreTowers[unitID] = nil
@@ -226,19 +226,19 @@ if gadgetHandler:IsSyncedCode() then
 		spSetUnitResourcing ( uID, "umm", amount)
 	end
 
-	local function DeliverResources(harvesterID)
+	local function DeliverResources(harvesterID, data)
 		if not IsValidUnit(harvesterID) then
 			return end
 		--Spring.Echo("Harvest weapon: "..(harvestWeaponDef.name or "nil"))
 
 		--Spring.Echo("Amount: "..(harvestWeaponDef.damages[0] or "nil"))
-		local curStorage = getUnitHarvestStorage(harvesterID)
-		local deliveryAmount, maxStorage = getHarvesterInfo(harvesterID)
+		--local curStorage = getUnitHarvestStorage(harvesterID)
+		--local deliveryAmount, maxStorage = getHarvesterInfo(harvesterID)
 		--local deliveryAmount = harvestWeaponDef and harvestWeaponDef.damages[0] or defaultDeliveryAmount
 		--local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
 
-		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, curStorage, deliveryAmount) ) --eg: curStorage = 3, amount/dmg = 5, add 3.
-		setUnitHarvestStorage (harvesterID, math_clamp(0, maxStorage, curStorage - deliveryAmount))
+		spAddTeamResource (spGetUnitTeam(harvesterID), "metal", math_clamp(0, data.cur, data.delivery) ) --eg: curStorage = 3, amount/dmg = 5, add 3.
+		setUnitHarvestStorage (harvesterID, math_clamp(0, data.max, data.cur - data.delivery))
 	end
 
 	--- Delivers resource straight to the pool (it's in range of a tower)
@@ -326,10 +326,10 @@ if gadgetHandler:IsSyncedCode() then
 		end
 
 		--- If in tower range, deliver resources
-		for harvesterID in pairs(harvesters) do
-			local curStorage = getUnitHarvestStorage(harvesterID) or 0
+		for harvesterID, data in pairs(harvesters) do
+			local curStorage = (data and data.cur or 0)
 			if curStorage > 0 and inTowerRange(harvesterID) then
-				DeliverResources(harvesterID)
+				DeliverResources(harvesterID, data)
 			end
 		end
 

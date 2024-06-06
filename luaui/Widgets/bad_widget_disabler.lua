@@ -6,8 +6,8 @@ function widget:GetInfo()
 		date      = "09/24/18",
 		license   = "CC0",
 		layer     = 5,
-		enabled   = true,
-		alwaysStart = true,
+		enabled   = false, --true,
+		alwaysStart = false, --true,
 		handler = true,
 	}
 end
@@ -21,27 +21,27 @@ After this is completed, the widget removes itself.
 
 Please also include the reason in the reason table.]]
 
--- Speed ups --
-local spEcho = Spring.Echo
-
--- config --
-local badwidgets = {
-	"*Mearth Location Tags*1.0", -- Map: Mearth_v4.
-	"Ambient Player", -- Map: DeltaSiegeDry v8.
-}
-
-local reason = {
-	"Causes black ground on some graphics cards, possible copyright issues.",
-	"Ambient bird sounds are highly disliked"
-}
-
--- callins --
-function widget:Initialize()
-	for i=1, #badwidgets do
-		if widgetHandler:IsWidgetKnown(badwidgets[i]) then -- If this widget is loaded, unload it and echo a reason.
-			spEcho("Disabled '" .. badwidgets[i] .. "' (Reason: " .. tostring(reason[i]) .. ")")
-			widgetHandler:DisableWidget(badwidgets[i])
-		end
-	end
-	widgetHandler:RemoveWidget(widget)
-end
+---- Speed ups --
+--local spEcho = Spring.Echo
+--
+---- config --
+--local badwidgets = {
+--	"*Mearth Location Tags*1.0", -- Map: Mearth_v4.
+--	"Ambient Player", -- Map: DeltaSiegeDry v8.
+--}
+--
+--local reason = {
+--	"Causes black ground on some graphics cards, possible copyright issues.",
+--	"Ambient bird sounds are highly disliked"
+--}
+--
+---- callins --
+--function widget:Initialize()
+--	for i=1, #badwidgets do
+--		if widgetHandler:IsWidgetKnown(badwidgets[i]) then -- If this widget is loaded, unload it and echo a reason.
+--			spEcho("Disabled '" .. badwidgets[i] .. "' (Reason: " .. tostring(reason[i]) .. ")")
+--			widgetHandler:DisableWidget(badwidgets[i])
+--		end
+--	end
+--	widgetHandler:RemoveWidget(widget)
+--end

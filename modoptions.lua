@@ -18,7 +18,18 @@ local options={
        desc="TA Prime - Options",
        type="section",
     },
-	
+
+	{
+		key    = 'mo_chiliold',
+		name   = 'Use Chili Old',
+		desc   = 'Should it use Chili Old?',
+		type   = 'number',
+		section= 'tap_options',
+		def    = 1,
+		min    = 0,
+		max    = 1,
+		step   = 1,
+	},
 	{
         key    = 'ai_incomemultiplier',
         name   = 'AI Income Multiplier',

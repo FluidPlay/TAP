@@ -69,7 +69,9 @@ end
 assert(debug)
 local source = debug and debug.getinfo(1).source
 local DIR = GetDirectory(source) or ((LUA_DIRNAME or LUAUI_DIRNAME) .."Widgets/")
-CHILI_DIRNAME = DIR .. "chili_old/"
+local useChiliOld = true
+useChiliOld = Spring.GetModOptions() and (tonumber(Spring.GetModOptions().mo_chiliold) == 1)
+CHILI_DIRNAME = DIR .. (useChiliOld and "chili_old/" or "chili/")
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
