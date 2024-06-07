@@ -321,10 +321,7 @@ function gadget:GameFrame(frame)
             local morphDrawn = math.random() < morphChance[numGuardians]
             local shouldMorph = (numGuardians >= 1) and data.minGuardianLvl < maxLevel and morphDrawn
             local canSpawn = numGuardians < maxGuardiansPerSpot
-            --Spring.Echo("at spot idx: ".. spotIdx..", numGuardians: "..(numGuardians or "nil").. ", minGuardianLvl: "..(data.minGuardianLvl or "nil")
-            --            ..", morph drawn: "..(tostring(morphDrawn) or "nil")
-            --           )
-            Spring.Echo("at spot idx: ".. spotIdx..", morph drawn: "..(tostring(morphDrawn) or "nil")..", can spawn: "..(tostring(canSpawn) or "nil") )
+            --Spring.Echo("at spot idx: ".. spotIdx..", morph drawn: "..(tostring(morphDrawn) or "nil")..", can spawn: "..(tostring(canSpawn) or "nil") )
             if noHQnearby then
                 if shouldMorph then
                     -- Pick last 'lowest tier' one
