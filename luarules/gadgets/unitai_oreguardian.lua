@@ -31,6 +31,7 @@ VFS.Include("common/include/springfsm.lua", fsm)
 
 local updateRate = 6    -- how Often, in frames, to do updates
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSetUnitNeutral = Spring.SetUnitNeutral
 local spGetUnitPosition = Spring.GetUnitPosition
 local spGetUnitTeam = Spring.GetUnitTeam
@@ -129,7 +130,17 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
     if unitDef == nil then
         return end
     if oreGuardianDef[unitDef.name] then
-        local x,y,z = spGetUnitPosition(unitID)
+        local x,y,z
+        -- If it's a morphed-into guardian, guardPosX|Y|Z will be defined, thus use it
+        x = spGetUnitRulesParam(unitID, "guardPosX")
+        if x then
+            x = tonumber(x)
+            y = tonumber(spGetUnitRulesParam(unitID, "guardPosY"))
+            z = tonumber(spGetUnitRulesParam(unitID, "guardPosZ"))
+        else
+            x,y,z = spGetUnitPosition(unitID)
+        end
+
         oreGuardians[unitID] = { idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
         fsm.UnitFinished(unitID, unitDef)
         --Spring.Echo("Unit added to FSM, next recheck frame: "..tostring(fsm.trackedUnits[unitID].recheckFrame))

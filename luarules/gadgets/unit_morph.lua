@@ -1292,8 +1292,6 @@ if (gadgetHandler:IsSyncedCode()) then
 
             ---TODO: Check!!
             spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
-            --spSetUnitRulesParam(unitID, "upgraded", 1)
-            --Spring.Echo("'morphedinto' unitrulesparam for unit "..unitID.." set to 1")
 
             -- If target unit has its own morphDef, set it into EditedMorphs[unitID]
             --local udDst = UnitDefs[morphData.def.into]
