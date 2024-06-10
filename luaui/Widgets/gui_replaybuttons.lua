@@ -1,7 +1,7 @@
 --http://springrts.com/phpbb/viewtopic.php?f=23&t=30560
 function widget:GetInfo()
 	return {
-		name = "replay buttons",
+		name = "GUI Replay buttons",
 		desc = "click buttons to change replay speed",
 		author = "knorke",
 		version = "1",
@@ -90,7 +90,7 @@ function widget:Shutdown()
 end
 
 function speedButtonColor (i)
-	return{0,0,0,0.6}
+	return{1,1,1,0.6}	-- 0, 0, 0
 end
 
 

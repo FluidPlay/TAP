@@ -86,6 +86,8 @@ end
 
 -- Counts how many fields (not elements, use # for that) are there in table T
 function tablelength(T)
+    if not istable(T) then
+        return 0 end
 	local count = 0
 	for _ in pairs(T) do
 		count = count + 1 end

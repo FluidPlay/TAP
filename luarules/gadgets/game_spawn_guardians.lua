@@ -62,11 +62,11 @@ local spawnType = { [1] = "sml",    -- 0 mins
 
 local morphChance = {   [1] = 0.15,    -- 25%     -- key == #guardians assigned to spot
                         [2] = 0.25,    -- 50%
-                        [3] = 0.85,    -- 75%
+                        [3] = 1.00,    -- 75%
 --                        [4] = 1.0,    -- 100%
 }
 
-local spawnRate = 150 --30*60*5 --150; --2    -- Guardian spot-reinforcement frequency, either spawn or morph (every 5 minutes)
+local spawnRate = 30*30 --30*60*5 --150; --2    -- Guardian spot-reinforcement frequency, either spawn or morph (every 5 minutes)
 -- Reverse access table, to find the lowest level (for guardian timely morphs)
 local spawnTypeLevel = { ["sml"] = 1, ["med"] = 2, ["lrg"] = 3, ["uber"] = 4}
 
@@ -236,7 +236,7 @@ end
 local function updateMaxGuardianLvl(spotIdx)
     local newMaxLevel = 0
     for guardianUID,_ in pairs(hostedGuardians[spotIdx]) do
-        if guardians[guardianUID].level > newMaxLevel then
+        if guardians[guardianUID] and guardians[guardianUID].level > newMaxLevel then
             newMaxLevel = guardians[guardianUID].level end
     end
     oreSpots[spotIdx].maxGuardianLvl = newMaxLevel
@@ -313,38 +313,44 @@ function gadget:GameFrame(frame)
                     break
                 end
             end
-            local angle = math.random() * math.pi*2
-            local radius = 40
-            local x = math.cos(angle)*radius
-            local z = math.sin(angle)*radius
 
-            local morphDrawn = math.random() < morphChance[numGuardians]
-            local shouldMorph = (numGuardians >= 1) and data.minGuardianLvl < maxLevel and morphDrawn
-            local canSpawn = numGuardians < maxGuardiansPerSpot
-            --Spring.Echo("at spot idx: ".. spotIdx..", morph drawn: "..(tostring(morphDrawn) or "nil")..", can spawn: "..(tostring(canSpawn) or "nil") )
-            if noHQnearby then
-                if shouldMorph then
-                    -- Pick last 'lowest tier' one
-                    local guardiansHere = hostedGuardians[spotIdx]
-                    if istable(guardiansHere) then
-                        local lowestTierFound = maxLevel       -- starts with max, can only go down
-                        local lowestTierGuardian = nil
-                        -- WRONG, that only brings 'true' in data
-                        for guardianUID, _ in pairs(guardiansHere) do
-                            local guardianData = guardians[guardianUID]
-                            if istable(guardianData) and isnumber(guardianData.level) and guardianData.level < lowestTierFound then
-                                lowestTierFound = guardianData.level
-                                lowestTierGuardian = guardianUID
-                            end
-                        end
-                        -- Won't try morphing after max tier was already reached
-                        if IsValidUnit(lowestTierGuardian) and lowestTierFound < maxLevel then
-                            spGiveOrderToUnit(lowestTierGuardian, CMD_EZ_MORPH, {}, { "" }) end
+            --TODO: remove data.minGuardianLvl, not needed
+            -- Pick last 'lowest tier' one
+            local lowestTierFound = maxLevel       -- starts with max, can only go down
+            local lowestTierGuardian = nil
+            local guardiansHere = hostedGuardians[spotIdx]
+            if istable(guardiansHere) and tablelength(guardiansHere) >= 1 then
+                for guardianUID, _ in pairs(guardiansHere) do
+                    local guardianData = guardians[guardianUID]
+                    if istable(guardianData) and isnumber(guardianData.level) and guardianData.level < lowestTierFound then
+                        lowestTierFound = guardianData.level
+                        lowestTierGuardian = guardianUID
                     end
-                elseif canSpawn then
+                end
+                Spring.Echo("gsg: lowestTierFound "..(lowestTierFound or "nil").." lowestTierGuardian: "..(lowestTierGuardian or "nil"))
+            end
+            local doReinforce = noHQnearby and (lowestTierFound < maxLevel)
+            if doReinforce then
+                local morphDrawn = math.random() < morphChance[numGuardians]
+                local shouldMorph = (numGuardians >= 1) and morphDrawn
+                Spring.Echo("gsg: "..numGuardians.." guardians at spot idx: ".. spotIdx..", reinforce: "..(tostring(doReinforce) or "nil")..", should morph: "..(tostring(shouldMorph) or "nil") )
+                if shouldMorph then
+                    -- Won't try morphing after max tier was already reached
+                    if IsValidUnit(lowestTierGuardian) and (lowestTierFound < maxLevel) then
+                        spGiveOrderToUnit(lowestTierGuardian, CMD_EZ_MORPH, {}, { "" })
+                    else
+                        Spring.Echo("Error at SpotIdx "..spotIdx..". Guardians here: "..(guardiansHere and tablelength(guardiansHere) or "nil"))
+                    end
+                else --if numGuardians < maxGuardiansPerSpot then
+                    local angle = math.random() * math.pi*2
+                    local radius = 40
+                    local x = math.cos(angle)*radius
+                    local z = math.sin(angle)*radius
                     addGuardian(sx+x, sy,sz+z, currentIter, spotIdx)
                 end
-            end -- if doSpawnHere
+                --else
+                --    Spring.Echo("game_spawn_guardians: logic error, trying to exceed maxguardians per spot")
+            end
         end
     end
 end

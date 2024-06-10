@@ -67,6 +67,7 @@ local spGetGameFrame = Spring.GetGameFrame
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
+local spGetUnitRadius = Spring.GetUnitRadius
 
 local glGetViewSizes = gl.GetViewSizes
 local myTeamID, myAllyTeamID = -1, -1
@@ -78,6 +79,7 @@ local updateRate = 22               -- Global update "tick rate" (always unsync 
 local recheckLatency = 40 -- Delay until a commanded/idle unit checks for automation again
 local automatedState = {}
 
+local minAttackDistance = 60      -- harvesters further than that to a chunk may attack it, or will be nudged away
 local oretowerShortScanRange = 250 -- Collection-start scan range (not used here, only by auto_assist actually)
 local oretowerLongScanRange = 900 -- Return/devolution scan range
 local harvestLeashMult = 6        -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
@@ -153,7 +155,7 @@ function widget:PlayerChanged()
 end
 
 local function removeAttack(unitID)
-    --Spring.Echo("unitai_auto_harvest: removing Cmds")
+    Spring.Echo("unitai_auto_harvest: removing Atk Cmd from "..(unitID or "nil"))
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
 end
 
@@ -243,21 +245,21 @@ function widget:UnitDestroyed(unitID)
 end
 
 ---returns spot = { x = x, z = z }
-local function GetNearestSpotPos(x, z)
-    local bestSpot
-    local bestDist = math.huge
-    local metalSpots = WG.metalSpots
-    for i = 1, #metalSpots do
-        local spot = metalSpots[i]
-        local dx, dz = x - spot.x, z - spot.z
-        local dist = dx*dx + dz*dz
-        if dist < bestDist then
-            bestSpot = spot
-            bestDist = dist
-        end
-    end
-    return bestSpot
-end
+--local function GetNearestSpotPos(x, z)
+--    local bestSpot
+--    local bestDist = math.huge
+--    local metalSpots = WG.metalSpots
+--    for i = 1, #metalSpots do
+--        local spot = metalSpots[i]
+--        local dx, dz = x - spot.x, z - spot.z
+--        local dist = dx*dx + dz*dz
+--        if dist < bestDist then
+--            bestSpot = spot
+--            bestDist = dist
+--        end
+--    end
+--    return bestSpot
+--end
 
 local function checkParentOreTowerID(ud)
     if  ud.parentOreTowerID then
@@ -377,16 +379,33 @@ local automatedFunctions = {
                 --Spring.Echo("**5** Attacking actions - nearest chunk: "..(ud.nearestChunkID or "nil"))
                 local dist = spGetUnitSeparation(ud.unitID, ud.nearestChunkID, true, false)
                 --local x, y, z = spGetUnitPosition(ud.nearestChunkID)
-                if dist > 50 then   --TODO: De-hardcode
+                --Spring.Echo("dist: "..(dist or "nil").." from UID "..(ud.unitID or "nil"))
+                if dist > minAttackDistance then
                     spGiveOrderToUnit(ud.unitID, CMD_ATTACK, ud.nearestChunkID, { "" }) --"alt" favors reclaiming --Spring.Echo("Farking")
                     harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
                     return "attacking"
                 else
+                    Spring.Echo("nudging UID "..(ud.unitID or "nil"))
                     local unitPosX, unitPosY, unitPosZ = spGetUnitPosition(ud.unitID)
-                    local nearestSpot = GetNearestSpotPos(unitPosX, unitPosZ) --spGetUnitPosition(ud.nearestChunkID)
-                    local nudgeX = unitPosX - nearestSpot.x
-                    local nudgeZ = unitPosZ - nearestSpot.z
-                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
+                    local nearestChunk = {}
+                    nearestChunk.x, _, nearestChunk.z = spGetUnitPosition(ud.nearestChunkID) --GetNearestSpotPos(unitPosX, unitPosZ) --
+
+                    local unitRadius = spGetUnitRadius (ud.unitID)
+                    local nudgeX = (unitPosX < nearestChunk.x) and -unitRadius or unitRadius
+                    local nudgeZ = (unitPosZ < nearestChunk.z) and -unitRadius or unitRadius
+                    --
+                    --if Spring.TestMoveOrder(ud.unitDefID, unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ) then
+                    --    --OrderUnit(unitID, CMD_MOVE,  { x + dx + rx, y, z + dz + rz }, { "shift" })
+                    --    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
+                    --else
+                    --    local nudgeX = unitPosX + nearestSpot.x
+                    --    local nudgeZ = unitPosZ + nearestSpot.z
+                    --end
+                    if Spring.TestMoveOrder(ud.unitDef.id, unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ) then
+                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
+                    else
+                        spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX - nudgeX, unitPosY, unitPosZ - nudgeZ }, { "" })
+                    end
                     return "idle"
                 end
             end
