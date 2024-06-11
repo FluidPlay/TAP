@@ -126,6 +126,7 @@ local function guardianNearbyInit(x, y, z)
     return false
 end
 
+-- Called at the end of initialize, and after morph
 local function assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl)
     local guardiansOnSpot = hostedGuardians[spotIdx]
     if not guardiansOnSpot then
@@ -153,7 +154,9 @@ local function assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl)
     spGiveOrderToUnit(guardianUID, cmdAirRepairLevel, { 0 }, {})    -- don't land for anything!
 end
 
-local function addGuardian(x, y, z, iter, spotIdx)
+-- spawnGuardian is ran on initialize (initial spawn), and in reinforcements (new spawns)
+-- it calls assignGuardianToSpot (function above) at its end
+local function spawnGuardian(x, y, z, iter, spotIdx)
     local guardianType = spawnType[iter]
     if not guardianType then
         guardianType = maxLevelName
@@ -168,7 +171,7 @@ local function addGuardian(x, y, z, iter, spotIdx)
     local guardianUnitDefId = guardian[guardianType].id
     local guardianUID = spCreateUnit(guardianUnitDefId, x, y, z, 0, gaiaTeamID)
 
-    --Store info for further processing (by unitai_oreguadian, after a morph)
+    --Store info for further processing (by unitai_oreguardian, after a morph)
     spSetUnitRulesParam(guardianUID, "hotSpotIdx", tostring(spotIdx))
     spSetUnitRulesParam(guardianUID, "guardPosX", tostring(x))
     spSetUnitRulesParam(guardianUID, "guardPosY", tostring(y))
@@ -206,13 +209,14 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
         if unitDef.customParams.ishq then
             local x, y, z = spGetUnitPosition(unitID)
             isHQ[unitID] = { x=x, y=y, z=z }
-        end
-        if unitDef.customParams.tedclass == "guardian" then
+        elseif unitDef.customParams.tedclass == "guardian" then
+            Spring.Echo("gsg: new unit ID "..unitID)
             nextFrameUnitSetup[unitID] = { frame = spGetGameFrame() + 1, unitDef = unitDef }
         end
     end
 end
 
+-- Ran exactly one frame after UnitFinished (after a morph)
 local function unitFinishedSetup(unitID, unitDef)
     if unitDef and unitDef.customParams then
         if unitDef.customParams.ishq then
@@ -222,12 +226,17 @@ local function unitFinishedSetup(unitID, unitDef)
         --These are stored in the Guardian, so the system may assign the spot Idx after morph
         --NOTE: All UnitRulesParams are auto-copied to the new, morphed-into unit, by the unit_morph gadget
         local hotSpotIdx = spGetUnitRulesParam(unitID, "hotSpotIdx")
+        Spring.Echo("Found hotSpotIdx URP ".. (hotSpotIdx or "nil").." for guardian ID: "..(unitID or "nil"))
         if hotSpotIdx then
             hotSpotIdx = tonumber(hotSpotIdx)
             --local x = tonumber(spGetUnitRulesParam(unitID, "guardPosX"))
             --local y = tonumber(spGetUnitRulesParam(unitID, "guardPosY"))
             --local z = tonumber(spGetUnitRulesParam(unitID, "guardPosZ"))
-            local newGuardianLvl = isnumber(unitDef.customParams.tier) and tonumber(unitDef.customParams.tier) or 1
+
+            local newGuardianLvl = 1
+            if unitDef.customParams.tier then
+                newGuardianLvl = tonumber(unitDef.customParams.tier)
+            end
             assignGuardianToSpot(unitID, hotSpotIdx, newGuardianLvl) -- pos info is for AI_guardian only, { x, y, z})
         end
     end
@@ -275,7 +284,7 @@ function gadget:GameFrame(frame)
             end
             if doSpawnHere and not guardianNearbyInit(x,y,z) then
                 oreSpots[id].allowGuardians = true
-                addGuardian(x,y,z, 1, id)
+                spawnGuardian(x,y,z, 1, id)
                 --local newGuardianUID = ...
                 --addGuardianToSpot(newGuardianUID, id)
                 --oreSpots[id].guardians = spawnGuardian(x,y,z, 1, id)
@@ -322,9 +331,14 @@ function gadget:GameFrame(frame)
             if istable(guardiansHere) and tablelength(guardiansHere) >= 1 then
                 for guardianUID, _ in pairs(guardiansHere) do
                     local guardianData = guardians[guardianUID]
-                    if istable(guardianData) and isnumber(guardianData.level) and guardianData.level < lowestTierFound then
-                        lowestTierFound = guardianData.level
-                        lowestTierGuardian = guardianUID
+                    if istable(guardianData) then
+                        local level = tonumber(guardianData.level)
+                        if isnumber(level) and level < lowestTierFound then
+                            lowestTierFound = level
+                            lowestTierGuardian = guardianUID
+                        end
+                    else
+                        Spring.Echo("gsg: error, couldnt find guardians[]/guardian data for "..(guardianUID or "nil"))
                     end
                 end
                 Spring.Echo("gsg: lowestTierFound "..(lowestTierFound or "nil").." lowestTierGuardian: "..(lowestTierGuardian or "nil"))
@@ -346,7 +360,7 @@ function gadget:GameFrame(frame)
                     local radius = 40
                     local x = math.cos(angle)*radius
                     local z = math.sin(angle)*radius
-                    addGuardian(sx+x, sy,sz+z, currentIter, spotIdx)
+                    spawnGuardian(sx+x, sy,sz+z, currentIter, spotIdx)
                 end
                 --else
                 --    Spring.Echo("game_spawn_guardians: logic error, trying to exceed maxguardians per spot")
