@@ -10,6 +10,8 @@ function gadget:GetInfo()
     }
 end
 
+--- TODO: Make guardians spawn along three semi-fixed radius around the spot (eg: 0~120, 121~240, 241~360)
+
 if not gadgetHandler:IsSyncedCode() then
     return end
 
@@ -127,7 +129,9 @@ local function guardianNearbyInit(x, y, z)
 end
 
 -- Called at the end of initialize, and after morph
-local function assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl)
+local function assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl, pos)
+    guardians[guardianUID]={ spotIdx=spotIdx, pos = {x=pos.x, y=pos.y, z=pos.z}, level = newGuardianLvl }
+
     local guardiansOnSpot = hostedGuardians[spotIdx]
     if not guardiansOnSpot then
         hostedGuardians[spotIdx] = {}
@@ -177,15 +181,7 @@ local function spawnGuardian(x, y, z, iter, spotIdx)
     spSetUnitRulesParam(guardianUID, "guardPosY", tostring(y))
     spSetUnitRulesParam(guardianUID, "guardPosZ", tostring(z))
 
-    guardians[guardianUID]={ spotIdx=spotIdx, pos = {x=x, y=y, z=z}, level = newGuardianLvl }
-
-    --if not istable(oreSpots[id].guardians) then
-    --    oreSpots[id].guardians = {} end
-    --
-    --table.insert(oreSpots[id].guardians, guardianUID)
-    --table.insert(oreSpots[spotIdx].hostedGuardians, { id = guardianUID, pos = {x=x, z=z}, level=guardianLevel })
-
-    assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl)  --{ x = x, y = y, z = z},
+    assignGuardianToSpot(guardianUID, spotIdx, newGuardianLvl, { x = x, y = y, z = z})
 
     return guardianUID
 end
@@ -210,7 +206,6 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
             local x, y, z = spGetUnitPosition(unitID)
             isHQ[unitID] = { x=x, y=y, z=z }
         elseif unitDef.customParams.tedclass == "guardian" then
-            Spring.Echo("gsg: new unit ID "..unitID)
             nextFrameUnitSetup[unitID] = { frame = spGetGameFrame() + 1, unitDef = unitDef }
         end
     end
@@ -226,18 +221,18 @@ local function unitFinishedSetup(unitID, unitDef)
         --These are stored in the Guardian, so the system may assign the spot Idx after morph
         --NOTE: All UnitRulesParams are auto-copied to the new, morphed-into unit, by the unit_morph gadget
         local hotSpotIdx = spGetUnitRulesParam(unitID, "hotSpotIdx")
-        Spring.Echo("Found hotSpotIdx URP ".. (hotSpotIdx or "nil").." for guardian ID: "..(unitID or "nil"))
+        --Spring.Echo("Found hotSpotIdx URP ".. (hotSpotIdx or "nil").." for guardian ID: "..(unitID or "nil"))
         if hotSpotIdx then
             hotSpotIdx = tonumber(hotSpotIdx)
-            --local x = tonumber(spGetUnitRulesParam(unitID, "guardPosX"))
-            --local y = tonumber(spGetUnitRulesParam(unitID, "guardPosY"))
-            --local z = tonumber(spGetUnitRulesParam(unitID, "guardPosZ"))
+            local x = tonumber(spGetUnitRulesParam(unitID, "guardPosX"))
+            local y = tonumber(spGetUnitRulesParam(unitID, "guardPosY"))
+            local z = tonumber(spGetUnitRulesParam(unitID, "guardPosZ"))
 
             local newGuardianLvl = 1
             if unitDef.customParams.tier then
                 newGuardianLvl = tonumber(unitDef.customParams.tier)
             end
-            assignGuardianToSpot(unitID, hotSpotIdx, newGuardianLvl) -- pos info is for AI_guardian only, { x, y, z})
+            assignGuardianToSpot(unitID, hotSpotIdx, newGuardianLvl, { x, y, z})
         end
     end
 end
@@ -260,11 +255,9 @@ local function cleanupDeadGuardianData(unitID, data)    -- data = guardians[unit
 
     hostedGuardians[data.spotIdx][unitID] = nil     -- remove this guardian entry from the spot's hosted table
 
-    -- Update the oreSpot maxGuardianLvl
+    -- Update the oreSpot's maxGuardianLvl
     updateMaxGuardianLvl(data.spotIdx)
 
-    --hostedGuardian.count = math.max(0, hostedGuardian.count - 1)
-    --Spring.Echo("New guardian count: "..(tablelength(hostedGuardians[data.spotIdx]) or "nil"))
     if tablelength(hostedGuardians[data.spotIdx]) == 0 then
         oreSpots[data.spotIdx].allowGuardians = false end
 end
@@ -308,6 +301,7 @@ function gadget:GameFrame(frame)
     if not initialized or frame % spawnRate > 0.001 then
         return end
     currentIter = currentIter + 1
+    --Spring.Echo("gsg: ##### New Iteration: "..(tostring(currentIter) or "nil"))
     for spotIdx, data in ipairs(oreSpots) do
         local numGuardians = tablelength(hostedGuardians[spotIdx]) or 0
         --Spring.Echo("Allow guardians on spot ".. spotIdx ..": "..(tostring(data.allowGuardians) or "nil").."; numGuardians: "..(numGuardians or "nil"))
@@ -337,23 +331,23 @@ function gadget:GameFrame(frame)
                             lowestTierFound = level
                             lowestTierGuardian = guardianUID
                         end
-                    else
-                        Spring.Echo("gsg: error, couldnt find guardians[]/guardian data for "..(guardianUID or "nil"))
+                    --else
+                    --    Spring.Echo("gsg: error, couldnt find guardians[]/guardian data for "..(guardianUID or "nil"))
                     end
                 end
-                Spring.Echo("gsg: lowestTierFound "..(lowestTierFound or "nil").." lowestTierGuardian: "..(lowestTierGuardian or "nil"))
+                --Spring.Echo("gsg: lowestTierFound "..(lowestTierFound or "nil").." lowestTierGuardian: "..(lowestTierGuardian or "nil"))
             end
             local doReinforce = noHQnearby and (lowestTierFound < maxLevel)
             if doReinforce then
                 local morphDrawn = math.random() < morphChance[numGuardians]
                 local shouldMorph = (numGuardians >= 1) and morphDrawn
-                Spring.Echo("gsg: "..numGuardians.." guardians at spot idx: ".. spotIdx..", reinforce: "..(tostring(doReinforce) or "nil")..", should morph: "..(tostring(shouldMorph) or "nil") )
+                --Spring.Echo("gsg: "..numGuardians.." guardians at spot idx: ".. spotIdx..", reinforce: "..(tostring(doReinforce) or "nil")..", should morph: "..(tostring(shouldMorph) or "nil") )
                 if shouldMorph then
                     -- Won't try morphing after max tier was already reached
                     if IsValidUnit(lowestTierGuardian) and (lowestTierFound < maxLevel) then
                         spGiveOrderToUnit(lowestTierGuardian, CMD_EZ_MORPH, {}, { "" })
-                    else
-                        Spring.Echo("Error at SpotIdx "..spotIdx..". Guardians here: "..(guardiansHere and tablelength(guardiansHere) or "nil"))
+                    --else
+                    --    Spring.Echo("Error at SpotIdx "..spotIdx..". Guardians here: "..(guardiansHere and tablelength(guardiansHere) or "nil"))
                     end
                 else --if numGuardians < maxGuardiansPerSpot then
                     local angle = math.random() * math.pi*2

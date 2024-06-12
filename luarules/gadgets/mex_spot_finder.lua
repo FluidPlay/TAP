@@ -478,7 +478,7 @@ if gadgetHandler:IsSyncedCode() then
 		local metalSpots, fromEngineMetalmap = GetSpots(gameConfig, mapConfig)
 		local metalSpotsByPos = false
 
-		if fromEngineMetalmap and #metalSpots < 6 then
+		if fromEngineMetalmap and #metalSpots < 2 then --6
 			Spring.Log(gadget:GetInfo().name, LOG.INFO, "Indiscrete metal map detected")
 			metalSpots = false
 		end
