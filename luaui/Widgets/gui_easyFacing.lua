@@ -1,10 +1,10 @@
-include("keysym.h.lua")
-local versionNumber = "1.5"
+include("keysym.lua")
+local versionNumber = "1.421"
 
 function widget:GetInfo()
 	return {
 		name      = "Easy Facing",
-		desc      = "[v" .. string.format("%s", versionNumber ) .. "] Enables changing building facing by holding left mouse button. Hold the middle mouse button to change facing while queueing.",
+		desc      = "[v" .. string.format("%s", versionNumber ) .. "] change build facing by holding Left Mouse Button. Press Spacebar (META) to change build facing when building in grid using Shift.",
 		author    = "very_bad_soldier",
 		date      = "2009.08.10",
 		license   = "GNU GPL v2",
@@ -18,22 +18,27 @@ end
 -- CONFIGURATION
 local debug = false
 local updateInt = 1 --seconds for the ::update loop
-local sens = 80	--rotate mouse sensitivity - length of mouse movement vector
-local drawForAll = false --draw facing direction also for other buildings than labs
+local sens = 20 --50; rotate mouse sensitivity (length of 1 mouse movement vector). Smaller value = higher sensitivity
+local drawForAll = true --false --draw facing direction also for other buildings than labs
+local drawForTurret = true --false --draw facing direction for all unit that can attack
+local timesens = 0.06 --rotate mouse time sensitivity (second for 1 mouse movement vector). Bigger value = higher sensitivity
+
+local USE_META = false -- Meta (space) functionality is disabled
 --------------------------------------------------------------------------------
 local inDrag = false
-local mmbStart = false
+local metaStart = false
 local mouseDeltaX = 0
 local mouseDeltaY = 0
 local mouseXStartRotate = 0
 local mouseYStartRotate = 0
+local mouseTimeStartRotate = 0
 local mouseXStartDrag = 0
 local mouseYStartDrag = 0
 local mouseLbLast = false
 -------------------------------------------------------------------------------
-local udefTab				= UnitDefs
+local udefTab               = UnitDefs
 
-local spGetActiveCommand 	= Spring.GetActiveCommand
+local spGetActiveCommand    = Spring.GetActiveCommand
 local spGetKeyState         = Spring.GetKeyState
 local spGetModKeyState      = Spring.GetModKeyState
 local spGetSelectedUnits    = Spring.GetSelectedUnits
@@ -48,14 +53,16 @@ local spGetMyPlayerID       = Spring.GetMyPlayerID
 local spGetPlayerInfo       = Spring.GetPlayerInfo
 local spGetCameraVectors    = Spring.GetCameraVectors
 local spEcho                = Spring.Echo
-local spWarpMouse			= Spring.WarpMouse
-local spGetBuildFacing		= Spring.GetBuildFacing
-local spSetBuildFacing 		= Spring.SetBuildFacing
-local spPos2BuildPos 		= Spring.Pos2BuildPos
-local spGetGroundHeight 	= Spring.GetGroundHeight
+local spWarpMouse           = Spring.WarpMouse
+local spGetBuildFacing      = Spring.GetBuildFacing
+local spSetBuildFacing      = Spring.SetBuildFacing
+local spPos2BuildPos        = Spring.Pos2BuildPos
+local spGetGroundHeight     = Spring.GetGroundHeight
+local spDiffTimers          = Spring.DiffTimers
+local spGetTimer            = Spring.GetTimer
 
 local floor                 = math.floor
-local abs					= math.abs
+local abs                   = math.abs
 local atan2                 = math.atan2
 local pi                    = math.pi
 local sqrt                  = math.sqrt
@@ -64,46 +71,24 @@ local glColor               = gl.Color
 local glLineWidth           = gl.LineWidth
 local glDepthTest           = gl.DepthTest
 local glTexture             = gl.Texture
+local glDrawGroundCircle    = gl.DrawGroundCircle
 local glPopMatrix           = gl.PopMatrix
 local glPushMatrix          = gl.PushMatrix
 local glTranslate           = gl.Translate
 local glText                = gl.Text
 local glVertex              = gl.Vertex
-local glRotate				= gl.Rotate
-local glBeginEnd			= gl.BeginEnd
-local glScale				= gl.Scale
+local glRotate              = gl.Rotate
+local glBeginEnd            = gl.BeginEnd
+local glScale               = gl.Scale
 
-local GL_TRIANGLES			= GL.TRIANGLES
+local GL_TRIANGLES          = GL.TRIANGLES
 ----------------------------------------------------------------------------------
-
-
-function removeSelfCheck()
-    if Spring.GetSpectatingState() and (Spring.GetGameFrame() > 0 or gameStarted) then
-        widgetHandler:RemoveWidget(self)
-    end
-end
-
-function widget:GameStart()
-    gameStarted = true
-    removeSelfCheck()
-end
-
-function widget:PlayerChanged(playerID)
-    removeSelfCheck()
-end
-
-function widget:Initialize()
-    if Spring.IsReplay() or Spring.GetGameFrame() > 0 then
-        removeSelfCheck()
-    end
-end
-
 function widget:Update()
 	local timef = spGetGameSeconds()
 	local time = floor(timef)
 	
 	-- update timers once every <updateInt> seconds
-	if (time % updateInt == 0 and time ~= lastTimeUpdate) then	
+	if (time % updateInt == 0 and time ~= lastTimeUpdate) then
 		lastTimeUpdate = time
 		--do update stuff:
 		
@@ -129,7 +114,7 @@ function getRotationVectors2d( vectorA, vectorB )
 	vectorA = normalizeVector2d( vectorA )
 	vectorB = normalizeVector2d( vectorB )
 	local radian = atan2( vectorA[2], vectorA[1] ) - atan2( vectorB[2], vectorB[1] )
-	local val = ( 360.0 * radian) / ( 2 * pi ) 
+	local val = ( 360.0 * radian) / ( 2 * pi )
 	return normalizeDegreeRange(val)
 end
 
@@ -185,7 +170,7 @@ function getFacingByMouseDelta( mouseDeltaX,mouseDeltaY )
 		newFacing = 2
 	elseif ( ( mouseDegree >= 45.0 ) and ( mouseDegree < 135.0 ) ) then
 		newFacing = 1
-	elseif ( ( mouseDegree >= 135.0 ) and ( mouseDegree < 225.0 ) ) then 
+	elseif ( ( mouseDegree >= 135.0 ) and ( mouseDegree < 225.0 ) ) then
 		newFacing = 0
 	elseif ( ( mouseDegree >= 225.0 ) and ( mouseDegree < 280.0 ) ) then
 		newFacing = 3
@@ -196,41 +181,40 @@ function getFacingByMouseDelta( mouseDeltaX,mouseDeltaY )
 	return newFacing
 end
 
-local ineffect = false
 function manipulateFacing()
-	ineffect = false
-
 	local mx,my,lmb,mmb,rmb = spGetMouseState()
 	local alt,ctrl,meta,shift = spGetModKeyState()
-
-	--check if valid command
-	local idx, cmd_id, cmd_type, cmd_name = spGetActiveCommand()
-	if (not cmd_id) then return end
-
-	local unitDefID = -cmd_id
-	local udef = udefTab[unitDefID]
-
-	--if (lmb and (mmb or (not shift or (udef ~= nil and udef["isFactory"])))) then
-	if (lmb and mmb) then
+	meta = meta and USE_META
+	
+	if ( lmb and mouseLbLast == false) or ( meta and not inDrag and not lmb ) then
 		--in
-        if not inDrag then
-            mouseDeltaX = 0
-            mouseDeltaY = 0
-            mouseXStartRotate = mx
-            mouseYStartRotate = my
-            mouseXStartDrag = mx
-            mouseYStartDrag = my
-        end
-
 		inDrag = true
+		mouseDeltaX = 0
+		mouseDeltaY = 0
+		mouseXStartRotate = mx
+		mouseYStartRotate = my
+		mouseTimeStartRotate = spGetTimer()
+		mouseXStartDrag = mx
+		mouseYStartDrag = my
 		printDebug("IN")
-	else
+		
+		if ( meta and not lmb ) then
+			metaStart = true
+		else
+			metaStart = false
+		end
+	elseif ( metaStart == false and lmb == false and mouseLbLast == true ) or ( metaStart and not meta and inDrag ) then
 		--out
 		printDebug("OUT")
 		inDrag = false
 	end
+	mouseLbLast = lmb
+		
+	--check if valid command
+	local idx, cmd_id, cmd_type, cmd_name = spGetActiveCommand()
+	if (not cmd_id) then return end
 
-
+	
 	--check if build command
 	local cmdDesc = spGetActiveCmdDesc( idx )
 	if ( cmdDesc["type"] ~= 20 ) then
@@ -239,107 +223,113 @@ function manipulateFacing()
 	end
 	
 	if ( inDrag ) then
-		local curDeltaX = mx - mouseXStartRotate
+		if (shift == true and meta == false) then
+			mouseXStartRotate = mx
+			mouseYStartRotate = my
+		end
+		
+		local curDeltaX = mx - mouseXStartRotate or mx
 		mouseDeltaX = mouseDeltaX + curDeltaX
-		local curDeltaY = my - mouseYStartRotate
+		local curDeltaY = my - mouseYStartRotate or my
 		mouseDeltaY = mouseDeltaY + curDeltaY
-        
+		
 		local newFacing = getFacingByMouseDelta( mouseDeltaX, mouseDeltaY )
-
-		if ( newFacing ~= nil ) then
+		if ( newFacing ~= nil) then
 			mouseDeltaX = 0
-			mouseDeltaY = 0 
+			mouseDeltaY = 0 --reset cumulative delta
+			mouseXStartRotate = mx
+			mouseYStartRotate = my -- reset rotate center
 			
-			if ( newFacing ~= spGetBuildFacing() ) then
+			local transTime = spDiffTimers(spGetTimer(), mouseTimeStartRotate)
+			mouseTimeStartRotate = spGetTimer()
+			if (transTime < timesens) and ( newFacing ~= spGetBuildFacing()) then
 				spSetBuildFacing( newFacing )
 			end
 		end
-			
+		
+		--[[ note: disable cursor lock so that it won't conflict with other widget (such as CommandInsert() widget when meta is pressed).
 		if mouseXStartRotate~=mx or mouseYStartRotate~=my then
 			spWarpMouse( mouseXStartRotate, mouseYStartRotate ) --set old mouse coords to prevent mouse movement
 		end
+		--]]
 	end
-	ineffect = true
+end
+
+local function drawFunc()
+	glVertex( 0, 0, -8)
+	glVertex( 0, 0, 8)
+	glVertex( 48, 0, -3)
+
+	glVertex( 0, 0,  8)
+	glVertex( 48, 0, 3)
+	glVertex( 48, 0, -3 )
+	
+	glVertex( 50, 0,  0)
+	glVertex( 48, 0, 3)
+	glVertex( 48, 0, -3 )
+	
+	glVertex( 50, 0, 0)
+	glVertex( 30, 0, -30 )
+	glVertex( 80, 0, 0 )
+
+	glVertex( 50, 0, 0)
+	glVertex( 80, 0, 0 )
+	glVertex( 30, 0, 30 )
 end
 
 function drawOrientation()
-	if not ineffect then return end
-
-	--local mx,my,lmb,mmb,rmb = spGetMouseState()
-	--if not lmb then return false end
-
-	--local alt,ctrl,meta,shift = spGetModKeyState()
-	--if shift then return false end
-
 	local idx, cmd_id, cmd_type, cmd_name = spGetActiveCommand()
 	local cmdDesc = spGetActiveCmdDesc( idx )
-
+	
 	if ( cmdDesc == nil or cmdDesc["type"] ~= 20 ) then
 		--quit here if not a build command
 		return
 	end
-
+	
 	local unitDefID = -cmd_id
-
-	local udef = udefTab[unitDefID]
-
-	--check for an empty buildlist to avoid to draw for air repair pads
-	if (drawForAll == false and (udef["isFactory"] == false or #udef["buildOptions"] == 0)) then
+	local alt,ctrl,meta,shift = spGetModKeyState()
+	
+	local ud = udefTab[unitDefID]
+	if not (drawForAll or ud["isFactory"] or (drawForTurret and ud.canAttack) or ud.customParams.draw_blueprint_facing) then
 		return
 	end
-
-	local mx, my = spGetMouseState()
-
-	if ( shift and inDrag ) then
-		mx = mouseXStartDrag
+	
+	local mx, my,lmb = spGetMouseState()
+	
+	if ( shift and inDrag and lmb) then --shift+drag+click (queue a line)
+		mx = mouseXStartDrag --center arrow on first queue
 		my = mouseYStartDrag
 		printDebug("UDEFID: " .. mx )
 	end
 
-	local _, coords = spTraceScreenRay(mx, my, true, true)
-
-	if not coords then return end
-
+	local _, coords = spTraceScreenRay(mx, my, true, true, false, not ud.floatOnWater)
+	
+	if not coords then
+		return
+	end
+	
 	local centerX = coords[1]
 	local centerY = coords[2]
 	local centerZ = coords[3]
-
-	centerX, centerY, centerZ = spPos2BuildPos( unitDefID, centerX, centerY, centerZ )
-
-	glLineWidth(1)
-	glColor( 0.0, 1.0, 0.0, 0.45 )
-
-	local function drawFunc()
-		glVertex( 0, 0, -23)
-		glVertex( 0, 0, 23)
-		glVertex( 15, 0, 0)
-
-		--glVertex( 0, 0, -10)
-		--glVertex( 0, 0, 10)
-		--glVertex( 30, 0, -7)
-
-		--glVertex( 0, 0,  10)
-		--glVertex( 30, 0, 7)
-		--glVertex( 30, 0, -7 )
-
-		--glVertex( 30, 0, -7)
-		--glVertex( 24, 0, -26 )
-		--glVertex( 56, 0, 0 )
-
-		--glVertex( 30, 0, 7)
-		--glVertex( 56, 0, 0 )
-		--glVertex( 24, 0, 26 )
-
-		--glVertex( 30, 0, 7)
-		--glVertex( 56, 0, 0)
-		--glVertex( 30, 0, -7)
+	local facing = spGetBuildFacing()
+	
+	local footX = ud.xsize/2
+	local footZ = ud.zsize/2
+	if (facing == 1 or facing == 3) then
+		centerX = math.floor((centerX + (1 - footZ%2)*8)/16)*16 + (footZ%2)*8
+		centerZ = math.floor((centerZ + (1 - footX%2)*8)/16)*16 + (footX%2)*8
+	else
+		centerX = math.floor((centerX + (1 - footX%2)*8)/16)*16 + (footX%2)*8
+		centerZ = math.floor((centerZ + (1 - footZ%2)*8)/16)*16 + (footZ%2)*8
 	end
-
+	
+	glLineWidth(1)
+	glColor( 0.0, 1.0, 0.0, 0.5 )
+  
 	--local height = spGetGroundHeight( centerX, centerZ )
-	local transSpace = udef["zsize"] * 4   --should be ysize but its not there?!?
+	local transSpace = ud["zsize"] * 4   --should be ysize but its not there?!?
 
 	local transX, transZ
-	local facing = spGetBuildFacing()
 	if ( facing == 0 ) then
 		transX = 0
 		transZ = transSpace
@@ -355,21 +345,21 @@ function drawOrientation()
 	end
 
 	glPushMatrix()
-
+	gl.DepthTest(false)
 	glTranslate( centerX + transX, centerY, centerZ + transZ)
 	glRotate( ( 3 + facing ) * 90, 0, 1, 0 )
 	glScale( (transSpace or 70)/70, 1.0, (transSpace or 70)/70)
 	glBeginEnd( GL_TRIANGLES, drawFunc )
-
 	glScale( 1.0, 1.0, 1.0 )
-
+	
+	gl.DepthTest(true)
 	glPopMatrix()
 
 	glColor( 1.0, 1.0, 1.0 )
 end
 
 --Commons
-function ResetGl() 
+function ResetGl()
 	glColor( { 1.0, 1.0, 1.0, 1.0 } )
 	glLineWidth( 1.0 )
 	glDepthTest(false)
@@ -378,14 +368,15 @@ end
 
 function CheckSpecState()
 	local playerID = spGetMyPlayerID()
-	local _, _, spec, _, _, _, _, _ = spGetPlayerInfo(playerID)
+	local _, _, spec = spGetPlayerInfo(playerID, false)
 		
 	if ( spec == true ) then
-		widgetHandler:RemoveWidget(self)
+		spEcho("<Easy Facing> Spectator mode. Widget removed.")
+		widgetHandler:RemoveWidget()
 		return false
 	end
 	
-	return true	
+	return true
 end
 
 function printDebug( value )
@@ -395,8 +386,8 @@ function printDebug( value )
 				else spEcho("false") end
 		elseif ( type(value ) == "table" ) then
 			spEcho("Dumping table:")
-			for key,val in pairs(value) do 
-				spEcho(key,val) 
+			for key,val in pairs(value) do
+				spEcho(key,val)
 			end
 		else
 			spEcho( value )

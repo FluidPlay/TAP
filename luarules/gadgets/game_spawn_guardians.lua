@@ -68,7 +68,7 @@ local morphChance = {   [1] = 0.15,    -- 25%     -- key == #guardians assigned 
 --                        [4] = 1.0,    -- 100%
 }
 
-local spawnRate = 30*30 --30*60*5 --150; --2    -- Guardian spot-reinforcement frequency, either spawn or morph (every 5 minutes)
+local spawnRate = 30*60*5 --150; --2    -- Guardian spot-reinforcement frequency, either spawn or morph (every 5 minutes)
 -- Reverse access table, to find the lowest level (for guardian timely morphs)
 local spawnTypeLevel = { ["sml"] = 1, ["med"] = 2, ["lrg"] = 3, ["uber"] = 4}
 

@@ -79,7 +79,7 @@ local updateRate = 22               -- Global update "tick rate" (always unsync 
 local recheckLatency = 40 -- Delay until a commanded/idle unit checks for automation again
 local automatedState = {}
 
-local minAttackDistance = 60      -- harvesters further than that to a chunk may attack it, or will be nudged away
+local minAttackDistance = 40      -- harvesters further than that to a chunk may attack it, or will be nudged away
 local oretowerShortScanRange = 250 -- Collection-start scan range (not used here, only by auto_assist actually)
 local oretowerLongScanRange = 900 -- Return/devolution scan range
 local harvestLeashMult = 6        -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")

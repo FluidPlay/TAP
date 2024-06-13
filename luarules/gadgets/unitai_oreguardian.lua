@@ -97,7 +97,7 @@ local fsmBehaviors = {
                     isAway = distance(ax,ay,az, ip.x,ip.y,ip.z) > (guardRadius/2)
                 end
                 --Spring.Echo("hasTarget: "..tostring(hasTarget).." isAway: "..tostring(isAway))
-                return ((not hasTarget) or isAway) and (not aggroedGuardians[ud.unitID]) -- and fsm.state ~= "idle"
+                return isAway or (not hasTarget and not aggroedGuardians[ud.unitID]) -- and fsm.state ~= "idle"
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
@@ -195,8 +195,6 @@ function gadget:GameFrame(f)
 
     fsm.GameFrame(f)
 
-    ---TODO: Refactor with Spring.GetUnitsInCylinder ( number x, number z, number radius [, number teamID ] )
-    ---return: nil | table unitTable = { [1] = number unitID, etc... }
     for guardianID, attackers in pairs(guardianAttackers) do
         local data = oreGuardians[guardianID]
         if not aggroedGuardians[guardianID] and data then

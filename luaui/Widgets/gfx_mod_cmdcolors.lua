@@ -6,7 +6,7 @@ function widget:GetInfo()
     date      = "2016",
     license   = "parrot",
     layer     = -100,
-    enabled   = false, --true,
+    enabled   = true,
 	}
 end
 
