@@ -180,8 +180,10 @@ local function languageChanged ()
 		options[opt].desc = strings[opt][2]
 	end
 
-	teamcolor_selector.tooltip = WG.Translate("interface", "teamcolor_selector")
-	teamcolor_selector:Invalidate()
+	if (teamcolor_selector) then
+		teamcolor_selector.tooltip = WG.Translate("interface", "teamcolor_selector")
+		teamcolor_selector:Invalidate()
+	end
 	mapOverlay.UpdateTooltip(WG.Translate("interface", "overlay_selector"))
 
 	for k, button in pairs(buttons) do
