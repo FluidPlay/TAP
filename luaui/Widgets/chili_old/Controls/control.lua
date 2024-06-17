@@ -277,7 +277,7 @@ function Control:GetRelativeBox(savespace)
   end
 
   --// FIXME use pl & pt too!!!
-  local pl,pt,pw,ph = p:_GetMaxChildConstraints(self)
+  local pl,pt,pw,ph = p:_GetMaxChildConstraints(self) --pw, pw = parent width & height
 
   local givBounds = self._givenBounds
   local relBounds = self._relativeBounds
@@ -307,11 +307,16 @@ function Control:GetRelativeBox(savespace)
       width = pw - left - ProcessRelativeCoord(relBounds.right, pw)
     end
   end
+
+  --// the "same" keyword, when assigned to 'bottom' will use the calculated result, in pixels, from 'top'
   if (relBounds.bottom) then
-    if (not givBounds.top) then
-      top = ph - height - ProcessRelativeCoord(relBounds.bottom, ph)
+    if (relBounds.bottom == "same" and not givBounds.top) then
+        local offset = ProcessRelativeCoord(relBounds.right, pw)
+        top = ph - height - offset
+    elseif (not givBounds.top) then
+        top = ph - height - ProcessRelativeCoord(relBounds.bottom, ph)
     else
-      height = ph - top - ProcessRelativeCoord(relBounds.bottom, ph)
+        height = ph - top - ProcessRelativeCoord(relBounds.bottom, ph)
     end
   end
 
