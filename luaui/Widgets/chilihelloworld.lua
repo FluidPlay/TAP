@@ -13,7 +13,7 @@ end
 
 local Chili, Screen0
 
-local helloWorldWindow, helloWorldLabel,window,textBox,yesButton, noButton
+local helloWorldWindow, helloWorldLabel,window,panel,textBox,yesButton, noButton
 
 function widget:Initialize()
 
@@ -45,10 +45,17 @@ function widget:Initialize()
 
         --== TOP-RIGHT
         right = 'y', --'top',
-        y = '2%',
+        y = '20%',
 
-        width  = '20%',
-        height = '20%',
+        width  = '40%',
+        height = '40%',
+        --
+        --x = 'bottom',
+        --right = 'y', --'bottom',
+        --bottom = '2%',
+        --
+        padding = {5, 5, 5, 5},
+        --y = '2%',
     }
     -- Create some text inside the window
     --helloWorldLabel = Chili.Label:New{
@@ -59,10 +66,12 @@ function widget:Initialize()
     --}
 
     --window = Chili.Window:New{parent = Screen0,   x='25%', y='25%', width='50%', height='50%'}
+    panel = Chili.Panel:New
+        {parent = window, y='10%', x='y', height='80%', width='height'}
     textBox = Chili.TextBox:New
-        {parent = window,  x='10%', y='10%', width='80%', height='30%', text="Is the sky blue?"}
+        {parent = panel,  x='10%', y='10%', width='80%', height='30%', text="Is the sky blue?"}
     yesButton = Chili.Button:New
-        {parent = window, x='10%', y='60%', width='30%', height='30%', caption="Yes"}
+        {parent = panel, x='10%', y='60%', width='30%', height='30%', caption="Yes"}
     noButton = Chili.Button:New
-        {parent = window,  x='60%', y='60%', width='30%', height='30%', caption="No"}
+        {parent = panel,  x='60%', y='60%', width='30%', height='30%', caption="No"}
 end

@@ -59,6 +59,13 @@ Control = Object:Inherit{
   OnResize        = {},
 
   noFont = true,
+
+  --- "left" and "top" do not 'exist' in the API, only 'x' and 'y'. Bottom and Right both work.
+  --x = n (pixels) | n% | 'bottom' | 'top' | 'y' (copy from y)
+  --y = n (pixels) | n%
+
+  --right  = n (pixels) | n% | 'bottom' | 'top' | 'y' (copy from y)
+  --bottom = n (pixels) | n%
 }
 
 local this = Control
@@ -303,11 +310,17 @@ function Control:GetRelativeBox(savespace)
     end
   end
 
-  if (relBounds.width) then
-    width = ProcessRelativeCoord(relBounds.width, pw)
-  end
   if (relBounds.height) then
     height = ProcessRelativeCoord(relBounds.height, ph)
+  end
+  if (relBounds.width) then
+    if relBounds.width == 'height' then
+      local relHeight = ProcessRelativeCoord(relBounds.height, ph)
+      local offset = ph - relHeight
+      width = pw - offset
+    else
+      width = ProcessRelativeCoord(relBounds.width, pw)
+    end
   end
 
   if (relBounds.bottom) then
@@ -319,7 +332,7 @@ function Control:GetRelativeBox(savespace)
     end
   end
 
-  --// the "same" keyword, when assigned to 'right' will use the calculated result, in pixels, from 'top'
+  --// the "top", "bottom" or "y" keywords, when assigned to 'right' or 'x' will use that calculated result, in pixels
   if (relBounds.right) then
     if (relBounds.right == "top" or (relBounds.right == "y" and yIsTop)) and not givBounds.left then
       left = pw - width - ProcessRelativeCoord(relBounds.top, ph) --offset is the last part
