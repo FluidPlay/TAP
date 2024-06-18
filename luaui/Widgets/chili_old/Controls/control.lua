@@ -287,12 +287,22 @@ function Control:GetRelativeBox(savespace)
   local height = (savespace and self.minHeight) or self.height
 
   --// ProcessRelativeCoord is defined in util.lua
-  if (relBounds.left) then
-    left = ProcessRelativeCoord(relBounds.left, pw)
-  end
+  local yIsTop = nil
   if (relBounds.top) then
+    yIsTop = true
     top = ProcessRelativeCoord(relBounds.top, ph)
   end
+
+  if (relBounds.left) then
+    if relBounds.left == "top" or (relBounds.left == "y" and yIsTop) then
+      left = ProcessRelativeCoord(relBounds.top, ph)
+    elseif relBounds.left == "bottom" or (relBounds.left == "y" and not yIsTop) then
+      left = ProcessRelativeCoord(relBounds.bottom, ph)
+    else
+      left = ProcessRelativeCoord(relBounds.left, pw)
+    end
+  end
+
   if (relBounds.width) then
     width = ProcessRelativeCoord(relBounds.width, pw)
   end
@@ -300,23 +310,25 @@ function Control:GetRelativeBox(savespace)
     height = ProcessRelativeCoord(relBounds.height, ph)
   end
 
-  if (relBounds.right) then
-    if (not givBounds.left) then
-      left = pw - width - ProcessRelativeCoord(relBounds.right, pw)
-    else
-      width = pw - left - ProcessRelativeCoord(relBounds.right, pw)
-    end
-  end
-
-  --// the "same" keyword, when assigned to 'bottom' will use the calculated result, in pixels, from 'top'
   if (relBounds.bottom) then
-    if (relBounds.bottom == "same" and not givBounds.top) then
-        local offset = ProcessRelativeCoord(relBounds.right, pw)
-        top = ph - height - offset
-    elseif (not givBounds.top) then
+    yIsTop = false
+    if (not givBounds.top) then
         top = ph - height - ProcessRelativeCoord(relBounds.bottom, ph)
     else
         height = ph - top - ProcessRelativeCoord(relBounds.bottom, ph)
+    end
+  end
+
+  --// the "same" keyword, when assigned to 'right' will use the calculated result, in pixels, from 'top'
+  if (relBounds.right) then
+    if (relBounds.right == "top" or (relBounds.right == "y" and yIsTop)) and not givBounds.left then
+      left = pw - width - ProcessRelativeCoord(relBounds.top, ph) --offset is the last part
+    elseif (relBounds.right == "bottom" or (relBounds.right == "y" and not yIsTop)) and not givBounds.left then
+      left = pw - width - ProcessRelativeCoord(relBounds.bottom, ph)
+    elseif (not givBounds.left) then
+      left = pw - width - ProcessRelativeCoord(relBounds.right, pw)
+    else
+      width = pw - left - ProcessRelativeCoord(relBounds.right, pw)
     end
   end
 

@@ -26,26 +26,43 @@ function widget:Initialize()
     Chili = WG.Chili
     Screen0 = Chili.Screen0
     -- Create the window
-    helloWorldWindow = Chili.Window:New{
+    window = Chili.Window:New{
         parent = Screen0,
-        --x = '20%', --80%-20%(width)
-        --y = '20%',
 
-        right = '2%',
-        bottom = 'same',
+        --- "left" and "top" do not 'exist' in the API, only 'x' and 'y'. Bottom and Right both work.
+
+        --== TOP-LEFT
+        --x = 'y', --'top',
+        --y = '2%',
+
+        --== BOTTOM-LEFT
+        --x = 'y', --'bottom',
+        --bottom = '2%',
+
+        --== BOTTOM-RIGHT
+        --right = 'y', --'bottom',
+        --bottom = '2%',
+
+        --== TOP-RIGHT
+        right = 'y', --'top',
+        y = '2%',
+
         width  = '20%',
         height = '20%',
     }
     -- Create some text inside the window
-    helloWorldLabel = Chili.Label:New{
-        parent = helloWorldWindow,
-        width  = '100%',
-        height = '100%',
-        caption = "Hello world",
-    }
+    --helloWorldLabel = Chili.Label:New{
+    --    parent = helloWorldWindow,
+    --    width  = '100%',
+    --    height = '100%',
+    --    caption = "Hello world",
+    --}
 
     --window = Chili.Window:New{parent = Screen0,   x='25%', y='25%', width='50%', height='50%'}
-    --textBox = Chili.TextBox:New{parent = window,  x='10%', y='10%', width='80%', height='30%', text="Is the sky blue?"}
-    --yesButton = Chili.Button:New{parent = window, x='10%', y='60%', width='30%', height='30%', caption="Yes"}
-    --noButton = Chili.Button:New{parent = window,  x='60%', y='60%', width='30%', height='30%', caption="No"}
+    textBox = Chili.TextBox:New
+        {parent = window,  x='10%', y='10%', width='80%', height='30%', text="Is the sky blue?"}
+    yesButton = Chili.Button:New
+        {parent = window, x='10%', y='60%', width='30%', height='30%', caption="Yes"}
+    noButton = Chili.Button:New
+        {parent = window,  x='60%', y='60%', width='30%', height='30%', caption="No"}
 end
