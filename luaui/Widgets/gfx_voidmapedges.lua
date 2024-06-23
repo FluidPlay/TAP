@@ -24,24 +24,24 @@ function widget:GetInfo()
         license   = "GNU GPL, v2 or later",
         layer     = 0,
         handler   = true,   -- Allows this to run 'SendCommands'
-        enabled   = true,
+        enabled   = false, --true,
     }
 end
 
-function widget:Initialize()
-    Spring.Echo("Setting map edge as void")
-    --Spring.SendCommands("luaui disablewidget Map Edge Extension")
-    --Spring.SendCommands("luaui disablewidget Map External VR Grid")
-    --Spring.SendCommands("mapborder 0")  -- gets rid of the map border downwards gradient
-
-
-    --Spring.SetDrawSky(false)
-    Spring.SetDrawWater(true)
-    Spring.SetDrawGround(true)
-    --Spring.SetDrawSky(false)
-    --Spring.SetMapRenderingParams({voidWater = false, voidGround = true})
-    --Spring.SetSkyBoxTexture("LuaUI/Images/vr_grid.png")
-    ---fog{Start,End}, {sun,sky,cloud}Color
----skyColor = { 0.0, 0.0, 0.0 }, sunColor = { 0.0, 0.0, 0.0 },
-    Spring.SetAtmosphere({ fogColor = { 0.0, 0.0, 0.0, 1 }}) --fogStart = 0, fogEnd = 0.5,
-end
+--function widget:Initialize()
+--    Spring.Echo("Setting map edge as void")
+--    --Spring.SendCommands("luaui disablewidget Map Edge Extension")
+--    --Spring.SendCommands("luaui disablewidget Map External VR Grid")
+--    --Spring.SendCommands("mapborder 0")  -- gets rid of the map border downwards gradient
+--
+--
+--    --Spring.SetDrawSky(false)
+--    Spring.SetDrawWater(true)
+--    Spring.SetDrawGround(true)
+--    --Spring.SetDrawSky(false)
+--    --Spring.SetMapRenderingParams({voidWater = false, voidGround = true})
+--    --Spring.SetSkyBoxTexture("LuaUI/Images/vr_grid.png")
+--    ---fog{Start,End}, {sun,sky,cloud}Color
+-----skyColor = { 0.0, 0.0, 0.0 }, sunColor = { 0.0, 0.0, 0.0 },
+--    Spring.SetAtmosphere({ fogColor = { 0.0, 0.0, 0.0, 1 }}) --fogStart = 0, fogEnd = 0.5,
+--end

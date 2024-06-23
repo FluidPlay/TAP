@@ -968,18 +968,6 @@ function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOp
     --    unitIdleEvent[unitID] = nil
     --    return
     --end
-    ----- if it's working, don't touch it; also, check for area-move, area-repair, and area-reclaim here
-    --if automatedState[unitID] ~= "commanded" and not internalCmdEvent[unitID]
-    --        and (cmdID == CMD_MOVE or cmdID == CMD_REPAIR or cmdID == CMD_RECLAIM) then
-    --    --Spring.Echo("Valid automatable unit got a move command "..unitID)
-    --    ---We do this to check if remove commands should be issued or not, down the pipe
-    --    if cmdID and cmdID < 0 then
-    --        setAutomateState(unitID, "commanded", "UnitCommandBuild")
-    --    else
-    --        setAutomateState(unitID, "commanded", "UnitCommand")
-    --    end
-    --end
-    --Spring.Echo("IdleEvent cancelled for "..(unitID or "nil"))
 end
 
 ----From unitai_auto_assist: Spring.SendLuaRulesMsg("harvestersToAutomate_"..ud.unitID,"allies")

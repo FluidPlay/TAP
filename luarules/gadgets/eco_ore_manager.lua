@@ -284,9 +284,9 @@ if gadgetHandler:IsSyncedCode() then
     -- 1.6, 2.5 & 3.5 are typical poor, average and rich field numbers
     local function getBaseMetalLevel (metal)
         --Spring.Echo("metal: "..metal)
-        if metal < 2 then
+        if metal < 0.5 then
             return 1
-        elseif metal >= 3 then
+        elseif metal >= 0.99 then
             return 3
         end
         return 2
@@ -299,9 +299,9 @@ if gadgetHandler:IsSyncedCode() then
         spEcho("Number of ore spots found: "..#oreSpots)
         startFrame = Spring.GetGameFrame()
         for i, data in ipairs(oreSpots) do
-            --Spring.Echo("Adding chunks to spot#: "..i)
             local x, y, z = data.x, data.y, data.z
             local metalLevel = getBaseMetalLevel (data.metal)
+            --Spring.Echo("Adding chunks to spot#: "..i..", metal: "..(tostring(data.metal) or "nil"))
             data.baseMetalLevel = metalLevel    -- initialize data
             for j = 1, startingChunkCount[metalLevel] do    -- 3, 4, 6
                 local unitID = SpawnChunk (x, y, z, spawnRadius, deadZone, i, startOreKind, { value=1 })

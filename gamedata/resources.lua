@@ -10,6 +10,7 @@ local resources = {
             watertex	= 'default/ocean.jpg',
          },
          projectiletextures = {
+             plasma0029= "other/light_red.png", --burst.tga",
             circularthingy		= 'default/circularthingy.tga',
             gfxtexture		    = 'default/circularthingy.tga', -- Used by the nano beam
             laserend			= 'default/laserend.tga',

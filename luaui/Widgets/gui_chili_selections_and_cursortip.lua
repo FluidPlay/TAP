@@ -2530,8 +2530,8 @@ local function GetSelectionWindow()
 		parent = holderWindow
 	}
 	mainPanel.padding[1] = mainPanel.padding[1] + options.leftPadding.value
-	--mainPanel:Hide() --#TAP
-	mainPanel:BringToFront() --#TAP
+	mainPanel:Hide() --#TAP
+	--mainPanel:BringToFront() --#TAP
 
 	local singleUnitDisplay = GetSingleUnitInfoPanel(mainPanel, false)
 	local multiUnitDisplay = GetMultiUnitInfoPanel(mainPanel)

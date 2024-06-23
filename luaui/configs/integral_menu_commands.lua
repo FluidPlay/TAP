@@ -292,17 +292,17 @@ local factoryUnitPosDef = {
 }
 
 -- Factory plates copy their parents.
-factoryUnitPosDef.platecloak   = Spring.Utilities.CopyTable(factoryUnitPosDef.factorycloak)
-factoryUnitPosDef.plateshield  = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryshield)
-factoryUnitPosDef.plateveh     = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryveh)
-factoryUnitPosDef.platehover   = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryhover)
-factoryUnitPosDef.plategunship = Spring.Utilities.CopyTable(factoryUnitPosDef.factorygunship)
-factoryUnitPosDef.plateplane   = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryplane)
-factoryUnitPosDef.platespider  = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryspider)
-factoryUnitPosDef.platejump    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryjump)
-factoryUnitPosDef.platetank    = Spring.Utilities.CopyTable(factoryUnitPosDef.factorytank)
-factoryUnitPosDef.plateamph    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryamph)
-factoryUnitPosDef.plateship    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryship)
+--factoryUnitPosDef.platecloak   = Spring.Utilities.CopyTable(factoryUnitPosDef.factorycloak)
+--factoryUnitPosDef.plateshield  = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryshield)
+--factoryUnitPosDef.plateveh     = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryveh)
+--factoryUnitPosDef.platehover   = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryhover)
+--factoryUnitPosDef.plategunship = Spring.Utilities.CopyTable(factoryUnitPosDef.factorygunship)
+--factoryUnitPosDef.plateplane   = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryplane)
+--factoryUnitPosDef.platespider  = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryspider)
+--factoryUnitPosDef.platejump    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryjump)
+--factoryUnitPosDef.platetank    = Spring.Utilities.CopyTable(factoryUnitPosDef.factorytank)
+--factoryUnitPosDef.plateamph    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryamph)
+--factoryUnitPosDef.plateship    = Spring.Utilities.CopyTable(factoryUnitPosDef.factoryship)
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -539,8 +539,8 @@ local special_commands = {
 }
 
 local econ_commands = {
-	armmex			= {order = 1,  row = 1, col = 1},
-	armsolar		= {order = 2,  row = 1, col = 2},
+	armsolar		= {order = 1,  row = 1, col = 1},
+	armmex			= {order = 2,  row = 1, col = 2},
 	armwin 			= {order = 3,  row = 1, col = 3},
 	armmakr 		= {order = 4,  row = 1, col = 4},
 	armmstor 		= {order = 5,  row = 1, col = 5},
@@ -557,8 +557,8 @@ local econ_commands = {
 	armtide			= {order = 14, row = 3, col = 4},
 	--armuwmex		= {order = 15, row = 3, col = 5},
 
-	cormex		= {order = 1,  row = 1, col = 1},
-	corsolar	= {order = 2,  row = 1, col = 2},
+	corsolar	= {order = 1,  row = 1, col = 1},
+	cormex		= {order = 2,  row = 1, col = 2},
 	corwin		= {order = 3,  row = 1, col = 3},
 	cormakr		= {order = 4,  row = 1, col = 4},
 	cormstor	= {order = 5,  row = 1, col = 5},

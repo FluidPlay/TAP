@@ -358,7 +358,7 @@ function widget:Initialize()
         widgetHandler:RemoveWidget()
     end
 
-    Spring.SendCommands("luaui disablewidget External VR Grid")
+    --Spring.SendCommands("luaui disablewidget External VR Grid")
 end
 
 function widget:Shutdown()

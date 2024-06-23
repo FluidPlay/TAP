@@ -155,7 +155,7 @@ function widget:PlayerChanged()
 end
 
 local function removeAttack(unitID)
-    Spring.Echo("unitai_auto_harvest: removing Atk Cmd from "..(unitID or "nil"))
+    --Spring.Echo("unitai_auto_harvest: removing Atk Cmd from "..(unitID or "nil"))
     spGiveOrderToUnit(unitID, CMD_REMOVE, {CMD_ATTACK}, {"alt"})
 end
 
@@ -339,23 +339,7 @@ local automatedFunctions = {
                 end
             end
     },
-    [6] = { id="returningandstuck",
-            condition = function(ud)
-                local rp = ud.returnPos
-                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
-                return (harvestState[ud.unitID] == "returning")
-                        and (not hasReturned) and (spGetCommandQueue(ud.unitID, 0) < 1)
-            end,
-            action = function(ud)
-                --spEcho("**4** Return Unstucking Actions")
-                local rp = ud.returnPos
-                if rp and rp.x then
-                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
-                end
-                return "returning"
-            end
-    },
-    [7] = { id="returned",
+    [6] = { id="returned",
             condition = function(ud)
                 local rp = ud.returnPos
                 --Spring.Echo("*** returning dist: "..(sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) or "nil"))
@@ -366,6 +350,23 @@ local automatedFunctions = {
                 --spEcho("**4** Returned Actions")
                 harvesters[ud.unitID].returnPos = nil
                 return "returned"
+            end
+    },
+    [7] = { id="returningandstuck",
+            condition = function(ud)
+                local rp = ud.returnPos
+                local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
+                return (harvestState[ud.unitID] == "returning")
+                        and ((not hasReturned) and (spGetCommandQueue(ud.unitID, 0) < 1)
+                        or not ud.farFromOreTower)
+            end,
+            action = function(ud)
+                Spring.Echo("**4** Return Unstucking Actions")
+                local rp = ud.returnPos
+                if rp and rp.x then
+                    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })
+                end
+                return "returningandstuck"
             end
     },
     [8] = { id="attacking",
@@ -385,7 +386,7 @@ local automatedFunctions = {
                     harvesters[ud.unitID].targetChunkID = ud.nearestChunkID
                     return "attacking"
                 else
-                    Spring.Echo("nudging UID "..(ud.unitID or "nil"))
+                    --Spring.Echo("nudging UID "..(ud.unitID or "nil"))
                     local unitPosX, unitPosY, unitPosZ = spGetUnitPosition(ud.unitID)
                     local nearestChunk = {}
                     nearestChunk.x, _, nearestChunk.z = spGetUnitPosition(ud.nearestChunkID) --GetNearestSpotPos(unitPosX, unitPosZ) --
@@ -393,14 +394,7 @@ local automatedFunctions = {
                     local unitRadius = spGetUnitRadius (ud.unitID)
                     local nudgeX = (unitPosX < nearestChunk.x) and -unitRadius or unitRadius
                     local nudgeZ = (unitPosZ < nearestChunk.z) and -unitRadius or unitRadius
-                    --
-                    --if Spring.TestMoveOrder(ud.unitDefID, unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ) then
-                    --    --OrderUnit(unitID, CMD_MOVE,  { x + dx + rx, y, z + dz + rz }, { "shift" })
-                    --    spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
-                    --else
-                    --    local nudgeX = unitPosX + nearestSpot.x
-                    --    local nudgeZ = unitPosZ + nearestSpot.z
-                    --end
+
                     if Spring.TestMoveOrder(ud.unitDef.id, unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ) then
                         spGiveOrderToUnit(ud.unitID, CMD_MOVE, { unitPosX + nudgeX, unitPosY, unitPosZ + nudgeZ }, { "" })
                     else
