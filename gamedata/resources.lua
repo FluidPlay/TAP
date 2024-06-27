@@ -42,6 +42,7 @@ local resources = {
 			bloodsplat='PD/bloodsplat.tga',
 			blooddropwhite='PD/blooddropwhite.tga',
 			bloodblastwhite='PD/bloodblastwhite.tga',
+             --orgFlame02 = 'projectiletextures/orgFlame02.tga',
          },
       }
    }

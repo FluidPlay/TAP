@@ -83,6 +83,7 @@ local minAttackDistance = 40      -- harvesters further than that to a chunk may
 local oretowerShortScanRange = 250 -- Collection-start scan range (not used here, only by auto_assist actually)
 local oretowerLongScanRange = 900 -- Return/devolution scan range
 local harvestLeashMult = 6        -- chunk search range is the harvest range* multiplied by this  (*attack range of weapon eg. "armck_harvest_weapon")
+local nudgeRadiusMult = 1.8       -- multiplier to the unit radius, for the 'nudge' command (when too close to chunk)
 
 local vsx, vsy = gl.GetViewSizes()
 local widgetScale = (0.50 + (vsx*vsy / 5000000))
@@ -391,7 +392,7 @@ local automatedFunctions = {
                     local nearestChunk = {}
                     nearestChunk.x, _, nearestChunk.z = spGetUnitPosition(ud.nearestChunkID) --GetNearestSpotPos(unitPosX, unitPosZ) --
 
-                    local unitRadius = spGetUnitRadius (ud.unitID)
+                    local unitRadius = spGetUnitRadius (ud.unitID) * nudgeRadiusMult
                     local nudgeX = (unitPosX < nearestChunk.x) and -unitRadius or unitRadius
                     local nudgeZ = (unitPosZ < nearestChunk.z) and -unitRadius or unitRadius
 
