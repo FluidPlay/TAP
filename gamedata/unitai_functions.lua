@@ -136,7 +136,7 @@ function getOreTowerCollectRange(parentOreTowerID, oreTowers)
 end
 
 function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
-    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, true) > oreTowerCollectRange-20 or false --20
+    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, true) > oreTowerCollectRange-20 or false
     --TODO: de-hardcode the 'buffer' distance (20 units now); "true" above means "2D", ignore the Y offset
 end
 
@@ -234,3 +234,4 @@ end
 --
 --    return parentOreTowerID, nearestOreTowerID
 --end
+

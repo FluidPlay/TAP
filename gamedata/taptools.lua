@@ -722,7 +722,7 @@ function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFe
 			end
 			if isstring(paramCheck) then
 				local paramValue = spGetUnitRulesParam(targetID, paramCheck)
-				Spring.Echo("notbeingharvested for "..targetID.." == "..(paramValue or "nil"))
+				--Spring.Echo("notbeingharvested for "..targetID.." == "..(paramValue or "nil"))
 				if paramValue == 0 then
 					targets[targetID] = nil end
 			end
