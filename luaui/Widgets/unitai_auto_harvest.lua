@@ -362,7 +362,7 @@ local automatedFunctions = {
                         or not ud.farFromOreTower)
             end,
             action = function(ud)
-                Spring.Echo("**4** Return Unstucking Actions")
+                --Spring.Echo("**4** Return Unstucking Actions")
                 local rp = ud.returnPos
                 if rp and rp.x then
                     spGiveOrderToUnit(ud.unitID, CMD_MOVE, { rp.x, rp.y, rp.z }, { "" })

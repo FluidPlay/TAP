@@ -113,19 +113,31 @@ function getNearestFeatureID (ud)
     return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.radius, nil, nil, true)
 end
 
+---First checks for nearest chunk which's not already being harvested, if that fails checks for the nearest one
 function getNearestChunkID (ud)
-    return NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.harvestRange,
+    --NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID, paramCheck)
+    local nearestChunk = NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.harvestRange,
             function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
-            nil, false, GaiaTeamID)
+            nil, false, GaiaTeamID, nil, "notbeingharvested")
+
+    if not nearestChunk then
+        --Spring.Echo("Couldnt find 'notbeingharvested' nearby "..(ud.unitID or "nil"))
+        nearestChunk = NearestItemAround(ud.unitID, ud.pos, ud.unitDef, ud.harvestRange,
+                function(x) return (x.customParams and x.customParams.isorechunk) end, --unitDef check
+                nil, false, GaiaTeamID) end
+
+    return nearestChunk
 end
+
+---"notbeingharvested"
 
 function getOreTowerCollectRange(parentOreTowerID, oreTowers)
     return oreTowers[parentOreTowerID] or nil
 end
 
 function getFarFromOreTower (unitID, oreTowerCollectRange, nearestOreTowerID)
-    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, false) > oreTowerCollectRange-20 or false
-    --TODO: refactor the 'buffer' (20 units now)
+    return oreTowerCollectRange and spGetUnitSeparation(unitID, nearestOreTowerID, true) > oreTowerCollectRange-20 or false --20
+    --TODO: de-hardcode the 'buffer' distance (20 units now); "true" above means "2D", ignore the Y offset
 end
 
 --function getFarFromOreTower (ud)

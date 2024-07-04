@@ -80,12 +80,12 @@ if gadgetHandler:IsSyncedCode() then
 	local featureRemainingMetal = {}
 	local previousHarvestStorage = {}
 	local oreTowers = {}	-- { unitID = { range = (unitDef.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) }, ...}
-	local workingHarvesters = {} -- Harvesters "in action"	--{ unitID = spGetGameFrame() + 1
+	local workingHarvesters = {} -- Harvesters "in action"	--{ unitID = { nextCheckFrame = spGetGameFrame() + 1, attackedChunkID = n }, ... }
 	local chunksUnderAttack = {} -- { [targetID] = harvesterID, ... }
 
 	local distBuffer = 40 -- distance buffer, units get further into the ore tower 'umbrella range' before dropping the load
 	local defaultDeliveryAmount = 20
-
+	local notbeingharvested_parm = "notbeingharvested"
 
 	local CMD_STOP = CMD.STOP
 	local math_max = math.max
@@ -124,6 +124,11 @@ if gadgetHandler:IsSyncedCode() then
 		end
 	end
 
+	local function isChunk(unitDefID)
+		local uDef = UnitDefs[unitDefID]
+		return uDef.customParams.isorechunk
+	end
+
 	function gadget:Initialize()
 		_G.OreTowers = oreTowers    -- making it available for unsynced access via SYNCED table
 
@@ -147,6 +152,11 @@ if gadgetHandler:IsSyncedCode() then
 			spEcho("Ore Tower added: "..unitID)
 			oreTowers[unitID] = { range = (unitDef.buildDistance or 330), ally = spGetUnitAllyTeam(unitID) } -- 330 is lvl1 outpost build range
 			spSetUnitRulesParam(unitID, "oretowerrange", (unitDef.buildDistance or defaultOreTowerRange)) --330
+		end
+
+		if isChunk(unitDefID) then
+			spSetUnitRulesParam(unitID, notbeingharvested_parm, 1, { public = true })
+			--Spring.Echo("Have set "..tostring(unitID).." as notbeingharvested")
 		end
 
 		local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
@@ -215,11 +225,6 @@ if gadgetHandler:IsSyncedCode() then
 		return harvesterInfo.delivery, harvesterInfo.max
 	end
 
-	local function isChunk(unitDefID)
-		local uDef = UnitDefs[unitDefID]
-		return uDef.customParams.isorechunk
-	end
-
 	local function setResourcing(uID, amount)
 		if amount == 0 then
 			workingHarvesters[uID] = nil end
@@ -279,7 +284,10 @@ if gadgetHandler:IsSyncedCode() then
 		local maxStorage = harvesterDef and tonumber(harvesterDef.customParams.maxorestorage) or defaultMaxStorage
 
 		chunksUnderAttack[targetID] = harvesterID
-		workingHarvesters[harvesterID] = spGetGameFrame() + 1 -- (next frame) recheckDelay	-- nextCheckFrame
+		spSetUnitRulesParam(targetID, notbeingharvested_parm, 0, { public = true })
+		--Spring.Echo(targetID.." is being harvested!!")
+
+		workingHarvesters[harvesterID] = { nextCheckFrame = spGetGameFrame() + 1, attackedChunkID = targetID }
 
 		--Spring.Echo("unitDamaged: storage cur/max="..(curStorage or "nil").."/"..maxStorage..", damage="..damage)
 		if not isnumber(curStorage) then
@@ -320,9 +328,20 @@ if gadgetHandler:IsSyncedCode() then
 		if frame % updateRate > 0.001 then
 			return end
 
-		for uID,checkFrame in pairs(workingHarvesters) do
-			if frame >= checkFrame then
-				setResourcing(uID, 0) end 	---- decomission
+		--{ unitID = { nextCheckFrame = spGetGameFrame() + 1, attackedChunkID = n }, ... }
+		for uID,data in pairs(workingHarvesters) do
+			if frame > data.nextCheckFrame then  	---- decomission
+				setResourcing(uID, 0)
+				workingHarvesters[uID] = nil
+			end
+		end
+
+		for uID,harvesterID in pairs(chunksUnderAttack) do
+			if not workingHarvesters[harvesterID] then
+				chunksUnderAttack[uID] = nil
+				spSetUnitRulesParam(uID, notbeingharvested_parm, 1, { public = true })
+				--Spring.Echo(tostring(uID).." is no longer being harvested")
+			end
 		end
 
 		--- If in tower range, deliver resources

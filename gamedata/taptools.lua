@@ -23,6 +23,7 @@ local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitTeam	 = Spring.GetUnitTeam
 local spGetUnitFeatureSeparation = Spring.GetUnitFeatureSeparation
 local spGetUnitSeparation = Spring.GetUnitSeparation
+local spGetUnitRulesParam    = Spring.GetUnitRulesParam
 
 local spMarkerAddPoint = Spring.MarkerAddPoint
 local spMarkerErasePosition = Spring.MarkerErasePosition
@@ -663,7 +664,7 @@ end
 
 -- typeCheck is a function (checking for true), if not defined it just returns the nearest unit
 -- idCheck is a function (checking for true), checks the targetID to see if it fits a certain criteria
-function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID)
+function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFeature, teamID, allyTeamID, paramCheck)
 	--if pos == nil then
 	--	Spring.Echo("pos = nil")
 	--end
@@ -717,6 +718,12 @@ function NearestItemAround(unitID, pos, unitDef, radius, defCheck, idCheck, isFe
 			end
 			if idCheck then
 				if not idCheck(targetID) then
+					targets[targetID] = nil end
+			end
+			if isstring(paramCheck) then
+				local paramValue = spGetUnitRulesParam(targetID, paramCheck)
+				Spring.Echo("notbeingharvested for "..targetID.." == "..(paramValue or "nil"))
+				if paramValue == 0 then
 					targets[targetID] = nil end
 			end
         end

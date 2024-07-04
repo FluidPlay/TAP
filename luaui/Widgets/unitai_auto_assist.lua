@@ -804,7 +804,10 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
 
     local ud = { unitID = unitID, unitDef = unitData.unitDef, pos = pos, radius = unitData.radius, harvestRange = unitData.harvestRange, orderIssued = nil,
                  team = unitData.team, frame = gameFrame }
-    ud.nearestChunkID = getNearestChunkID(ud)
+
+    local maxorestorage = unitData.unitDef.customParams and tonumber(unitData.unitDef.customParams.maxorestorage) or nil
+    if maxorestorage and maxorestorage > 0 then
+        ud.nearestChunkID = getNearestChunkID(ud) end
 
     -- Will try and (if condition succeeds) execute each automatedFunction, in order. #1 is highest priority, etc.
     for i = 1, #automatedFunctions do
