@@ -53,6 +53,7 @@ local spGetUnitCommands = Spring.GetUnitCommands
 local spGetFullBuildQueue = Spring.GetFullBuildQueue --use this only for factories, to ignore rally points
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
+local spGetLocalTeamID = Spring.GetLocalTeamID
 
 local glGetViewSizes = gl.GetViewSizes
 local glPushMatrix	= gl.PushMatrix
@@ -114,6 +115,8 @@ local widgetScale = (0.50 + (vsx*vsy / 5000000))
 
 local math_random = math.random
 
+local localTeamID = nil
+
 ---Harvest-system related
 local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
 
@@ -125,6 +128,7 @@ local harvesters = {} -- { unitID = { maxorestorage = uDef.customparams.maxorest
                       --    unitDef = unitDef, team = spGetUnitTeam(unitID)
                       -- }
 
+local UnitsInCombat = {}
 
 local oreTowers = {}  -- { unitID = oreTowerReturnRange, ... }
 
@@ -318,8 +322,21 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
     end
 end
 
+function widget:PlayerChanged(playerID)
+    if Spring.GetSpectatingState() then
+        widgetHandler:RemoveWidget(self)
+    end
+    localTeamID = spGetLocalTeamID()
+end
+
+function widget:GameStart()
+    widget:PlayerChanged()
+end
+
 ---- Disable widget if I'm spec
 function widget:Initialize()
+    localTeamID = spGetLocalTeamID()
+
     WG.automatedStates = automatedState     -- This will allow the state to be read and set by other widgets
     WG.harvesters = harvesters              --- Read by unitai_auto_harvest.lua
     WG.setAutomateState = setAutomateState
@@ -373,6 +390,16 @@ local function isOreTower(unitDef)
     return oreTowerDefNames[unitDef.name]
 end
 
+local function isHarvester(unitDef)
+    local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
+    return maxorestorage and maxorestorage > 0
+end
+
+local function isChunk(unitDefID)
+    local uDef = UnitDefs[unitDefID]
+    return uDef.customParams.isorechunk
+end
+
 function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
     -- If unit just created is a mobile unit, add it to array
     local unitDef = UnitDefs[unitDefID]
@@ -382,8 +409,7 @@ function widget:UnitCreated(unitID, unitDefID, teamID, builderID)
         WIPmobileUnits[unitID] = true
     end
     local harvestRange = nil
-    local maxorestorage = tonumber(unitDef.customParams.maxorestorage)
-    if maxorestorage and maxorestorage > 0 then
+    if isHarvester(unitDef) then
         local harvestWeapon = WeaponDefs[unitDef.name.."_harvest_weapon"]   -- eg: armck_harvest_weapon
         harvestRange = harvestWeapon and (harvestWeapon.range * harvestLeashMult)
                 or (160 * harvestLeashMult)
@@ -449,6 +475,7 @@ function widget:UnitDestroyed(unitID)
     unitIdleEvent[unitID] = nil
     reallyIdleUnits[unitID] = nil
     unitFinishedNextFrame[unitID] = nil
+    UnitsInCombat[unitID] = nil
 
     automatedState[unitID] = nil
     harvesters[unitID] = nil
@@ -785,6 +812,9 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
     if not unitData.unitDef or not IsValidUnit(unitID) or awaitedUnits[unitID] or automatedState[unitID] == "commanded" then
         return end
 
+    if UnitsInCombat[unitID] then
+        return end
+
     --Spring.Echo("Checkpoint #3")
 
     local x, y, z = spGetUnitPosition(unitID)
@@ -833,6 +863,16 @@ local function automateCheck(unitID, unitData, gameFrame, caller)
     return ud.orderIssued
 end
 
+function widget:UnitDamaged (unitID, unitDefID, unitTeam, damage, paralyzer) --, weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
+    --Spring.Echo("localTeamID "..(localTeamID or "nil").." attackerTeam: "..(attackerTeam or "nil").." attackerID: "..(attackerID or "nil"))
+    if localTeamID ~= unitTeam or not unitDefID then
+        return end
+    if isChunk(unitDefID) then
+        return end
+    UnitsInCombat[unitID] = spGetGameFrame() + 90   --TODO: dehardcode this
+    --Spring.Echo("Adding unit (1) "..unitID.." at frame: "..spGetGameFrame()..", next frame: "..tostring(spGetGameFrame() + 90))
+end
+
 --- Frame-based Update
 function widget:GameFrame(f)
     for unitID, frame in pairs(unitFinishedNextFrame) do
@@ -846,6 +886,13 @@ function widget:GameFrame(f)
                 unitIdleEvent[unitID] = spGetGameFrame() + recheckLatency   -- Will confirm after 1 second (30f), by default
             end
             unitFinishedNextFrame[unitID] = nil
+        end
+    end
+
+    for unitID, frame in pairs(UnitsInCombat) do
+        if f > frame then
+            --Spring.Echo("Removing unit "..unitID.." at frame "..tostring(f)..", stored frame: "..tostring(frame))
+            UnitsInCombat[unitID] = nil
         end
     end
 
