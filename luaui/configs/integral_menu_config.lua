@@ -623,7 +623,7 @@ local widgetSpaceHidden = {
 }
 
 local factoryPlates = {
-	"bowhq", "kernhq",
+	--"bowhq", "kernhq",
 	--"platecloak",
 	--"plateshield",
 	--"plateveh",

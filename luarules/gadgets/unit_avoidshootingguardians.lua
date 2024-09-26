@@ -51,9 +51,9 @@ function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerW
     if not attackerWeaponDefID then
         -- This callin is effectively script.BlockShot but for CommandAI.
         -- The engine will discard target priority information.
-        Spring.Echo("no attacker weapon, returning")
-        return true
-    end
+
+        --Spring.Echo("no attacker weapon, returning")
+        return true end
     --if not istable(GG.Guardians) then
     --    Spring.Echo("GG.Guardians not found")
     --else

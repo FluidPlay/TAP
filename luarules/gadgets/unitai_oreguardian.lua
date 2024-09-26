@@ -152,25 +152,26 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
     end
 end
 
-function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
+function gadget:UnitDamaged(guardianUID, unitDefID, unitTeam, damage, paralyzer,
                             weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
-    if (not oreGuardians[unitID]) or oreGuardians[attackerID] then
+    if (not oreGuardians[guardianUID]) or oreGuardians[attackerID] then
         return end
     -- This will trigger 'combat' state for all guardians within guard range (from their idlepos);
     -- What will set back the idle state are the FSM conditions
-    for guardianID, data in pairs(oreGuardians) do     -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
+    local data = oreGuardians[guardianUID]
+--    for guardianID, data in pairs(oreGuardians) do     -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
         --Spring.Echo("guardianID: "..(tostring(guardianID) or "nil"))
-        if IsValidUnit(attackerID) and IsValidUnit(guardianID) then
+        if IsValidUnit(attackerID) and IsValidUnit(guardianUID) then
             --local dist = spGetUnitSeparation(attackerID, guardianID, true, false)
-            local ax,ay,az = spGetUnitPosition(unitID)
+            local ax,ay,az = spGetUnitPosition(guardianUID)
             local ip = data.idlePos
             local isInGuardRange = distance(ax,ay,az, ip.x,ip.y,ip.z) <= guardRadius/2
             local attackerDef = UnitDefs[attackerDefID]
             local attackerPower = attackerDef.power
-            if not guardianAttackers[guardianID] then
-                guardianAttackers[guardianID] = {}
+            if not guardianAttackers[guardianUID] then
+                guardianAttackers[guardianUID] = {}
             end
-            guardianAttackers[guardianID][attackerID] = attackerPower
+            guardianAttackers[guardianUID][attackerID] = attackerPower
             if isInGuardRange then
                 --Spring.Echo("Unit has attacked within guarding radius of guardianID: "..(tostring(guardianID) or "nil"))
                 --unitFireState[guardianID] = returnFireState
@@ -181,12 +182,13 @@ function gadget:UnitDamaged(unitID, unitDefID, unitTeam, damage, paralyzer,
                     data.targetID = attackerID
                     data.targetUpdated = true
                 end
-                aggroedGuardians[guardianID] = true
+                aggroedGuardians[guardianUID] = true
+                Spring.SetUnitRulesParam(guardianUID, "aggroed", 1, { public = true })
 
                 data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
             end
         end
-    end
+--    end
 end
 
 function gadget:GameFrame(f)

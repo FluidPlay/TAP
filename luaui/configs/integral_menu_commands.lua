@@ -317,13 +317,12 @@ local factory_commands = {
 	--BOWHQ / ARMMSTOR (ore tower)
 	armck     	= {order = 1, row = 1, col = 1},
     armcv     	= {order = 2, row = 1, col = 2},
-	armca     	= {order = 3, row = 1, col = 3},
 	armcs     	= {order = 4, row = 1, col = 4},
     armfark		= {order = 5, row = 1, col = 5},
 	bowdaemon	= {order = 6, row = 2, col = 1},
 	-- BUILDER EXCLUSIVE
-	armsonar	= {order = 1, row = 2, col = 4},
 	armoutpost	= {order = 2, row = 1, col = 5},
+    bowhq	    = {order = 3, row = 1, col = 6},
 	--ARMOUTPOST
 	armlab		= {order = 1, row = 1, col = 1},
 	armvp 		= {order = 2, row = 1, col = 2},
@@ -351,10 +350,11 @@ local factory_commands = {
 	armkam		= {order = 1, row = 1, col = 1},
 	armfig		= {order = 2, row = 1, col = 2},
 	armthund	= {order = 3, row = 1, col = 3},
-	armanac		= {order = 4, row = 1, col = 4},
-	armbrawl	= {order = 5, row = 1, col = 5},
-	armkameyes	= {order = 6, row = 1, col = 6},
-	armatlas	= {order = 7, row = 2, col = 1},
+		--armanac		= {order = 4, row = 1, col = 4},
+	armbrawl	= {order = 4, row = 1, col = 4},
+	armkameyes	= {order = 5, row = 1, col = 5},
+	armatlas	= {order = 6, row = 1, col = 6},
+	armca     	= {order = 7, row = 2, col = 1},
 	-- ARMSY
 	armpt		= {order = 1, row = 1, col = 1},
 	armpship	= {order = 2, row = 1, col = 2},
@@ -369,12 +369,12 @@ local factory_commands = {
 	-- KERNHQ / CORMSTOR (ore tower)
 	corck		= {order = 1, row = 1, col = 1},
 	corcv		= {order = 2, row = 1, col = 2},
-	corca		= {order = 3, row = 1, col = 3},
 	corcs		= {order = 4, row = 1, col = 4},
 	cormuskrat	= {order = 5, row = 1, col = 5},
 	kerndaemon	= {order = 6, row = 2, col = 1},
 	-- BUILDER EXCLUSIVE
 	coroutpost	= {order = 1, row = 1, col = 5},
+    kernhq		= {order = 2, row = 1, col = 6},
 	-- COROUTPOST
 	corlab		= {order = 1, row = 1, col = 1},
 	corvp		= {order = 2, row = 1, col = 2},
@@ -402,10 +402,11 @@ local factory_commands = {
 	corbw		= {order = 1, row = 1, col = 1},
 	corveng		= {order = 2, row = 1, col = 2},
 	corshad		= {order = 3, row = 1, col = 3},
-	corsnap		= {order = 4, row = 1, col = 4},
-	corape		= {order = 5, row = 1, col = 5},
-	corkameyes	= {order = 6, row = 1, col = 6},
-	corvalk		= {order = 7, row = 2, col = 1},
+		--corsnap		= {order = 4, row = 1, col = 4},
+	corape		= {order = 4, row = 1, col = 4},
+	corkameyes	= {order = 5, row = 1, col = 5},
+	corvalk		= {order = 6, row = 1, col = 6},
+	corca		= {order = 7, row = 2, col = 1},
 	-- CORSY
 	corpt			= {order = 1, row = 1, col = 1},
 	corpship		= {order = 2, row = 1, col = 2},
@@ -483,7 +484,6 @@ local special_commands = {
 	--- COROUTPOST2
 	coralab		= {order = 1,  row = 1, col = 1},
 	coravp		= {order = 2,  row = 1, col = 2},
-	corap		= {order = 3,  row = 1, col = 3},
 	coraap		= {order = 4,  row = 1, col = 4},
 	coroutpost2	= {order = 5, row = 1, col = 5},
 	cortech2 	= {order = 6, row = 2, col = 1},
@@ -596,9 +596,10 @@ local defense_commands = {
 	armsilo			= {order = 12, row = 2, col = 5},
 	armamb			= {order = 13, row = 2, col = 6},
 	armemp			= {order = 14, row = 3, col = 1},
+    armsonar	    = {order = 15, row = 3, col = 2},
 	--armshltx_stub	= {order = 15, row = 3, col = 2},
 	--armshltx		= {order = 15, row = 3, col = 2},
-	armgate			= {order = 15, row = 3, col = 2},
+	armgate			= {order = 16, row = 3, col = 3},
 --
 	--- KERN
 	corllt		= {order = 1, row = 1, col = 1},
