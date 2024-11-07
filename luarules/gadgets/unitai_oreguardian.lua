@@ -22,8 +22,6 @@ end
 if not gadgetHandler:IsSyncedCode() then
     return end
 
-GG.AggroedGuardians = {}
-
 VFS.Include("gamedata/taptools.lua")
 
 local fsm = { Spring = Spring, type = type, pairs = pairs, gl=gl, VFS=VFS, tostring=tostring}
@@ -55,7 +53,6 @@ local oreGuardianDef = {
 
 --{ idlePos = { x=x,y=y,z=z }, targetID = nil, targetPower = 0, targetUpdated = nil, }
 local oreGuardians = {}         -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
-local aggroedGuardians = {}     -- { guardianUnitID = true|false, ... }
 local guardianAttackers = {}    -- { unitID = attackerPower (unitDef.power), ... }
 
 local fsmId = "oreguardian"
@@ -70,8 +67,41 @@ end
 local fsmBehaviors = {
     [1] = { id="combat",
             condition = function(ud)    -- What's the condition to transition to this state (if not there yet)
-                ud.targetID = oreGuardians[ud.unitID].targetID
-                return aggroedGuardians[ud.unitID] and IsValidUnit(ud.targetID) --fsm.state ~= "combat" and
+                local guardianID = ud.unitID    -- ud.unitID is default, from springfsm.lua
+                local guardianData = oreGuardians[guardianID]
+                local hasAttackerAround
+                if guardianData then
+                    local ip = guardianData.idlePos
+                    local unitsAround = spGetUnitsInCylinder(ip.x, ip.z, guardRadius)
+                    local attackers = guardianAttackers[guardianID]
+                    if not istable(attackers) then
+                        return false
+                    end
+                    local highestPower = { unitID = nil, power = -999 }
+                    for i, unitID in ipairs(unitsAround) do
+                        -- Compares the power of the current units around with the existing max attacker power
+                        for attackerID, attackerPower in pairs(attackers) do
+                            if unitID == attackerID and IsValidUnit(unitID) then
+                                if attackerPower > highestPower.power then
+                                    highestPower.power = attackerPower
+                                    highestPower.unitID = unitID
+                                end
+                                hasAttackerAround = true
+                                --if (not IsValidUnit(guardianData.targetID)) or attackerPower > guardianData.targetPower then
+                                --    guardianData.targetPower = attackerPower
+                                --    guardianData.targetID = attackerID
+                                --    guardianData.targetUpdated = true
+                                --end
+                                -----Update de-aggro time. Won't de-aggro before this long (done in the FSM)
+                                --guardianData.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay
+                            end
+                        end
+                    end
+                    ud.targetID = highestPower.unitID
+                    oreGuardians[ud.unitID].targetID = highestPower.unitID
+                end
+
+                return hasAttackerAround --fsm.state ~= "combat" and --and IsValidUnit(ud.targetID)
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
@@ -85,7 +115,7 @@ local fsmBehaviors = {
                 ud.oreGuardian = oreGuardians[ud.unitID]
                 local nextCheckFrame = ud.oreGuardian.nextCheckFrame
                 local f = spGetGameFrame()
-                --Spring.Echo("next Check Frame: "..(nextCheckFrame or "nil"))
+                Spring.Echo("frame: "..f..", next Check Frame: "..(nextCheckFrame or "nil"))
                 if nextCheckFrame and (f < nextCheckFrame) then
                     return false end
                 local targetID = ud.oreGuardian.targetID
@@ -97,7 +127,7 @@ local fsmBehaviors = {
                     isAway = distance(ax,ay,az, ip.x,ip.y,ip.z) > (guardRadius/2)
                 end
                 --Spring.Echo("hasTarget: "..tostring(hasTarget).." isAway: "..tostring(isAway))
-                return isAway or (not hasTarget and not aggroedGuardians[ud.unitID]) -- and fsm.state ~= "idle"
+                return isAway or (not hasTarget and not guardianAttackers[ud.unitID]) -- and fsm.state ~= "idle"
             end,
             action = function(ud)       -- What to do when entering this state, if condition is satisfied
                 --print("Activated state "..stateIDs[1]) --.." for: "..ud.unitID)
@@ -106,7 +136,7 @@ local fsmBehaviors = {
                 spGiveOrderToUnit(ud.unitID, CMD_MOVE, { pos.x, pos.y, pos.z }, {""})
                 ud.oreGuardian.targetID = nil
                 ud.oreGuardian.nextCheckFrame = nil
-                aggroedGuardians[ud.unitID] = nil
+                --guardianAttackers[ud.unitID] = nil
                 return "idle"
             end
     },
@@ -114,8 +144,7 @@ local fsmBehaviors = {
 }
 
 function gadget:Initialize()
-    GG.AggroedGuardians = aggroedGuardians  -- Used by unit_avoidshootingguardians.lua
-    GG.GuardianAttackers = guardianAttackers
+    GG.GuardianAttackers = guardianAttackers -- Used by unit_avoidshootingguardians.lua
     fsm.setup(fsmId, fsmBehaviors, 30, false) -- recheckLatency (idle->whatever), debug, updateRate = 6 (default)
     for _,unitID in ipairs(Spring.GetAllUnits()) do
         local teamID = Spring.GetUnitTeam(unitID)
@@ -152,6 +181,7 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
     end
 end
 
+-- Processes guardians being attacked (and not attacking)
 function gadget:UnitDamaged(guardianUID, unitDefID, unitTeam, damage, paralyzer,
                             weaponDefID, projectileID, attackerID, attackerDefID, attackerTeam)
     if (not oreGuardians[guardianUID]) or oreGuardians[attackerID] then
@@ -161,34 +191,33 @@ function gadget:UnitDamaged(guardianUID, unitDefID, unitTeam, damage, paralyzer,
     local data = oreGuardians[guardianUID]
 --    for guardianID, data in pairs(oreGuardians) do     -- { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
         --Spring.Echo("guardianID: "..(tostring(guardianID) or "nil"))
-        if IsValidUnit(attackerID) and IsValidUnit(guardianUID) then
-            --local dist = spGetUnitSeparation(attackerID, guardianID, true, false)
-            local ax,ay,az = spGetUnitPosition(guardianUID)
-            local ip = data.idlePos
-            local isInGuardRange = distance(ax,ay,az, ip.x,ip.y,ip.z) <= guardRadius/2
-            local attackerDef = UnitDefs[attackerDefID]
-            local attackerPower = attackerDef.power
-            if not guardianAttackers[guardianUID] then
-                guardianAttackers[guardianUID] = {}
-            end
-            guardianAttackers[guardianUID][attackerID] = attackerPower
-            if isInGuardRange then
-                --Spring.Echo("Unit has attacked within guarding radius of guardianID: "..(tostring(guardianID) or "nil"))
-                --unitFireState[guardianID] = returnFireState
+    if not IsValidUnit(attackerID) or not IsValidUnit(guardianUID) then
+        return end
 
-                -- If new nearby aggressor is not there, or has a stronger power, aim at it instead
-                if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
-                    data.targetPower = attackerPower
-                    data.targetID = attackerID
-                    data.targetUpdated = true
-                end
-                aggroedGuardians[guardianUID] = true
-                Spring.SetUnitRulesParam(guardianUID, "aggroed", 1, { public = true })
+    --local dist = spGetUnitSeparation(attackerID, guardianID, true, false)
+    local ax,ay,az = spGetUnitPosition(attackerID) --guardianUID
+    local ip = data.idlePos
+    local isInGuardRange = distance(ax,ay,az, ip.x,ip.y,ip.z) <= guardRadius/2
+    local attackerDef = UnitDefs[attackerDefID]
+    local attackerPower = attackerDef.power
+    if not guardianAttackers[guardianUID] or not istable(guardianAttackers[guardianUID]) then
+        guardianAttackers[guardianUID] = {}
+    end
+    if isInGuardRange then
+        --Spring.Echo("Unit has attacked within guarding radius of guardianID: "..(tostring(guardianID) or "nil"))
+        --unitFireState[guardianID] = returnFireState
 
-                data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
-            end
+        -- If new nearby aggressor is not there, or has a stronger power, aim at it instead
+        if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
+            data.targetPower = attackerPower
+            data.targetID = attackerID
+            data.targetUpdated = true
+            Spring.SetUnitRulesParam(guardianUID, "aggroed", attackerID, { public = true }) -- 1
         end
---    end
+        guardianAttackers[guardianUID][attackerID] = attackerPower
+
+        data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay      --Won't de-aggro before this long
+    end
 end
 
 function gadget:GameFrame(f)
@@ -197,34 +226,34 @@ function gadget:GameFrame(f)
 
     fsm.GameFrame(f)
 
-    for guardianID, attackers in pairs(guardianAttackers) do
-        local data = oreGuardians[guardianID]
-        if not aggroedGuardians[guardianID] and data then
-            local ip = data.idlePos
-            local unitsAround = spGetUnitsInCylinder(ip.x, ip.z, guardRadius)
-            for i, unitID in ipairs(unitsAround) do
-                for attackerID, attackerPower in pairs(attackers) do
-                    if unitID == attackerID then
-                        if (not IsValidUnit(data.targetID)) or attackerPower > data.targetPower then
-                            data.targetPower = attackerPower
-                            data.targetID = attackerID
-                            data.targetUpdated = true
-                        end
-                        aggroedGuardians[guardianID] = true
-                        ---Update de-aggro time. Won't de-aggro before this long
-                        data.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay
-                    end
-                end
-            end
-        end
-    end
+    --for guardianID, attackers in pairs(guardianAttackers) do
+    --    -- oreGuardians = { idlePos = { x=x,y=y,z=z }, targetID = {}, targetPower = 0, targetUpdated = nil, nextCheckFrame = n }
+    --    local guardianData = oreGuardians[guardianID]
+    --    if guardianData and not guardianAttackers[guardianID] then
+    --        local ip = guardianData.idlePos
+    --        local unitsAround = spGetUnitsInCylinder(ip.x, ip.z, guardRadius)
+    --        for i, unitID in ipairs(unitsAround) do
+    --            -- Compares the power of the current units around with the existing max attacker power
+    --            for attackerID, attackerPower in pairs(attackers) do
+    --                if unitID == attackerID then
+    --                    if (not IsValidUnit(guardianData.targetID)) or attackerPower > guardianData.targetPower then
+    --                        guardianData.targetPower = attackerPower
+    --                        guardianData.targetID = attackerID
+    --                        guardianData.targetUpdated = true
+    --                    end
+    --                    ---Update de-aggro time. Won't de-aggro before this long (done in the FSM)
+    --                    guardianData.nextCheckFrame = spGetGameFrame() + deaggroCheckDelay
+    --                end
+    --            end
+    --        end
+    --    end
+    --end
 end
 
 ---TODO: Forgiveness time? Or not? ==> guardianAttackers[guardianID][attackerID] = nil
 
 function gadget:UnitDestroyed(unitID) --, unitDefID, teamID)
     oreGuardians[unitID] = nil
-    aggroedGuardians[unitID] = nil
     guardianAttackers[unitID] = nil
     --Clear up dead guardians or attackers from guardianAttackers table
     for guardianID, attackers in pairs(guardianAttackers) do

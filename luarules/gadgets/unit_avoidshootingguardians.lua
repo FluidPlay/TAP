@@ -25,12 +25,10 @@ VFS.Include("gamedata/taptools.lua")
 
 local spGetAllUnits = Spring.GetAllUnits
 local spGetUnitDefID = Spring.GetUnitDefID
-local g_AggroedGuardians
 local g_GuardianAttackers
 local g_Guardians
 
 function gadget:Initialize()
-    g_AggroedGuardians = GG.AggroedGuardians
     g_Guardians = GG.Guardians
     g_GuardianAttackers = GG.GuardianAttackers
 
@@ -46,6 +44,7 @@ function gadget:Initialize()
     end
 end
 
+-- Checks if the guardian can be auto-attacked or not
 function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerWeaponDefID, defPriority)
     --if not (defPriority and attackerWeaponDefID) then
     if not attackerWeaponDefID then
@@ -54,26 +53,11 @@ function gadget:AllowWeaponTarget(unitID, targetID, attackerWeaponNum, attackerW
 
         --Spring.Echo("no attacker weapon, returning")
         return true end
-    --if not istable(GG.Guardians) then
-    --    Spring.Echo("GG.Guardians not found")
-    --else
-    --    Spring.Echo("GG.Guardians found")
-    --end
-    --if not istable(GG.AggroedGuardians) then
-    --    Spring.Echo("GG.AggroedGuardians not found")
-    --else
-    --    Spring.Echo("GG.AggroedGuardians found")
-    --end
+
     if g_Guardians[targetID] then
-        -- aggroedGuardians[guardianID][attackerID] = true
-        if g_AggroedGuardians[targetID] then
-            --Spring.Echo("It's aggroed")
+        if istable(g_GuardianAttackers[targetID]) and g_GuardianAttackers[targetID][unitID] then
+            --Spring.Echo("Attacker found!")
             return true, defPriority
-        else
-            if istable(g_GuardianAttackers[targetID]) and g_GuardianAttackers[targetID][unitID] then
-                --Spring.Echo("Attacker found!")
-                return true, defPriority
-            end
         end
         return false, defPriority
     end

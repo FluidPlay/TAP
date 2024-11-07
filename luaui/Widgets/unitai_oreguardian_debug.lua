@@ -87,8 +87,8 @@ function widget:DrawScreen()
 
             local x, y, z = spGetUnitViewPosition(unitID)
             local sx, sy = spWorldToScreenCoords(x, y, z)   --, sz
-            local aggroed = Spring.GetUnitRulesParam(unitID, "aggroed") == 1 and "true" or "false"
-            local text = "ID: "..(unitID or "nil").." | aggro: "..aggroed --(fsmTxt or "nil")
+            local aggroed = Spring.GetUnitRulesParam(unitID, "aggroed") -- == 1 and "true" or "false"
+            local text = "ID: "..(unitID or "nil").." | aggro UID: "..(aggroed or "nil") --(fsmTxt or "nil")
             gl_Text(text, sx, sy, textSize, "ocd")
         end
     end
