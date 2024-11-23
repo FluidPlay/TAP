@@ -1,5 +1,5 @@
 local armorDefs = {
-	robot = { "armack","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
+	robot = { "armkam","corbw","armack","armck","armfark","armpw","armrectr","armsubk","armconsul","coraca","corack","corak",
 			  "corck","cornecro","corspy","corsub","corsktl", "corpyro",
 			  "armaak","armsptk","armrock","coraak","corah",
 			  "corstorm","cortermite", "cordefiler","armsnipe", },
@@ -39,8 +39,8 @@ local armorDefs = {
 	--++++==== Air
 
 	air = { "armfig","armhawk","corveng","corvamp", "armbrawl", "corape", "armkameyes", "corkameyes"},
-	armorair={"corbw","armaca","armawac","armca","armsehak","armsfig","corawac","corca",
-			  "corhunt","armkam","armatlas","armdfly","armpeep","armsaber","armseap",
+	armorair={"armaca","armawac","armca","armsehak","armsfig","corawac","corca",
+			  "corhunt","armatlas","armdfly","armpeep","armsaber","armseap",
 			  "corseah","corfink","corvalk","armblade","armliche","armlance",
 			  "armpnix","armsb","armthund","corstil","corhurc","corshad","cortitan","corcrw",},
 	--lightair={"corbw","armaca","armawac","armca","armcsa","armfig","armhawk","armsehak","armsfig","corawac","corca","corhunt","corsfig","corvamp","corveng",},
