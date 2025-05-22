@@ -257,7 +257,7 @@ local function OpenCloseAnim(open)
     Signal(1) -- Kill any other copies of this thread
     SetSignalMask(1) -- Allow this thread to be killed by fresh copies
     if open then
-        -- TODO: This is where you would add your opening up anim
+        -- opening up anim
         PlayAnimation('open')   --from corsolar_anim.lua
     else
         -- TODO: This is where you would add your closing up anim
