@@ -56,7 +56,7 @@ local armorDefs = {
 				 "armgate","armjamt","armlab","armmakr","armmine1","armmine2","armmine3","armnanotc","armrad","armsd","armshltx",
 				 "armveil","armvp","armwin","asubpen","corageo","coraap","coradvsol","coralab","corap","corarad","corason","corasp","corasy","coravp",
 				 "cordrag","corestor","coreyes","corfdrag","corfmine3","corfort","corgant","corgantuw","corgeo","corhp",
-				 "corjamt","corlab","cormakr","cormine4","cormmkr","cormstor","cornanotc","corrad",
+				 "corjamt","corlab","cormakr","cormine4","cormmkr","kernexplorer","cornanotc","corrad",
 				 "corshroud","corsonar","corsy","cortron","coruwadves","coruwadvms",
 				 "corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav","armmstor", "armuwadvms",
 				 "armsilo", "corsilo",

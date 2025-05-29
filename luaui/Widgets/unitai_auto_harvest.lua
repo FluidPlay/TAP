@@ -99,7 +99,7 @@ local harvesters = {} -- { unitID = uDef.customParams.maxorestorage, parentOreTo
 
 ---local automatedState = {}   -- This is the automated state. It's always there for automatableUnits, after the initial latency period
 local harvestState = {}     -- Harvest state. // "idle", "attacking", "delivering", "unloading", "returning"
-local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true,
+local oreTowerDefNames = { armmstor = true, kernexplorer = true, armuwadvms = true, coruwadvms = true,  --cormstor
                            bowhq = true, bowhq2 = true, bowhq3 = true, bowhq4 = true, bowhq5 = true, bowhq6 = true,
                            kernhq = true, kernhq2 = true, kernhq3 = true, kernhq4 = true, kernhq5 = true, kernhq6 = true,
 }

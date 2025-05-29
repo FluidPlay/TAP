@@ -30,7 +30,7 @@ local storageDefs = {
   [ UnitDefNames['armuwadvms'].id ] = true,
 
   ---Core 
-  [ UnitDefNames['cormstor'].id ] = true,
+  [ UnitDefNames['kernexplorer'].id ] = true,   --cormstor
   --[ UnitDefNames['coruwms'].id ] = true,
   [ UnitDefNames['coruwadvms'].id ] = true,
  }

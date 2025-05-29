@@ -112,7 +112,7 @@ local CORSY = UnitDefNames["corsy"].id
 -- these are not used for hotkeys but used for switch faction buildings
 
 local ARMMSTOR = UnitDefNames["armmstor"].id
-local CORMSTOR = UnitDefNames["cormstor"].id
+local KERNEXPLORER = UnitDefNames["kernexplorer"].id	--cormstor
 
 local ARMESTOR = UnitDefNames["armestor"].id
 local CORESTOR = UnitDefNames["corestor"].id
@@ -157,7 +157,7 @@ armToCore[ARMSONAR] = CORSONAR
 armToCore[ARMLAB] = CORLAB
 armToCore[ARMVP] = CORVP
 armToCore[ARMSY] = CORSY
-armToCore[ARMMSTOR] = CORMSTOR
+armToCore[ARMMSTOR] = KERNEXPLORER --CORMSTOR
 armToCore[ARMESTOR] = CORESTOR
 armToCore[ARMMAKR] = CORMAKR
 armToCore[ARMEYES] = COREYES
@@ -169,7 +169,7 @@ armToCore[ARMFDRAG] = CORFDRAG
 local CONVERT_TABLE = {
     [1] =  {[UnitDefNames["armsolar"].id] = "Bow", 		[UnitDefNames["corsolar"].id] = "Kern",	},
     [2] =  {[UnitDefNames["armwin"].id] = "Bow", 		[UnitDefNames["corwin"].id] = "Kern", },
-    [4] =  {[UnitDefNames["armmstor"].id] = "Bow", 		[UnitDefNames["cormstor"].id] = "Kern", },
+    [4] =  {[UnitDefNames["armmstor"].id] = "Bow", 		[UnitDefNames["kernexplorer"].id] = "Kern", },
     [5] =  {[UnitDefNames["armestor"].id] = "Bow", 		[UnitDefNames["corestor"].id] = "Kern", },
     [6] =  {[UnitDefNames["armmex"].id] = "Bow", 		[UnitDefNames["cormex"].id] = "Kern", },
     [7] =  {[UnitDefNames["armmakr"].id] = "Bow", 		[UnitDefNames["cormakr"].id] = "Kern", },

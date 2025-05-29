@@ -118,7 +118,7 @@ local math_random = math.random
 local localTeamID = nil
 
 ---Harvest-system related
-local oreTowerDefNames = { armmstor = true, cormstor = true, armuwadvms = true, coruwadvms = true, }
+local oreTowerDefNames = { armmstor = true, kernexplorer = true, armuwadvms = true, coruwadvms = true, }    --cormstor
 
 -- == uDef.harvestStorage is not working (105)
 local harvesters = {} -- { unitID = { maxorestorage = uDef.customparams.maxorestorage, parentOreTowerID,

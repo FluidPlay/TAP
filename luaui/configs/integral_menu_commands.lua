@@ -561,7 +561,7 @@ local econ_commands = {
 	cormex		= {order = 2,  row = 1, col = 2},
 	corwin		= {order = 3,  row = 1, col = 3},
 	cormakr		= {order = 4,  row = 1, col = 4},
-	cormstor	= {order = 5,  row = 1, col = 5},
+	kernexplorer	= {order = 5,  row = 1, col = 5},	--cormstor
 	corestor	= {order = 6,  row = 1, col = 6},
 	cortide		= {order = 7,  row = 2, col = 1},
 	coruwmex	= {order = 8,  row = 2, col = 2},
