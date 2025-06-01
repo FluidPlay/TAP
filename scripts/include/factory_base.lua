@@ -85,6 +85,7 @@ end
 -- local upgradeOnlyPieces = { left_frontal_upgrade, right_frontal_upgrade, left_arm_advanced, left_head_advanced,
 -- 								left_pointer1, left_pointer2, right_arm_advanced, right_head_advanced, right_pointer1, right_pointer2 }
 -- local standardOnlyPieces = { left_arm, left_head, left_pointer, right_arm, right_head, right_pointer) }
+
 local function pieceSetup(advanced)
 	for _, piece in ipairs(standardOnlyPieces) do
 		if (advanced) then

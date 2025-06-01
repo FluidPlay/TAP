@@ -59,7 +59,7 @@ local build_pos = piece 'build_pos'
 local pointer = { left_pointer, right_pointer }
 local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
 
-VFS.Include("scripts/include/springtweener.lua")
+VFS.Include("scripts/include/springtweener.lua")    -- TODO: Turn into GG.SpringTweener
 
 local scriptEnv = { base = base,
                     left_arm1_advanced = left_arm1_advanced,
