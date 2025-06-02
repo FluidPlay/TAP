@@ -30,9 +30,13 @@ local math_abs = math.abs
 --	end
 --end
 
-local spGetGameFrame = Spring.GetGameFrame
+--local spGetGameFrame = Spring.GetGameFrame
 local spGetPieceTranslation = Spring.UnitScript.GetPieceTranslation
 local spGetPieceRotation = Spring.UnitScript.GetPieceRotation
+
+local math_atan2 = math.atan2
+local math_sin = math.sin
+local math_cos = math.cos
 
 --local TWO_PI = 2*math.pi
 local sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
@@ -85,7 +89,7 @@ end
 
 -- Normalize between -PI and PI (to prevent unwanted longest-angle rotations)
 local function normalizeAngle(angle)
-	return math.atan2(math.sin(angle), math.cos(angle)) ---slower ver, below is faster
+	return math_atan2(math_sin(angle), math_cos(angle)) ---slower ver, below is faster
 	--return angle - TWO_PI * math.floor((angle + math.pi) / TWO_PI)
 end
 
@@ -126,7 +130,7 @@ end
 ---This function recurses the tween until it's (fully) done, then returns to the caller (tweenPiece)
 ---pieceID, cmd, axis, startValue, valueDelta, prevValue, startTime, duration, easingFunction
 local function tweenPieces(tweenData)
-	local currentGameFrame = spGetGameFrame()
+	local currentGameFrame = GG.sp_currentFrame --spGetGameFrame()
 	local tweenFrame = currentGameFrame - tweenData.startGameFrame
 
 	--- That's the full duration of the included tweens, something like the animation duration in Blender, for instance
@@ -199,7 +203,7 @@ end
 
 --- Sets up tweenData with starting values (time, etc); works for multiple pieces at once
 function initTween (tweenData)
-	tweenData.startGameFrame = spGetGameFrame()
+	tweenData.startGameFrame = GG.sp_currentFrame -- spGetGameFrame()
 	--if not tweenData.sleepTime then 	--- Ignoring sleepTime and using the global below, for performance reasons
 		tweenData.sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
 	--end

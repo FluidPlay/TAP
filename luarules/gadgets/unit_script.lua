@@ -131,6 +131,9 @@ local LUA_WEAPON_MAX_INDEX = LUA_WEAPON_MIN_INDEX + 31
 
 local UNITSCRIPT_DIR = (UNITSCRIPT_DIR or "scripts/"):lower()
 local VFSMODE = VFS.ZIP_ONLY
+
+local sp_currentFrame = 0
+
 if (Spring.IsDevLuaEnabled()) then
     VFSMODE = VFS.RAW_ONLY
 end
@@ -482,7 +485,11 @@ do
         script[k] = v
     end
     --script._G = _G  -- the global table. (Update: _G points to unit environment now)
+    --** MaDDoX: added springtweener "initTween" to GG global table, in the unit script environment
+    VFS.Include("scripts/include/springtweener.lua")
+    GG.InitTween = initTween
     GG.easingFunctions = VFS.Include("scripts/include/easing.lua")
+    GG.sp_currentFrame = sp_currentFrame
     script.GG = GG  -- the shared table (shared with gadgets!)
     prototypeEnv = script
 end
@@ -795,11 +802,11 @@ end
 
 
 function gadget:GameFrame()
-    local n = sp_GetGameFrame()
-    local zzz = sleepers[n]
+    sp_currentFrame = sp_GetGameFrame()
+    local zzz = sleepers[sp_currentFrame]
 
     if zzz then
-        sleepers[n] = nil
+        sleepers[sp_currentFrame] = nil
 
         -- Wake up the lazy bastards for this frame (in reverse order).
         -- NOTE:
