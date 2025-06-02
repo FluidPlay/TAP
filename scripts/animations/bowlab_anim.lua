@@ -1,7 +1,7 @@
 -- #=#=# Animations:
 
 local function openstd()
-    initTween({veryLastFrame=52,
+    initTween ({veryLastFrame=52,
                [left_cover1]={
                    [1]={cmd="turn", axis=x_axis, targetValue=2.093080, firstFrame=0, lastFrame=52,},
                },
@@ -29,7 +29,7 @@ local function openstd()
     })
 end
 local function closestd()
-    initTween({veryLastFrame=48,
+    initTween ({veryLastFrame=48, --initTween
                [left_cover1]={
                    [1]={cmd="turn", axis=x_axis, targetValue=0.000000, firstFrame=12, lastFrame=48,},
                },

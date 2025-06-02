@@ -2,96 +2,103 @@
 --- DateTime: 15-Oct-22 3:12 AM
 --- License: GPLv3
 
-local easingFunctions = VFS.Include("scripts/include/easing.lua")
+--local easingFunctions = VFS.Include("scripts/include/easing.lua")
+--local easingFunctions = WG.easingFunctions
+if not WG or not WG.easingFunctions then
+	WG = {}
+	WG.easingFunctions = VFS.Include("scripts/include/easing.lua")
+end
 
 local math_abs = math.abs
-local math_rad = math.rad
-local spEcho = Spring.Echo
+--local math_rad = math.rad
+--local spEcho = Spring.Echo
 
-local functionFromString = {
-	["linear"] = easingFunctions.linear,
-	["inQuad"] = easingFunctions.inQuad,
-	["outQuad"] = easingFunctions.outQuad,
-	["inOutQuad"] = easingFunctions.inOutQuad,
-	["outInQuad"] = easingFunctions.outInQuad,
-	["inCubic"]  = easingFunctions.inCubic,
-	["outCubic"] = easingFunctions.outCubic,
-	["inOutCubic"] = easingFunctions.inOutCubic,
-	["outInCubic"] = easingFunctions.outInCubic,
-	["inQuart"] = easingFunctions.inQuart,
-	["outQuart"] = easingFunctions.outQuart,
-	["inOutQuart"] = easingFunctions.inOutQuart,
-	["outInQuart"] = easingFunctions.outInQuart,
-	["inQuint"] = easingFunctions.inQuint,
-	["outQuint"] = easingFunctions.outQuint,
-	["inOutQuint"] = easingFunctions.inOutQuint,
-	["outInQuint"] = easingFunctions.outInQuint,
-	["inSine"] = easingFunctions.inSine,
-	["outSine"] = easingFunctions.outSine,
-	["inOutSine"] = easingFunctions.inOutSine,
-	["outInSine"] = easingFunctions.outInSine,
-	["inExpo"] = easingFunctions.inExpo,
-	["outExpo"] = easingFunctions.outExpo,
-	["inOutExpo"] = easingFunctions.inOutExpo,
-	["outInExpo"] = easingFunctions.outInExpo,
-	["inCirc"] = easingFunctions.inCirc,
-	["outCirc"] = easingFunctions.outCirc,
-	["inOutCirc"] = easingFunctions.inOutCirc,
-	["outInCirc"] = easingFunctions.outInCirc,
-	["inElastic"] = easingFunctions.inElastic,
-	["outElastic"] = easingFunctions.outElastic,
-	["inOutElastic"] = easingFunctions.inOutElastic,
-	["outInElastic"] = easingFunctions.outInElastic,
-	["inBack"] = easingFunctions.inBack,
-	["outBack"] = easingFunctions.outBack,
-	["inOutBack"] = easingFunctions.inOutBack,
-	["outInBack"] = easingFunctions.outInBack,
-	["inBounce"] = easingFunctions.inBounce,
-	["outBounce"] = easingFunctions.outBounce,
-	["inOutBounce"] = easingFunctions.inOutBounce,
-	["outInBounce"] = easingFunctions.outInBounce,
-}
+--local functionFromString = {
+--	["linear"] = WG.easingFunctions.linear,
+--	["inQuad"] = WG.easingFunctions.inQuad,
+--	["outQuad"] = WG.easingFunctions.outQuad,
+--	["inOutQuad"] = WG.easingFunctions.inOutQuad,
+--	["outInQuad"] = WG.easingFunctions.outInQuad,
+--	["inCubic"]  = WG.easingFunctions.inCubic,
+--	["outCubic"] = WG.easingFunctions.outCubic,
+--	["inOutCubic"] = WG.easingFunctions.inOutCubic,
+--	["outInCubic"] = WG.easingFunctions.outInCubic,
+--	["inQuart"] = WG.easingFunctions.inQuart,
+--	["outQuart"] = WG.easingFunctions.outQuart,
+--	["inOutQuart"] = WG.easingFunctions.inOutQuart,
+--	["outInQuart"] = WG.easingFunctions.outInQuart,
+--	["inQuint"] = WG.easingFunctions.inQuint,
+--	["outQuint"] = WG.easingFunctions.outQuint,
+--	["inOutQuint"] = WG.easingFunctions.inOutQuint,
+--	["outInQuint"] = WG.easingFunctions.outInQuint,
+--	["inSine"] = WG.easingFunctions.inSine,
+--	["outSine"] = WG.easingFunctions.outSine,
+--	["inOutSine"] = WG.easingFunctions.inOutSine,
+--	["outInSine"] = WG.easingFunctions.outInSine,
+--	["inExpo"] = WG.easingFunctions.inExpo,
+--	["outExpo"] = WG.easingFunctions.outExpo,
+--	["inOutExpo"] = WG.easingFunctions.inOutExpo,
+--	["outInExpo"] = WG.easingFunctions.outInExpo,
+--	["inCirc"] = WG.easingFunctions.inCirc,
+--	["outCirc"] = WG.easingFunctions.outCirc,
+--	["inOutCirc"] = WG.easingFunctions.inOutCirc,
+--	["outInCirc"] = WG.easingFunctions.outInCirc,
+--	["inElastic"] = WG.easingFunctions.inElastic,
+--	["outElastic"] = WG.easingFunctions.outElastic,
+--	["inOutElastic"] = WG.easingFunctions.inOutElastic,
+--	["outInElastic"] = WG.easingFunctions.outInElastic,
+--	["inBack"] = WG.easingFunctions.inBack,
+--	["outBack"] = WG.easingFunctions.outBack,
+--	["inOutBack"] = WG.easingFunctions.inOutBack,
+--	["outInBack"] = WG.easingFunctions.outInBack,
+--	["inBounce"] = WG.easingFunctions.inBounce,
+--	["outBounce"] = WG.easingFunctions.outBounce,
+--	["inOutBounce"] = WG.easingFunctions.inOutBounce,
+--	["outInBounce"] = WG.easingFunctions.outInBounce,
+--}
 
-local function ipairs_sparse(t)
-	-- tmpIndex will hold sorted indices, otherwise
-	-- this iterator would be no different from pairs iterator
-	local tmpIndex = {}
-	local index, _ = next(t)
-	while index do
-		tmpIndex[#tmpIndex+1] = index
-		index, _ = next(t, index)
-	end
-	-- sort table indices
-	table.sort(tmpIndex)
-	local j = 1
-
-	return function()
-		-- get index value
-		local i = tmpIndex[j]
-		j = j + 1
-		if i then
-			return i, t[i]
-		end
-	end
-end
+--local function ipairs_sparse(t)
+--	-- tmpIndex will hold sorted indices, otherwise
+--	-- this iterator would be no different from pairs iterator
+--	local tmpIndex = {}
+--	local index, _ = next(t)
+--	while index do
+--		tmpIndex[#tmpIndex+1] = index
+--		index, _ = next(t, index)
+--	end
+--	-- sort table indices
+--	table.sort(tmpIndex)
+--	local j = 1
+--
+--	return function()
+--		-- get index value
+--		local i = tmpIndex[j]
+--		j = j + 1
+--		if i then
+--			return i, t[i]
+--		end
+--	end
+--end
 
 local spGetGameFrame = Spring.GetGameFrame
 local spGetPieceTranslation = Spring.UnitScript.GetPieceTranslation
 local spGetPieceRotation = Spring.UnitScript.GetPieceRotation
 
-local TWO_PI = 2*math.pi
+--local TWO_PI = 2*math.pi
+local sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
 local Turn = Spring.UnitScript.Turn
 local Move = Spring.UnitScript.Move
 local Hide = Spring.UnitScript.Hide
 local Show = Spring.UnitScript.Show
 
-local spGetUnitPieceList = Spring.GetUnitPieceList
+--local spGetUnitPieceList = Spring.GetUnitPieceList
+--Spring.GetUnitPieceList ( number unitID ) => { [1] = string "piecename", ... , [pieceNumN] = string "piecename" }
 
 local Sleep = Spring.UnitScript.Sleep
 local x_axis, y_axis, z_axis = 1, 2, 3 -- axis: number (1 = x axis, 2 = y axis, 3 = z axis)
 
-local pieceList = spGetUnitPieceList(unitID)
---Spring.GetUnitPieceList ( number unitID ) => { [1] = string "piecename", ... , [pieceNumN] = string "piecename" }
+--local pieceList = spGetUnitPieceList(unitID)
+
 
 local function LerpPiece(pieceID, cmd, axis, targetValue, t)
 	--TODO: Move ;; if cmd == "turn" then
@@ -113,13 +120,13 @@ local function LerpPiece(pieceID, cmd, axis, targetValue, t)
 	local speed = math.abs(newValue - curValue) / sleepTime --TODO: 0.25 is speed mult * 0.25
 
 	if (speed < 0.1) then
-		Spring.Echo("Done Lerping!")
+		--Spring.Echo("Done Lerping!")
 		return end
 
 	Turn(pieceID, axis, newValue, speed )
 
 	Sleep(sleepTime * 1000) --133.3333
-	Spring.Echo("f: "..spGetGameFrame().." oldValue: "..curValue.." newValue: "..newValue.." delta: "..(newValue - curValue).." speed: "..speed.." sleepTime: "..sleepTime)
+	--spEcho("f: "..spGetGameFrame().." oldValue: "..curValue.." newValue: "..newValue.." delta: "..(newValue - curValue).." speed: "..speed.." sleepTime: "..sleepTime)
 
 	-- Update piece value and recurse
 	pieceValue[pieceID][cmd][axis] = newValue
@@ -207,7 +214,7 @@ local function tweenPieces(tweenData)
 					local startValue = subtween.startValue
 
 					local strEasingFunction = subtween.easingFunction and subtween.easingFunction or "inOutSine"
-					local easingFunction = functionFromString[strEasingFunction]
+					local easingFunction = WG.easingFunctions.key[strEasingFunction] --functionFromString[strEasingFunction]
 					--- Uncomment for detailed single-piece debugging:
 					--if pieceList[pieceID] == "right_box" then
 					--	local targetValue =  valueDelta + startValue

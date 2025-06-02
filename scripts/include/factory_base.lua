@@ -116,7 +116,7 @@ function MorphUp()
 end
 
 -- Below are the subsequent morph-up animations; here we support up to 6 morph-up animations, but unit_morph might
--- 	need to be edited
+-- need to be edited
 function MorphUp2()
 	UnitScript.StartThread(function ()
 		PlayAnimation.morphup2()
@@ -163,6 +163,7 @@ local function Stop()
 	close_yard()
 end
 
+-- ** Actual "Build" animation
 local function Go()
 	--Spring.UnitScript.Signal(SIG_STATECHG)
 	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)

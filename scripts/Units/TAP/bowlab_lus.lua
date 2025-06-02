@@ -59,9 +59,15 @@ local build_pos = piece 'build_pos'
 local pointer = { left_pointer, right_pointer }
 local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
 
-VFS.Include("scripts/include/springtweener.lua")    -- TODO: Turn into GG.SpringTweener
+VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local WGTweener = WG.Tweener
+
+local scriptEnv = {
+                    initTween = initTween,
+                    Tweener = WGTweener,
+                    --
+                    base = base,
                     left_arm1_advanced = left_arm1_advanced,
                     left_arm2_advanced = left_arm2_advanced,
                     left_arm3_advanced = left_arm3_advanced,
@@ -119,7 +125,6 @@ local scriptEnv = { base = base,
                     Sleep = Sleep,
                     Show = Show,
                     Hide = Hide,
-                    initTween = initTween,
                     ---
                     Rand = math.random,
                     Explode = Spring.UnitScript.Explode,
@@ -153,6 +158,7 @@ local scriptEnv = { base = base,
 }
 
 local buildPiece = build_pos --building_plate
+-- Eg: PlayAnimation.openadv()
 local PlayAnimation = VFS.Include("scripts/animations/bowlab_anim.lua", scriptEnv)
 scriptEnv.PlayAnimation = PlayAnimation
 
