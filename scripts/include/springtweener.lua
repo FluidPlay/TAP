@@ -2,60 +2,10 @@
 --- DateTime: 15-Oct-22 3:12 AM
 --- License: GPLv3
 
+--GG.easingFunctions is now assigned within unit_script, so it's available as shared data / function
 --local easingFunctions = VFS.Include("scripts/include/easing.lua")
---local easingFunctions = WG.easingFunctions
-if not WG or not WG.easingFunctions then
-	WG = {}
-	WG.easingFunctions = VFS.Include("scripts/include/easing.lua")
-end
 
 local math_abs = math.abs
---local math_rad = math.rad
---local spEcho = Spring.Echo
-
---local functionFromString = {
---	["linear"] = WG.easingFunctions.linear,
---	["inQuad"] = WG.easingFunctions.inQuad,
---	["outQuad"] = WG.easingFunctions.outQuad,
---	["inOutQuad"] = WG.easingFunctions.inOutQuad,
---	["outInQuad"] = WG.easingFunctions.outInQuad,
---	["inCubic"]  = WG.easingFunctions.inCubic,
---	["outCubic"] = WG.easingFunctions.outCubic,
---	["inOutCubic"] = WG.easingFunctions.inOutCubic,
---	["outInCubic"] = WG.easingFunctions.outInCubic,
---	["inQuart"] = WG.easingFunctions.inQuart,
---	["outQuart"] = WG.easingFunctions.outQuart,
---	["inOutQuart"] = WG.easingFunctions.inOutQuart,
---	["outInQuart"] = WG.easingFunctions.outInQuart,
---	["inQuint"] = WG.easingFunctions.inQuint,
---	["outQuint"] = WG.easingFunctions.outQuint,
---	["inOutQuint"] = WG.easingFunctions.inOutQuint,
---	["outInQuint"] = WG.easingFunctions.outInQuint,
---	["inSine"] = WG.easingFunctions.inSine,
---	["outSine"] = WG.easingFunctions.outSine,
---	["inOutSine"] = WG.easingFunctions.inOutSine,
---	["outInSine"] = WG.easingFunctions.outInSine,
---	["inExpo"] = WG.easingFunctions.inExpo,
---	["outExpo"] = WG.easingFunctions.outExpo,
---	["inOutExpo"] = WG.easingFunctions.inOutExpo,
---	["outInExpo"] = WG.easingFunctions.outInExpo,
---	["inCirc"] = WG.easingFunctions.inCirc,
---	["outCirc"] = WG.easingFunctions.outCirc,
---	["inOutCirc"] = WG.easingFunctions.inOutCirc,
---	["outInCirc"] = WG.easingFunctions.outInCirc,
---	["inElastic"] = WG.easingFunctions.inElastic,
---	["outElastic"] = WG.easingFunctions.outElastic,
---	["inOutElastic"] = WG.easingFunctions.inOutElastic,
---	["outInElastic"] = WG.easingFunctions.outInElastic,
---	["inBack"] = WG.easingFunctions.inBack,
---	["outBack"] = WG.easingFunctions.outBack,
---	["inOutBack"] = WG.easingFunctions.inOutBack,
---	["outInBack"] = WG.easingFunctions.outInBack,
---	["inBounce"] = WG.easingFunctions.inBounce,
---	["outBounce"] = WG.easingFunctions.outBounce,
---	["inOutBounce"] = WG.easingFunctions.inOutBounce,
---	["outInBounce"] = WG.easingFunctions.outInBounce,
---}
 
 --local function ipairs_sparse(t)
 --	-- tmpIndex will hold sorted indices, otherwise
@@ -214,7 +164,7 @@ local function tweenPieces(tweenData)
 					local startValue = subtween.startValue
 
 					local strEasingFunction = subtween.easingFunction and subtween.easingFunction or "inOutSine"
-					local easingFunction = WG.easingFunctions.key[strEasingFunction] --functionFromString[strEasingFunction]
+					local easingFunction = GG.easingFunctions.key[strEasingFunction] --functionFromString[strEasingFunction]
 					--- Uncomment for detailed single-piece debugging:
 					--if pieceList[pieceID] == "right_box" then
 					--	local targetValue =  valueDelta + startValue
@@ -250,9 +200,9 @@ end
 --- Sets up tweenData with starting values (time, etc); works for multiple pieces at once
 function initTween (tweenData)
 	tweenData.startGameFrame = spGetGameFrame()
-	if not tweenData.sleepTime then
+	--if not tweenData.sleepTime then 	--- Ignoring sleepTime and using the global below, for performance reasons
 		tweenData.sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
-	end
+	--end
 	for pieceID, pieceData in pairs(tweenData) do
 		if type(pieceID) == "number" then
 			--- Each piece may have multiple tweens (start/end frames) in the same full range (defined by veryLastFrame)
