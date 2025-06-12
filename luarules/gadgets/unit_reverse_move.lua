@@ -61,7 +61,7 @@ if (gadgetHandler:IsSyncedCode()) then
             local cmd = Spring.GetUnitCommands(unitID, 1)
             local uDef = UnitDefs[unitDefID]
 
-            -- Set final speed and rSpeed values (considering upghandeler_throttle & slowdown_when_damaged)
+            -- Set final speed and rSpeed values (considering upghandler_throttle & slowdown_when_damaged)
             local throttleFactor = spGetUnitRulesParam(unitID, "throttleNerf")
             if not throttleFactor then
                 throttleFactor = 1

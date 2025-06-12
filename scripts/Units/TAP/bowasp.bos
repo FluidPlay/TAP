@@ -124,17 +124,17 @@ Deactivate()
 
 QueryPrimary(piecenum)
 {
-	if( gun_1 == turret1 )
-	{
+	//if( gun_1 == turret1 )
+	//{
 		piecenum = turret1spawner;
 		return 0;
-	}
-	if( gun_1 == turret2 )
-	{
-		piecenum = turret2spawner;
-		return 0;		
-	}
-	piecenum = turret3spawner;
+	//}
+	//if( gun_1 == turret2 )
+	//{
+	//	piecenum = turret2spawner;
+	//	return 0;		
+	//}
+	//piecenum = turret3spawner;
 }
 
 AimFromPrimary(piecenum)
@@ -147,16 +147,24 @@ RestoreAfterDelay()
 	sleep restore_delay;
 	turn turretaxis to y-axis <0.000000> speed <90.000000>;
 	turn turretbase to x-axis <0.000000> speed <90>;
+	turn turretbase to z-axis <0.000000> speed <90>;
 }
 
 AimPrimary(heading, pitch)
 {
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
-	turn turretaxis to y-axis heading speed <275.000000>; //turret
-	turn turretbase to x-axis pitch speed <175>;
-	wait-for-turn turretaxis around y-axis;
+	turn turretaxis to z-axis (-1.000000 * heading) speed <275.000000>; //turret
+	turn turretbase to x-axis (-1.000000 * pitch) speed <175>;
+	wait-for-turn turretaxis around z-axis;
 	wait-for-turn turretbase around x-axis;
+	
+	//s3o version:
+	//turn turretaxis to y-axis heading speed <275.000000>; //turret
+	//turn turretbase to x-axis <0.0000> - pitch speed <175>;
+	//wait-for-turn turretaxis around y-axis;	//z-axis
+	//wait-for-turn turretbase around x-axis;
+	
 	start-script RestoreAfterDelay();
 	return (1);
 }
@@ -173,20 +181,20 @@ FirePrimary()
 	if( gun_1 == turret1 )
 	{
 		gun_1 = turret2;
-		move turret1 to y-axis [2.000000] now;
-		move turret1 to y-axis [-0.6] speed [120.000000];
+		//move turret1 to y-axis [2.000000] now;
+		//move turret1 to y-axis [-0.6] speed [120.000000];
 		return (0);
 	}
 	if( gun_1 == turret2 )
 	{
-		move turret2 to y-axis [2.000000] now;
-		move turret2 to y-axis [-0.6] speed [120.000000];
+		//move turret2 to y-axis [2.000000] now;
+		//move turret2 to y-axis [-0.6] speed [120.000000];
 	
 		gun_1 = turret3;
 		return (0);
 	}
-	move turret3 to y-axis [2.000000] now;
-	move turret3 to y-axis [-0.6] speed [120.000000];
+	//move turret3 to y-axis [2.000000] now;
+	//move turret3 to y-axis [-0.6] speed [120.000000];
 	
 	gun_1 = turret1;
 }
