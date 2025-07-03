@@ -194,12 +194,12 @@ local allyTeamID = Spring.GetMyAllyTeamID()
 
 local chobbyInterface
 
-local oreTowerDefNames = { armmstor = true, kernexplorer = true, armuwadvms = true, coruwadvms = true,	--cormstor
+local oreTowerDefNames = { armmstor = true, kernexplorer = true, armuwadvms = true, -- coruwadvms = true,	--cormstor
 						   bowhq = true, bowhq2 = true, bowhq3 = true, bowhq4 = true, bowhq5 = true, bowhq6 = true,
 						   kernhq = true, kernhq2 = true, kernhq3 = true, kernhq4 = true, kernhq5 = true, kernhq6 = true,
 						  }
 
--- find all unit types which are oreTowers in the game and place their devolution ranges into unitRange table
+-- find all unit types which are oreTowers in the game and place their devolution ranges (from buildDistance) into unitRange table
 local unitRange = {} -- table of unit types with their radar ranges
 local isBuilding = {} -- unitDefID keys
 for unitDefID, unitDef in pairs(UnitDefs) do

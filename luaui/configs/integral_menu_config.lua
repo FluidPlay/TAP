@@ -9,6 +9,8 @@ local imageDir = 'LuaUI/Images/commands/'
 --local CMD_MORPH_STOP = 32410
 --local CMD_MORPH_PAUSE = 33410
 --local CMD_MORPH_QUEUE = 34410
+local CMD_LAND_AT_AIRBASE = 35430
+local CMD_LAND_AT_SPECIFIC_AIRBASE = 35431
 
 local tooltips = {
 	WANT_ONOFF = "Activation (_STATE_)\n  Toggles unit abilities such as radar, shield charge, and radar jamming.",
@@ -66,12 +68,15 @@ local commandDisplayConfig = {
 	[CMD.CAPTURE] = { texture = imageDir .. 'Bold/capture.png', tooltip = "Capture: Captures a unit from the enemy."},
 	[CMD.RESTORE] = { texture = imageDir .. 'Bold/restore.png', tooltip = "Restore: Restores an area of the map to its original height."},
 
+	[CMD.AUTOREPAIRLEVEL] = {texture = imageDir .. 'Bold/autorepair.png', tooltip = "Repair: Assist construction or repair a unit. Click and drag for area repair."},
 	[CMD.REPAIR] = {texture = imageDir .. 'Bold/repair.png', tooltip = "Repair: Assist construction or repair a unit. Click and drag for area repair."},
 	[CMD.RECLAIM] = {texture = imageDir .. 'Bold/reclaim.png', tooltip = "Reclaim: Take resources from a wreck. Click and drag for area reclaim."},
 	[CMD.RESURRECT] = {texture = imageDir .. 'Bold/resurrect.png', tooltip = "Resurrect: Spend energy to turn a wreck into a unit."},
 	[CMD_BUILD] = {texture = imageDir .. 'Bold/build.png'},
 	[CMD.MANUALFIRE] = { texture = imageDir .. 'Bold/dgun.png', tooltip = "Fire Special Weapon: Fire the unit's special weapon."},
 	[CMD.STOCKPILE] = {tooltip = "Stockpile: Queue missile production. Right click to reduce the queue."},
+	[CMD_LAND_AT_AIRBASE] = { texture = imageDir .. 'Bold/landairbaseany.png', tooltip = "Land at the nearest airbase."},
+	[CMD_LAND_AT_SPECIFIC_AIRBASE] = { texture = imageDir .. 'Bold/landairbase.png', tooltip = "Land at a specific airbase."},
 
 	[CMD.LOAD_UNITS] = { texture = imageDir .. 'Bold/load.png', tooltip = "Load: Pick up a unit. Click and drag to load unit in an area."},
 	[CMD.UNLOAD_UNITS] = { texture = imageDir .. 'Bold/unload.png', tooltip = "Unload: Set down a carried unit. Click and drag to unload in an area."},

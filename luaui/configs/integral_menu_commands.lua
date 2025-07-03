@@ -315,8 +315,8 @@ local factoryUnitPosDef = {
 
 local factory_commands = {
 	--BOWHQ / ARMMSTOR (ore tower)
-	armck     	= {order = 1, row = 1, col = 1},
-    armcv     	= {order = 2, row = 1, col = 2},
+	armcv     	= {order = 1, row = 1, col = 1},	--armck
+    --armcv     	= {order = 2, row = 1, col = 2},
 	armcs     	= {order = 4, row = 1, col = 4},
     armfark		= {order = 5, row = 1, col = 5},
 	bowdaemon	= {order = 6, row = 2, col = 1},
@@ -368,7 +368,7 @@ local factory_commands = {
 	--========
 	-- KERNHQ / CORMSTOR (ore tower)
 	corck		= {order = 1, row = 1, col = 1},
-	corcv		= {order = 2, row = 1, col = 2},
+	kernexplorer= {order = 2, row = 1, col = 2}, --corcv
 	corcs		= {order = 4, row = 1, col = 4},
 	cormuskrat	= {order = 5, row = 1, col = 5},
 	kerndaemon	= {order = 6, row = 2, col = 1},
@@ -561,10 +561,10 @@ local econ_commands = {
 	cormex		= {order = 2,  row = 1, col = 2},
 	corwin		= {order = 3,  row = 1, col = 3},
 	cormakr		= {order = 4,  row = 1, col = 4},
-	kernexplorer	= {order = 5,  row = 1, col = 5},	--cormstor
-	corestor	= {order = 6,  row = 1, col = 6},
-	cortide		= {order = 7,  row = 2, col = 1},
-	coruwmex	= {order = 8,  row = 2, col = 2},
+	--kernexplorer	= {order = 5,  row = 1, col = 5},	--cormstor
+	corestor	= {order = 5,  row = 1, col = 5},
+	cortide		= {order = 6,  row = 1, col = 6},
+	coruwmex	= {order = 7,  row = 2, col = 1},
 
 	corawin			= {order = 6,  row = 3, col = 1},
 	corfort			= {order = 13,  row = 3, col = 3},
