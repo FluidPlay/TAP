@@ -52,7 +52,10 @@ local advNanoPieces = { left_pointer1, left_pointer2, right_pointer1, right_poin
 
 VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+					initTween = GG.InitTween, --initTween,
+					---
+					base = base,
 					left_base = left_base,
 					left_wall = left_wall,
 					left_upgrade = left_upgrade,
@@ -101,7 +104,6 @@ local scriptEnv = { base = base,
 					Sleep = Sleep,
 					Show = Show,
 					Hide = Hide,
-					initTween = initTween,
 					---
 					Rand = math.random,
 					Explode = Spring.UnitScript.Explode,

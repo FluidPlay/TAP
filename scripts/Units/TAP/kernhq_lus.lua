@@ -72,7 +72,10 @@ local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer
 
 VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+                    initTween = GG.InitTween, --initTween,
+                    ----
+                    base = base,
                     frameL = frameL,
                     extenderFL_root = extenderFL_root,
                     extenderFL = extenderFL,
@@ -139,7 +142,6 @@ local scriptEnv = { base = base,
 					Sleep = Sleep,
 					Show = Show,
 					Hide = Hide,
-					initTween = initTween,
 					---
 					Rand = math.random,
 					Explode = Spring.UnitScript.Explode,

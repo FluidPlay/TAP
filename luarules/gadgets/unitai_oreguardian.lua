@@ -115,7 +115,7 @@ local fsmBehaviors = {
                 ud.oreGuardian = oreGuardians[ud.unitID]
                 local nextCheckFrame = ud.oreGuardian.nextCheckFrame
                 local f = spGetGameFrame()
-                Spring.Echo("frame: "..f..", next Check Frame: "..(nextCheckFrame or "nil"))
+                --Spring.Echo("frame: "..f..", next Check Frame: "..(nextCheckFrame or "nil"))
                 if nextCheckFrame and (f < nextCheckFrame) then
                     return false end
                 local targetID = ud.oreGuardian.targetID

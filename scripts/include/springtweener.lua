@@ -4,6 +4,8 @@
 
 --GG.easingFunctions is now assigned within unit_script, so it's available as shared data / function
 --local easingFunctions = VFS.Include("scripts/include/easing.lua")
+local easingFunctions = GG.easingFunctions
+--local spGetGameFrame = Spring.GetGameFrame
 
 local math_abs = math.abs
 
@@ -30,7 +32,6 @@ local math_abs = math.abs
 --	end
 --end
 
---local spGetGameFrame = Spring.GetGameFrame
 local spGetPieceTranslation = Spring.UnitScript.GetPieceTranslation
 local spGetPieceRotation = Spring.UnitScript.GetPieceRotation
 
@@ -168,7 +169,7 @@ local function tweenPieces(tweenData)
 					local startValue = subtween.startValue
 
 					local strEasingFunction = subtween.easingFunction and subtween.easingFunction or "inOutSine"
-					local easingFunction = GG.easingFunctions.key[strEasingFunction] --functionFromString[strEasingFunction]
+					local easingFunction = easingFunctions.key[strEasingFunction] -- GG.easingFunctions.key[strEasingFunction] || functionFromString[strEasingFunction]
 					--- Uncomment for detailed single-piece debugging:
 					--if pieceList[pieceID] == "right_box" then
 					--	local targetValue =  valueDelta + startValue
@@ -203,7 +204,7 @@ end
 
 --- Sets up tweenData with starting values (time, etc); works for multiple pieces at once
 function initTween (tweenData)
-	tweenData.startGameFrame = GG.sp_currentFrame -- spGetGameFrame()
+	tweenData.startGameFrame = GG.sp_currentFrame --spGetGameFrame()
 	--if not tweenData.sleepTime then 	--- Ignoring sleepTime and using the global below, for performance reasons
 		tweenData.sleepTime = 0.133333 --- default is 4 frames for each speed update; use 0.033333 for 'every frame'
 	--end

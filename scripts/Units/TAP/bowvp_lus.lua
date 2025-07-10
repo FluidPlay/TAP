@@ -61,9 +61,12 @@ local buildPiece = piece 'build_pos'
 local pointer = { left_pointer, right_pointer }
 local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer2 }
 
-VFS.Include("scripts/include/springtweener.lua")
+--VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+					initTween = GG.InitTween, --initTween,
+					---
+					base = base,
 					right_arm1 = right_arm1,
 					right_arm2 = right_arm2,
 					right_arm3 = right_arm3,
@@ -121,7 +124,6 @@ local scriptEnv = { base = base,
 					Sleep = Sleep,
 					Show = Show,
 					Hide = Hide,
-					initTween = initTween,
 					---
 					Rand = math.random,
 					Explode = Spring.UnitScript.Explode,

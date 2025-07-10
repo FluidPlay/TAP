@@ -486,9 +486,9 @@ do
     end
     --script._G = _G  -- the global table. (Update: _G points to unit environment now)
     --** MaDDoX: added springtweener "initTween" to GG global table, in the unit script environment
+    GG.easingFunctions = VFS.Include("scripts/include/easing.lua")
     VFS.Include("scripts/include/springtweener.lua")
     GG.InitTween = initTween
-    GG.easingFunctions = VFS.Include("scripts/include/easing.lua")
     GG.sp_currentFrame = sp_currentFrame
     script.GG = GG  -- the shared table (shared with gadgets!)
     prototypeEnv = script
@@ -803,6 +803,8 @@ end
 
 function gadget:GameFrame()
     sp_currentFrame = sp_GetGameFrame()
+    GG.sp_currentFrame = sp_currentFrame
+
     local zzz = sleepers[sp_currentFrame]
 
     if zzz then

@@ -1,6 +1,6 @@
 function widget:GetInfo()
     return {
-        name      = "SpringTweener API",
+        name      = "SpringTweener API - OBSOLETE",
         desc      = "Allows lua-level tweening of animation commands",
         author    = "MaDDoX",
         date      = "1 June 2025",
@@ -8,7 +8,7 @@ function widget:GetInfo()
         layer     = -10002,
         --api = true,
         --alwaysStart = true,
-        enabled   = true  --  loaded by default?
+        enabled   = false --true  --  loaded by default?
     }
 end
 
@@ -19,21 +19,20 @@ DOCUMENTATION:
 ]]
 
 
---local easingFunctions = VFS.Include("LuaRules/Gadgets/Include/easing.lua")
-local easingFunctions = VFS.Include("scripts/include/easing.lua")
-
-function widget:Initialize()
-    --Global Function Setup
-    WG.easingFunctions = easingFunctions
-
-    --WG.Tweener = {
-    --    InitTween = initTween,
-    --}
-    --WG.metalSpots = GetSpots()
-    --WG.GetMexPositions = GetMexPositions
-    --WG.IsMexPositionValid = IsMexPositionValid
-    widgetHandler:RemoveWidget(self)
-end
+--local easingFunctions = VFS.Include("scripts/include/easing.lua")
+--
+--function widget:Initialize()
+--    --Global Function Setup
+--    WG.easingFunctions = easingFunctions
+--
+--    --WG.Tweener = {
+--    --    InitTween = initTween,
+--    --}
+--    --WG.metalSpots = GetSpots()
+--    --WG.GetMexPositions = GetMexPositions
+--    --WG.IsMexPositionValid = IsMexPositionValid
+--    widgetHandler:RemoveWidget(self)
+--end
 
 
 --Internal String References

@@ -46,7 +46,10 @@ local left_frontal_upgrade = piece 'left_frontal_upgrade'
 
 VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+                    initTween = GG.InitTween, --initTween,
+                    ---
+                    base = base,
                     right_back_base = right_back_base,
                     right_back_protection = right_back_protection,
                     right_box = right_box,

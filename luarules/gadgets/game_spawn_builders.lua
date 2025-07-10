@@ -37,7 +37,7 @@ if gadgetHandler:IsSyncedCode() then
     local kerncomid = UnitDefNames["corcom"].id
     local bowhqid = UnitDefNames["bowhq"].id
     local kernhqid = UnitDefNames["kernhq"].id
-    local armckid = UnitDefNames["armck"].id
+    local armcvid = UnitDefNames["armcv"].id
     local corckid = UnitDefNames["corck"].id
     local bowdaemonid = UnitDefNames["bowdaemon"].id
     local kerndaemonid = UnitDefNames["kerndaemon"].id
@@ -110,7 +110,7 @@ if gadgetHandler:IsSyncedCode() then
             commanderID = kerncomid
             daemonID = kerndaemonid
         else
-            builderID = armckid
+            builderID = armcvid
             commanderID = bowcomid
             daemonID = bowdaemonid
         end

@@ -47,7 +47,10 @@ local buildPiece = piece 'build_pos' --building_plate
 
 VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+                    initTween = GG.InitTween, --initTween,
+                    ---
+                    base = base,
                     back_base = back_base,
                     back_wall = back_wall,
                     left_base = left_base,
@@ -94,7 +97,6 @@ local scriptEnv = { base = base,
                     Sleep = Sleep,
                     Show = Show,
                     Hide = Hide,
-                    initTween = initTween,
                     ---
                     Rand = math.random,
                     Explode = Spring.UnitScript.Explode,

@@ -48,7 +48,10 @@ local plate_fontal_extension = piece 'plate_fontal_extension'
 
 VFS.Include("scripts/include/springtweener.lua")
 
-local scriptEnv = { base = base,
+local scriptEnv = {
+                    initTween = GG.InitTween, --initTween,
+                    ---
+                    base = base,
                     left_building_base = left_building_base,
                     left_box = left_box,
                     left_cover = left_cover,
@@ -98,7 +101,6 @@ local scriptEnv = { base = base,
                     Sleep = Sleep,
                     Show = Show,
                     Hide = Hide,
-                    initTween = initTween,
                     ---
                     Rand = math.random,
                     Explode = Spring.UnitScript.Explode,

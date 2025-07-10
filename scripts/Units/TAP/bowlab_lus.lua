@@ -62,7 +62,7 @@ local advpointer = { left_pointer1, right_pointer1, left_pointer2, right_pointer
 --VFS.Include("scripts/include/springtweener.lua")
 
 local scriptEnv = {
-                    initTween = GG.InitTween,
+                    initTween = GG.InitTween, --initTween,
                     --
                     base = base,
                     left_arm1_advanced = left_arm1_advanced,

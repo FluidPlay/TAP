@@ -1,3 +1,15 @@
+VFS.Include('init.lua')
+
+-- See: https://springrts.com/wiki/Modrules.lua
+local useQTPFS = true -- Script.IsEngineMinVersion(105, 0, 2020)
+
+XPValues = {
+  experienceMult = 0.4,
+  powerScale = 1, -- Was zero (*MaDD)
+  healthScale = 1.1, --2.5 (BAR), 0.7
+  reloadScale = 0.7, --1.25 (BAR), 0.4
+}
+
 local modrules  = {
 
   movement = {
@@ -46,13 +58,14 @@ local modrules  = {
   paralyze = {
     paralyzeOnMaxHealth = true,    -- default: true. Are units paralyzed when the level of emp is greater than their current health or their maximum health?
     unitParalysisDeclineScale = 40, -- Time in seconds to go from 100% to 0% emp
+    paralyzeDeclineRate = Spring.GetModOptions().emprework==true and 20 or 40,	-- default: 40.
   },
 
   experience = {
-    experienceMult = 0.4,  -- (default: 1) Controls the amount of experience gained by units engaging in combat. The formulae used are: xp for damage = 0.1 * experienceMult * damage / target_HP * target_power / attacker_power.  xp for kill = 0.1 * experienceMult * target_power / attacker_power. Where power can be set by the UnitDef tag.
-    powerScale     = 1,    -- Controls how gaining experience changes the relative power of the unit. The formula used is Power multiplier = powerScale * (1 + xp / (xp + 1)).
-    healthScale    = 0.7,  -- Controls how gaining experience increases the maxDamage (total hitpoints) of the unit. The formula used is Health multiplier = healthScale * (1 + xp / (xp + 1)).
-    reloadScale    = 0.4,  -- Controls how gaining experience decreases the reloadTime of the unit's weapons. The formula used is Rate of fire multiplier = reloadScale * (1 + xp / (xp + 1)).
+    experienceMult = XPValues.experienceMult, -- Controls the amount of experience gained by units engaging in combat. The formulae used are: xp for damage = 0.1 * experienceMult * damage / target_HP * target_power / attacker_power.  xp for kill = 0.1 * experienceMult * target_power / attacker_power. Where power can be set by the UnitDef tag.
+    powerScale = XPValues.powerScale,	    -- Controls how gaining experience changes the relative power of the unit. The formula used is Power multiplier = powerScale * (1 + xp / (xp + 1)).
+    healthScale = XPValues.healthScale,	-- Controls how gaining experience increases the maxDamage (total hitpoints) of the unit. The formula used is Health multiplier = healthScale * (1 + xp / (xp + 1)).
+    reloadScale = XPValues.reloadScale,	-- Controls how gaining experience decreases the reloadTime of the unit's weapons. The formula used is Rate of fire multiplier = reloadScale * (1 + xp / (xp + 1)).
   },
 
   flankingBonus = {
@@ -81,9 +94,19 @@ local modrules  = {
   },
 
   system = {
-  	pathFinderSystem = 1, --(Spring.GetModOptions and (Spring.GetModOptions().pathfinder == "qtpfs") and 1) or 0,
+    allowTake = true,				-- Enables and disables the /take UI command.
+    LuaAllocLimit = 1536,			-- default: 1536.  Global Lua alloc limit (in megabytes)
+    enableSmoothMesh = true,
+
+    pathFinderSystem = useQTPFS and 1 or 0,			-- Which pathfinder does the game use? Can be 0 - The legacy default pathfinder, 1 - Quad-Tree Pathfinder System (QTPFS) or -1 - disabled.
     pathFinderUpdateRate = 0.005,   -- default 0.007, higher means more updates
-    pathFinderRawDistMult = 1.25,
+    --pathFinderRawDistMult = 1.25,
+    pathFinderRawDistMult = 100000,	-- default: 1.25.  Engine does raw move with a limited distance, this multiplier adjusts that
+    pfRepathDelayInFrames = 60,		-- default: 60.  How many frames at least must pass between checks for whether a unit is making enough progress to its current waypoint or whether a new path should be requested
+    pfRepathMaxRateInFrames = 150,	-- default: 150.  Controls the minimum amount of frames that must pass before a unit is allowed to request a new path. Mostly for rate limiting and prevent excessive CPU wastage
+    pfUpdateRateScale = 1,			-- default: 1.  Multiplier for the update rate
+    pfRawMoveSpeedThreshold = 0,	-- default: 0.  Controls the speed modifier (which includes typemap boosts and up/down hill modifiers) under which units will never do raw move, regardless of distance etc. Defaults to 0, which means units will not try to raw-move into unpathable terrain (e.g. typemapped lava, cliffs, water). You can set it to some positive value to make them avoid pathable but very slow terrain (for example if you set it to 0.2 then they will not raw-move across terrain where they move at 20% speed or less, and will use normal pathing instead - which may still end up taking them through that path).
+    pfHcostMult = 0.2,				-- default: 0.2.  A float value between 0 and 2. Controls how aggressively the pathing search prioritizes nodes going in the direction of the goal. Higher values mean pathing is cheaper, but can start producing degenerate paths where the unit goes straight at the goal and then has to hug a wall.
   },
 
   transportability = {
@@ -92,6 +115,10 @@ local modrules  = {
     transportShip   = false,    -- default: false
     transportHover  = true,    -- default: false
     targetableTransportedUnits = false, -- Can transported units be targeted by weapons? true allows both manual and automatic targeting.
+  },
+
+  damage = {
+    debris = 0, -- body parts flying off dead units
   },
 
 }
