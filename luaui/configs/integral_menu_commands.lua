@@ -51,8 +51,8 @@ local cmdPosDef = {
 	[CMD.CAPTURE]       = {pos = 7, priority = 6},
 	[CMD_FIND_PAD]      = {pos = 7, priority = 7},
 
-	[CMD.LOAD_UNITS]    = {pos = 7, priority = 7},
-	[CMD.UNLOAD_UNITS]  = {pos = 7, priority = 8},
+	[CMD.LOAD_UNITS]    = {pos = 7, priority = 8},
+	[CMD.UNLOAD_UNITS]  = {pos = 7, priority = 9},
 	[CMD_RECALL_DRONES] = {pos = 7, priority = 10},
 
 	[CMD_AREA_TERRA_MEX]= {pos = 13, priority = 1},

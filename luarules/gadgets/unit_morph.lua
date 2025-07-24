@@ -63,6 +63,17 @@ local spIsUnitInView = Spring.IsUnitInView
 local spSetUnitResourcing = Spring.SetUnitResourcing
 local spAddUnitResource = Spring.AddUnitResource
 local SpGiveOrderToUnit = Spring.GiveOrderToUnit
+local spSetUnitRotation = Spring.SetUnitRotation
+local spSetUnitBuildSpeed = Spring.SetUnitBuildSpeed
+local spSetUnitMass = Spring.SetUnitMass
+local spSetUnitMaxHealth = Spring.SetUnitMaxHealth
+local spSetUnitHealth = Spring.SetUnitHealth
+local spSetUnitTooltip = Spring.SetUnitTooltip
+local spSetUnitCosts = Spring.SetUnitCosts
+local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
+local spUnitDetachFromAir = Spring.UnitDetachFromAir
+local spUnitDetach = Spring.UnitDetach
+local spUnitAttach = Spring.UnitAttach
 
 VFS.Include("gamedata/taptools.lua")
 
@@ -119,6 +130,7 @@ local lastMorphQueueFrame = 0       --// Used to prevent multiple queue messages
 local INSTAMORPH = FALSE            --// Debug option, will make all morphs take 0 seconds and cost 0 resources
 
 local unitMorphDefs = {}    --// { unitID = { cmdID = morphDef, ... }, .. } :: used for sequential, no-replacement morphs; stores next morphDef
+local passengers = {}       --// Store passengers to "transfer" them between morphs
 
 --------------------------------------------------------------------------------
 --region  COMMON
@@ -1233,16 +1245,121 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
+    local function morph_noreplace(unitID, defDest, iData)
+        local newBuildSpeed, newMass, newMaxHealth, newTooltip = defDest.buildSpeed, defDest.mass, defDest.health, (defDest.humanName .. " - " .. defDest.tooltip)
+        local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)
+        local newHealth = (orgHealth / orgMaxHealth) * newMaxHealth
+        local newBuildTime, newMetalCost, newEnergyCost = defDest.buildTime, defDest.metalCost, defDest.energyCost
+        --Spring.Echo("newbt, newmc, newec: "..(newBuildTime or "nil")..", "..(newMetalCost or "nil")..", "..(newEnergyCost or "nil"))
+
+        spSetUnitBuildSpeed(unitID, newBuildSpeed)
+        spSetUnitMass(unitID, newMass)
+        spSetUnitMaxHealth(unitID, newMaxHealth)
+        spSetUnitHealth(unitID, newHealth)
+        --Spring.Echo("New values (buildspeed, mass, health, maxhealth): ", newBuildSpeed, newMass, newHealth, newMaxHealth )
+        spSetUnitTooltip(unitID, newTooltip)    --"advanced bot lab - "
+        spSetUnitCosts(unitID, { metalCost = newMetalCost, energyCost = newEnergyCost, buildTime = newBuildTime })
+        SendToUnsynced("unit_morph_finished", unitID, unitID)
+
+        ---TODO: Check!!
+        spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
+
+        -- Actually send the signal, eg: "AdvancedTech"
+        if iData.signal then
+            Spring.Echo("Signal: "..iData.signal)
+            GG.SendSignal(unitID, iData.signal)
+        else
+            Spring.Echo("No Signal found.")
+        end
+
+        local nextMorphDefs = morphDestinationDefs(unitID)
+        --UpdateUnitMorphReqs(unitID)
+
+        local morphData = iData.morphData
+
+        if nextMorphDefs then
+            --Spring.Echo("Next Morph Defs:")
+            --DebugTable(nextMorphDefs)
+            for _, morphDef in pairs(nextMorphDefs) do
+                --    ---morphData is the current data, morphDef is part of the new data
+                morphDef.cmd = morphData.def.cmd    --morphDef.cmd has to be preserved (@UpdateUnitMorphReqs)
+                --morphDef.signal = morphData.def.signal
+
+                ----    Spring.Echo("old morph (morphData) def debug:")
+                ----    DebugTable(morphData.def)
+                ----    Spring.Echo("next morphDef debug:")
+                ----    DebugTable(morphDef)
+            end
+            --Spring.Echo("Assigning edited morph")
+            unitMorphDefs[unitID] = nextMorphDefs
+        else
+            --Spring.Echo("No next morph found")
+            removeMorphButtons(unitID, "FinishMorph")
+        end
+
+        ---####TODO: Check if needed
+        UpdateAllMorphReqs(spGetUnitTeam(unitID), "FinishMorph")
+
+        --morphCmdDesc.id = morphDef.cmd
+        --morphCmdDesc.disabled = morphDef.tech > teamTech or morphDef.rank > unitRank
+        --        or morphDef.xp > unitXP or not teamHasTechs
+        --spEditUnitCmdDesc(unitID, cmdDescID, morphCmdDesc)
+
+        --Spring.Echo("Animation only # received: "..(animationonly or "nil"))
+        playMorphById(unitID, morphData.def.animationonly)
+        --// Send to unsynced so it can broadcast to widgets (and update selection here)
+        --(Redundant, see above) SendToUnsynced("unit_morph_finished", unitID, unitID) -- newUnit) -#-# Check: Obsolete??
+    end
+
+    local function morph_replace(unitID, defDest, iData)
+        local newUnit
+        local dstName = defDest.name
+        local unitTeam = spGetUnitTeam(unitID) -- morphData.teamID
+        local px, py, pz = spGetUnitBasePosition(unitID)
+        --- if it's a structure:
+        if defDest.isBuilding or defDest.isFactory then
+            --if udDst.isBuilding then
+
+            local x = math.floor(px / 16) * 16
+            local y = py
+            local z = math.floor(pz / 16) * 16
+
+            local xsize = defDest.xsize
+            local zsize = (defDest.zsize or defDest.ysize)
+            if ((iData.facing == 1) or (iData.facing == 3)) then
+                xsize, zsize = zsize, xsize
+            end
+            if xsize / 4 ~= math.floor(xsize / 4) then
+                x = x + 8
+            end
+            if zsize / 4 ~= math.floor(zsize / 4) then
+                z = z + 8
+            end
+            newUnit = spCreateUnit(dstName, x, y, z, iData.facing, unitTeam)
+            if newUnit then
+                spSetUnitPosition(newUnit, x, y, z)
+            end
+            --- it's a mobile unit
+        else
+            newUnit = spCreateUnit(dstName, px, py, pz, iData.facing, unitTeam)
+            if (iData.heading) then
+                spSetUnitRotation(newUnit, 0, -iData.heading * math.pi / 32768, 0)
+            end
+            if newUnit then
+                spSetUnitPosition(newUnit, px, py, pz)
+                spSetUnitRulesParam(unitID, "morphedinto", 1)
+            end
+        end
+        -- Below is consumed in update (without it, last-commander-ends might be triggered by mistake (!))
+        unitsToDestroy[unitID] = spGetGameFrame() + 1   -- Set frame for the unit to be removed from game
+        return newUnit
+    end
+
     --- morphData here is just relative to one specific morph, not to the entire morph set
     local function FinishMorph(unitID, morphData)
         if unitID == nil then
             return
         end
-        local defDest = UnitDefs[morphData.def.intoId]
-        local dstName = defDest.name
-        local unitTeam = spGetUnitTeam(unitID) -- morphData.teamID
-        local px, py, pz = spGetUnitBasePosition(unitID)
-        local h = spGetUnitHeading(unitID)
 
         --- Let's store the multiple 'blocking' settings, to later apply them to the new morphed-into unit
         local bl = {}
@@ -1260,11 +1377,19 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         local newUnit = nil
-        local face = HeadingToFacing(h)
+
+        -- destination UnitDef
+        local destUnitDef = UnitDefs[morphData.def.intoId]
+
+        local h = spGetUnitHeading(unitID)
+        local facing = HeadingToFacing(h)
+        local signal = morphData.def.signal
 
         local animationonly = morphData.def.animationonly
         local copystatsonly = morphData.def.copystatsonly
-        local signal = morphData.def.signal
+
+        -- We'll add this to a table so it's passed by reference (instead of by copy)
+        local internalData = { heading = h, facing = facing, signal = signal, morphData = morphData }
 
         ---DEBUG:
         --Spring.Echo("finished unit_morph to: "..(defDest.name or "nil")..
@@ -1275,109 +1400,9 @@ if (gadgetHandler:IsSyncedCode()) then
 
         --- Should not replace unit when animationonly or copystatsonly are set
         if (isnumber(animationonly) and animationonly > 0) or copystatsonly == 1 then
-            local newBuildSpeed, newMass, newMaxHealth, newTooltip = defDest.buildSpeed, defDest.mass, defDest.health, (defDest.humanName .. " - " .. defDest.tooltip)
-            local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)
-            local newHealth = (orgHealth / orgMaxHealth) * newMaxHealth
-            local newBuildTime, newMetalCost, newEnergyCost = defDest.buildTime, defDest.metalCost, defDest.energyCost
-            --Spring.Echo("newbt, newmc, newec: "..(newBuildTime or "nil")..", "..(newMetalCost or "nil")..", "..(newEnergyCost or "nil"))
-
-            Spring.SetUnitBuildSpeed(unitID, newBuildSpeed)
-            Spring.SetUnitMass(unitID, newMass)
-            Spring.SetUnitMaxHealth(unitID, newMaxHealth)
-            Spring.SetUnitHealth(unitID, newHealth)
-            --Spring.Echo("New values (buildspeed, mass, health, maxhealth): ", newBuildSpeed, newMass, newHealth, newMaxHealth )
-            Spring.SetUnitTooltip(unitID, newTooltip)    --"advanced bot lab - "
-            Spring.SetUnitCosts(unitID, { metalCost = newMetalCost, energyCost = newEnergyCost, buildTime = newBuildTime })
-            SendToUnsynced("unit_morph_finished", unitID, unitID)
-
-            ---TODO: Check!!
-            spSetUnitRulesParam(unitID, "morphedinto", 1) --That'll also be consumed by the per-unit upgrade handler ("puu")
-
-            -- If target unit has its own morphDef, set it into EditedMorphs[unitID]
-            --local udDst = UnitDefs[morphData.def.into]
-            --local targetMorphDef = udDst.customParams.morphdef
-            --if istable(targetMorphDef) then
-            --	EditedMorphs[unitID] = targetMorphDef end
-
-            -- Actually send the signal, eg: "AdvancedTech"
-            GG.SendSignal(unitID, signal)
-
-            local nextMorphDefs = morphDestinationDefs(unitID)
-            --UpdateUnitMorphReqs(unitID)
-
-            if nextMorphDefs then
-                --Spring.Echo("Next Morph Defs:")
-                --DebugTable(nextMorphDefs)
-                for _, morphDef in pairs(nextMorphDefs) do
-                    --
-                    --    local cmdID = morphData.def.cmd
-                    --    morphDef = morphData.def
-                    --
-                    --    ---morphData is the current data, morphDef is part of the new data
-                    morphDef.cmd = morphData.def.cmd    --morphDef.cmd has to be preserved (@UpdateUnitMorphReqs)
-                    --morphDef.signal = morphData.def.signal
-
-                    --
-                    ----    Spring.Echo("old morph (morphData) def debug:")
-                    ----    DebugTable(morphData.def)
-                    ----    Spring.Echo("next morphDef debug:")
-                    ----    DebugTable(morphDef)
-                end
-                --Spring.Echo("Assigning edited morph")
-                unitMorphDefs[unitID] = nextMorphDefs
-            else
-                Spring.Echo("No next morph found")
-                --unitMorphDefs[unitID] = nil
-                removeMorphButtons(unitID, "FinishMorph")
-            end
-
-            ---####TODO: Check if needed
-            UpdateAllMorphReqs(spGetUnitTeam(unitID), "FinishMorph")
-
-            --morphCmdDesc.id = morphDef.cmd
-            --morphCmdDesc.disabled = morphDef.tech > teamTech or morphDef.rank > unitRank
-            --        or morphDef.xp > unitXP or not teamHasTechs
-            --spEditUnitCmdDesc(unitID, cmdDescID, morphCmdDesc)
-
-            --Spring.Echo("Animation only # received: "..(animationonly or "nil"))
-            playMorphById(unitID, animationonly)
-            --// Send to unsynced so it can broadcast to widgets (and update selection here)
-            SendToUnsynced("unit_morph_finished", unitID, newUnit)
+            morph_noreplace(unitID, destUnitDef, internalData)
         else
-            --- Otherwise, if it's a structure:
-            if defDest.isBuilding or defDest.isFactory then
-                --if udDst.isBuilding then
-
-                local x = math.floor(px / 16) * 16
-                local y = py
-                local z = math.floor(pz / 16) * 16
-
-                local xsize = defDest.xsize
-                local zsize = (defDest.zsize or defDest.ysize)
-                if ((face == 1) or (face == 3)) then
-                    xsize, zsize = zsize, xsize
-                end
-                if xsize / 4 ~= math.floor(xsize / 4) then
-                    x = x + 8
-                end
-                if zsize / 4 ~= math.floor(zsize / 4) then
-                    z = z + 8
-                end
-                newUnit = spCreateUnit(dstName, x, y, z, face, unitTeam)
-                if newUnit then
-                    spSetUnitPosition(newUnit, x, y, z)
-                end
-                --- it's a mobile unit
-            else
-                newUnit = spCreateUnit(dstName, px, py, pz, face, unitTeam)
-                --Spring.SetUnitRotation(newUnit, 0, -h * math.pi / 32768, 0)
-                if newUnit then
-                    spSetUnitPosition(newUnit, px, py, pz)
-                    spSetUnitRulesParam(unitID, "morphedinto", 1)
-                end
-            end
-            -- Below is consumed in update (without it, last-commander-ends might be triggered by mistake (!))
-            unitsToDestroy[unitID] = spGetGameFrame() + 1   -- Set frame for the unit to be removed from game
+            newUnit = morph_replace(unitID, destUnitDef, internalData)
         end
 
         -- Safe check. All code below should only run if a new unit was successfully created
@@ -1388,21 +1413,21 @@ if (gadgetHandler:IsSyncedCode()) then
         ---- nothing here for now
         --end
 
-        if (hostName ~= nil) and PWUnits[unitID] then
-            -- send planetwars deployment message
-            PWUnit = PWUnits[unitID]
-            PWUnit.currentDef = defDest
-            local data = PWUnit.owner .. "," .. dstName .. "," .. math.floor(px) .. "," .. math.floor(pz) .. "," .. "S"
-            spSendCommands("w " .. hostName .. " pwmorph:" .. data)
-            extraUnitMorphDefs[unitID] = nil
-            GG.PlanetWars.units[unitID] = nil
-            GG.PlanetWars.units[newUnit] = PWUnit
-            SendToUnsynced('PWCreate', unitTeam, newUnit)
-        elseif (not morphData.def.facing) then
-            -- set rotation only if unit is not planetwars and facing is not true
-            --Spring.Echo(morphData.def.facing)
-            --Spring.SetUnitRotation(newUnit, 0, -h * math.pi / 32768, 0)
-        end
+        --if (hostName ~= nil) and PWUnits[unitID] then
+        --    -- send planetwars deployment message
+        --    PWUnit = PWUnits[unitID]
+        --    PWUnit.currentDef = defDest
+        --    local data = PWUnit.owner .. "," .. defDest.name .. "," .. math.floor(px) .. "," .. math.floor(pz) .. "," .. "S"
+        --    spSendCommands("w " .. hostName .. " pwmorph:" .. data)
+        --    extraUnitMorphDefs[unitID] = nil
+        --    GG.PlanetWars.units[unitID] = nil
+        --    GG.PlanetWars.units[newUnit] = PWUnit
+        --    SendToUnsynced('PWCreate', unitTeam, newUnit)
+        --elseif (not morphData.def.facing) then
+        --    -- set rotation only if unit is not planetwars and facing is not true
+        --    --Spring.Echo(morphData.def.facing)
+        --    --Spring.SetUnitRotation(newUnit, 0, -h * math.pi / 32768, 0)
+        --end
 
         --//copy experience & group
         local newXp = spGetUnitExperience(unitID) * XpScale
@@ -1430,13 +1455,13 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         --spSetUnitGroup(newUnit, oldGroup)
 
-        --//copy some state
+        --//copy some states
         local states = spGetUnitStates(unitID)
         spGiveOrderArrayToUnitArray({ newUnit }, {
             { CMD_FIRE_STATE, { states.firestate }, { } },
             { CMD_MOVE_STATE, { states.movestate }, { } },
             { CMD_REPEAT, { states["repeat"] and 1 or 0 }, { } },
-            { CMD_CLOAK, { states.cloak and 1 or defDest.initCloaked }, { } },
+            { CMD_CLOAK, { states.cloak and 1 or destUnitDef.initCloaked }, { } },
             { CMD_ONOFF, { 1 }, { } },
             { CMD_TRAJECTORY, { states.trajectory and 1 or 0 }, { } },
         })
@@ -1489,7 +1514,28 @@ if (gadgetHandler:IsSyncedCode()) then
         --// Send to unsynced so it can broadcast to widgets (and update selection here)
         SendToUnsynced("unit_morph_finished", unitID, newUnit)
 
-        --// FIXME: - re-attach to current transport?
+        --// If it's a loaded transport, moves transportees to the new unit (TODO: make sure both are transports!)
+        if istable(passengers[unitID]) then
+            local transportuDef = UnitDefs[spGetUnitDefID(unitID)]
+            local isAirTransport = transportuDef.isAirUnit
+            if passengers[newUnit] == nil then
+                passengers[newUnit] = {}
+            end
+            --// Re-attach all passengers to "new" (morphed-in) transport
+            for passengerUID in pairs(passengers[unitID]) do    -- if unitID is a loaded transport, has passengers
+                if isAirTransport then
+                    spUnitDetachFromAir(passengerUID)
+                else
+                    spUnitDetach(passengerUID)
+                end
+                spSetUnitLoadingTransport(passengerUID, newUnit) -- disable collision temporarily
+                spUnitAttach(newUnit, passengerUID, 0)          -- Currently only attach to the 'root' object
+                -- add newUnit to passengers table
+                passengers[newUnit][unitID] = true
+            end
+            -- remove old unit from passengers table
+            passengers[unitID] = nil
+        end
 
         spSetUnitBlocking(newUnit, true)
     end
@@ -1790,6 +1836,13 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:UnitGiven(unitID, unitDefID, newTeamID, oldTeamID)
         self:UnitDestroyed(unitID, unitDefID, oldTeamID)
+    end
+
+    function gadget:UnitLoaded(unitID, unitDefID, unitTeam, transportID, transportTeam)
+        if passengers[transportID] == nil then
+            passengers[transportID] = {}
+        end
+        passengers[transportID][unitID] = true
     end
 
     function UnitRanked(unitID, unitDefID, teamID, newRank, oldRank)
