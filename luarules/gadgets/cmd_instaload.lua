@@ -19,90 +19,112 @@ VFS.Include("gamedata/taptools.lua")
 
 if gadgetHandler:IsSyncedCode() then
 
---------------------------------------------------------------------------------
---region  SYNCED
---------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --region  SYNCED
+    --------------------------------------------------------------------------------
 
---local GiveClampedOrderToUnit = Spring.Utilities.GiveClampedOrderToUnit
-local CMD_INSERT 		= CMD.INSERT
-local CMD_MOVE			= CMD.MOVE
-local CMD_REMOVE        = CMD.REMOVE
-local CMD_WAIT			= CMD.WAIT
-local CMD_STOP			= CMD.STOP
-local CMD_GUARD			= CMD.GUARD
-local CMD_LOAD_ONTO		= CMD.LOAD_ONTO
-local CMD_SET_WANTED_MAX_SPEED = CMD.SET_WANTED_MAX_SPEED   -- 70
-local CMD_UNLOAD_UNIT   = 81 --CMD.UNLOAD_UNIT   --81
-local CMD_UNLOAD_UNITS  = 80 --CMD.UNLOAD_UNITS  --80
-local CMD_LOAD_UNITS	= CMD.LOAD_UNITS
-local CMD_OPT_INTERNAL 	= CMD.OPT_INTERNAL
-local CMD_OPT_SHIFT 	= CMD.OPT_SHIFT
+    --local GiveClampedOrderToUnit = Spring.Utilities.GiveClampedOrderToUnit
+    local CMD_INSERT 		= CMD.INSERT
+    local CMD_MOVE			= CMD.MOVE
+    local CMD_REMOVE        = CMD.REMOVE
+    local CMD_WAIT			= CMD.WAIT
+    local CMD_STOP			= CMD.STOP
+    local CMD_GUARD			= CMD.GUARD
+    local CMD_LOAD_ONTO		= CMD.LOAD_ONTO
+    local CMD_SET_WANTED_MAX_SPEED = CMD.SET_WANTED_MAX_SPEED   -- 70
+    local CMD_UNLOAD_UNIT   = 81 --CMD.UNLOAD_UNIT   --81
+    local CMD_UNLOAD_UNITS  = 80 --CMD.UNLOAD_UNITS  --80
+    local CMD_LOAD_UNITS	= CMD.LOAD_UNITS
+    local CMD_OPT_INTERNAL 	= CMD.OPT_INTERNAL
+    local CMD_OPT_SHIFT 	= CMD.OPT_SHIFT
 
-local loadtheseunits = {}               --// { [passengerUnitID] = transportID, ... }
+    local loadtheseunits = {}               --// { [passengerUnitID] = transportID, ... }
     --- Whenever an unload is registered, this table holds which transports are moving towards unload range
-local transportstounload = {}             --// { [transportID]={ x, y, z, r }, ... } || r == nil  =>  unload click
-local passengermovingtoload = {}
-local transportmovingtoload = {}          --// { [transportID]={{x, y, z, r, f}, ...} || f = frame after when it should be tracked
+    local transportstounload = {}             --// { [transportID]={ x, y, z, r }, ... } || r == nil  =>  unload click
+    local passengermovingtoload = {}
+    local transportmovingtoload = {}          --// { [transportID]={{x, y, z, r, f}, ...} || f = frame after when it should be tracked
     --- 'Assignable' changes after a load command is registered, transportcapacity only changes after actual loading
-local currentassignablecapacity = {}    --// { [transportID] = number, ...} should be made global in Initialize()
-local currenttransportcapacity = {}
-local unitisintransport = {}
-local passengers = {}                   --// [transportID]={ passengerUID1 = true, passengerUID2 = true, ... }
-local queueMovePassengers = {}      --// { [unitID] = frame, ... }
-local queuedMoveCommands = {}       --// { unitID=unitID, shift=shift, pos={x,y,z}}
+    local currentassignablecapacity = {}    --// { [transportID] = number, ...} should be made global in Initialize()
+    local currenttransportcapacity = {}
+    local unitisintransport = {}
+    local passengers = {}                   --// [transportID]={ passengerUID1 = true, passengerUID2 = true, ... }
+    local queueMovePassengers = {}      --// { [unitID] = frame, ... }
+    local queuedMoveCommands = {}       --// { unitID=unitID, shift=shift, pos={x,y,z}}
 
-local spGetAllUnits = Spring.GetAllUnits
-local spGetGameFrame = Spring.GetGameFrame
-local spGetUnitPosition = Spring.GetUnitPosition
-local spGetUnitDefID    = Spring.GetUnitDefID
-local spGetUnitTeam = Spring.GetUnitTeam
-local spGetUnitMoveTypeData = Spring.GetUnitMoveTypeData
-local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
-local spUnitAttach = Spring.UnitAttach
-local spUnitDetach = Spring.UnitDetach
-local spUnitDetachFromAir = Spring.UnitDetachFromAir
-local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
-local spGiveOrderToUnit = Spring.GiveOrderToUnit
-local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
+    local spGetAllUnits = Spring.GetAllUnits
+    local spGetGameFrame = Spring.GetGameFrame
+    local spGetUnitPosition = Spring.GetUnitPosition
+    local spGetUnitDefID    = Spring.GetUnitDefID
+    local spGetUnitTeam = Spring.GetUnitTeam
+    local spGetUnitMoveTypeData = Spring.GetUnitMoveTypeData
+    local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
+    local spUnitAttach = Spring.UnitAttach
+    local spUnitDetach = Spring.UnitDetach
+    local spUnitDetachFromAir = Spring.UnitDetachFromAir
+    local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
+    local spGiveOrderToUnit = Spring.GiveOrderToUnit
+    local spGetUnitsInCylinder = Spring.GetUnitsInCylinder
+    local spSetUnitRulesParam = Spring.SetUnitRulesParam
+    local spGetUnitRulesParam = Spring.GetUnitRulesParam
 
-local mcSetPosition         = Spring.MoveCtrl.SetPosition
---local mcSetRotation         = Spring.MoveCtrl.SetRotation
-local mcDisable             = Spring.MoveCtrl.Disable
-local mcEnable              = Spring.MoveCtrl.Enable
+    local mcSetPosition         = Spring.MoveCtrl.SetPosition
+    --local mcSetRotation         = Spring.MoveCtrl.SetRotation
+    local mcDisable             = Spring.MoveCtrl.Disable
+    local mcEnable              = Spring.MoveCtrl.Enable
 
-local rand = math.random
-local unloadScatterDist = 80 -- Max scatter move distance after unit is unloaded
+    local rand = math.random
+    local unloadScatterDist = 80 -- Max scatter move distance after unit is unloaded
 
-local function sqr (x)
-    return math.pow(x, 2)
-end
-
-function gadget:Initialize()
-    _G.currentassignablecapacity = currentassignablecapacity   --// making it global for unsynced access via SYNCED table
-    local allUnits = spGetAllUnits()
-    for i = 1, #allUnits do
-        local unitID    = allUnits[i]
-        local unitDefID = spGetUnitDefID(unitID)
-        gadget:UnitCreated(unitID, unitDefID)
+    local function sqr (x)
+        return math.pow(x, 2)
     end
-end
 
-function gadget:UnitCreated(unitID, unitDefID) --, team, builderID
-    unitisintransport[unitID] = false
-    passengermovingtoload[unitID] = false
-    if not UnitDefs[unitDefID].isTransport then
-        --Spring.Echo(" Not a transport! ")
-        return end
-    local transportcapacity = tonumber(UnitDefs[unitDefID].transportCapacity)
-    if transportcapacity == nil then
-        transportcapacity = 0
+    function gadget:Initialize()
+        _G.currentassignablecapacity = currentassignablecapacity   --// making it global for unsynced access via SYNCED table
+        local allUnits = spGetAllUnits()
+        for i = 1, #allUnits do
+            local unitID    = allUnits[i]
+            local unitDefID = spGetUnitDefID(unitID)
+            gadget:UnitCreated(unitID, unitDefID)
+        end
     end
-    currenttransportcapacity[unitID] = transportcapacity
-    currentassignablecapacity[unitID] = transportcapacity
-    --_G.currentassignablecapacity = currentassignablecapacity
-    --Spring.Echo("Assignable capacity table count: "..pairs_len(currentassignablecapacity))
-    transportmovingtoload[unitID] = nil
-end
+
+    function gadget:UnitCreated(unitID, unitDefID) --, team, builderID
+        unitisintransport[unitID] = false
+        passengermovingtoload[unitID] = false
+        if not UnitDefs[unitDefID].isTransport then
+            --Spring.Echo(" Not a transport! ")
+            return end
+        local transportcapacity = tonumber(UnitDefs[unitDefID].transportCapacity)
+        if transportcapacity == nil then
+            transportcapacity = 0
+        end
+        currenttransportcapacity[unitID] = transportcapacity
+        currentassignablecapacity[unitID] = transportcapacity
+        --_G.currentassignablecapacity = currentassignablecapacity
+        --Spring.Echo("Assignable capacity table count: "..pairs_len(currentassignablecapacity))
+        transportmovingtoload[unitID] = nil
+    end
+
+
+    function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+        local function AddTransportSlot(unitID)
+            -- add the transport slot to our register
+            local pieceMap = Spring.GetUnitPieceMap(unitID)
+            local num = nil
+            for pieceName, pieceNum in pairs(pieceMap) do
+                if pieceName:find("firebase") then      --firebase1, firebase2, etc
+                    --airbasePads[pieceNum] = false -- value is whether or not the pad is reserved
+                    spSetUnitRulesParam(unitID, "firebasepiece", pieceNum, { public = true })
+                    num = pieceNum
+                end
+            end
+            --Spring.Echo("piecenum set: "..(num and num or "nil"))
+        end
+        if not UnitDefs[unitDefID].isTransport then
+            return end
+        AddTransportSlot(unitID)
+    end
 
 -- Can this unit be transported?
 local function canBeTransported(unitDefID)
@@ -450,9 +472,12 @@ function gadget:GameFrame(f)
         for _, thisuID in ipairs(UnitsAroundTransport) do
             local thisUDID = spGetUnitDefID(thisuID)
             if thisuID == passengerUID and canBeTransported(thisUDID) then
-                -- Actually "load" the unit:
-                spSetUnitLoadingTransport(transpUID, thisuID)
-                spUnitAttach(transpUID, passengerUID, 0)          -- Currently only attach to the 'root' object
+                -- Actually "loads" the unit:
+                spSetUnitLoadingTransport(thisuID, transpUID)            -- disable collision temporarily
+                local piecenum = spGetUnitRulesParam(transpUID, "firebasepiece")
+                --Spring.Echo("piecenum found: "..(piecenum and piecenum or "nil"))
+                piecenum = (piecenum == nil) and 0 or piecenum
+                spUnitAttach(transpUID, passengerUID, piecenum)           -- Attaches to a 'firebasepiece'-named piece
                 loadtheseunits[passengerUID] = nil
                 local p_uID = UnitDefs[spGetUnitDefID(passengerUID)]
                 if (p_uID.repairSpeed > 0) then -- builder units will automatically repair the transport / bunker

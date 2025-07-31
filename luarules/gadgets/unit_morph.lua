@@ -71,6 +71,7 @@ local spSetUnitHealth = Spring.SetUnitHealth
 local spSetUnitTooltip = Spring.SetUnitTooltip
 local spSetUnitCosts = Spring.SetUnitCosts
 local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
+local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spUnitDetachFromAir = Spring.UnitDetachFromAir
 local spUnitDetach = Spring.UnitDetach
 local spUnitAttach = Spring.UnitAttach
@@ -1528,8 +1529,11 @@ if (gadgetHandler:IsSyncedCode()) then
                 else
                     spUnitDetach(passengerUID)
                 end
-                spSetUnitLoadingTransport(passengerUID, newUnit) -- disable collision temporarily
-                spUnitAttach(newUnit, passengerUID, 0)          -- Currently only attach to the 'root' object
+                spSetUnitLoadingTransport(passengerUID, newUnit)            -- disable collision temporarily
+                local piecenum = spGetUnitRulesParam(unitID, "firebasepiece")
+                --Spring.Echo("piecenum found: "..(piecenum and piecenum or "nil"))
+                piecenum = (piecenum == nil) and 0 or piecenum
+                spUnitAttach(newUnit, passengerUID, piecenum)            -- Attaches to a 'firebasepiece'-named piece
                 -- add newUnit to passengers table
                 passengers[newUnit][unitID] = true
             end
