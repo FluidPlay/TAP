@@ -154,9 +154,9 @@ AimPrimary(heading, pitch)
 {
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
-	turn turretaxis to z-axis (-1.000000 * heading) speed <275.000000>; //turret
+	turn turretaxis to y-axis (-1.000000 * heading) speed <275.000000>; //turret
 	turn turretbase to x-axis (-1.000000 * pitch) speed <175>;
-	wait-for-turn turretaxis around z-axis;
+	wait-for-turn turretaxis around y-axis;
 	wait-for-turn turretbase around x-axis;
 	
 	//s3o version:
