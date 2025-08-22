@@ -1,10 +1,11 @@
---- By MaDDoX, in Jan 7th 2023
+--- By MaDDoX, in Oct 22 2025
 --- ### How to use:
---- In your _lus.lua file, setup the scriptEnv table with everything to be used here (check kernap_lus.lua for an example)
---- Then add these lines:
---- 	local PlayAnimation = VFS.Include("scripts/animations/kernap_anim.lua", scriptEnv)
+--- In your _lus.lua file, setup the scriptEnv table with everything to be used here (check bowasp_lus.lua for an example)
+--- Then add these lines (eg):
+--- 	local PlayAnimation = VFS.Include("scripts/animations/bowasp_anim.lua", scriptEnv)
 ---  	scriptEnv.PlayAnimation = PlayAnimation
----		script_create, script_activate, script_deactivate, script_killed, MorphUp = VFS.Include("scripts/include/factory_base.lua", scriptEnv)
+---		script_create, script_activate, script_deactivate, script_killed,
+---      	script_queryweapon, script_aimfromweapon, script_aimweapon, MorphUp = VFS.Include("scripts/include/scriptbase_air.lua", scriptEnv)
 ---		function script.Create()
 ---			script_create() end
 ---		function script.Activate()
@@ -13,9 +14,14 @@
 ---			script_deactivate() end
 ---		function script.Killed(recentDamage, maxHealth)
 ---			script_killed(recentDamage, maxHealth) end
+---		function script.QueryWeapon()
+---			script_queryweapon(weaponID) end
+---		function script.AimFromWeapon(weaponID)
+---			script_aimfromweapon(weaponID) end
+---		function script_aimweapon(weaponID, heading, pitch)
+---			script.AimWeapon(weaponID, heading, pitch) end
 
 local HeadingAngle, PitchAngle, RestoreDelay, statechg_StateChanging
-local state = { build = 0, stop = 1}
 local statechg_DesiredState
 local isAdvanced = false
 local justcreated = false
@@ -30,6 +36,7 @@ local sfxFall = SFX.FALL
 local sfxFire = SFX.FIRE
 local sfxSmoke = SFX.SMOKE
 local sfxExplodeOnHit = SFX.EXPLODE_ON_HIT
+local SIG_AIM = 1001
 
 local function SmokeUnit(healthpercent, sleeptime, smoketype)
 	while UnitScript.GetUnitValue(COB.BUILD_PERCENT_LEFT) do
@@ -50,41 +57,6 @@ local function SmokeUnit(healthpercent, sleeptime, smoketype)
 		Sleep (sleeptime)
 	end
 end
-
-local function open_yard()
-	UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
-	while (UnitScript.GetUnitValue(COB.YARD_OPEN) == 0) do
-		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
-		Sleep(1500);
-		UnitScript.SetUnitValue(COB.YARD_OPEN, 1);
-	end
-	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
-end
-
-local function close_yard()
-	UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
-	while(UnitScript.GetUnitValue(COB.YARD_OPEN) ~= 0) do
-		UnitScript.SetUnitValue(COB.BUGGER_OFF, 1);
-		Sleep(1500);
-		UnitScript.SetUnitValue(COB.YARD_OPEN, 0);
-	end
-	UnitScript.SetUnitValue(COB.BUGGER_OFF, 0);
-end
-
---local function RestoreAfterDelay()
---	Sleep (RestoreDelay)
---	Turn (aim , y_axis, 0, Rad(100.00000))
---	WaitForTurn (aim, y_axis)
---end
-
---local function WaitOneFrame()
---	Sleep (1)
---end
-
--- Eg.: (from kernap_lus.lua)
--- local upgradeOnlyPieces = { left_frontal_upgrade, right_frontal_upgrade, left_arm_advanced, left_head_advanced,
--- 								left_pointer1, left_pointer2, right_arm_advanced, right_head_advanced, right_pointer1, right_pointer2 }
--- local standardOnlyPieces = { left_arm, left_head, left_pointer, right_arm, right_head, right_pointer) }
 
 local function pieceSetup(advanced)
 	for _, piece in ipairs(standardOnlyPieces) do
@@ -150,115 +122,110 @@ end
 local function Stop()
 	--Spring.UnitScript.Signal(SIG_STATECHG)
 	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
-	UnitScript.SetUnitValue(COB.INBUILDSTANCE, 0)	--set INBUILDSTANCE to 0
-	--WaitOneFrame()
-	---StartThread(RestoreAfterDelay)
-
 	if isAdvanced then
-		PlayAnimation.closeadv()
+		PlayAnimation.landadv()
 	else
-		PlayAnimation.closestd()
+		PlayAnimation.land()
 	end
-	close_yard()
 end
 
--- ** Actual "Build" animation
+-- ** Actual "Takeoff" animation
 local function Go()
-	--Spring.UnitScript.Signal(SIG_STATECHG)
-	--Spring.UnitScript.SetSignalMask(SIG_STATECHG)
-	--WaitOneFrame()
-
+	--UnitScript.Signal(SIG_STATECHG)
+	--UnitScript.SetSignalMask(SIG_STATECHG)
 	if isAdvanced then
-		PlayAnimation.openadv() --'closestd, openadv, closeadv'
+		PlayAnimation.takeoffadv() --'closestd, openadv, closeadv'
 	else
-		PlayAnimation.openstd() --'closestd, openadv, closeadv'
+		PlayAnimation.takeoff() --'closestd, openadv, closeadv'
 	end
-	open_yard()
-	UnitScript.SetUnitValue(COB.INBUILDSTANCE, 1)
 end
 
-local function RequestState(requestedstate, currentstate)
-	--Spring.Echo("Requesting State: "..(requestedstate==0 and "build" or "stop"))
-	--	Spring.UnitScript.Signal(SIG_REQSTATE)
-	--	Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
-	if  statechg_StateChanging  then
-		statechg_DesiredState = requestedstate
-		return (0)
-	end
-	statechg_StateChanging = true
-	currentstate = statechg_DesiredState
-	statechg_DesiredState = requestedstate
-	while statechg_DesiredState ~= currentstate  do
-		if statechg_DesiredState == state.build then
-			--Spring.Echo("bowvp_lus: Go now")
-			Go()
-			currentstate = state.build
-		elseif statechg_DesiredState == state.stop then
-			--Spring.Echo("bowvp_lus: Stop now")
-			Stop()
-			currentstate = state.stop
-		end
-	end
-	statechg_StateChanging = false
-end
+--local function RequestState(requestedstate, currentstate)
+--	--Spring.Echo("Requesting State: "..(requestedstate==0 and "build" or "stop"))
+--	--	Spring.UnitScript.Signal(SIG_REQSTATE)
+--	--	Spring.UnitScript.SetSignalMask(SIG_REQSTATE)
+--	if  statechg_StateChanging  then
+--		statechg_DesiredState = requestedstate
+--		return (0)
+--	end
+--	statechg_StateChanging = true
+--	currentstate = statechg_DesiredState
+--	statechg_DesiredState = requestedstate
+--	while statechg_DesiredState ~= currentstate  do
+--		if statechg_DesiredState == state.build then
+--			--Spring.Echo("scriptbaseair_lus: Go now")
+--			Go()
+--			currentstate = state.build
+--		elseif statechg_DesiredState == state.stop then
+--			--Spring.Echo("scriptbaseair_lus: Stop now")
+--			Stop()
+--			currentstate = state.stop
+--		end
+--	end
+--	statechg_StateChanging = false
+--end
 
 local function InitState()
 	HeadingAngle = nil
 	PitchAngle = nil
-	RestoreDelay = 5000
 	justcreated = true
-	statechg_DesiredState = 1
-	statechg_StateChanging = false
-	if (unitDefName == stdUnitDefName) then
-		isAdvanced = false
-		Spring.SetUnitNanoPieces(unitID, stdNanoPieces)
-	elseif (unitDefName == advUnitDefName) then
-		isAdvanced = true
-		Spring.SetUnitNanoPieces(unitID, advNanoPieces)
-	end
+	--RestoreDelay = 5000
+	--statechg_DesiredState = 1
+	--statechg_StateChanging = false
+
 	pieceSetup(isAdvanced)
 end
-
---function script.StartBuilding(heading, pitch)
---	HeadingAngle = heading
---	PitchAngle = pitch --  -math.max(minPitch, math.min(pitch, maxPitch))
---	--Spring.Echo("Source pitch: "..pitch)
---	StartThread(RequestState, state.build)
---end
---
---function script.StopBuilding()
---	StartThread(RequestState, state.stop)
---end
-
---- Replaced by Spring.SetUnitNanoPieces
---function script.QueryNanoPiece(piecenum)
---	if isAdvanced then
---		--piecenum = left_pointer1
---		piecenum = advNanoPieces[math.random(1,4)]
---	else
---		--piecenum = left_pointer
---		piecenum = nanoPieces[math.random(1,2)]
---		--local pointer = { "left_pointer", "right_pointer" }
---	end
---	return piecenum
---end
 
 local function SweetSpot(piecenum)
 	piecenum = base
 end
 
 function script_create()
-	UnitScript.StartThread(SmokeUnit)
 	InitState()
+	UnitScript.StartThread(SmokeUnit)
+	UnitScript.StartThread(Stop)	--test
 end
 
+-- Takeoff
 function script_activate()
-	HeadingAngle = 0
-	UnitScript.StartThread(RequestState, state.build)
+	--HeadingAngle = 0
+	--UnitScript.StartThread(RequestState, state.build)
+	--UnitScript.StartThread(Go)
 end
 
+-- Landing
 function script_deactivate()
-	UnitScript.StartThread(RequestState, state.stop)
+	--UnitScript.StartThread(RequestState, state.stop)
+	--UnitScript.StartThread(Stop)
+end
+
+----========= Weapon Scripting ========----
+
+--TODO
+local function RestoreAfterDelay(weapIdx)
+	Turn(turretPiece[weapIdx], y_axis, 0, 8.72)
+	Turn(barrelPiece[weapIdx], x_axis, 0, 4.36)
+end
+
+---turret[weapIdx] is a table of the piece num of the turret, per weapon Idx (eg: [1] = 5)
+---barrel[weapIdx] is a table of the piece num of the barrel, per weapon Idx (eg: [1] = 3)
+---RestoreDelay[weapIdx] is a table of restore delays, per weapon Idx (eg: [1] = 1000)
+
+function script_aimweapon(weapIdx, heading, pitch) --idx, piecenum)
+	UnitScript.Signal(SIG_AIM)
+	UnitScript.SetSignalMask(SIG_AIM)
+	Turn(turretPiece[weapIdx], y_axis, heading, 8.72)		--TODO: Externalize turret and barrel restore turn speeds
+	Turn(barrelPiece[weapIdx], x_axis, -pitch, 4.36)
+	WaitForTurn(turretPiece[weapIdx], y_axis)
+	WaitForTurn(barrelPiece[weapIdx], x_axis)
+	return true		--Return false if it shouldn't shoot (bad target maybe)
+end
+
+--TODO: Implement & make restoreDelay work
+function script_fireWeapon(weapIdx, restoreDelay) --script.FireWeapon
+	---UnitScript.StartThread(RestoreAfterDelay(weapIdx), restoreDelay)
+	--Spring.Echo("FireWeapon: FireWeapon")
+	--EmitSfx (flare, 1024)
 end
 
 local function getKilledFx(severity)
@@ -311,4 +278,4 @@ function script_killed(recentDamage, maxHealth)
 	return (corpsetype)
 end
 
-return script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3, MorphUp4, MorphUp5, MorphUp6
+return script_create, script_activate, script_deactivate, script_killed, script_aimweapon, script_fireweapon, MorphUp, MorphUp2, MorphUp3, MorphUp4, MorphUp5, MorphUp6
