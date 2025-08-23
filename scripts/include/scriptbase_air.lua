@@ -183,7 +183,7 @@ end
 function script_create()
 	InitState()
 	UnitScript.StartThread(SmokeUnit)
-	UnitScript.StartThread(Stop)	--test
+	UnitScript.StartThread(Stop)	--MaDD: test
 end
 
 -- Takeoff
@@ -224,6 +224,7 @@ end
 --TODO: Implement & make restoreDelay work
 function script_fireWeapon(weapIdx, restoreDelay) --script.FireWeapon
 	---UnitScript.StartThread(RestoreAfterDelay(weapIdx), restoreDelay)
+	PlayAnimation.fireweapon()
 	--Spring.Echo("FireWeapon: FireWeapon")
 	--EmitSfx (flare, 1024)
 end

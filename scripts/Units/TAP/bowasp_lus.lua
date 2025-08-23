@@ -97,8 +97,14 @@ function script.AimFromWeapon(weapIdx)
 function script.QueryWeapon(weapIdx)
     return barrelPiece[weapIdx] end
 
-script_create, script_activate, script_deactivate, script_killed, script_aimweapon, script_fireWeapon, MorphUp =
+script_create, script_activate, script_deactivate, script_killed, script_aimweapon, script_fireweapon, MorphUp =
             VFS.Include("scripts/include/scriptbase_air.lua", scriptEnv)
+
+function script_fireWeapon(weapIdx, restoreDelay) --script.FireWeapon
+    ---UnitScript.StartThread(RestoreAfterDelay(weapIdx), restoreDelay)
+    --Spring.Echo("FireWeapon: FireWeapon")
+    --EmitSfx (flare, 1024)
+end
 
 function script.Create()
     script_create() end
@@ -110,5 +116,5 @@ function script.Killed(recentDamage, maxHealth)
     script_killed(recentDamage, maxHealth) end
 function script.AimWeapon(weaponID, heading, pitch)
     script_aimweapon(weaponID, heading, pitch) end
-function script.FireWeapon(weapIdx)
-    script_fireWeapon(weapIdx, restoreDelay[weapIdx]) end
+--function script.FireWeapon(weapIdx)
+--    script_fireweapon(weapIdx, restoreDelay[weapIdx]) end
