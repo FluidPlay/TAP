@@ -111,6 +111,7 @@ end
 function ToggleDeployAnimation()
     UnitScript.StartThread(function()
         PlayAnimation.undeploy()    --deploy, for bowasp_lus.lua
+        Spring.SetUnitRulesParam(unitID, "premorphanimdone", 1, { public = true })
     end)
 end
 

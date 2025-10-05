@@ -134,6 +134,8 @@ local INSTAMORPH = FALSE            --// Debug option, will make all morphs take
 local unitMorphDefs = {}    --// { unitID = { cmdID = morphDef, ... }, .. } :: used for sequential, no-replacement morphs; stores next morphDef
 local passengers = {}       --// Store passengers to "transfer" them between morphs
 
+local premorphAnimating = {}    --// { unitID = morphData, ... }
+
 --------------------------------------------------------------------------------
 --region  COMMON
 --------------------------------------------------------------------------------
@@ -1551,12 +1553,12 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --morphData = { paused = true|false, progress = 0..1, def = { morphDef } }
 
-    local function PlayToggleDeployAnimation(unitID)
+    local function PlayToggleDeployAnimation(unitID, morphData)
         local env = Spring.UnitScript.GetScriptEnv(unitID)
-        if not env then
-            return end
-        if (env.ToggleDeployAnimation) then
-            Spring.UnitScript.CallAsUnit(unitID, env.ToggleDeployAnimation) end
+        if env and env.ToggleDeployAnimation then
+            Spring.UnitScript.CallAsUnit(unitID, env.ToggleDeployAnimation)
+            premorphAnimating[unitID] = morphData
+        end
     end
 
     -- Here's where the Morph is updated
@@ -1605,8 +1607,10 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         if morphData.progress >= 1.0 then
             if morphData.def.toggledeploymode == 1 then
-               PlayToggleDeployAnimation(unitID)
+                Spring.Echo("Has def.toggledeploymode")
+               PlayToggleDeployAnimation(unitID, morphData)
             else
+                Spring.Echo("Has no def.toggledeploymode")
                 FinishMorph(unitID, morphData)
             end
             return false -- remove from the list, all done
@@ -1827,6 +1831,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local prevTechLevel = teamTechLevel[teamID] or 0
 
         RemoveFactory(unitID, unitDefID, teamID)
+        premorphAnimating[unitID] = nil
 
         local updateButtons = false
         --TODO: Devolution enabled by lack of prerequisites should be added here, if needed
@@ -1963,6 +1968,17 @@ if (gadgetHandler:IsSyncedCode()) then
                 --Remark: This will fire up UnitDestroyed > checkQueue > StartQueue if/when needed
                 spDestroyUnit(uID, false, true) -- selfd = false, reclaimed = true
                 unitsToDestroy[uID] = nil
+            end
+        end
+
+        for uID, morphData in pairs(premorphAnimating) do
+            local premorphAnimDone = spGetUnitRulesParam(uID, "premorphanimdone")
+            --Spring.Echo("piecenum found: "..(piecenum and piecenum or "nil"))
+
+            if premorphAnimDone == 1 then
+                --Spring.Echo("Premorph Anim Done!!")
+                FinishMorph(uID, morphData)
+                premorphAnimating[uID] = nil
             end
         end
 

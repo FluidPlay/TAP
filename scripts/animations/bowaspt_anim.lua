@@ -41,6 +41,6 @@ local function shoot()
     })
 end
 
-local Animations = {land = landing, takeoff = takeoff, deploy = deploy, undeploy = undeploy, fireweapon = shoot, }
+local Animations = {undeploy = undeploy, fireweapon = shoot, }
 
 return Animations
