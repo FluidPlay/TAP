@@ -183,20 +183,20 @@ end
 function script_create()
 	InitState()
 	UnitScript.StartThread(SmokeUnit)
-	UnitScript.StartThread(Stop)	--MaDD: test
+	UnitScript.StartThread(Go)
 end
 
 -- Takeoff
 function script_activate()
 	--HeadingAngle = 0
 	--UnitScript.StartThread(RequestState, state.build)
-	--UnitScript.StartThread(Go)
+	UnitScript.StartThread(Go)
 end
 
 -- Landing
 function script_deactivate()
 	--UnitScript.StartThread(RequestState, state.stop)
-	--UnitScript.StartThread(Stop)
+	UnitScript.StartThread(Stop)
 end
 
 ----========= Weapon Scripting ========----

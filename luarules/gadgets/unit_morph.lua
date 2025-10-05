@@ -104,6 +104,7 @@ VFS.Include("gamedata/taptools.lua")
 --			** unitdefs copied: description, buildcostmetal, buildcostenergy, buildtime, mass, maxdamage, workertime || customparams, builddistance, featuredefs
 --		[[TODO: Must unlock buildoptions]]
 --		animationonly :: instead of entirely replacing the source unit by the target unit, plays an animation. Eg.: for animationonly = 4 => PlayAnimation.morphup4
+--      toggledeploymode :: once morph's done, it'll play the 'toggledeploymode' animation before actually replacing the unit
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -632,6 +633,7 @@ if (gadgetHandler:IsSyncedCode()) then
             newData.facing = morphData.facing
             newData.animationonly = morphData.animationonly or 0
             newData.copystatsonly = morphData.copystatsonly or 0
+            newData.toggledeploymode = morphData.toggledeploymode or 0
             newData.signal = morphData.signal or nil
 
             newData.cmd = CMD_MORPH + MAX_MORPH
@@ -1246,6 +1248,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
+    --- Called at the end of the morph progress, if there'll be no unit replacement
     local function morph_noreplace(unitID, defDest, iData)
         local newBuildSpeed, newMass, newMaxHealth, newTooltip = defDest.buildSpeed, defDest.mass, defDest.health, (defDest.humanName .. " - " .. defDest.tooltip)
         local orgHealth, orgMaxHealth = spGetUnitHealth(unitID)
@@ -1267,10 +1270,10 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- Actually send the signal, eg: "AdvancedTech"
         if iData.signal then
-            Spring.Echo("Signal: "..iData.signal)
+            --Spring.Echo("Signal: "..iData.signal)
             GG.SendSignal(unitID, iData.signal)
-        else
-            Spring.Echo("No Signal found.")
+        --else
+        --    Spring.Echo("No Signal found.")
         end
 
         local nextMorphDefs = morphDestinationDefs(unitID)
@@ -1312,6 +1315,7 @@ if (gadgetHandler:IsSyncedCode()) then
         --(Redundant, see above) SendToUnsynced("unit_morph_finished", unitID, unitID) -- newUnit) -#-# Check: Obsolete??
     end
 
+    --- Called at the end of the morph progress, if the unit will be replaced (default)
     local function morph_replace(unitID, defDest, iData)
         local newUnit
         local dstName = defDest.name
@@ -1356,7 +1360,8 @@ if (gadgetHandler:IsSyncedCode()) then
         return newUnit
     end
 
-    --- morphData here is just relative to one specific morph, not to the entire morph set
+    --- Finish the morph.
+    --- PS: morphData here is just relative to one specific morph, not to the entire morph set
     local function FinishMorph(unitID, morphData)
         if unitID == nil then
             return
@@ -1546,6 +1551,14 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --morphData = { paused = true|false, progress = 0..1, def = { morphDef } }
 
+    local function PlayToggleDeployAnimation(unitID)
+        local env = Spring.UnitScript.GetScriptEnv(unitID)
+        if not env then
+            return end
+        if (env.ToggleDeployAnimation) then
+            Spring.UnitScript.CallAsUnit(unitID, env.ToggleDeployAnimation) end
+    end
+
     -- Here's where the Morph is updated
     local function UpdateMorph(unitID, morphData, bonus)
         if not unitID or not morphData or not morphData.def then
@@ -1591,7 +1604,11 @@ if (gadgetHandler:IsSyncedCode()) then
             morphData.progress = morphData.progress + (morphData.increment * bonus)
         end
         if morphData.progress >= 1.0 then
-            FinishMorph(unitID, morphData)
+            if morphData.def.toggledeploymode == 1 then
+               PlayToggleDeployAnimation(unitID)
+            else
+                FinishMorph(unitID, morphData)
+            end
             return false -- remove from the list, all done
         end
         return true    -- continue with morph
@@ -1617,6 +1634,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     text = unitDef.customParams.morphdef__text,
                     animationonly = tonumber(unitDef.customParams.morphdef__animationonly),
                     copystatsonly = tonumber(unitDef.customParams.morphdef__copystatsonly),
+                    toggledeploymode = tonumber(unitDef.customParams.morphdef__toggledeploymode),
                     signal = unitDef.customParams.morphdef__signal,
                     ---- TODO: will also update the morphdef once morph is done
                 }
