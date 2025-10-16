@@ -1,7 +1,7 @@
-local function undeploy()
+local function premorphanim()   --undeploy
     initTween({veryLastFrame=36,
                [base_root]={
-                   [1]={cmd="turn", axis=y_axis, targetValue=-1.570796, firstFrame=0, lastFrame=36,},
+                   [1]={cmd="turn", axis=y_axis, targetValue=-1.57080, firstFrame=0, lastFrame=36,},
                    [2]={cmd="move", axis=z_axis, targetValue=14.000000, firstFrame=0, lastFrame=20,},
                    [3]={cmd="move", axis=x_axis, targetValue=7.000000, firstFrame=0, lastFrame=20,},
                    [4]={cmd="move", axis=x_axis, targetValue=-0.000000, firstFrame=20, lastFrame=36,},
@@ -41,6 +41,6 @@ local function shoot()
     })
 end
 
-local Animations = {undeploy = undeploy, fireweapon = shoot, }
+local Animations = {premorphanim = premorphanim, fireweapon = shoot, }
 
 return Animations

@@ -201,33 +201,28 @@ end
 
 ----========= Weapon Scripting ========----
 
---TODO
-local function RestoreAfterDelay(weapIdx)
-	Turn(turretPiece[weapIdx], y_axis, 0, 8.72)
-	Turn(barrelPiece[weapIdx], x_axis, 0, 4.36)
-end
-
 ---turret[weapIdx] is a table of the piece num of the turret, per weapon Idx (eg: [1] = 5)
 ---barrel[weapIdx] is a table of the piece num of the barrel, per weapon Idx (eg: [1] = 3)
 ---RestoreDelay[weapIdx] is a table of restore delays, per weapon Idx (eg: [1] = 1000)
 
-function script_aimweapon(weapIdx, heading, pitch) --idx, piecenum)
-	UnitScript.Signal(SIG_AIM)
-	UnitScript.SetSignalMask(SIG_AIM)
-	Turn(turretPiece[weapIdx], y_axis, heading, 8.72)		--TODO: Externalize turret and barrel restore turn speeds
-	Turn(barrelPiece[weapIdx], x_axis, -pitch, 4.36)
-	WaitForTurn(turretPiece[weapIdx], y_axis)
-	WaitForTurn(barrelPiece[weapIdx], x_axis)
-	return true		--Return false if it shouldn't shoot (bad target maybe)
-end
-
---TODO: Implement & make restoreDelay work
-function script_fireWeapon(weapIdx, restoreDelay) --script.FireWeapon
-	---UnitScript.StartThread(RestoreAfterDelay(weapIdx), restoreDelay)
-	PlayAnimation.fireweapon()
-	--Spring.Echo("FireWeapon: FireWeapon")
-	--EmitSfx (flare, 1024)
-end
+--function script_aimweapon(weapIdx, heading, pitch) --idx, piecenum)
+--	UnitScript.Signal(SIG_AIM)
+--	UnitScript.SetSignalMask(SIG_AIM)
+--
+--	Turn(barrelBasePiece[weapIdx], y_axis, -heading, 8.72)		--TODO: Externalize turret and barrel restore turn speeds
+--	Turn(barrelPiece[weapIdx], x_axis, -pitch, 4.36)
+--	WaitForTurn(barrelBasePiece[weapIdx], y_axis)
+--	WaitForTurn(barrelPiece[weapIdx], x_axis)	-- was x_axis
+--	return true		--Return false if it shouldn't shoot (bad target maybe)
+--end
+--
+----TODO: Implement & make restoreDelay work
+--function script_fireWeapon(weapIdx, restoreDelay) --script.FireWeapon
+--	---UnitScript.StartThread(RestoreAfterDelay(weapIdx), restoreDelay)
+--	PlayAnimation.fireweapon()
+--	--Spring.Echo("FireWeapon: FireWeapon")
+--	--EmitSfx (flare, 1024)
+--end
 
 local function getKilledFx(severity)
 	local corpsetype = 3
@@ -279,4 +274,4 @@ function script_killed(recentDamage, maxHealth)
 	return (corpsetype)
 end
 
-return script_create, script_activate, script_deactivate, script_killed, script_aimweapon, script_fireweapon, MorphUp, MorphUp2, MorphUp3, MorphUp4, MorphUp5, MorphUp6
+return script_create, script_activate, script_deactivate, script_killed, MorphUp, MorphUp2, MorphUp3, MorphUp4, MorphUp5, MorphUp6

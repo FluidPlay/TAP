@@ -104,7 +104,7 @@ VFS.Include("gamedata/taptools.lua")
 --			** unitdefs copied: description, buildcostmetal, buildcostenergy, buildtime, mass, maxdamage, workertime || customparams, builddistance, featuredefs
 --		[[TODO: Must unlock buildoptions]]
 --		animationonly :: instead of entirely replacing the source unit by the target unit, plays an animation. Eg.: for animationonly = 4 => PlayAnimation.morphup4
---      toggledeploymode :: once morph's done, it'll play the 'toggledeploymode' animation before actually replacing the unit
+--      premorphanim :: once morph's done, it'll play the PremorphAnimation() function (in the unit script). When that's done, it actually replaces the unit
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -635,7 +635,7 @@ if (gadgetHandler:IsSyncedCode()) then
             newData.facing = morphData.facing
             newData.animationonly = morphData.animationonly or 0
             newData.copystatsonly = morphData.copystatsonly or 0
-            newData.toggledeploymode = morphData.toggledeploymode or 0
+            newData.premorphanim = morphData.premorphanim or 0
             newData.signal = morphData.signal or nil
 
             newData.cmd = CMD_MORPH + MAX_MORPH
@@ -1553,10 +1553,19 @@ if (gadgetHandler:IsSyncedCode()) then
 
     --morphData = { paused = true|false, progress = 0..1, def = { morphDef } }
 
-    local function PlayToggleDeployAnimation(unitID, morphData)
+    local function PlayPremorphAnimation(unitID, morphData)
         local env = Spring.UnitScript.GetScriptEnv(unitID)
-        if env and env.ToggleDeployAnimation then
-            Spring.UnitScript.CallAsUnit(unitID, env.ToggleDeployAnimation)
+        if env and env.PremorphAnimation then
+            local unitDef = spGetUnitDefID(unitID)
+            if UnitDefs[unitDef].canFly == true then
+                if UnitDefs[unitDef].hoverAttack == false then
+                    Spring.MoveCtrl.SetAirMoveTypeData(unitID, "wantedHeight", 0)
+                else
+                    Spring.MoveCtrl.SetGunshipMoveTypeData(unitID, {wantedHeight=0, altitudeRate=9999})
+                    Spring.MoveCtrl.SetGravity(unitID, 1000)
+                end
+            end
+            Spring.UnitScript.CallAsUnit(unitID, env.PremorphAnimation)
             premorphAnimating[unitID] = morphData
         end
     end
@@ -1606,11 +1615,11 @@ if (gadgetHandler:IsSyncedCode()) then
             morphData.progress = morphData.progress + (morphData.increment * bonus)
         end
         if morphData.progress >= 1.0 then
-            if morphData.def.toggledeploymode == 1 then
-                Spring.Echo("Has def.toggledeploymode")
-               PlayToggleDeployAnimation(unitID, morphData)
+            if morphData.def.premorphanim == 1 then
+               --Spring.Echo("Has def.premorphanim")
+               PlayPremorphAnimation(unitID, morphData)
             else
-                Spring.Echo("Has no def.toggledeploymode")
+                --Spring.Echo("Has no def.premorphanim")
                 FinishMorph(unitID, morphData)
             end
             return false -- remove from the list, all done
@@ -1638,7 +1647,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     text = unitDef.customParams.morphdef__text,
                     animationonly = tonumber(unitDef.customParams.morphdef__animationonly),
                     copystatsonly = tonumber(unitDef.customParams.morphdef__copystatsonly),
-                    toggledeploymode = tonumber(unitDef.customParams.morphdef__toggledeploymode),
+                    premorphanim = tonumber(unitDef.customParams.morphdef__premorphanim),
                     signal = unitDef.customParams.morphdef__signal,
                     ---- TODO: will also update the morphdef once morph is done
                 }
@@ -1977,6 +1986,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
             if premorphAnimDone == 1 then
                 --Spring.Echo("Premorph Anim Done!!")
+                --- We must reset premorphanimdone, as all unitrulesparams are copied over to the morphed-into unit
+                spSetUnitRulesParam(uID, "premorphanimdone", nil)
                 FinishMorph(uID, morphData)
                 premorphAnimating[uID] = nil
             end
