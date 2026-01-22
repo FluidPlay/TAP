@@ -252,6 +252,7 @@ if (gadgetHandler:IsSyncedCode()) then
     local spGetUnitBasePosition = Spring.GetUnitBasePosition
     local spGetUnitHeading = Spring.GetUnitHeading
     local spGetUnitCommands = Spring.GetUnitCommands
+    local spGetUnitCommandCount = Spring.GetUnitCommandCount
     local spGetGroundHeight = Spring.GetGroundHeight
     local spGiveOrderToUnit = Spring.GiveOrderToUnit
     local spGetUnitRulesParams = Spring.GetUnitRulesParams
@@ -1476,7 +1477,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
         --//Copy command queue        [deprecated]FIX : removed 04/2012, caused erros
         -- Now copies only move/patrol commands from queue, shouldn't pose any issues
-        local cmdqueuesize = spGetUnitCommands(unitID, 0)
+        --//local cmdqueuesize = spGetUnitCommands(unitID, 0) --Rendered obsolete in Recoil 2025.x
+        local cmdqueuesize = spGetUnitCommandCount(unitID)
         if type(cmdqueuesize) == "number" then
             local cmds = spGetUnitCommands(unitID, 100)
             for i = 1, cmdqueuesize do

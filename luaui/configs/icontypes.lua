@@ -43,6 +43,7 @@ local unitIconTable = {
 	def_generic=0.8,
 	def_laser=1.3,
 	def_missile=1.4,
+	def_neutron=1.45,
 	def_plasma=1.5,
 	def_nuke=1.6,
 	bot_artillery=1.1,

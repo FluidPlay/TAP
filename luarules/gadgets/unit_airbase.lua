@@ -31,8 +31,8 @@ VFS.Include("gamedata/taptools.lua")
 ---------------------------------------------------------------------------------
 local CMD_LAND_AT_AIRBASE = 35430
 local CMD_LAND_AT_SPECIFIC_AIRBASE = 35431
-local CMD_PATROL = CMD.PATROL
-local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
+--local CMD_PATROL = CMD.PATROL
+--local CMD_OPT_INTERNAL = CMD.OPT_INTERNAL
 
 CMD.LAND_AT_AIRBASE = CMD_LAND_AT_AIRBASE
 CMD[CMD_LAND_AT_AIRBASE] = "LAND_AT_AIRBASE"
@@ -43,30 +43,40 @@ local spGetUnitDefID = Spring.GetUnitDefID
 local AreTeamsAllied	 = Spring.AreTeamsAllied
 local GetGameFrame       = Spring.GetGameFrame
 local ValidUnitID		 = Spring.ValidUnitID
---local GetUnitAllyTeam    = Spring.GetUnitAllyTeam
-local spGetUnitDefID = Spring.GetUnitDefID
 local spGetUnitRadius = Spring.GetUnitRadius
 local spGetUnitPiecePosDir = Spring.GetUnitPiecePosDir
 local spUnitAttach = Spring.UnitAttach
 local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
-local GetUnitIsStunned   = Spring.GetUnitIsStunned
-local GetUnitPosition    = Spring.GetUnitPosition
-local GetUnitRulesParam  = Spring.GetUnitRulesParam
-local GetUnitSeparation  = Spring.GetUnitSeparation
-local GetUnitsInCylinder = Spring.GetUnitsInCylinder
-local GetUnitTeam        = Spring.GetUnitTeam
-local GetUnitWeaponState = Spring.GetUnitWeaponState
-local SetUnitExperience  = Spring.SetUnitExperience
-local SetUnitRulesParam  = Spring.SetUnitRulesParam
-local SetUnitWeaponState = Spring.SetUnitWeaponState
-local UseUnitResource	 = Spring.UseUnitResource
-local GetTeamRulesParam	= Spring.GetTeamRulesParam
-local SetTeamRulesParam	= Spring.SetTeamRulesParam
+--local GetUnitIsStunned   = Spring.GetUnitIsStunned
 local spGetUnitPosition = Spring.GetUnitPosition
-local spSetUnitLoadingTransport = Spring.SetUnitLoadingTransport
+--local GetUnitRulesParam  = Spring.GetUnitRulesParam
+--local GetUnitSeparation  = Spring.GetUnitSeparation
+--local GetUnitsInCylinder = Spring.GetUnitsInCylinder
+local GetUnitTeam        = Spring.GetUnitTeam
+--local GetUnitWeaponState = Spring.GetUnitWeaponState
+--local SetUnitExperience  = Spring.SetUnitExperience
+--local SetUnitRulesParam  = Spring.SetUnitRulesParam
+--local SetUnitWeaponState = Spring.SetUnitWeaponState
+--local UseUnitResource	 = Spring.UseUnitResource
+--local GetTeamRulesParam	= Spring.GetTeamRulesParam
+--local SetTeamRulesParam	= Spring.SetTeamRulesParam
 local spSetUnitLandGoal = Spring.SetUnitLandGoal
 local spGiveOrderToUnit = Spring.GiveOrderToUnit
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
+local spGetUnitHealth = Spring.GetUnitHealth
+local spGetUnitStates = Spring.GetUnitStates
+local spUnitDetach = Spring.UnitDetach
+local spGetUnitCommands = Spring.GetUnitCommands
+local spGetUnitCommandCount = Spring.GetUnitCommandCount
+local spGetGroundHeight = Spring.GetGroundHeight
+local spSetUnitHealth = Spring.SetUnitHealth
+local spInsertUnitCmdDesc = Spring.InsertUnitCmdDesc
+local spGetUnitPieceMap = Spring.GetUnitPieceMap
+local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
+local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
+local spGetUnitTransporter = Spring.GetUnitTransporter
+local spGetAllUnits = Spring.GetAllUnits
+local spGetUnitSeparation = Spring.GetUnitSeparation
 
 local airbaseDefIDs = {
     --Bow
@@ -75,7 +85,7 @@ local airbaseDefIDs = {
     [UnitDefNames["armap"].id] = 4000,
     [UnitDefNames["armaap"].id] = 4000,
     [UnitDefNames["bowhq"].id] = 4000,[UnitDefNames["bowhq2"].id] = 4000,[UnitDefNames["bowhq3"].id] = 4000,
-    [UnitDefNames["bowhq4"].id] = 4000,[UnitDefNames["bowhq5"].id] = 4000,[UnitDefNames["bowhq6"].id] = 4000,    
+    [UnitDefNames["bowhq4"].id] = 4000,[UnitDefNames["bowhq5"].id] = 4000,[UnitDefNames["bowhq6"].id] = 4000,
     [UnitDefNames["armcarry"].id] = 1000,
     --Kern
     [UnitDefNames["corasp"].id] = 5000, --350
@@ -83,7 +93,7 @@ local airbaseDefIDs = {
     [UnitDefNames["corap"].id] = 4000,
     [UnitDefNames["coraap"].id] = 4000,
     [UnitDefNames["kernhq"].id] = 4000,[UnitDefNames["kernhq2"].id] = 4000,[UnitDefNames["kernhq3"].id] = 4000,
-    [UnitDefNames["kernhq4"].id] = 4000,[UnitDefNames["kernhq5"].id] = 4000,[UnitDefNames["kernhq6"].id] = 4000,    
+    [UnitDefNames["kernhq4"].id] = 4000,[UnitDefNames["kernhq5"].id] = 4000,[UnitDefNames["kernhq6"].id] = 4000,
     [UnitDefNames["corcarry"].id] = 1000,
 }
 
@@ -187,9 +197,9 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         -- check that this airbase is on our team
-        local unitTeamID = Spring.GetUnitTeam(unitID)
-        local airbaseTeamID = Spring.GetUnitTeam(airbaseID)
-        if not unitTeamID or not airbaseTeamID or not Spring.AreTeamsAllied(unitTeamID, airbaseTeamID) then
+        local unitTeamID = GetUnitTeam(unitID)
+        local airbaseTeamID = GetUnitTeam(airbaseID)
+        if not unitTeamID or not airbaseTeamID or not AreTeamsAllied(unitTeamID, airbaseTeamID) then
             return false
         end
 
@@ -227,9 +237,9 @@ if (gadgetHandler:IsSyncedCode()) then
 
     -- check if this unitID (which is assumed to be a plane) would want to land
     function NeedsRepair(unitID)
-        local health, maxHealth, _, _, buildProgress = Spring.GetUnitHealth(unitID)
+        local health, maxHealth, _, _, buildProgress = spGetUnitHealth(unitID)
         if buildProgress<1 then return false end
-        local landAtState = Spring.GetUnitStates(unitID).autorepairlevel
+        local landAtState = spGetUnitStates(unitID).autorepairlevel
         return health < maxHealth * landAtState
     end
 
@@ -267,10 +277,10 @@ if (gadgetHandler:IsSyncedCode()) then
     --end
 
     function GetDistanceToPoint(unitID, px,py,pz)
-        if not Spring.ValidUnitID(unitID) then return end
+        if not ValidUnitID(unitID) then return end
         if not px then return end
 
-        local ux, uy, uz = Spring.GetUnitPosition(unitID)
+        local ux, uy, uz = spGetUnitPosition(unitID)
         local dx, dy ,dz = ux - px, uy - py, uz - pz
         local dist = dx * dx + dy * dy + dz * dz
         return dist
@@ -278,33 +288,33 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function FlyAway(unitID, airbaseID)
         -- hack, after detaching units don't always continue with their command q
-        Spring.GiveOrderToUnit(unitID, CMD.WAIT, {}, {})
-        Spring.GiveOrderToUnit(unitID, CMD.WAIT, {}, {})
+        spGiveOrderToUnit(unitID, CMD.WAIT, {}, {})
+        spGiveOrderToUnit(unitID, CMD.WAIT, {}, {})
         --
 
         -- if the unit has no orders, tell it to move a little away from the airbase
-        local q = Spring.GetUnitCommands(unitID, 0)
+        local q = spGetUnitCommandCount(unitID) --//spGetUnitCommands(unitID, 0) 
         if q==0 then
-            local px,_,pz = Spring.GetUnitPosition(airbaseID)
+            local px,_,pz = spGetUnitPosition(airbaseID)
             local theta = math.random()*2*math.pi
-            local r = 2.5 * Spring.GetUnitRadius(airbaseID)
+            local r = 2.5 * spGetUnitRadius(airbaseID)
             local tx,tz = px+r*math.sin(theta), pz+r*math.cos(theta)
-            local ty = Spring.GetGroundHeight(tx,tz)
-            local uDID = Spring.GetUnitDefID(unitID)
+            local ty = spGetGroundHeight(tx,tz)
+            local uDID = spGetUnitDefID(unitID)
             local cruiseAlt = UnitDefs[uDID].wantedHeight
-            Spring.GiveOrderToUnit(unitID, CMD.MOVE, {tx,ty,tz}, {})
+            spGiveOrderToUnit(unitID, CMD.MOVE, {tx,ty,tz}, {})
         end
     end
 
     function HealUnit(unitID, airbaseID, resourceFrames, h, mh)
         if resourceFrames <= 0 then return end
-        local airbaseDefID = Spring.GetUnitDefID(airbaseID)
-        local unitDefID = Spring.GetUnitDefID(unitID)
+        local airbaseDefID = spGetUnitDefID(airbaseID)
+        local unitDefID = spGetUnitDefID(unitID)
         local buildSpeed = UnitDefs[airbaseDefID].buildSpeed
         local timeToBuild = UnitDefs[unitDefID].buildTime / buildSpeed
         local healthGain = timeToBuild / resourceFrames
         local newHealth = math.min(h+healthGain, mh)
-        Spring.SetUnitHealth(unitID, newHealth)
+        spSetUnitHealth(unitID, newHealth)
     end
 
     function RemoveOrderFromQueue(unitID, cmdID)
@@ -314,7 +324,7 @@ if (gadgetHandler:IsSyncedCode()) then
         --    i.e. in gameframes in between slow update
         -- doing anything else fails on edge cases e.g. unitID is recycle from a landingPlane that dies
         --    into a second place that becomes a landedPlane *all* in between slow updates
-        Spring.GiveOrderToUnit(unitID, CMD.REMOVE, {cmdID}, {"alt"})
+        spGiveOrderToUnit(unitID, CMD.REMOVE, {cmdID}, {"alt"})
     end
 
     --endregion
@@ -322,12 +332,12 @@ if (gadgetHandler:IsSyncedCode()) then
     --region ################ Spring Events and CallIns
     function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
         if IsPlane(unitDefID) then             -- Insert LandAtAirbase Commands
-            Spring.InsertUnitCmdDesc(unitID, landAtSpecificAirbaseCmd)
-            Spring.InsertUnitCmdDesc(unitID, landAtAnyAirbaseCmd)
+            spInsertUnitCmdDesc(unitID, landAtSpecificAirbaseCmd)
+            spInsertUnitCmdDesc(unitID, landAtAnyAirbaseCmd)
         end
 
         -- (MaDDoX) Not sure if below is needed..
-        local _, _, _, _, buildProgress = Spring.GetUnitHealth(unitID)
+        local _, _, _, _, buildProgress = spGetUnitHealth(unitID)
         if buildProgress == 1.0 then
             gadget:UnitFinished(unitID, unitDefID, unitTeam)
         end
@@ -337,7 +347,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local function AddAirBase(unitID)
             -- add the pads of this airbase to our register
             local airbasePads = {}
-            local pieceMap = Spring.GetUnitPieceMap(unitID)
+            local pieceMap = spGetUnitPieceMap(unitID)
             for pieceName, pieceNum in pairs(pieceMap) do
                 if pieceName:find("land") then      --land1, land2, etc
                     airbasePads[pieceNum] = false -- value is whether or not the pad is reserved
@@ -421,7 +431,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- If command == return to airbase (any) and the unit is at full health & armed, ignore
         -- This way, if you select a bunch of planes and tell them to return, only the right ones will
         if cmdID == CMD_LAND_AT_AIRBASE then --and not cmdOptions.shift then
-            local health, maxHealth = Spring.GetUnitHealth(unitID)
+            local health, maxHealth = spGetUnitHealth(unitID)
             health = tonumber(health)
             maxHealth = tonumber(maxHealth)
             ammo = tonumber(ammo)
@@ -474,16 +484,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
     -- Now we actually do what a fully rearmed/repaired plane wants to do, and release the pad for others
     local function PlaneReady(unitID)
-        local idx = Spring.FindUnitCmdDesc ( unitID, cmd_fly )
+        local idx = spFindUnitCmdDesc ( unitID, cmd_fly )
 
-        local unitCmdDescs = Spring.GetUnitCmdDescs (unitID, idx, idx)
+        local unitCmdDescs = spGetUnitCmdDescs (unitID, idx, idx)
         --Spring.Echo("UnitCmdDesc Name: "..unitCmdDescs[1].params[1])
         --{ [1] = { "id"          = number, "type"        = number, "name"        = string, "action"      = string, "tooltip"     = string, "texture"     = string,
         --          "cursor"      = string, "hidden"      = boolean, "disabled"    = boolean, "showUnique"  = boolean, "onlyTexture" = boolean,
         --"params"      = { [1] = string, ... } }, ... }
 
         -- if this unitID was in a pad, detach the unit and free that pad
-        local airbaseID = Spring.GetUnitTransporter(unitID)
+        local airbaseID = spGetUnitTransporter(unitID)
         if not airbaseID then
             return
         end
@@ -500,13 +510,13 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- If fly/land button == 'fly' detach, otherwise don't (keep it docked)
         if unitCmdDescs[1].params[1] == "0" then    -- LAND: 1, FLY: 0
-            Spring.UnitDetach(unitID)
+            spUnitDetach(unitID)
         else
             --Spring.SetUnitLoadingTransport(unitID, airbaseID)=true
-            Spring.UnitDetach(unitID)
-            local x,y,z = Spring.GetUnitPosition(airbaseID)
+            spUnitDetach(unitID)
+            local x,y,z = spGetUnitPosition(airbaseID)
             --Spring.GiveOrderToUnit(unitID, CMD.PATROL, Spring.GetUnitPosition(airbaseID),{"shift"})
-            Spring.GiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD.PATROL, CMD.OPT_INTERNAL, x,y,z }, {"alt"} )
+            spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD.PATROL, CMD.OPT_INTERNAL, x,y,z }, {"alt"} )
         end
 
     end
@@ -614,7 +624,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 for airbaseID, _ in pairs(airbases) do
                     local pieceNum = CanLandAt(unitID, airbaseID)
                     if pieceNum then
-                        local dist = Spring.GetUnitSeparation(unitID, airbaseID)
+                        local dist = spGetUnitSeparation(unitID, airbaseID)
                         if dist < minDist then
                             minDist = dist
                             closestAirbaseID = airbaseID
@@ -638,7 +648,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     spGiveOrderToUnit(unitID, CMD_LAND_AT_SPECIFIC_AIRBASE, {airbaseID}, {}) --clear attack commands
                     local x,y,z = spGetUnitPosition(airbaseID)
                     -- OPBS: {"alt"} is required to have param[1] be the position in the queue to be inserted
-                    spGiveOrderToUnit(unitID, CMD.INSERT, {1, CMD_PATROL, 0, x, y, z }, {"alt"})
+                    spGiveOrderToUnit(unitID, CMD.INSERT, {1, CMD.PATROL, 0, x, y, z }, {"alt"})
                     --    spGiveOrderToUnit(unitID, CMD_INSERT, {-1, CMD_MOVE, CMD_OPT_INTERNAL, px,py,pz }, {"alt"} )
                 end
             end
@@ -649,9 +659,9 @@ if (gadgetHandler:IsSyncedCode()) then
         -- add them to pending landers, if so
         local function CheckAll()
             -- check all units to see if any need healing
-            local allUnits = Spring.GetAllUnits()
+            local allUnits = spGetAllUnits()
             for _,unitID in ipairs(allUnits) do
-                local unitDefID = Spring.GetUnitDefID(unitID)
+                local unitDefID = spGetUnitDefID(unitID)
                 if IsPlane(unitDefID) and not landingPlanes[unitID]
                         and not landedPlanes[unitID] and not cancelledLanders[unitID] then
                     if NeedsRepair(unitID) or NeedsRearm(unitID) then
@@ -702,7 +712,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local function HealAndRearmPlanes()
             local function ammoIsFull(unitID)
                 local ud = UnitDefs[spGetUnitDefID(unitID)]
-                local ammo = Spring.GetUnitRulesParam(unitID,"ammo")
+                local ammo = spGetUnitRulesParam(unitID,"ammo")
                 --Spring.Echo(" Current ammo: "..Spring.GetUnitRulesParam(unitID,"ammo"))
                 if ammo and ud.customParams and ud.customParams.maxAmmo then
                     return ammo < ud.customParams.maxAmmo
@@ -711,7 +721,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
             for unitID, airbaseID in pairs(landedPlanes) do
                 if not GG.PlanesToRearm[unitID] then      -- If not re-arming already
-                    local h,mh = Spring.GetUnitHealth(unitID)
+                    local h,mh = spGetUnitHealth(unitID)
                     if h and h==mh then        -- fully healed, try Rearming
                         if ammoIsFull(unitID) then
                             RearmDone(unitID)
@@ -764,17 +774,17 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- dummy UnitCreated events for existing units, to handle luarules reload
         -- release any planes currently attached to anything else
-        local allUnits = Spring.GetAllUnits()
+        local allUnits = spGetAllUnits()
         for i=1,#allUnits do
             local unitID = allUnits[i]
             local unitDefID = spGetUnitDefID(unitID)
             gadget:UnitCreated(unitID, unitDefID)
 
-            local transporterID = Spring.GetUnitTransporter(unitID)
+            local transporterID = spGetUnitTransporter(unitID)
             if transporterID and IsPlane(unitDefID) then
-                Spring.UnitDetach(unitID)
+                spUnitDetach(unitID)
             end
-            local teamID = Spring.GetUnitTeam(unitID)
+            local teamID = GetUnitTeam(unitID)
             gadget:UnitFinished(unitID, unitDefID, teamID)
         end
 
@@ -801,10 +811,10 @@ else
     local spAreTeamsAllied = Spring.AreTeamsAllied
     local spGetUnitTeam = Spring.GetUnitTeam
     local spGetUnitDefID = Spring.GetUnitDefID
-    local spGetUnitPiecePosDir = Spring.GetUnitPiecePosDir
-    local spGetUnitPosition = Spring.GetUnitPosition
-    local spGetUnitAllyTeam = Spring.GetUnitAllyTeam
-    local spIsUnitSelected = Spring.IsUnitSelected
+    --local spGetUnitPiecePosDir = Spring.GetUnitPiecePosDir
+    --local spGetUnitPosition = Spring.GetUnitPosition
+    --local spGetUnitAllyTeam = Spring.GetUnitAllyTeam
+    --local spIsUnitSelected = Spring.IsUnitSelected
     local spGetSelectedUnits = Spring.GetSelectedUnits
 
     local myTeamID = Spring.GetMyTeamID()
@@ -849,4 +859,3 @@ else
 
     --------------------------------------------------------------------------------
 end
-

@@ -1,15 +1,15 @@
 -------------------------------------------------------------------------------
 
 function widget:GetInfo()
-  return {
-    name      = "Chili Core Selector",
-    desc      = "v0.6 Manage your boi, idle cons, and factories.",
-    author    = "KingRaptor, GoogleFrog",
-    date      = "2011-6-2",
-    license   = "GNU GPL, v2 or later",
-    layer     = 1001,
-    enabled   = true,
-  }
+	return {
+		name      = "Chili Core Selector",
+		desc      = "v0.6 Manage your boi, idle cons, and factories.",
+		author    = "KingRaptor, GoogleFrog",
+		date      = "2011-6-2",
+		license   = "GNU GPL, v2 or later",
+		layer     = 1001,
+		enabled   = true,
+	}
 end
 
 -------------------------------------------------------------------------------
@@ -24,6 +24,7 @@ local GetUnitCanBuild = Spring.Utilities.GetUnitCanBuild
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+-- Caching Spring library calls
 local spGetUnitDefID      = Spring.GetUnitDefID
 local spGetUnitHealth     = Spring.GetUnitHealth
 local spGetFullBuildQueue = Spring.GetFullBuildQueue
@@ -31,6 +32,26 @@ local spGetMouseState     = Spring.GetMouseState
 local spTraceScreenRay    = Spring.TraceScreenRay
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spGetUnitPosition   = Spring.GetUnitPosition
+local spEcho              = Spring.Echo
+local spGetMyTeamID       = Spring.GetMyTeamID
+local spGetSpectatingState = Spring.GetSpectatingState
+local spIsUnitSelected    = Spring.IsUnitSelected
+local spSelectUnitArray   = Spring.SelectUnitArray
+local spGetModKeyState    = Spring.GetModKeyState
+local spGetSelectedUnits  = Spring.GetSelectedUnits
+local spSelectUnitMap     = Spring.SelectUnitMap
+local spValidUnitID       = Spring.ValidUnitID
+local spGetUnitIsBuilding = Spring.GetUnitIsBuilding
+local spGetTeamUnits      = Spring.GetTeamUnits
+local spGetGameFrame      = Spring.GetGameFrame
+local spGetCommandQueue   = Spring.GetCommandQueue
+local spGetUnitCommandCount 	= Spring.GetUnitCommandCount
+local spGetUnitCurrentCommand 	= Spring.GetUnitCurrentCommand
+local spGetUnitIsStunned  = Spring.GetUnitIsStunned
+local spGetViewGeometry   = Spring.GetViewGeometry
+local spGetMyAllyTeamID   = Spring.GetMyAllyTeamID
+local spAreTeamsAllied    = Spring.AreTeamsAllied
+local spGetUnitTeam       = Spring.GetUnitTeam
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -42,12 +63,12 @@ local BUTTON_COLOR_DISABLED = {0.2,0.2,0.2,1}
 local IMAGE_COLOR_DISABLED = {0.3, 0.3, 0.3, 1}
 
 local stateCommands = {	-- FIXME: is there a better way of doing this?
-  [CMD_WANT_CLOAK] = true,	-- this is the only one that's really needed, since it can occur without user input (when a temporarily decloaked unit recloaks)
-  [CMD.FIRE_STATE] = true,
-  [CMD.MOVE_STATE] = true,
-  [CMD_WANT_ONOFF] = true,
-  [CMD.REPEAT] = true,
-  [CMD.IDLEMODE] = true,
+	[CMD_WANT_CLOAK] = true,	-- this is the only one that's really needed, since it can occur without user input (when a temporarily decloaked unit recloaks)
+	[CMD.FIRE_STATE] = true,
+	[CMD.MOVE_STATE] = true,
+	[CMD_WANT_ONOFF] = true,
+	[CMD.REPEAT] = true,
+	[CMD.IDLEMODE] = true,
 }
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -66,7 +87,7 @@ local screen0
 
 local mainWindow, buttonHolder, mainBackground
 
-local echo = Spring.Echo
+local echo = spEcho
 
 -- list and interface vars
 local buttonList
@@ -87,7 +108,7 @@ local idleConCount = 0
 local factoryIndex = 1
 local commanderIndex = 1
 
-local myTeamID = Spring.GetMyTeamID()
+local myTeamID = spGetMyTeamID()
 
 local buttonSizeShort = 4
 local buttonCountLimit = 7
@@ -122,7 +143,7 @@ for name in pairs(exceptionList) do
 end
 
 local function CheckHide(forceUpdate)
-	local spec = Spring.GetSpectatingState()
+	local spec = spGetSpectatingState()
 	local showButtons, showBackground
 	if options.showCoreSelector.value == 'always' then
 		showBackground = true
@@ -137,7 +158,7 @@ local function CheckHide(forceUpdate)
 		showBackground = false
 		showButtons = false
 	end
-	
+
 	buttonHolder:SetVisibility(showButtons)
 	if showBackground == showButtons then
 		mainBackground.SetVisible(showBackground)
@@ -151,21 +172,21 @@ end
 
 local function ButtonHolderResize(self)
 	local longSize, shortSize = self.clientArea[3], self.clientArea[4]
-	
+
 	local longPadding = options.horPaddingRight.value + options.horPaddingLeft.value
 	if options.vertical.value then
 		longSize, shortSize = shortSize, longSize
 		longPadding = 2*options.vertPadding.value
 	end
-	
+
 	longSize = longSize - longPadding
-	
+
 	buttonSizeShort = shortSize
 	buttonCountLimit = math.max(0, math.floor(longSize/(options.buttonSizeLong.value + options.buttonSpacing.value)))
 	if (buttonCountLimit + 1)*options.buttonSizeLong.value + buttonCountLimit*options.buttonSpacing.value < longSize then
 		buttonCountLimit = buttonCountLimit + 1
 	end
-	
+
 	CheckHide(true)
 	buttonList.UpdateLayout()
 end
@@ -256,31 +277,31 @@ options = {
 	},
 	lblSelectionIdle = { type='label', name='Idle Units', path='Hotkeys/Selection', },
 	selectprecbomber = { type = 'button',
-		name = 'Select idle precision bomber',
-		desc = 'Selects an idle, armed precision bomber. Use multiple times to select more. Deselects any units which are not idle, armed precision bombers.',
-		action = 'selectprecbomber',
-		path = 'Hotkeys/Selection',
-		dontRegisterAction = true,
+						 name = 'Select idle precision bomber',
+						 desc = 'Selects an idle, armed precision bomber. Use multiple times to select more. Deselects any units which are not idle, armed precision bombers.',
+						 action = 'selectprecbomber',
+						 path = 'Hotkeys/Selection',
+						 dontRegisterAction = true,
 	},
 	selectidlecon = { type = 'button',
-		name = 'Select idle constructor',
-		desc = 'Selects an idle constructor. Use multiple times to select more. Deselects any units which are not idle constructors.',
-		action = 'selectidlecon',
-		path = 'Hotkeys/Selection',
-		dontRegisterAction = true,
+					  name = 'Select idle constructor',
+					  desc = 'Selects an idle constructor. Use multiple times to select more. Deselects any units which are not idle constructors.',
+					  action = 'selectidlecon',
+					  path = 'Hotkeys/Selection',
+					  dontRegisterAction = true,
 	},
 	selectidlecon_all = { type = 'button',
-		name = 'Select all idle constructors',
-		action = 'selectidlecon_all',
-		path = 'Hotkeys/Selection',
-		dontRegisterAction = true,
+						  name = 'Select all idle constructors',
+						  action = 'selectidlecon_all',
+						  path = 'Hotkeys/Selection',
+						  dontRegisterAction = true,
 	},
 	lblSelection = { type='label', name='Quick Selection Bar', path='Hotkeys/Selection', },
 	selectcomm = { type = 'button',
-		name = 'Select Commander',
-		action = 'selectcomm',
-		path = 'Hotkeys/Selection',
-		dontRegisterAction = true,
+				   name = 'Select Commander',
+				   action = 'selectcomm',
+				   path = 'Hotkeys/Selection',
+				   dontRegisterAction = true,
 	},
 	horPaddingLeft = {
 		name = 'Horizontal Padding Left',
@@ -372,13 +393,13 @@ local function SelectComm()
 	if commCount <= 0 then
 		return
 	end
-	
+
 	-- This check deals with the case of spectators selecting
 	-- teams with different numbers of commanders.
 	if commCount < commIndex then
 		commIndex = commCount
 	end
-	
+
 	local unitID
 	-- Loop long enough to check every commander.
 	-- The most recently Ctrl+C selected commander is checked last.
@@ -389,15 +410,15 @@ local function SelectComm()
 		if commIndex > commCount then
 			commIndex = 1
 		end
-		if not Spring.IsUnitSelected(unitID) then
+		if not spIsUnitSelected(unitID) then
 			break
 		end
 	end
-	
-	local alt, ctrl, meta, shift = Spring.GetModKeyState()
-	Spring.SelectUnitArray({unitID}, shift)
+
+	local alt, ctrl, meta, shift = spGetModKeyState()
+	spSelectUnitArray({unitID}, shift)
 	if not shift then
-		local x, y, z = Spring.GetUnitPosition(unitID)
+		local x, y, z = spGetUnitPosition(unitID)
 		SetCameraTarget(x, y, z)
 	end
 end
@@ -410,10 +431,10 @@ local function SelectPrecBomber()
 	--	If so, then we'll either:
 	--		Select one ready bomber if none are selected
 	--		Select only the already selected ready bombers if at least one is selected
-	
+
 	local toBeSelected = {}
-	
-	local currentSelection = Spring.GetSelectedUnits()
+
+	local currentSelection = spGetSelectedUnits()
 	local isAnythingElseSelected = nil
 	for i,uid in ipairs(currentSelection) do
 		if not readyUntaskedBombers[uid] then
@@ -421,14 +442,14 @@ local function SelectPrecBomber()
 			break
 		end
 	end
-	
+
 	local mx,my = spGetMouseState()
 	local pos = select(2, spTraceScreenRay(mx,my,true)) or mapMiddle
 	local mindist = math.huge
 	local muid = nil
 
 	for uid, v in pairs(readyUntaskedBombers) do
-		if (Spring.IsUnitSelected(uid)) then
+		if (spIsUnitSelected(uid)) then
 			table.insert(toBeSelected,uid)
 		else
 			local x,_,z = spGetUnitPosition(uid)
@@ -442,16 +463,16 @@ local function SelectPrecBomber()
 	if (muid ~= nil) and (not isAnythingElseSelected or #toBeSelected == 0) then
 		table.insert(toBeSelected,muid)
 	end
-	Spring.SelectUnitArray(toBeSelected)
+	spSelectUnitArray(toBeSelected)
 end
 
 local function SelectIdleCon_all()
-	Spring.SelectUnitMap(idleCons, select(4, Spring.GetModKeyState()))
+	spSelectUnitMap(idleCons, select(4, spGetModKeyState()))
 end
 
 local conIndex = 1
 local function SelectIdleCon()
-	local shift = select(4, Spring.GetModKeyState())
+	local shift = select(4, spGetModKeyState())
 	if shift then
 		local mx,my = spGetMouseState()
 		local pos = select(2, spTraceScreenRay(mx,my,true)) or mapMiddle
@@ -460,7 +481,7 @@ local function SelectIdleCon()
 
 		for uid, v in pairs(idleCons) do
 			if uid ~= "count" then
-				if (not Spring.IsUnitSelected(uid)) then
+				if (not spIsUnitSelected(uid)) then
 					local x,_,z = spGetUnitPosition(uid)
 					dist = (pos[1]-x)*(pos[1]-x) + (pos[3]-z)*(pos[3]-z)
 					if (dist < mindist) then
@@ -471,18 +492,18 @@ local function SelectIdleCon()
 			end
 		end
 
-		Spring.SelectUnitArray({muid}, true)
+		spSelectUnitArray({muid}, true)
 	else
 		if idleConCount == 0 then
-			Spring.SelectUnitArray({})
+			spSelectUnitArray({})
 		else
 			conIndex = (conIndex % idleConCount) + 1
 			local i = 1
 			for uid, v in pairs(idleCons) do
 				if uid ~= "count" then
 					if i == conIndex then
-						Spring.SelectUnitArray({uid})
-						local x, y, z = Spring.GetUnitPosition(uid)
+						spSelectUnitArray({uid})
+						local x, y, z = spGetUnitPosition(uid)
 						SetCameraTarget(x, y, z)
 						return
 					else
@@ -546,13 +567,13 @@ end
 -- Background Handling
 
 local function GetBackground(parent)
-	
+
 	local buttonCount = 0
 	local opacity = options.background_opacity.value
 	local visible = true
 	local specShowMode = false
 	local specShow = false
-	
+
 	local buttonsPanel = Control:New{
 		x = 0,
 		y = 0,
@@ -562,7 +583,7 @@ local function GetBackground(parent)
 		itemMargin = {0, 0, 0, 0},
 		parent = parent,
 	}
-	
+
 	local backgroundPanel = Panel:New{
 		name = "core_backgroundPanel",
 		classname = options.fancySkinning.value,
@@ -573,13 +594,13 @@ local function GetBackground(parent)
 		noClickThrough = true,
 		parent = parent,
 	}
-	
+
 	local externalFunctions = {}
-	
+
 	function externalFunctions.GetButtonsHolder()
 		return buttonsPanel
 	end
-	
+
 	function externalFunctions.SetSkin(className)
 		local currentSkin = Chili.theme.skin.general.skinName
 		local skin = Chili.SkinHandler.GetSkin(currentSkin)
@@ -587,12 +608,12 @@ local function GetBackground(parent)
 		if specShowMode and className ~= "panel" then
 			className = "panel_0100"
 		end
-		
+
 		local newClass = skin.panel
 		if className and skin[className] then
 			newClass = skin[className]
 		end
-		
+
 		backgroundPanel.classname = className
 		backgroundPanel.tiles = newClass.tiles
 		backgroundPanel.TileImageFG = newClass.TileImageFG
@@ -603,20 +624,20 @@ local function GetBackground(parent)
 
 	function externalFunctions.UpdateSize(newButtonCount)
 		buttonCount = newButtonCount or buttonCount
-		
+
 		local buttons = math.min(buttonCountLimit, math.max(buttonCount, options.minButtonSpaces.value))
-		
+
 		local size = buttons*options.buttonSizeLong.value + (buttons - 1)*options.buttonSpacing.value
 		if options.vertical.value then
 			size = size + 2*options.vertPadding.value
 		else
 			size = size + options.horPaddingRight.value + options.horPaddingLeft.value
 		end
-		
+
 		if specShowMode then
 			size = options.specSpaceOverride.value
 		end
-		
+
 		if options.vertical.value then
 			backgroundPanel._relativeBounds.left = 0
 			backgroundPanel._relativeBounds.right = 0
@@ -637,7 +658,7 @@ local function GetBackground(parent)
 			backgroundPanel:UpdateClientArea()
 		end
 	end
-	
+
 	function externalFunctions.SetVisible(newVisible)
 		if newVisible == visible then
 			return
@@ -651,13 +672,13 @@ local function GetBackground(parent)
 			backgroundPanel:SetVisibility(false)
 		end
 	end
-	
+
 	function externalFunctions.SetOpacity(newOpacity)
 		opacity = newOpacity
 		backgroundPanel.backgroundColor[4] = opacity
 		backgroundPanel:Invalidate()
 	end
-	
+
 	function externalFunctions.UpdateSpecShowMode(newSpecShowMode, forceUpdate)
 		if (not forceUpdate) and (newSpecShowMode == specShowMode) then
 			return
@@ -666,7 +687,7 @@ local function GetBackground(parent)
 		if options.fancySkinning.value ~= "panel" then
 			externalFunctions.SetSkin(options.fancySkinning.value)
 		end
-		
+
 		externalFunctions.UpdateSize()
 		if specShowMode then
 			externalFunctions.SetVisible(specShow)
@@ -683,7 +704,7 @@ local function GetBackground(parent)
 		end
 		mainWindow:UpdateClientArea()
 	end
-	
+
 	function externalFunctions.UpdateSpecSpace(newSpecShow)
 		if newSpecShow == specShow then
 			return
@@ -693,11 +714,11 @@ local function GetBackground(parent)
 			externalFunctions.SetVisible(specShow)
 		end
 	end
-	
+
 	function externalFunctions.GetSpecMode()
 		return specShowMode
 	end
-	
+
 	return externalFunctions
 end
 
@@ -707,9 +728,9 @@ end
 
 local function GetNewButton(parent, onClick, category, index, backgroundColor, imageFile, imageFile2)
 	local position = 1
-	
+
 	local hotkeyLabel, buildProgress, repeatImage, healthBar, hotkeyText, bottomLabel
-	
+
 	-- Controls
 	local button = Button:New{
 		parent = parent,
@@ -722,7 +743,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		backgroundColor = backgroundColor,
 		OnClick = {
 			function (self, x, y, mouse)
-				local _, _, meta, shift = Spring.GetModKeyState()
+				local _, _, meta, shift = spGetModKeyState()
 				if meta then
 					WG.crude.OpenPath(options_path)
 					WG.crude.ShowMenu()
@@ -732,7 +753,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 			end
 		},
 	}
-	
+
 	local image = Image:New {
 		parent = button,
 		x = "5%",
@@ -743,25 +764,25 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		file2 = imageFile2,
 		keepAspect = false,
 	}
-	
+
 	local externalFunctions = {}
-	
+
 	-- Update attributes
 	function externalFunctions.SetImage(newImageFile)
 		image.file = newImageFile
 		image:Invalidate()
 	end
-	
+
 	function externalFunctions.SetImageColor(color)
 		image.color = color
 		image:Invalidate()
 	end
-	
+
 	function externalFunctions.SetBackgroundColor(newBackgroundColor)
 		button.backgroundColor = newBackgroundColor
 		button:Invalidate()
 	end
-	
+
 	function externalFunctions.SetProgress(newProgress)
 		if not buildProgress then
 			buildProgress = Progressbar:New{
@@ -781,7 +802,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		end
 		buildProgress:SetValue(newProgress)
 	end
-	
+
 	function externalFunctions.SetRepeat(newRepeat)
 		if not repeatImage then
 			repeatImage = Image:New {
@@ -797,7 +818,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		repeatImage.file = (newRepeat and IMAGE_REPEAT) or nil
 		repeatImage:Invalidate()
 	end
-	
+
 	function externalFunctions.SetHealthbar(newHealth)
 		if not newHealth then
 			if healthBar then
@@ -852,7 +873,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		end
 		hotkeyLabel:SetCaption('\255\0\255\0' .. hotkeyText)
 	end
-	
+
 	function externalFunctions.SetBottomLabel(caption)
 		if not bottomLabel then
 			bottomLabel = Label:New {
@@ -871,7 +892,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 		end
 		bottomLabel:SetCaption(caption)
 	end
-	
+
 	-- Movement
 	function externalFunctions.UpdatePosition()
 		if position > buttonCountLimit then
@@ -879,10 +900,10 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 			return
 		end
 		button:SetVisibility(true)
-		
+
 		local hPad = ((not options.vertical.value) and options.buttonSpacing.value) or 0
 		local vPad = (options.vertical.value and options.buttonSpacing.value) or 0
-		
+
 		local index = position - 1
 		if options.vertical.value then
 			button._relativeBounds.left = options.horPaddingLeft.value
@@ -907,16 +928,16 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 			button:UpdateClientArea()
 		end
 	end
-	
+
 	function externalFunctions.SetPosition(newPosition)
 		position = newPosition
 		externalFunctions.UpdatePosition()
 	end
-	
+
 	function externalFunctions.GetPosition()
 		return position
 	end
-	
+
 	function externalFunctions.MoveUp(compCategory, compIndex)
 		if compCategory < category or (compCategory == category and compIndex < index) then
 			externalFunctions.SetPosition(position + 1)
@@ -925,7 +946,7 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 			return false -- Button did not move
 		end
 	end
-	
+
 	function externalFunctions.MoveDown(compCategory, compIndex)
 		if compCategory < category or (compCategory == category and compIndex < index) then
 			externalFunctions.SetPosition(position - 1)
@@ -934,21 +955,21 @@ local function GetNewButton(parent, onClick, category, index, backgroundColor, i
 			return false -- Button did not move
 		end
 	end
-	
+
 	function externalFunctions.GetOrder()
 		return category, index
 	end
-	
+
 	function externalFunctions.SetImageVisible(newVisible)
 		image:SetVisibility(newVisible)
 	end
-	
+
 	-- Desctruction
 	function externalFunctions.Destroy()
 		button:Dispose()
 		button = nil
 	end
-	
+
 	return externalFunctions
 end
 
@@ -957,30 +978,30 @@ end
 -- Factory Handling
 
 local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
-	
+
 	local function OnClick(mouse)
-		local alt, ctrl, meta, shift = Spring.GetModKeyState()
-		Spring.SelectUnitArray({unitID}, shift)
+		local alt, ctrl, meta, shift = spGetModKeyState()
+		spSelectUnitArray({unitID}, shift)
 		if mouse == ((options.leftMouseCenter.value and 1) or 3) then
-			local x, y, z = Spring.GetUnitPosition(unitID)
+			local x, y, z = spGetUnitPosition(unitID)
 			SetCameraTarget(x, y, z)
 		end
 	end
-	
+
 	local constructionDefID
 	local buildProgress
 	local repeatState
-	
+
 	local button = GetNewButton(
-		parent,
-		OnClick,
-		FACTORY_ORDER,
-		categoryOrder,
-		BUTTON_COLOR_FACTORY,
-		'#' .. unitDefID,
-		FACTORY_FRAME
+			parent,
+			OnClick,
+			FACTORY_ORDER,
+			categoryOrder,
+			BUTTON_COLOR_FACTORY,
+			'#' .. unitDefID,
+			FACTORY_FRAME
 	)
-	
+
 	local function UpdateConstruction(newConstructionDefID)
 		if newConstructionDefID == constructionDefID then
 			return
@@ -988,7 +1009,7 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 		constructionDefID = newConstructionDefID
 		button.SetImage('#' .. (constructionDefID or unitDefID))
 	end
-	
+
 	local function UpdateBuildProgress(newBuildProgress)
 		if newBuildProgress == buildProgress then
 			return
@@ -996,7 +1017,7 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 		buildProgress = newBuildProgress
 		button.SetProgress(buildProgress)
 	end
-	
+
 	local function UpdateRepeat(newRepeat)
 		if newRepeat == repeatState then
 			return
@@ -1004,14 +1025,14 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 		repeatState = newRepeat
 		button.SetRepeat(repeatState)
 	end
-	
+
 	local oldConstructionCount, oldConstructionDefID, oldBuildProgress
 	local function UpdateTooltip(constructionCount)
 		if constructionCount == oldConstructionCount and constructionDefID == oldConstructionDefID and buildProgress == oldBuildProgress then
 			return
 		end
 		oldConstructionCount, oldConstructionDefID, oldBuildProgress = constructionCount, constructionDefID, buildProgress
-		
+
 		local tooltip = WG.Translate("interface", "factory") .. ": ".. Spring.Utilities.GetHumanName(UnitDefs[unitDefID]) .. "\n" .. WG.Translate("interface", "x_units_in_queue", {count = constructionCount})
 		if repeatState then
 			tooltip = tooltip .. "\255\0\255\255 (" .. WG.Translate("interface", "repeating") .. ")\008"
@@ -1020,59 +1041,59 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 			tooltip = tooltip .. "\n" .. WG.Translate("interface", "current_project") .. ": " .. Spring.Utilities.GetHumanName(UnitDefs[constructionDefID]) .. " (".. WG.Translate("interface", "x%_done", {x = math.floor(buildProgress*100)}) .. ")"
 		end
 		tooltip = tooltip .. standardFactoryTooltip
-		
+
 		button.SetTooltip(tooltip)
 	end
-	
+
 	local externalFunctions = {
 		unitID = unitID,
 		GetOrder = button.GetOrder,
 		UpdatePosition = button.UpdatePosition,
 		SetImageVisible = button.SetImageVisible,
 	}
-	
+
 	function externalFunctions.UpdateButton()
-		if not Spring.ValidUnitID(unitID) then
+		if not spValidUnitID(unitID) then
 			return false
 		end
-		
+
 		-- Update progress and construction
-		local buildeeID = Spring.GetUnitIsBuilding(unitID)
+		local buildeeID = spGetUnitIsBuilding(unitID)
 		if buildeeID then
-			local progress = select(5, Spring.GetUnitHealth(buildeeID))
-			local buildeeDefID = Spring.GetUnitDefID(buildeeID)
+			local progress = select(5, spGetUnitHealth(buildeeID))
+			local buildeeDefID = spGetUnitDefID(buildeeID)
 			UpdateConstruction(buildeeDefID)
 			UpdateBuildProgress(progress)
 		else
 			UpdateConstruction()
 			UpdateBuildProgress(0)
 		end
-		
+
 		-- Update repeat
 		UpdateRepeat(Spring.Utilities.GetUnitRepeat(unitID))
-		
+
 		-- Update tooltip
-		local queue = Spring.GetFullBuildQueue(unitID) or {}
+		local queue = spGetFullBuildQueue(unitID) or {}
 		local constructionCount = 0
 		for i = 1, #queue do
 			local udid, num = next(queue[i])
 			constructionCount = constructionCount + num
 		end
-		
+
 		UpdateTooltip(constructionCount)
 		return true
 	end
-	
+
 	function externalFunctions.UpdateHotkey()
 		local factoryPos = button.GetPosition() - (#commanderList + 1)
 		button.SetHotkey(WG.crude.GetHotkey(SELECT_FACTORY .. factoryPos) or '')
 	end
-	
+
 	function externalFunctions.SetPosition(position)
 		button.SetPosition(position)
 		externalFunctions.UpdateHotkey()
 	end
-	
+
 	function externalFunctions.MoveUp(category, index)
 		local moved = button.MoveUp(category, index)
 		if moved then
@@ -1080,7 +1101,7 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 		end
 		return moved
 	end
-	
+
 	function externalFunctions.MoveDown(category, index)
 		local moved = button.MoveDown(category, index)
 		if moved then
@@ -1088,19 +1109,19 @@ local function GetFactoryButton(parent, unitID, unitDefID, categoryOrder)
 		end
 		return moved
 	end
-	
+
 	function externalFunctions.SelectUnit()
 		OnClick()
 	end
-	
+
 	function externalFunctions.Destroy()
 		button.Destroy()
 		button = nil
 	end
-	
+
 	externalFunctions.UpdateButton()
 	externalFunctions.UpdateHotkey()
-	
+
 	return externalFunctions
 end
 
@@ -1111,26 +1132,26 @@ end
 local function GetCommanderButton(parent, unitID, unitDefID, categoryOrder)
 
 	local function OnClick(mouse)
-		Spring.SelectUnitArray({unitID}, shift)
+		spSelectUnitArray({unitID}, shift)
 		if mouse == ((options.leftMouseCenter.value and 1) or 3) then
-			local x, y, z = Spring.GetUnitPosition(unitID)
+			local x, y, z = spGetUnitPosition(unitID)
 			SetCameraTarget(x, y, z)
 		end
 	end
-	
+
 	local healthProp, health, maxHealth = 1, 1, 1
 	local warningTime = false
 	local warningPhase = true
-	
+
 	local button = GetNewButton(
-		parent,
-		OnClick,
-		COMMANDER_ORDER,
-		categoryOrder,
-		BUTTON_COLOR,
-		'#' .. unitDefID
+			parent,
+			OnClick,
+			COMMANDER_ORDER,
+			categoryOrder,
+			BUTTON_COLOR,
+			'#' .. unitDefID
 	)
-	
+
 	local function UpdateHealth(newHealthProp)
 		if newHealthProp == healthProp then
 			return
@@ -1138,7 +1159,7 @@ local function GetCommanderButton(parent, unitID, unitDefID, categoryOrder)
 		healthProp = newHealthProp
 		button.SetHealthbar(healthProp ~= 1 and healthProp)
 	end
-	
+
 	local oldHealth, oldMaxHealth
 	local function UpdateTooltip()
 		if health == oldHealth and maxHealth == oldMaxHealth then
@@ -1146,14 +1167,14 @@ local function GetCommanderButton(parent, unitID, unitDefID, categoryOrder)
 		end
 		oldHealth, oldMaxHealth = health, maxHealth
 		local tooltip = WG.Translate("interface", "commander") .. ": " .. Spring.Utilities.GetHumanName(UnitDefs[unitDefID], unitID) ..
-			"\n\255\0\255\255" .. WG.Translate("interface", "health") .. ":\008 "..GetHealthColor(health/maxHealth, true)..math.floor(health).."/"..maxHealth.."\008"..
-			"\n\255\0\255\0" .. WG.Translate("interface", "lmb") .. ": " .. (options.leftMouseCenter.value and WG.Translate("interface", "select_and_go_to") or WG.Translate("interface", "select")) ..
-			"\n\255\0\255\0" .. WG.Translate("interface", "rmb") .. ": " .. ((not options.leftMouseCenter.value) and WG.Translate("interface", "select_and_go_to") or WG.Translate("interface", "select")) ..
-			"\n\255\0\255\0" .. WG.Translate("interface", "shift") .. ": " .. WG.Translate("interface", "append_to_current_selection") .. "\008"
-	
+				"\n\255\0\255\255" .. WG.Translate("interface", "health") .. ":\008 "..GetHealthColor(health/maxHealth, true)..math.floor(health).."/"..maxHealth.."\008"..
+				"\n\255\0\255\0" .. WG.Translate("interface", "lmb") .. ": " .. (options.leftMouseCenter.value and WG.Translate("interface", "select_and_go_to") or WG.Translate("interface", "select")) ..
+				"\n\255\0\255\0" .. WG.Translate("interface", "rmb") .. ": " .. ((not options.leftMouseCenter.value) and WG.Translate("interface", "select_and_go_to") or WG.Translate("interface", "select")) ..
+				"\n\255\0\255\0" .. WG.Translate("interface", "shift") .. ": " .. WG.Translate("interface", "append_to_current_selection") .. "\008"
+
 		button.SetTooltip(tooltip)
 	end
-	
+
 	local externalFunctions = {
 		unitID = unitID,
 		SetPosition = button.SetPosition,
@@ -1163,18 +1184,18 @@ local function GetCommanderButton(parent, unitID, unitDefID, categoryOrder)
 		UpdatePosition = button.UpdatePosition,
 		SetImageVisible = button.SetImageVisible,
 	}
-	
+
 	function externalFunctions.UpdateButton(dt)
-		if not Spring.ValidUnitID(unitID) then
+		if not spValidUnitID(unitID) then
 			return false
 		end
-		
+
 		health, maxHealth = spGetUnitHealth(unitID)
 		if not health then
 			return false
 		end
 		UpdateHealth(health/maxHealth)
-		
+
 		if warningTime then
 			warningTime = warningTime - dt
 			if warningTime <= 0 then
@@ -1183,30 +1204,30 @@ local function GetCommanderButton(parent, unitID, unitDefID, categoryOrder)
 			else
 				warningPhase = not warningPhase
 			end
-			
+
 			button.SetBackgroundColor((warningPhase and BUTTON_COLOR_WARNING) or BUTTON_COLOR)
 		end
-		
+
 		UpdateTooltip()
 		return true
 	end
-	
+
 	function externalFunctions.UpdateHotkey()
 		button.SetHotkey(WG.crude.GetHotkey("selectcomm") or '')
 	end
-	
+
 	function externalFunctions.SetWarning(newWarningTime)
 		warningTime = newWarningTime
 	end
-	
+
 	function externalFunctions.Destroy()
 		button.Destroy()
 		button = nil
 	end
-	
+
 	externalFunctions.UpdateButton(0)
 	externalFunctions.UpdateHotkey()
-	
+
 	return externalFunctions
 end
 
@@ -1223,18 +1244,18 @@ local function GetConstructorButton(parent)
 			SelectIdleCon_all()
 		end
 	end
-	
+
 	local active = true
-	
+
 	local button = GetNewButton(
-		parent,
-		OnClick,
-		CONSTRUCTOR_ORDER,
-		0,
-		BUTTON_COLOR,
-		BUILD_ICON_ACTIVE
+			parent,
+			OnClick,
+			CONSTRUCTOR_ORDER,
+			0,
+			BUTTON_COLOR,
+			BUILD_ICON_ACTIVE
 	)
-	
+
 	local function SetActive(newActive)
 		if newActive == active then
 			return
@@ -1244,7 +1265,7 @@ local function GetConstructorButton(parent)
 		button.SetImageColor(((not active) and IMAGE_COLOR_DISABLED) or nil)
 		button.SetBackgroundColor((active and BUTTON_COLOR) or BUTTON_COLOR_DISABLED)
 	end
-	
+
 	local externalFunctions = {
 		SetPosition = button.SetPosition,
 		MoveUp = button.MoveUp,
@@ -1253,7 +1274,7 @@ local function GetConstructorButton(parent)
 		UpdatePosition = button.UpdatePosition,
 		SetImageVisible = button.SetImageVisible,
 	}
-	
+
 	local oldTotal
 	function externalFunctions.UpdateButton()
 		local total = 0
@@ -1261,22 +1282,22 @@ local function GetConstructorButton(parent)
 			total = total + 1
 		end
 		idleConCount = total
-		
+
 		if total == oldTotal then
 			return true
 		end
 		oldTotal = total
-		
+
 		button.SetTooltip(WG.Translate("interface", "idle_cons", {count = total}) ..
-						"\n\255\0\255\0" .. WG.Translate("interface", "lmb") .. ": " .. WG.Translate("interface", "select") ..
-						"\n\255\0\255\0" .. WG.Translate("interface", "rmb") .. ": " .. WG.Translate("interface", "select_all") .. "\008")
+				"\n\255\0\255\0" .. WG.Translate("interface", "lmb") .. ": " .. WG.Translate("interface", "select") ..
+				"\n\255\0\255\0" .. WG.Translate("interface", "rmb") .. ": " .. WG.Translate("interface", "select_all") .. "\008")
 
 		SetActive(total > 0)
 		button.SetBottomLabel(tostring(total))
-		
+
 		return true
 	end
-	
+
 	function externalFunctions.UpdateHotkey()
 		local hotkeyCaption
 		if WG.crude.GetHotkey("selectidlecon") and WG.crude.GetHotkey("selectidlecon_all") then
@@ -1286,15 +1307,15 @@ local function GetConstructorButton(parent)
 		end
 		button.SetHotkey(hotkeyCaption)
 	end
-	
+
 	function externalFunctions.Destroy()
 		button.Destroy()
 		button = nil
 	end
-	
+
 	externalFunctions.UpdateButton()
 	externalFunctions.UpdateHotkey()
-	
+
 	return externalFunctions
 end
 
@@ -1308,20 +1329,20 @@ local function GetButtonListHandler(buttonBackground)
 	local buttonMap = {}
 	local buttonList = {}
 	local buttonCount = 0
-	
+
 	local externalFunctions = {}
-	
+
 	function externalFunctions.GetButton(buttonID)
 		return buttonID and buttons[buttonID]
 	end
-	
+
 	function externalFunctions.MoveDown(category, index)
 		for i = 1, buttonCount do
 			local button = buttons[buttonList[i]]
 			button.MoveDown(category, index)
 		end
 	end
-	
+
 	function externalFunctions.RemoveButton(buttonID)
 		if not externalFunctions.GetButton(buttonID) then
 			return
@@ -1329,17 +1350,17 @@ local function GetButtonListHandler(buttonBackground)
 		local category, index = buttons[buttonID].GetOrder()
 		buttons[buttonID].Destroy()
 		buttons[buttonID] = nil
-		
+
 		buttonList[buttonMap[buttonID]] = buttonList[buttonCount]
 		buttonMap[buttonList[buttonCount]] = buttonMap[buttonID]
 		buttonMap[buttonID] = nil
 		buttonList[buttonCount] = nil
 		buttonCount = buttonCount - 1
-		
+
 		externalFunctions.MoveDown(category, index)
 		buttonBackground.UpdateSize(buttonCount)
 	end
-		
+
 	function externalFunctions.MoveUp(category, index)
 		local position = 1
 		for i = 1, buttonCount do
@@ -1352,20 +1373,20 @@ local function GetButtonListHandler(buttonBackground)
 		end
 		return position
 	end
-	
+
 	function externalFunctions.AddButton(buttonID, button)
 		buttons[buttonID] = button
-		
+
 		local category, index = button.GetOrder()
 		local position = externalFunctions.MoveUp(category, index)
 		button.SetPosition(position)
-		
+
 		buttonCount = buttonCount + 1
 		buttonList[buttonCount] = buttonID
 		buttonMap[buttonID] = buttonCount
 		buttonBackground.UpdateSize(buttonCount)
 	end
-	
+
 	function externalFunctions.UpdateButtons(dt)
 		local i = 1
 		while i <= buttonCount do
@@ -1377,7 +1398,7 @@ local function GetButtonListHandler(buttonBackground)
 			end
 		end
 	end
-	
+
 	function externalFunctions.UpdateLayout()
 		for i = 1, buttonCount do
 			local button = buttons[buttonList[i]]
@@ -1385,7 +1406,7 @@ local function GetButtonListHandler(buttonBackground)
 		end
 		buttonBackground.UpdateSize(buttonCount)
 	end
-	
+
 	function externalFunctions.DeleteButtons()
 		for i = 1, buttonCount do
 			local button = buttons[buttonList[i]]
@@ -1397,21 +1418,21 @@ local function GetButtonListHandler(buttonBackground)
 		buttonCount = 0
 		buttonBackground.UpdateSize(buttonCount)
 	end
-	
+
 	function externalFunctions.SetImagesVisible(newVisible)
 		for i = 1, buttonCount do
 			local buttonID = buttonList[i]
 			buttons[buttonID].SetImageVisible(newVisible)
 		end
 	end
-	
+
 	function externalFunctions.Destroy()
 		for i = 1, buttonCount do
 			local buttonID = buttonList[i]
 			buttons[buttonID].Destroy()
 		end
 	end
-	
+
 	return externalFunctions
 end
 
@@ -1423,12 +1444,12 @@ local function AddComm(unitID, unitDefID)
 	if buttonList.GetButton(unitID) then
 		return
 	end
-	
+
 	local button = GetCommanderButton(buttonHolder, unitID, unitDefID, commanderIndex)
 	commanderIndex = commanderIndex + 1
-	
+
 	commanderList[#commanderList + 1] = button
-	
+
 	buttonList.AddButton(unitID, button)
 end
 
@@ -1454,12 +1475,12 @@ local function AddFac(unitID, unitDefID)
 	if buttonList.GetButton(unitID) then
 		return
 	end
-	
+
 	local button = GetFactoryButton(buttonHolder, unitID, unitDefID, factoryIndex)
 	factoryIndex = factoryIndex + 1
-	
+
 	factoryList[#factoryList + 1] = button
-	
+
 	buttonList.AddButton(unitID, button)
 end
 
@@ -1477,7 +1498,7 @@ local function RemoveFac(unitID)
 	if removing then
 		factoryList[facCount] = nil
 	end
-	
+
 	buttonList.RemoveButton(unitID)
 end
 
@@ -1487,9 +1508,9 @@ end
 
 local function RefreshConsList()
 	idleCons = {}
-	if Spring.GetGameFrame() > 1 and myTeamID then
-		local buttonList = Spring.GetTeamUnits(myTeamID)
-		for _,unitID in pairs(buttonList) do
+	if spGetGameFrame() > 1 and myTeamID then
+		local bList = spGetTeamUnits(myTeamID)
+		for _,unitID in pairs(bList) do
 			local unitDefID = spGetUnitDefID(unitID)
 			if unitDefID then
 				widget:UnitFinished(unitID, unitDefID, myTeamID)
@@ -1505,11 +1526,11 @@ options.monitorInbuiltCons.OnChange = RefreshConsList
 -- Check current cmdID and the queue for a double-wait
 local function HasDoubleCommand(unitID, cmdID)
 	if cmdID == CMD.WAIT or cmdID == CMD.SELFD then
-		local cmdsLen = Spring.GetCommandQueue(unitID,0)
+		local cmdsLen = spGetUnitCommandCount(unitID) --//Deprecated: spGetCommandQueue(unitID,0)
 		if cmdsLen == 0 then -- Occurs in the case of SELFD
 			return true
 		elseif cmdsLen == 1 then
-			local currCmdID = Spring.GetUnitCurrentCommand(unitID)
+			local currCmdID = spGetUnitCurrentCommand(unitID)
 			return currCmdID == CMD.WAIT
 		end
 	end
@@ -1518,9 +1539,9 @@ end
 
 -- Check the queue for an attack command
 local function isAttackQueued(unitID)
-	local cmdsLen = Spring.GetCommandQueue(unitID,0)
+	local cmdsLen = spGetUnitCommandCount(unitID) --//Deprecated: spGetCommandQueue(unitID,0)
 	if cmdsLen and (cmdsLen > 0) then
-		local cmds = Spring.GetCommandQueue(unitID,-1)
+		local cmds = spGetCommandQueue(unitID,-1)
 		for i = 1,cmdsLen do
 			if cmds and cmds[i] and ((cmds[i].id == CMD.ATTACK) or (cmds[i].id == CMD.AREA_ATTACK)) then
 				return true
@@ -1533,7 +1554,7 @@ end
 -- Check to see if the bomber is ready and untasked
 local function setBomberReadyStatus(unitID)
 	local noAmmo = spGetUnitRulesParam(unitID, "noammo")
-	if (noAmmo and noAmmo ~= 0) or select(3, Spring.GetUnitIsStunned(unitID)) or isAttackQueued(unitID) then
+	if (noAmmo and noAmmo ~= 0) or select(3, spGetUnitIsStunned(unitID)) or isAttackQueued(unitID) then
 		readyUntaskedBombers[unitID] = nil
 	else
 		readyUntaskedBombers[unitID] = true
@@ -1546,10 +1567,10 @@ end
 
 local function InitializeUnits()
 	if myTeamID then
-		local buttonList = Spring.GetTeamUnits(myTeamID)
-		for _,unitID in pairs(buttonList) do
+		local bList = spGetTeamUnits(myTeamID)
+		for _,unitID in pairs(bList) do
 			local unitDefID = spGetUnitDefID(unitID)
-			--Spring.Echo(unitID, unitDefID)
+			--spEcho(unitID, unitDefID)
 			if unitDefID then
 				widget:UnitCreated(unitID, unitDefID, myTeamID)
 				widget:UnitFinished(unitID, unitDefID, myTeamID)
@@ -1560,14 +1581,14 @@ end
 
 local function InitializeControls()
 	-- Set the size for the default settings.
-	local screenWidth, screenHeight = Spring.GetViewGeometry()
+	local screenWidth, screenHeight = spGetViewGeometry()
 	local BUTTON_HEIGHT = 55*options.buttonSizeLong.value/60
 	local integralWidth = math.max(350, math.min(450, screenWidth*screenHeight*0.0004))
 	local integralHeight = math.min(screenHeight/4.5, 200*integralWidth/450)
 	local bottom = integralHeight
-	
+
 	local windowY = bottom - BUTTON_HEIGHT
-	
+
 	mainWindow = Window:New{
 		padding = {-1, 0, -1, -1},
 		itemMargin = {0, 0, 0, 0},
@@ -1588,7 +1609,7 @@ local function InitializeControls()
 		color = {0,0,0,0},
 		OnClick = {
 			function(self)
-				local alt, ctrl, meta, shift = Spring.GetModKeyState()
+				local alt, ctrl, meta, shift = spGetModKeyState()
 				if not meta then
 					return false
 				end
@@ -1602,12 +1623,12 @@ local function InitializeControls()
 
 	mainBackground = GetBackground(mainWindow)
 	buttonHolder = mainBackground.GetButtonsHolder()
-	
+
 	buttonList = GetButtonListHandler(mainBackground)
 	buttonList.AddButton(CONSTRUCTOR_BUTTON_ID, GetConstructorButton(buttonHolder))
-		
+
 	buttonHolder.OnResize[#buttonHolder.OnResize + 1] = ButtonHolderResize
-	
+
 	InitializeUnits()
 	CheckHide()
 end
@@ -1618,17 +1639,17 @@ local function ClearData()
 	idleCons = {}
 	wantUpdateCons = false
 	readyUntaskedBombers = {}
-	
+
 	idleConCount = 0
 	factoryIndex = 1
 	commanderIndex = 1
-	
+
 	oldButtonList = buttonList
-	
+
 	buttonList = GetButtonListHandler(mainBackground)
 	buttonList.AddButton(CONSTRUCTOR_BUTTON_ID, GetConstructorButton(buttonHolder))
 	InitializeUnits()
-	
+
 	buttonList.SetImagesVisible(false)
 end
 
@@ -1641,16 +1662,16 @@ function widget:UnitCreated(unitID, unitDefID, unitTeam)
 		return
 	end
 	local ud = UnitDefs[unitDefID]
-	
+
 	if ud.isFactory and (not exceptionArray[unitDefID]) then
 		AddFac(unitID, unitDefID)
 	elseif ud.customParams.level then
 		AddComm(unitID, unitDefID)
 	elseif options.monitorInbuiltCons.value and (
 			(ud.buildSpeed > 0) and (not exceptionArray[unitDefID]) and (not ud.isFactory) and
-			(options.monitoridlecomms.value or not ud.customParams.dynamic_comm) and
-			(options.monitoridlenano.value or ud.canMove)
-		) then
+					(options.monitoridlecomms.value or not ud.customParams.dynamic_comm) and
+					(options.monitoridlenano.value or ud.canMove)
+	) then
 		idleCons[unitID] = true
 		wantUpdateCons = true
 	end
@@ -1662,14 +1683,14 @@ function widget:UnitFinished(unitID, unitDefID, unitTeam)
 	end
 	local ud = UnitDefs[unitDefID]
 	if GetUnitCanBuild(unitID, unitDefID) then  --- can build
-		local bQueue = spGetFullBuildQueue(unitID)
+	local bQueue = spGetFullBuildQueue(unitID)
 		if not bQueue[1] then  --- has no build queue
-			local _, _, _, _, buildProg = spGetUnitHealth(unitID)
+		local _, _, _, _, buildProg = spGetUnitHealth(unitID)
 			if not ud.isFactory then
-				local cQueue = Spring.GetCommandQueue(unitID, 0)
-				--Spring.Echo("Con "..unitID.." queue "..tostring(cQueue[1]))
+				local cQueue = spGetUnitCommandCount(unitID) --//Deprecated: spGetCommandQueue(unitID,0)
+				--spEcho("Con "..unitID.." queue "..tostring(cQueue[1]))
 				if cQueue == 0 then
-					--Spring.Echo("\tCon "..unitID.." must be idle")
+					--spEcho("\tCon "..unitID.." must be idle")
 					widget:UnitIdle(unitID, unitDefID, myTeamID)
 				end
 			end
@@ -1697,7 +1718,7 @@ function widget:UnitDestroyed(unitID, unitDefID, unitTeam)
 	if readyUntaskedBombers[unitID] then
 		readyUntaskedBombers[unitID] = nil
 	end
-	
+
 	local ud = UnitDefs[unitDefID]
 	if ud.isFactory and (not exceptionArray[unitDefID]) then
 		RemoveFac(unitID)
@@ -1716,8 +1737,8 @@ function widget:UnitIdle(unitID, unitDefID, unitTeam)
 	end
 	local ud = UnitDefs[unitDefID]
 	if (ud.buildSpeed > 0) and (not exceptionArray[unitDefID]) and (not UnitDefs[unitDefID].isFactory)
-	and (options.monitoridlecomms.value or not UnitDefs[unitDefID].customParams.dynamic_comm)
-	and (options.monitoridlenano.value or UnitDefs[unitDefID].canMove) then
+			and (options.monitoridlecomms.value or not UnitDefs[unitDefID].customParams.dynamic_comm)
+			and (options.monitoridlenano.value or UnitDefs[unitDefID].canMove) then
 		idleCons[unitID] = true
 		wantUpdateCons = true
 	end
@@ -1734,14 +1755,14 @@ function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdOpts, cmdPara
 	if cmdID and stateCommands[cmdID] then
 		return
 	end
-	
+
 	-- Double wait means the same as an empty queue
 	-- It is just an engine hack
 	if HasDoubleCommand(unitID,cmdID) then
 		widget:UnitIdle(unitID,unitDefID,unitTeam)
 		return
 	end
-	
+
 	if idleCons[unitID] then
 		idleCons[unitID] = nil
 		wantUpdateCons = true
@@ -1758,17 +1779,17 @@ function widget:Update(dt)
 	if mainBackground and mainBackground.GetSpecMode() then
 		return
 	end
-	
+
 	if oldButtonList then
 		oldButtonList.Destroy()
 		buttonList.SetImagesVisible(true)
 		oldButtonList = nil
 	end
-	if myTeamID ~= Spring.GetMyTeamID() then
-		myTeamID = Spring.GetMyTeamID()
+	if myTeamID ~= spGetMyTeamID() then
+		myTeamID = spGetMyTeamID()
 		ClearData()
 	end
-	
+
 	if wantUpdateCons then
 		buttonList.GetButton(CONSTRUCTOR_BUTTON_ID).UpdateButton()
 		wantUpdateCons = false
@@ -1778,7 +1799,7 @@ function widget:Update(dt)
 	if timer < UPDATE_FREQUENCY then
 		return
 	end
-	
+
 	buttonList.UpdateButtons(timer)
 	timer = 0
 end
@@ -1830,7 +1851,7 @@ function widget:Initialize()
 		widgetHandler:RemoveWidget(widget)
 		return
 	end
-	
+
 	widgetHandler:AddAction("selectcomm", SelectComm, nil, 'tp')
 	widgetHandler:AddAction("selectprecbomber", SelectPrecBomber, nil, 'tp')
 	widgetHandler:AddAction("selectidlecon", SelectIdleCon, nil, 'tp')
@@ -1848,6 +1869,6 @@ function widget:Initialize()
 	screen0 = Chili.Screen0
 
 	InitializeControls()
-	
+
 	WG.CoreSelector = externalFunctions
 end

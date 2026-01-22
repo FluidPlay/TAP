@@ -65,6 +65,7 @@ local spGetUnitTeam    = Spring.GetUnitTeam
 --local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
 local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
+local spGetUnitCommandCount = Spring.GetUnitCommandCount
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
 local spGetUnitRadius = Spring.GetUnitRadius
@@ -358,7 +359,7 @@ local automatedFunctions = {
                 local rp = ud.returnPos
                 local hasReturned = rp and rp.x and (sqrDistance(ud.pos.x, ud.pos.z, rp.x, rp.z) <= 140)
                 return (harvestState[ud.unitID] == "returning")
-                        and ((not hasReturned) and (spGetCommandQueue(ud.unitID, 0) < 1)
+                        and ((not hasReturned) and (spGetUnitCommandCount(ud.unitID) < 1)
                         or not ud.farFromOreTower)
             end,
             action = function(ud)

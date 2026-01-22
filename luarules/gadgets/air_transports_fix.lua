@@ -14,6 +14,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
 	local GetUnitPosition = Spring.GetUnitPosition
 	local GiveOrderToUnit = Spring.GiveOrderToUnit
+	local GetUnitCommandCount = Spring.GetUnitCommandCount
 	local GetUnitCommands = Spring.GetUnitCommands
 	local GetGameFrame = Spring.GetGameFrame
 
@@ -105,7 +106,8 @@ if (gadgetHandler:IsSyncedCode()) then
 			end
 			local insertPos = 0
 			if cmdOpts.shift then
-				insertPos = GetUnitCommands(unitID,0)-1
+				-- insertPos = GetUnitCommands(unitID,0)-1  --//Rendered obsolete in Recoil 2025.x
+				insertPos = GetUnitCommandCount(unitID)-1
 			end
 			orderQueue[GetGameFrame() + 1] = orderQueue[GetGameFrame() + 1] or {}
 			orderQueue[GetGameFrame() + 1][#orderQueue[GetGameFrame() + 1]+1] = {unitID=unitID,insertPos = insertPos,dest=cmdParams}
