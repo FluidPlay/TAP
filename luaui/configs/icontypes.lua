@@ -93,6 +93,7 @@ local unitIconTable = {
 	sub_generic = 0.9,
 	sea_cannon = 1.15,
 	sea_neutron = 1.25,
+	sea_artillery = 1.3,
 	sub_builder = 0.9,
 	sub_rezz = 0.95,
 	sub_cannon = 0.9,
@@ -154,7 +155,8 @@ local iconTypesProc = {
 		end
 		-- Outposts (don't change size, just different images)
 		fileName = iconsPath.."structure_outpost"
-		tryAddUnitIcon("structure_outpost", fileName..".png", 1.6 )
+		tryAddUnitIcon("structure_outpost", fileName..".png", 1.5 )
+		tryAddUnitIcon("structure_outpost1", fileName..".png", 1.6 )
 		tryAddUnitIcon( "structure_outpost2", fileName.."2.png", 1.7 )
 		tryAddUnitIcon( "structure_outpost3", fileName.."3.png", 1.8 )
 		tryAddUnitIcon( "structure_outpost4", fileName.."4.png", 1.9 )
