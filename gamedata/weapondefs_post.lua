@@ -111,7 +111,6 @@ end
 
 --------------------------------------------------------------------------------
 
-
 -- handle standalone weapondefs
 for name,wd in pairs(WeaponDefs) do
     WeaponDef_Post(name,wd)

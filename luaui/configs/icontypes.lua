@@ -200,7 +200,7 @@ local iconTypesProc = {
 					Spring.SetUnitDefIcon(udid, "structure_techcenter"..tier)
 				elseif ud.name == "armoutpost" or ud.name == "coroutpost" then    -- Tiers 0 (no Tier 1)
 					Spring.SetUnitDefIcon(udid, "structure_outpost")
-				elseif ud.name:sub(0,10)=="armoutpost" or ud.name:sub(0,10)=="coroutpost" then -- Tiers 2 ~ 4
+				elseif not tier == 0 and (ud.name:sub(0,10)=="armoutpost" or ud.name:sub(0,10)=="coroutpost") then -- Tiers 2 ~ 4
 					Spring.SetUnitDefIcon(udid, "structure_outpost"..tier)
 				elseif ud.name=="armbanth" then
 					Spring.SetUnitDefIcon(udid, "bantha.user")

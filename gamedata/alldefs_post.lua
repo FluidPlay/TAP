@@ -4,14 +4,15 @@
 
 -- TAP contains weapondefs in its unitdef files
 -- Standalone weapondefs are only loaded by Spring after unitdefs are loaded
--- So, if we want to do post processing and include all the unit+weapon defs, and have the ability to bake these changes into files, we must do it after both have been loaded
+-- So, if we want to do post processing and include all the unit+weapon defs, and have the ability to bake these changes
+-- into files, we must do it after both have been loaded
 -- That means, ALL UNIT AND WEAPON DEF POST PROCESSING IS DONE HERE
 
 -- What happens:
 -- unitdefs_post.lua calls the _Post functions for unitDefs and any weaponDefs that are contained in the unitdef files
 -- unitdefs_post.lua writes the corresponding unitDefs to customparams (if wanted)
 -- weapondefs_post.lua fetches any weapondefs from the unitdefs, 
--- weapondefs_post.lua fetches the standlaone weapondefs, calls the _post functions for them, writes them to customparams (if wanted)
+-- weapondefs_post.lua fetches the standalone weapondefs, calls the _post functions for them, writes them to customparams (if wanted)
 -- strictly speaking, alldefs_post is a misnomer since this file does not handle armordefs, featuredefs or movedefs
 
 local unitDefsData = VFS.Include("gamedata/configs/unitdefs_data.lua")
@@ -29,12 +30,6 @@ local damageTypes = VFS.Include("gamedata/configs/damagetypes.lua")
 local damageMults = VFS.Include("gamedata/configs/damagemultipliers.lua")
 local weaponDmgTypes = VFS.Include("gamedata/configs/weapondamagetypes.lua")
 
-
--- [DEPRECATED with v1 lua core] Spring.Utilities setup
-    --Spring.Utilities = Spring.Utilities or {}
-    --VFS.Include("LuaRules/Utilities/utilities_emul.lua")
-    --CopyTable = Spring.Utilities.CopyTable
-    --MergeTable = Spring.Utilities.MergeTable
 local minimumbuilddistancerange = 155
 
 -------------------------
@@ -64,11 +59,6 @@ end
 function UnitDef_Post(name, uDef)
 	ApplyUnitDefs_Data(name, uDef)
 	ApplyGroupCosts(name, uDef)
-	-- [deprecated, now done straight in ssheet] Add reverse move to units with customDef allowreversemove defined as true
-	--if uDef.speed and uDef.customParams then -- and uDef.customParams.allowreversemove == "1"
-	--	Spring.Echo(name.." has allowreversemove.")
-	--	uDef.rSpeed = uDef.speed * 0.6
-	--end
     --Set a minimum for builddistance
     if uDef.builddistance ~= nil and uDef.builddistance < minimumbuilddistancerange then
         uDef.builddistance = minimumbuilddistancerange
