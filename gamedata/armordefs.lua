@@ -18,7 +18,7 @@ local armorDefs = {
 					   "critter_ant", "critter_duck", "critter_goldfish", "critter_gull", "critter_penguin", "corcv", "corgator",
 					   "armlatnk","armfav","armsh","armspy","coresupp","corst",
 					   "corlevlr","corsh","decade","marauder","nsaclash","armmart","armsam", "cormist",
-					   "armmerl","armshock","cormart","corwolv","shiva","tawf013",
+					   "armmerl","armshock","corwolv","shiva","tawf013",
 					   "cortrem", "corban","corvrad",},
 	armorveh={"armanac","armbull","armcroc","armlun","armscab","armseer","armstump","armthovr",
 			  "corgol","cormabm","corraid","correap","corsnap",
@@ -58,7 +58,7 @@ local armorDefs = {
 				 "cordrag","corestor","coreyes","corfdrag","corfmine3","corfort","corgant","corgantuw","corgeo","corhp",
 				 "corjamt","corlab","cormakr","cormine4","cormmkr","kernexplorer","cornanotc","corrad",
 				 "corshroud","corsonar","corsy","cortron","coruwadves","coruwadvms",
-				 "corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav","armmstor", "armuwadvms",
+				 "corvp","corwin","csubpen","tllmedfusion","armsonar","armmstor", "armuwadvms",
 				 "armsilo", "corsilo",
 	},
 
@@ -85,7 +85,7 @@ local armorDefs = {
 	--	"cordrag","corestor","coreyes","corfatf","corfdrag","corfhp","corfmine3","corfort","corfrad","corgant","corgantuw","corgeo","corhp",
 	--	"corjamt","corlab","cormakr","cormine4","cormmkr","cormstor","cornanotc","corrad",
 	--	"corshroud","corsonar","corsy","cortarg","cortron","coruwadves","coruwadvms","coruwes","coruwfus","coruwmmm","coruwms",
-	--	"corvp","corwin","csubpen","tllmedfusion","armsonar","scavengerdroppodbeacon_scav"},
+	--	"corvp","corwin","csubpen","tllmedfusion","armsonar",},
 
 	--++++==== Ships
 
@@ -118,15 +118,15 @@ local armorDefs = {
 	["else"] = {},
 }
 
--- Copy regular unit armor def to its Scavengers counterpart
-for categoryName, categoryUnits in pairs(armorDefs) do
-    for _, thisUdID in pairs(categoryUnits) do
-        if not string.find(thisUdID, '_scav') then
-            table.insert(armorDefs[categoryName], thisUdID.."_scav")
-            --Spring.Echo("Added Scav Unit: ", thisUdID, " to armorclass: "..categoryName)
-        end
-    end
-end
+---- Copy regular unit armor def to its Scavengers counterpart
+--for categoryName, categoryUnits in pairs(armorDefs) do
+--    for _, thisUdID in pairs(categoryUnits) do
+--        if not string.find(thisUdID, '_scav') then
+--            table.insert(armorDefs[categoryName], thisUdID.."_scav")
+--            --Spring.Echo("Added Scav Unit: ", thisUdID, " to armorclass: "..categoryName)
+--        end
+--    end
+--end
 
 --[[
 -- -- put any unit that doesn't go in any other category in light armor

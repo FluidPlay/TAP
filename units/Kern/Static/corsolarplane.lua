@@ -1,5 +1,7 @@
 return {
 	corsolarplane = {
-        name = "Solar Collector",
-    }
+		objectname = "Units/Bow/armaak.s3o",
+		buildcostmetal = 550,
+		buildcostenergy = 6600,
+	},
 }

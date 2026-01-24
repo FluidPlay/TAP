@@ -62,18 +62,8 @@ end
 
 -- process unitdefs
 function UnitDef_Post(name, uDef)
-    -- TODO: Below is not working (_scav units still don't exist at this time), move elsewhere
-	if string.find(name, '_scav') then
-        Spring.Echo("uDef name being processed: "..name)
-		local scavnamelength = string.len(name)
-		local scavname = string.sub(name, 1, scavnamelength -5)
-		ApplyUnitDefs_Data(scavname, uDef)
-	    -- Any post processing after unitdefs_data.lua is applied should come after this
-		ApplyGroupCosts(scavname, uDef)
-	else
-		ApplyUnitDefs_Data(name, uDef)
-		ApplyGroupCosts(name, uDef)
-	end
+	ApplyUnitDefs_Data(name, uDef)
+	ApplyGroupCosts(name, uDef)
 	-- [deprecated, now done straight in ssheet] Add reverse move to units with customDef allowreversemove defined as true
 	--if uDef.speed and uDef.customParams then -- and uDef.customParams.allowreversemove == "1"
 	--	Spring.Echo(name.." has allowreversemove.")

@@ -1,9 +1,7 @@
 return {
 	corshred = {
-		objectname="CORSHRED",
-		name="Shredder",
-		description="Heavybot and air Flak Defense",
-		buildcostmetal = 769,
-		builddistance = 112,
-	}
+		objectname = "Units/Bow/armaak.s3o",
+		buildcostmetal = 550,
+		buildcostenergy = 6600,
+	},
 }

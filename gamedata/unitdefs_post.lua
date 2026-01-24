@@ -97,38 +97,38 @@ for name,ud in pairs(UnitDefs) do
 	end
 end
 
-VFS.Include("gamedata/scavengers/unitdef_changes.lua")
-local scavengerUnitDefs = {}
+--VFS.Include("gamedata/scavengers/unitdef_changes.lua")
+--local scavengerUnitDefs = {}
+--
+--for name,uDef in pairs(UnitDefs) do
+--	--local faction = string.sub(name, 1, 3)
+--	if not string.find(name, '_scav') then
+--		if customDefs[name] ~= nil then
+--			scavengerUnitDefs[name..'_scav'] = tableMergeSpecial(deepcopy(uDef), deepcopy(customDefs[name]))
+--		else
+--			scavengerUnitDefs[name..'_scav'] = deepcopy(uDef)
+--		end
+--	end
+--end
+--
+--for name,uDef in pairs(scavengerUnitDefs) do
+--	UnitDefs[name] = uDef
+--end
+
+--VFS.Include("gamedata/scavengers/unitdef_post.lua")
+--VFS.Include("gamedata/scavengers/weapondef_post.lua")
 
 for name,uDef in pairs(UnitDefs) do
-	--local faction = string.sub(name, 1, 3)
-	if not string.find(name, '_scav') then
-		if customDefs[name] ~= nil then
-			scavengerUnitDefs[name..'_scav'] = tableMergeSpecial(deepcopy(uDef), deepcopy(customDefs[name]))
-		else
-			scavengerUnitDefs[name..'_scav'] = deepcopy(uDef)
-		end
-	end
-end
- 
-for name,uDef in pairs(scavengerUnitDefs) do
-	UnitDefs[name] = uDef
-end
-
-VFS.Include("gamedata/scavengers/unitdef_post.lua")
-VFS.Include("gamedata/scavengers/weapondef_post.lua")
-
-for name,uDef in pairs(UnitDefs) do
-	if string.find(name, '_scav') then
-		uDef = scav_Udef_Post(name, uDef)
-		if uDef.weapondefs then
-			for wname,wDef in pairs(uDef.weapondefs) do
-				wDef = scav_Wdef_Post(name, wDef)
-			end
-		end 
-	end
+	--if string.find(name, '_scav') then
+	--	uDef = scav_Udef_Post(name, uDef)
+	--	if uDef.weapondefs then
+	--		for wname,wDef in pairs(uDef.weapondefs) do
+	--			wDef = scav_Wdef_Post(name, wDef)
+	--		end
+	--	end
+	--end
 	if SaveDefsToCustomParams then
-		SaveDefToCustomParams("UnitDefs", name, uDef)    
+		SaveDefToCustomParams("UnitDefs", name, uDef)
 	end
 end
 

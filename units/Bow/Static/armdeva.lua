@@ -1,9 +1,7 @@
 return {
 	armdeva = {
-		objectname="ARMDEVA",
-		name="DEVA",
-		description="Destroyer of Very Armored kbots",
-		buildcostmetal = 769,
-		builddistance = 112,
-	}
+		objectname = "Units/Bow/armaak.s3o",
+		buildcostmetal = 550,
+		buildcostenergy = 6600,
+	},
 }
