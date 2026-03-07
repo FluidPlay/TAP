@@ -14,7 +14,7 @@ return {
 		impulseboost = 0.5,
 		impulsefactor = 0.5,
 		metalpershot = 1500,
-		model = "crblmssl",
+		model = "Projectiles/crblmssl",
 		name = "CoreNuclearMissile",
 		range = 72000,
 		reloadtime = 180,

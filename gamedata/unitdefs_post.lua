@@ -52,7 +52,7 @@ end
 
 -- Apply unitdefs_data (exported from Google Sheets)
 for name,ud in pairs(UnitDefs) do
-	UnitDef_Post(name,ud)
+	--UnitDef_Post(name,ud)
 	if ud.weapondefs then
 		for wname,wd in pairs(ud.weapondefs) do
 			WeaponDef_Post(wname,wd)

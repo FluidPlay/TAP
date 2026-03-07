@@ -50,7 +50,9 @@ local resources = {
 local VFSUtils = VFS.Include('gamedata/VFSUtils.lua')
 
 local function AutoAdd(subDir, map, filter)
-  local dirList = RecursiveFileSearch("bitmaps/" .. subDir)
+
+  --//local dirList = RecursiveFileSearch("bitmaps/" .. subDir)
+  local dirList = VFS.DirList("bitmaps/"..subDir, '*.*', nil, true)
   for _, fullPath in ipairs(dirList) do
     local path, key, ext = fullPath:match("bitmaps/(.*/(.*)%.(.*))")
     if not fullPath:match("/%.svn") then

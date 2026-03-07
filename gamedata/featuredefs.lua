@@ -46,7 +46,9 @@ end
 --  Load the TDF featuredef files
 --
 
-local tdfFiles = RecursiveFileSearch('features/', '*.tdf')
+--//local tdfFiles = RecursiveFileSearch('features/', '*.tdf')
+local tdfFiles = VFS.DirList('features/', '*.tdf', nil, true)
+
 
 for _, filename in ipairs(tdfFiles) do
   local fds, err = TDF.Parse(filename)
@@ -67,7 +69,9 @@ end
 --  (these will override the TDF versions)
 --
 
-local luaFiles = RecursiveFileSearch('features/', '*.lua')
+--//local luaFiles = RecursiveFileSearch('features/', '*.lua')
+local luaFiles = VFS.DirList('features/', '*.lua', nil, true)
+
 
 for _, filename in ipairs(luaFiles) do
   local fdEnv = {}
