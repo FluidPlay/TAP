@@ -187,8 +187,8 @@ local iconTypesProc = {
 				-- #################
 				elseif (ud.name=="roost") or (ud.name=="meteor") then
 					Spring.SetUnitDefIcon(udid, "star.user")
-				elseif string.sub(ud.name, 0, 7) == "critter" then
-					Spring.SetUnitDefIcon(udid, "blank.user")
+				--elseif string.sub(ud.name, 0, 7) == "critter" then
+				--	Spring.SetUnitDefIcon(udid, "blank.user")
 				elseif ud.name == "armcom" or ud.name:sub(0,6)=="armcom" then    -- Tiers 1 through 4
 					--Spring.Echo("Commander found")
 					Spring.SetUnitDefIcon(udid, "armcom.user")

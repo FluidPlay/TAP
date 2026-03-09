@@ -547,7 +547,7 @@ local function _LoadMaterialConfigFiles(path)
 end
 
 local function _ProcessMaterials(rendering, materialDefsSrc)
-	local engineShaderTypes = {"s3o", "ass", "dae", "gltf"} --"3do", 
+	local engineShaderTypes = {"s3o", "ass", "dae", "gltf"} --"3do",
 
 	for _, matSrc in pairs(rendering.materialDefs) do
 
