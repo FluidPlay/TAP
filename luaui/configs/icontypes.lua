@@ -178,7 +178,7 @@ local iconTypesProc = {
 				--Spring.Echo(" udid | name: "..udid.." | "..ud.name.." subs: "..ud.name:sub(0,6))
 				--      -- Icontag defined
 				--      --Spring.Echo("Unit name for icon: "..ud.name)
-				if iconTag then
+				if iconTag and iconTag ~= "blank" then
 					--Spring.Echo("Set icon: "..iconTag.."_"..tier)
 					Spring.SetUnitDefIcon(udid, iconTag.."_"..tier)
 

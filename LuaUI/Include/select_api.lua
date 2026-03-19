@@ -88,6 +88,8 @@ end
 
 local function checkCmd(uid, cmdId, indexTemp)
 	local index = indexTemp or 1
+	if index == 0 then
+		index = 1 end	-- attempt at fixing the 0 index error (Recoil)
 	local cmd = spGetUnitCommands(uid, index)
 	if cmd and cmd[index] and cmd[index]["id"] == cmdId then
 		return true

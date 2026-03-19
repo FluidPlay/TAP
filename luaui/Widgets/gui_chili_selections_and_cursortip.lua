@@ -596,10 +596,10 @@ local function GetUnitIcon(unitDefID)
 		return iconTypeCache[unitDefID]
 	end
 	local ud = UnitDefs[unitDefID]
-	if not ud then
+	if not ud or not unitDefID then
 		return
 	end
-	iconTypeCache[unitDefID] = iconTypes[(ud and ud.iconType or "default")].bitmap or iconsPath .. ud.iconType .. iconFormat
+	iconTypeCache[unitDefID] = iconTypes[(ud and ud.iconType or "default")].bitmap or iconsPath..(ud.iconType)..iconFormat
 	return iconTypeCache[unitDefID]
 end
 

@@ -247,7 +247,7 @@ function gadget:GameFrame(n)
 				local unitHealth,unitMaxHealth,_,_,unitBuildProgress = Spring.GetUnitHealth(unitID)
 				-- unitHealthPercentage = (unitHealth/unitMaxHealth)*100
 				local unitMaxRange = Spring.GetUnitMaxRange(unitID)
-				local unitCommands = Spring.GetCommandQueue(unitID, 0)
+				local unitCommands = Spring.GetUnitCommandCount(unitID) -- Spring.GetCommandQueue(unitID, 0)
 				local unitposx, unitposy, unitposz = Spring.GetUnitPosition(unitID)
 				--Spring.Echo(faction)
 

@@ -38,7 +38,7 @@ local spGetUnitSeparation	= Spring.GetUnitSeparation
 local spGetUnitDirection	=Spring.GetUnitDirection
 local spGetUnitsInRectangle =Spring.GetUnitsInRectangle
 local spGetVisibleUnits = Spring.GetVisibleUnits
-local spGetCommandQueue	= Spring.GetCommandQueue
+local spGetUnitCommands	= Spring.GetUnitCommands  --GetCommandQueue
 local spGetGameSeconds	= Spring.GetGameSeconds
 local spGetFeaturePosition = Spring.GetFeaturePosition
 local spGetPlayerInfo = Spring.GetPlayerInfo
@@ -501,7 +501,7 @@ function DoCalculation(passedInfo)
 		for i=2, unitInMotion[1], 1 do --array index 1 contain the array's lenght, start from 2
 			local unitID= unitInMotion[i][1] --get unitID for commandqueue
 			if not spGetUnitIsDead(unitID) and (spGetUnitTeam(unitID)==myTeamID) then --prevent execution if unit died during transit
-				local cQueue = spGetCommandQueue(unitID, -1)
+				local cQueue = spGetUnitCommands(unitID, -1)
 				local executionAllow, cQueueTemp,reloadAvoidance = GateKeeperOrCommandFilter(unitID, cQueue, unitInMotion[i],myTeamID) --filter/alter unwanted unit state by reading the command queue
 				if executionAllow then
 					--cQueue = cQueueTemp --cQueueTemp has been altered for identification, copy it to cQueue for use in DoCalculation() phase (note: command is not yet issued)
@@ -657,7 +657,7 @@ function RefreshWatchdogList (unitID, commandTTL)
 
 		--//Method1: the following function do work offline but not online because widget's command appears delayed (latency) and this cause missmatch with what commandTTL expect to see: it doesn't see the command thus it assume the command already been deleted.
 		--[[
-		local cQueue = spGetCommandQueue(unitID, 1)
+		local cQueue = spGetUnitCommands(unitID, 1)
 		for i=#commandTTL[unitID], 1, -1 do
 			local firstParam, secondParam = 0, 0
 			if cQueue[1]~=nil then
@@ -686,7 +686,7 @@ function RefreshWatchdogList (unitID, commandTTL)
 					commandTTL[unitID][i].countDown = commandTTL[unitID][i].countDown - (1*returnToReclaimOffset) --count-down until zero and stop. Each iteration is minus 1 and then exit loop after 1 enty, or when countDown==0 remove command and then go to next entry and minus 2 and exit loop. 
 					break --//exit the iteration, do not go to next iteration until this entry expire first... 
 				elseif commandTTL[unitID][i].countDown <=0 then --if commandTTL is found to reach ZERO then remove the command, assume a 'TIMEOUT', then remove *this* watchdog entry
-					local cQueue = spGetCommandQueue(unitID, 1) --// get unit's immediate command
+					local cQueue = spGetUnitCommands(unitID, 1) --// get unit's immediate command
 					local firstParam, secondParam = 0, 0
 					if cQueue[1]~=nil then
 						firstParam, secondParam = cQueue[1].params[1], cQueue[1].params[3] --if cQueue not empty then use it... x, z,

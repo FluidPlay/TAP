@@ -26,9 +26,20 @@ local inherited = this.inherited
 
 --//=============================================================================
 
+local function isNaN( v ) return type( v ) == "number" and v ~= v end
+
 local function _DrawTextureAspect(x,y,w,h ,tw,th, flipy)
 	--w = w * (WG.imageScale or 1) --0.5
 	--h = h * (WG.imageScale or 1) --0.5
+
+  --if isNaN(x) then
+  --  x = 10 end
+  --if isNaN(y) then
+  --  y = 10 end
+  --if isNaN(w) then
+  --  w = 10 end
+  --if isNaN(h) then
+  --  h = 10 end
 
   local twa = w/tw
   local tha = h/th

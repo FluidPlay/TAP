@@ -64,7 +64,7 @@ local spGetUnitTeam    = Spring.GetUnitTeam
 --local spGetUnitsInSphere = Spring.GetUnitsInSphere
 --local spGetFeaturesInSphere = Spring.GetFeaturesInSphere
 local spGetGameFrame = Spring.GetGameFrame
-local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
+--local spGetCommandQueue = Spring.GetCommandQueue -- 0 => commandQueueSize, -1 = table
 local spGetUnitCommandCount = Spring.GetUnitCommandCount
 local spGetUnitRulesParam = Spring.GetUnitRulesParam
 local spSendLuaUIMsg = Spring.SendLuaUIMsg
@@ -293,7 +293,7 @@ local automatedFunctions = {
     },
     [2] = { id="deliveringandaway", -- was delivering, somehow couldn't get to target
             condition = function(ud)
-                return ud.parentOreTowerID and harvestState[ud.unitID] == "delivering" and ud.farFromOreTower and (spGetCommandQueue(ud.unitID, 0) < 1)
+                return ud.parentOreTowerID and harvestState[ud.unitID] == "delivering" and ud.farFromOreTower and (spGetUnitCommandCount(ud.unitID) < 1)
             end,
             action = function(ud)
                 spGiveOrderToUnit(ud.unitID, CMD_REMOVE, {CMD_MOVE}, {"alt"})

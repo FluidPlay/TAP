@@ -237,12 +237,12 @@ function gadget:Initialize()
 		end
 
 		-- mark all players as 'not yet placed'
-		local initState
-		if Game.startPosType ~= 2 or ffaStartPoints then
-			initState = -1 -- if players won't be allowed to place startpoints
-		else
-			initState = 0 -- players will be allowed to place startpoints
-		end
+		local initState = 0	--MaDD: Test
+		--if Game.startPosType ~= 2 or ffaStartPoints then
+		--	initState = -1 -- if players won't be allowed to place startpoints
+		--else
+		--	initState = 0 -- players will be allowed to place startpoints
+		--end
 		local playerList = Spring.GetPlayerList()
 		for _,playerID in pairs(playerList) do
 			Spring.SetGameRulesParam("player_" .. playerID .. "_readyState" , initState)
@@ -294,8 +294,9 @@ function gadget:AllowStartPosition(playerID,teamID,readyState,x,y,z)
 	Spring.MarkerAddPoint(x,y,z,name .. " " .. readyState)
 	]]
 
-	if Game.startPosType ~= 2 then return true end -- accept blindly unless we are in choose-in-game mode
-	if useFFAStartPoints then return true end
+	-- MaDD: Test
+	--if Game.startPosType ~= 2 then return true end -- accept blindly unless we are in choose-in-game mode
+	--if useFFAStartPoints then return true end
 
 	local _,_,_,teamID,allyTeamID,_,_,_,_,_ = Spring.GetPlayerInfo(playerID)
 	if not teamID or not allyTeamID then return false end --fail

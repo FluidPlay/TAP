@@ -436,7 +436,7 @@ if (gadgetHandler:IsSyncedCode()) then
 				Spring.Echo("Bad call to Check Tech: TechName=\""..TechName.."\", Team="..Team)
 				return false
 			else
-				TechTable[TechName].ProviderCount[Team]=math.huge
+				TechTable[TechName].ProviderCount[Team]=999999 --math.huge
 				spSetTeamRulesParam(Team,"technology:"..TechName,TechTable[TechName].ProviderCount[Team])
 				for _,u in ipairs(spGetAllUnits()) do
 					EditButtons(u,spGetUnitDefID(u),spGetUnitTeam(u))

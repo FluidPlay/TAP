@@ -156,6 +156,8 @@ if not Script.IsEngineMinVersion(104, 0, 1143) then
 	local unpacc = unpack
 	Spring.GetUnitCurrentCommand = function (unitID, index)
 		index = index or 1
+		if index == 0 then
+			index = 1 end	--try to prevent spGetCommandQueue(unitID, 0) errors
 
 		local queue = spGetCommandQueue(unitID, index)
 		if not queue then

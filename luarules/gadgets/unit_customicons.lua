@@ -62,9 +62,10 @@ local unitIconTable = {
       def_flak=1.4,
       def_generic=0.8,
       def_laser=1.3,
-      def_missile=1.4,
-      def_plasma=1.5,
-      def_nuke=1.6,
+      def_missile=1.35,
+      def_neutron=1.5,
+      def_plasma=1.45,
+      def_nuke=1.65,
       generic_unit=0.5, --1
       bot_artillery=1.1,
       bot_assault=1,
@@ -108,6 +109,7 @@ local unitIconTable = {
       sea_builder = 1,
       sea_assault = 0.9,
       sea_missile = 1,
+--      sea_artillery = 1.25,
       sea_flak = 1.05,
       sea_plasma = 1.1,
       sub_generic = 0.9,
@@ -198,7 +200,7 @@ function loadUnitIcons()
             --Spring.Echo(" udid | name: "..udid.." | "..ud.name.." subs: "..ud.name:sub(0,6))
             --      -- Icontag defined
             --      --Spring.Echo("Unit name for icon: "..ud.name)
-            if iconTag then
+            if iconTag and iconTag ~= "blank" then
                 Spring.SetUnitDefIcon(udid, iconTag.."_"..tier)
                 --Spring.Echo("Set icon: "..iconTag.."_"..tier)
 

@@ -180,6 +180,20 @@ for udid, ud in pairs(UnitDefs) do
     unitName[udid] = ud.name
 end
 
+local function isSinglePlayer()
+    local teamIDToCheck = Spring.GetMyTeamID()
+    local teamPlayerCounts = {}
+    local playerList = Spring.GetPlayerList()
+    for i = 1, #playerList do
+        local playerID = playerList[i]
+        local _, _, isSpec, teamID = Spring.GetPlayerInfo(playerID)
+        if not isSpec then
+            teamPlayerCounts[teamID] = (teamPlayerCounts[teamID] or 0) + 1
+        end
+    end
+    return (teamPlayerCounts[teamIDToCheck] == 1)
+end
+
 ---------------------------------------------------------------------------------
 --Light falloff functions: http://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
 
@@ -193,7 +207,7 @@ local projectileDefLights  -- one light per weaponDefID
 local explosionLights  -- one light per weaponDefID
 local gibLight  -- one light for all pieceprojectiles
 
-local isSinglePlayer = Spring.Utilities.Gametype.IsSinglePlayer()
+--local isSinglePlayer = Spring.Utilities.Gametype.IsSinglePlayer()
 
 local shaderConfig = {
     MIERAYLEIGHRATIO = 0.1, -- The ratio of Rayleigh scattering to Mie scattering
