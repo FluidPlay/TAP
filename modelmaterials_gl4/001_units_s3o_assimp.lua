@@ -150,12 +150,12 @@ end
 local spGetUnitVelocity = Spring.GetUnitVelocity
 local spGetUnitDirection = Spring.GetUnitDirection
 local floor = math.floor
-local threadSpeeds = {} --cache
-local threadsArray = {[1] = 0.0}
+local treadSpeeds = {} --cache
+local treadsArray = {[1] = 0.0}
 
 local function SendTracksOffset(unitID, hasStd, hasDef, hasShad)
-	if not threadSpeeds[unitID] then
-		threadSpeeds[unitID] = 0.0
+	if not treadSpeeds[unitID] then
+		treadSpeeds[unitID] = 0.0
 	end
 
 	local usx, usy, usz, speed = spGetUnitVelocity(unitID)
@@ -170,19 +170,19 @@ local function SendTracksOffset(unitID, hasStd, hasDef, hasShad)
 		speed = -speed
 	end
 
-	if threadSpeeds[unitID] ~= speed then
-		threadSpeeds[unitID] = speed
-		threadsArray[1] = speed
+	if treadSpeeds[unitID] ~= speed then
+		treadSpeeds[unitID] = speed
+		treadsArray[1] = speed
 		if hasStd then
-			mySetMaterialUniform[false](unitID, "opaque", 3, "floatOptions[3]", GL_FLOAT, threadsArray)
+			mySetMaterialUniform[false](unitID, "opaque", 3, "floatOptions[3]", GL_FLOAT, treadsArray)
 		end
 		if hasDef then
-			mySetMaterialUniform[true ](unitID, "opaque", 3, "floatOptions[3]", GL_FLOAT, threadsArray)
+			mySetMaterialUniform[true ](unitID, "opaque", 3, "floatOptions[3]", GL_FLOAT, treadsArray)
 		end
 		--[[
 		-- tank tracks usually don't contribute much to shadows look
 		if hasShad then
-			mySetMaterialUniform[false](unitID, "shadow", 3, "floatOptions[3]", GL_FLOAT, threadsArray)
+			mySetMaterialUniform[false](unitID, "shadow", 3, "floatOptions[3]", GL_FLOAT, treadsArray)
 		end
 		]]--
 	end
@@ -230,10 +230,10 @@ local materials = {
 			[5] = "%NORMALTEX2",
 		},
 		shaderOptions = {
-			threads_arm = true,
+			treads_arm = true,
 		},
 		deferredOptions = {
-			threads_arm = true,
+			treads_arm = true,
 			materialIndex = 1,
 		},
 		UnitCreated = function (unitID, unitDefID, mat) UnitCreated(armTanks, unitID, unitDefID, mat) end,
@@ -250,10 +250,10 @@ local materials = {
 			[5] = "%NORMALTEX2",
 		},
 		shaderOptions = {
-			threads_core = true,
+			treads_core = true,
 		},
 		deferredOptions = {
-			threads_core = true,
+			treads_core = true,
 			materialIndex = 2,
 		},
 		UnitCreated = function (unitID, unitDefID, mat) UnitCreated(corTanks, unitID, unitDefID, mat) end,
@@ -313,7 +313,7 @@ local materials = {
 			vertex_ao = true,
 			health_displace = true,
 			health_texturing = false,
-			health_texchicks = true,
+			health_texraptors = true,
 			treewind = true,
 		},
 		deferredOptions = {
@@ -322,7 +322,7 @@ local materials = {
 			vertex_ao = true,
 			health_displace = true,
 			health_texturing = false,
-			health_texchicks = true,
+			health_texraptors = true,
 			treewind = true,
 			materialIndex = 4,
 		},
@@ -348,26 +348,30 @@ local unitMaterials = {}
 
 local wreckAtlases = {
 	["arm"] = {
-		"unittextures/Arm_wreck_color.dds",
-		"unittextures/Arm_wreck_other.dds",
-		"unittextures/Arm_wreck_color_normal.dds",
+		--"unittextures/Arm_wreck_color.dds",
+		--"unittextures/Arm_wreck_other.dds",
+		--"unittextures/Arm_wreck_color_normal.dds",
+		"unittextures/tap_wreck_1.dds",
+		"unittextures/tap_wreck_3.dds",
+		"unittextures/tap_wreck_normal.png",
 	},
 	["cor"] = {
-		"unittextures/cor_color_wreck.dds",
-		"unittextures/cor_other_wreck.dds",
-		"unittextures/cor_color_wreck_normal.dds",
+		--"unittextures/cor_color_wreck.dds",
+		--"unittextures/cor_other_wreck.dds",
+		--"unittextures/cor_color_wreck_normal.dds",
+		"unittextures/tap_wreck_1.dds",
+		"unittextures/tap_wreck_3.dds",
+		"unittextures/tap_wreck_normal.png",
 	},
-}
-local wreckAtlases = {
-	["arm"] = {
-		"unittextures/Arm_wreck_color.dds",
-		"unittextures/Arm_wreck_other.dds",
-		"unittextures/Arm_wreck_color_normal.dds",
+	["bow"] = {
+		"unittextures/tap_wreck_1.dds",
+		"unittextures/tap_wreck_3.dds",
+		"unittextures/tap_wreck_normal.png",
 	},
-	["cor"] = {
-		"unittextures/cor_color_wreck.dds",
-		"unittextures/cor_other_wreck.dds",
-		"unittextures/cor_color_wreck_normal.dds",
+	["kern"] = {
+		"unittextures/tap_wreck_1.dds",
+		"unittextures/tap_wreck_3.dds",
+		"unittextures/tap_wreck_normal.png",
 	},
 }
 
@@ -379,8 +383,6 @@ for id = 1, #UnitDefs do
 	if not cusUnitMaterials[id] and udef.modeltype == "s3o" then
 
 		local udefCM = udef.customParams
-		local lm = tonumber(udefCM.lumamult) or 1
-		local scvd = tonumber(udefCM.scavvertdisp) or 0
 
 		local udefName = udef.name or ""
 		local facName = string.sub(udefName, 1, 3)
@@ -399,7 +401,7 @@ for id = 1, #UnitDefs do
 			if wreckAtlas then
 				unitMaterials[id] = {"unitsNormalMapOthersArmCor", NORMALTEX = normalTex, TEXW1 = wreckAtlas[1], TEXW2 = wreckAtlas[2], NORMALTEX2 = wreckAtlas[3]}
 			else
-				if facName == "chi" then
+				if facName == "rap" then
 					unitMaterials[id] = {"unitsNormalMapRaptors", NORMALTEX = normalTex}
 				else
 					unitMaterials[id] = {"unitsNormalMapOthers", NORMALTEX = normalTex}

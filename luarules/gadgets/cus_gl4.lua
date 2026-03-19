@@ -1,3 +1,5 @@
+local gadget = gadget ---@type Gadget
+
 function gadget:GetInfo()
 	return {
 		name	= "CUS GL4",
@@ -5,222 +7,229 @@ function gadget:GetInfo()
 		version = "0.5",
 		author	= "ivand, Beherith",
 		date 	= "20220310",
-		license = "Private while in testing mode",
+		license = "GNU GPL, v2 or later",
 		layer	= 0,
 		enabled	= true,
+		depends = {'gl4'},
 	}
 end
 
 if gadgetHandler:IsSyncedCode() then
-	local itsXmas = GG.itsXmas
 	return false
 end
 
 -- Beheriths notes
 
 -- Bins / separate VAO and IBO :
-	-- Flags (drawpass):
-		-- forward opaque + reflections
-		-- deferred opaque, all units
-		-- shadows. Now all units need their vertex displacement for efficient shadows, so better to bind a separate shader for this
-	-- Shaders / shaderconfig via bitoptions uniform:
-		-- Features
-			-- simplefeatures: metallic nonwrecks
-			-- treepbr: Real Trees with proper tex2
-			-- tree: Shitty Trees
-			-- wrecks: BAR wrecks
-		-- Units
-			-- tanks : -- these are units actually
-			-- barunits :
-			-- raptors
-			-- scavengers
-			--
+-- Flags (drawpass):
+-- forward opaque + reflections
+-- deferred opaque, all units
+-- shadows. Now all units need their vertex displacement for efficient shadows, so better to bind a separate shader for this
+-- Shaders / shaderconfig via bitoptions uniform:
+-- Features
+-- simplefeatures: metallic nonwrecks
+-- treepbr: Real Trees with proper tex2
+-- tree: Shitty Trees
+-- wrecks: BAR wrecks
+-- Units
+-- tanks : -- these are units actually
+-- barunits :
+-- raptors
+-- scavengers
+--
 
-		-- Cloakedunits for alpha
-		-- Underconstructionunits
+-- Cloakedunits for alpha
+-- Underconstructionunits
 
 
-	-- Textures:
-		-- arm/cor
-		-- 10x raptorsets
-		-- 5x featuresets
-		-- scavengers?
-	-- Objects (the VAO)
-		-- 8x 8x 16x -> 8192 different VAOs? damn thats horrible
-	-- Note that Units and Features cant share a VAO!
+-- Textures:
+-- arm/cor
+-- 10x raptorsets
+-- 5x featuresets
+-- scavengers?
+-- Objects (the VAO)
+-- 8x 8x 16x -> 8192 different VAOs? damn thats horrible
+-- Note that Units and Features cant share a VAO!
 
-	-- Can we assume that all BAR units wont have transparency?
-		-- if yes then we can say that forward and deferred can share!
-	-- https://stackoverflow.com/questions/8923174/opengl-vao-best-practices
-	-- Some shader optimization info: https://community.khronos.org/t/profiling-optimizing-a-fragment-shader-in-linux/105144/3
+-- Can we assume that all BAR units wont have transparency?
+-- if yes then we can say that forward and deferred can share!
+-- https://stackoverflow.com/questions/8923174/opengl-vao-best-practices
+-- Some shader optimization info: https://community.khronos.org/t/profiling-optimizing-a-fragment-shader-in-linux/105144/3
 
 
 
 -- TODO:
-	-- Under construction shader via uniform
-		-- (READ THE ONE FROM HEALTHBARS!)
-	-- DONE treadoffset unitUniform
-	-- DONE: BITOPTIONS UNIFOOOOORM!
-	-- normalmapping
-	-- raptors
-	-- tanktracks
-	-- Reflection camera
-	-- refraction camera
-	-- texture LOD bias of -0.5, maybe adaptive for others
-	-- still extremely perf heavy
-		-- 1440p, Red Comet, fullscreen zoomed onto a corvp, SSAO on, Bloom On
-			-- 110 FPS on corvp with oldcus
-			-- 180 FPS without disablecus
-		-- 1440p, Red Comet, fullscreen zoomed onto a corvp, SSAO off, Bloom off
-			-- 130 fps oldcus
-			-- 256 fps disablecus
+-- Under construction shader via uniform
+-- (READ THE ONE FROM HEALTHBARS!)
+-- DONE treadoffset unitUniform
+-- DONE: BITOPTIONS UNIFOOOOORM!
+-- normalmapping
+-- raptors
+-- tanktracks
+-- Reflection camera
+-- refraction camera
+-- texture LOD bias of -0.5, maybe adaptive for others
+-- still extremely perf heavy
+-- 1440p, Red Comet, fullscreen zoomed onto a corvp, SSAO on, Bloom On
+-- 110 FPS on corvp with oldcus
+-- 180 FPS without disablecus
+-- 1440p, Red Comet, fullscreen zoomed onto a corvp, SSAO off, Bloom off
+-- 130 fps oldcus
+-- 256 fps disablecus
 
-	-- separate VAO and IBO for each 'bin' for less heavy updates
-	-- Do alpha units also get drawn into deferred pass? Seems like no, because only flag == 1 is draw into that
-	-- DONE: dynamically size IBOS instead of using the max of 8192!
-		-- Starts from 32
-	-- DONE  new engine callins needed:
-		-- get the number of drawflaggable units (this is kind of gettable already from the API anyway)
-		-- get the number of changed drawFlags
-		-- if the number of changed drawflags > log(numdrawflags) then do a full rebuild instead of push-popping
-		-- e.g if there are 100 units of a bin in view, then a change of ~ 8 units will trigger a full rebuild?
-			-- cant know ahead of time how many per-bin changes this will trigger though
+-- separate VAO and IBO for each 'bin' for less heavy updates
+-- Do alpha units also get drawn into deferred pass? Seems like no, because only flag == 1 is draw into that
+-- DONE: dynamically size IBOS instead of using the max of 8192!
+-- Starts from 32
+-- DONE  new engine callins needed:
+-- get the number of drawflaggable units (this is kind of gettable already from the API anyway)
+-- get the number of changed drawFlags
+-- if the number of changed drawflags > log(numdrawflags) then do a full rebuild instead of push-popping
+-- e.g if there are 100 units of a bin in view, then a change of ~ 8 units will trigger a full rebuild?
+-- cant know ahead of time how many per-bin changes this will trigger though
 
-	-- DONE: write an engine callin that, instead of the full list of unitdrawflags, only returns the list of units whos drawflags have changed!
-		-- reset this 'hashmap' when reading it
-		-- also a problem is handling units that died, what 'drawflag' should they get?
-			-- probably 0
+-- DONE: write an engine callin that, instead of the full list of unitdrawflags, only returns the list of units whos drawflags have changed!
+-- reset this 'hashmap' when reading it
+-- also a problem is handling units that died, what 'drawflag' should they get?
+-- probably 0
 
-	-- TODO: handle fast rebuilds of the IBO's when large-magnitude changes happen
-		-- this is made difficult by the negative featureID crap
-
-
-	-- TODO: faster bitops maybe?
-	-- DONE: we dont handle shaderOptions yet for batches, where we are to keep the same shader, but only change its relevant options uniform
-
-	-- NOTE: It seems that we are generally, and heavily fragment shader limited in most synthetic tests with large numbers of units spreading into full view
-		-- in this case, the perf of oldcus and gl4cus is actually similar, (similar FS), but vanilla still outperforms
-
-	-- DONE: Too many varyings are passed from VS to FS.
-		-- Specify some as flat, to avoid interpolation (e.g. teamcolor and selfillummod and maybe even fogfactor
-		-- reduce total number of these varyings
-		-- we can save a varying here and there, but mostly done
-
-	-- Done: GetTextures() is not the best implementation at the moment
-
-	-- NOTE: in general, a function call is about 10x faster than a table lookup....
-
-	-- DONE: how to handle units under construction? They cant be their own completely separate shit, cause of textures...
-		-- might still make sense to do so
-		-- they are handled by completely ignoring them
-
-	-- DONE: fully blank normal map for non-normal mapped units (or else risk having to write a shader for that bin, which wont even get used
-
-	-- DONE: alpha cloaked unitses :/
-		-- also handled by completely leaving them out
-
-	-- Done: feature drawing bits too
-
-	-- TODO: rewrite treewave
-
-	-- DONE: feature override metalness/roughness via uniforms
-
-	-- TODO: fix flashlights to be piece-unique
-
-	-- DONE: AVOID DISCARD in FS AT ALL COST!
-		-- 500 armcom fullview is 82 vs 108 fps with nodiscard!
-		-- Even if discard is in a never-called dynamically uniform!
-		-- only transparent features need discard
-
-	-- DONE:
-		-- only ever use discard in deferred pass, dont use it in forward refl or shadow though
-		-- DEFERRED FEATURE TREE DRAW IS WRONG
-
-	-- TODO: investigate why/how refraction pass doesnt ever seem to get called
-		-- kill the entire pass with fire (by ignoring its existence)
-
-	-- TODO: reduce the amount of deferred buffers being used from 6 to 4
-
-	-- TODO: check if LuaShader UniformLocations are cached
-
-	-- DONE: add a wreck texture to raptors! It uses lavadistortion texture, its fine
-
-	-- TODO: Use a 3d texture lookup instead of perlin implementation for damage shading
-
-	-- TODO: separate out damaged units for better perf, damage shading is not free! (as damage is not dynamically uniform across all shader invocations)
-		-- very difficult, unsure if worth anything in the long run
-
-	-- TODO: Also add alpha units to deferred pass somehow?
-
-	-- TODO: engine side: optimize shadow camera as it massively overdraws
-
-	-- Done: reflection camera is also totally fucked up
-		-- It seems that aircraft get removed from reflection pass if water depth is < -70
-		-- hovers randomly do and dont get reflections based on water depth
-		-- fixed in-engine, seems like a reasonably good fix too, though could be better
-			-- is checking 5 groundheights within drawradius better than some minor overdraw cause of not-too-high above water ground shit?
-
-	-- DONE: increase bumpwaterreflectcubetex size
-	-- TODO: make lava disable drawing reflections!
-
-	-- TODO: shared bins for deferred and forward and maybe even reflection?
-		-- The sharing could be done on the uniformbin level, and this is quite elegant in general too, as tables are shared by reference....
-		-- DONE: shared deferred and forward via ultimate cleverness!
-
-	-- DONE: Specular highlights should also bloom, not just emissive!
-
-	-- DONE: Cleaner Shutdown and reloadcusgl4 and disablecusgl4
-
-	-- TODO: Get BRDFLUT from API_PBR_ENABLER (OR build your own float16 texture)
-
-	-- TODO: WE ARE DRAWING ALL IN THE UNITS PASS INSTEAD OF BOTH FEATURE AND UNITS PASS! (can that bite us in the ass?)
+-- TODO: handle fast rebuilds of the IBO's when large-magnitude changes happen
+-- this is made difficult by the negative featureID crap
 
 
-	-- TODO: Reimplement featureFade, as it can kill perf on heavily forested maps and potatos
+-- TODO: faster bitops maybe?
+-- DONE: we dont handle shaderOptions yet for batches, where we are to keep the same shader, but only change its relevant options uniform
 
-	-- DONE: GetTexturesKey is probably slow too!
+-- NOTE: It seems that we are generally, and heavily fragment shader limited in most synthetic tests with large numbers of units spreading into full view
+-- in this case, the perf of oldcus and gl4cus is actually similar, (similar FS), but vanilla still outperforms
 
-	-- TODO: Shadows are 1 drawframe late, maybe update lists in DrawGenesis instead of DrawWorldPreUnit
-	-- TODO: we need to update things earlier, to get the shadow stuff in on time
+-- DONE: Too many varyings are passed from VS to FS.
+-- Specify some as flat, to avoid interpolation (e.g. teamcolor and selfillummod and maybe even fogfactor
+-- reduce total number of these varyings
+-- we can save a varying here and there, but mostly done
 
-	-- Done: GetTextures :
-		-- should return array table instead of hash table
-			-- fill in unused stuff with 'false' for contiguous array table
-			-- index -1
-			-- oddly enough, accessing array tables instead of hash tables is only 25% faster, so the overhead of -1 might not even result in any perf gains
+-- Done: GetTextures() is not the best implementation at the moment
 
-		-- Should also get the normalmaps for each unit!
-		-- PBR textures:
-			-- uniform sampler2D brdfLUT;			//9
-			-- uniform sampler2D envLUT;			//10
-			-- uniform samplerCube reflectTex; 		// 7
+-- NOTE: in general, a function call is about 10x faster than a table lookup....
 
-			-- uniform sampler2D losMapTex;	//8 for features out of los maybe?
+-- DONE: how to handle units under construction? They cant be their own completely separate shit, cause of textures...
+-- might still make sense to do so
+-- they are handled by completely ignoring them
 
-		-- We also need the skybox cubemap for PBR (samplerCube reflectTex)
-		-- We also need wrecktex for damaged units!
+-- DONE: fully blank normal map for non-normal mapped units (or else risk having to write a shader for that bin, which wont even get used
 
-	-- Create a default 'wrecktex' for features too?
+-- DONE: alpha cloaked unitses :/
+-- also handled by completely leaving them out
 
-	-- TODO: Check the double-calls that happens when a unit is destroyed and fucks with out flags on update too
+-- Done: feature drawing bits too
+
+-- TODO: rewrite treewave
+
+-- DONE: feature override metalness/roughness via uniforms
+
+-- TODO: fix flashlights to be piece-unique
+
+-- DONE: AVOID DISCARD in FS AT ALL COST!
+-- 500 armcom fullview is 82 vs 108 fps with nodiscard!
+-- Even if discard is in a never-called dynamically uniform!
+-- only transparent features need discard
 
 -- DONE:
-	-- unit uniforms
--- KNOWN BUGS:
-	-- Unitdestroyed doesnt trigger removal?
+-- only ever use discard in deferred pass, dont use it in forward refl or shadow though
+-- DEFERRED FEATURE TREE DRAW IS WRONG
 
---inputs
+-- TODO: investigate why/how refraction pass doesnt ever seem to get called
+-- kill the entire pass with fire (by ignoring its existence)
+
+-- TODO: reduce the amount of deferred buffers being used from 6 to 4
+
+-- TODO: check if LuaShader UniformLocations are cached
+
+-- DONE: add a wreck texture to raptors! It uses lavadistortion texture, its fine
+
+-- TODO: Use a 3d texture lookup instead of perlin implementation for damage shading
+
+-- TODO: separate out damaged units for better perf, damage shading is not free! (as damage is not dynamically uniform across all shader invocations)
+-- very difficult, unsure if worth anything in the long run
+
+-- TODO: Also add alpha units to deferred pass somehow?
+
+-- TODO: engine side: optimize shadow camera as it massively overdraws
+
+-- Done: reflection camera is also totally fucked up
+-- It seems that aircraft get removed from reflection pass if water depth is < -70
+-- hovers randomly do and dont get reflections based on water depth
+-- fixed in-engine, seems like a reasonably good fix too, though could be better
+-- is checking 5 groundheights within drawradius better than some minor overdraw cause of not-too-high above water ground shit?
+
+-- DONE: increase bumpwaterreflectcubetex size
+-- TODO: make lava disable drawing reflections!
+
+-- TODO: shared bins for deferred and forward and maybe even reflection?
+-- The sharing could be done on the uniformbin level, and this is quite elegant in general too, as tables are shared by reference....
+-- DONE: shared deferred and forward via ultimate cleverness!
+
+-- DONE: Specular highlights should also bloom, not just emissive!
+
+-- DONE: Cleaner Shutdown and reloadcusgl4 and disablecusgl4
+
+-- TODO: Get BRDFLUT from API_PBR_ENABLER (OR build your own float16 texture)
+
+-- TODO: WE ARE DRAWING ALL IN THE UNITS PASS INSTEAD OF BOTH FEATURE AND UNITS PASS! (can that bite us in the ass?)
+
+
+-- TODO: Reimplement featureFade, as it can kill perf on heavily forested maps and potatos
+
+-- DONE: GetTexturesKey is probably slow too!
+
+-- TODO: Shadows are 1 drawframe late, maybe update lists in DrawGenesis instead of DrawWorldPreUnit
+-- TODO: we need to update things earlier, to get the shadow stuff in on time
+
+-- Done: GetTextures :
+-- should return array table instead of hash table
+-- fill in unused stuff with 'false' for contiguous array table
+-- index -1
+-- oddly enough, accessing array tables instead of hash tables is only 25% faster, so the overhead of -1 might not even result in any perf gains
+
+-- Should also get the normalmaps for each unit!
+-- PBR textures:
+-- uniform sampler2D brdfLUT;			//9
+-- uniform sampler2D envLUT;			//10
+-- uniform samplerCube reflectTex; 		// 7
+
+-- uniform sampler2D losMapTex;	//8 for features out of los maybe?
+
+-- We also need the skybox cubemap for PBR (samplerCube reflectTex)
+-- We also need wrecktex for damaged units!
+
+-- Create a default 'wrecktex' for features too?
+
+-- TODO: Check the double-calls that happens when a unit is destroyed and fucks with out flags on update too
+
+-- DONE:
+-- unit uniforms
+-- KNOWN BUGS:
+-- Unitdestroyed doesnt trigger removal?
+
+-- Export important things
 
 ---------------------------- SHADERUNITUNIFORMS / BITSHADEROPTIONS ---------------------------------------------
 
 -- We can use the SUniformsBuffer vec4 uni[instData.y].userDefined[5] to pass data persistent unit-info
 -- floats 0-5 are already in use by HealthBars
 
+
+
+-- Set autoReload.enabled = true to enable on-the-fly editing of shaders.
+local autoReload = {enabled = false, vssrc = "", fssrc = "", lastUpdate = Spring.GetTimer(), updateRate = 0.5}
+
+-- Indicates wether the first round of getting units should grab all instead of delta
+local manualReload = autoReload.enabled or false
 local debugmode = false
 local perfdebug = false
 
 -- These 4 things are for the UnitViewportAPI
-local unitsInViewport = {} -- unitID:UnitDefIF
+local unitsInViewport = {} -- unitID:drawFlag
 local numUnitsInViewport = 0
 local featuresInViewport = {} --featureID:featureDefID
 local numFeaturesInViewport = 0
@@ -253,47 +262,58 @@ do --save a ton of locals
 	local OPTION_SHIFT_RGBHSV     = 4 -- userDefined[2].rgb (gl.SetUnitBufferUniforms(unitID, {math.random(),math.random()-0.5,math.random()-0.5}, 8) -- shift Hue, saturation, valence )
 	local OPTION_VERTEX_AO        = 8
 	local OPTION_FLASHLIGHTS      = 16
-	local OPTION_THREADS_ARM      = 32
-	local OPTION_THREADS_CORE     = 64
+	local OPTION_TREADS_ARM      = 32
+	local OPTION_TREADS_CORE     = 64
 	local OPTION_HEALTH_TEXTURING = 128
 	local OPTION_HEALTH_DISPLACE  = 256
-	local OPTION_HEALTH_TEXCHICKS = 512
+	local OPTION_HEALTH_TEXRAPTORS = 512
 	local OPTION_MODELSFOG        = 1024
 	local OPTION_TREEWIND         = 2048
 	local OPTION_PBROVERRIDE      = 4096
+	local OPTION_TREADS_LEG       = 8192
 
 	local defaultBitShaderOptions = OPTION_SHADOWMAPPING + OPTION_NORMALMAPPING  + OPTION_MODELSFOG
 
 	uniformBins = {
 		armunit = {
-			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.0,  --1.5
+			brightnessFactor = 1.5,
 		},
 		corunit = {
-			bitOptions = defaultBitShaderOptions + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,  --OPTION_VERTEX_AO +
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 0.9,		--1.0
+			brightnessFactor = 1.5,
 		},
-		--armscavenger = {
-		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
-		--	baseVertexDisplacement = 0.4,
-		--	brightnessFactor = 1.5,
-		--},
-		--corscavenger = {
-		--	bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_THREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
-		--	baseVertexDisplacement = 0.4,
-		--	brightnessFactor = 1.5,
-		--},
+		legunit = {
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_LEG + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			baseVertexDisplacement = 0.0,
+			brightnessFactor = 1.5,
+		},
+		armscavenger = {
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_ARM + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			baseVertexDisplacement = 0.4,
+			brightnessFactor = 1.5,
+		},
+		corscavenger = {
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_CORE + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			baseVertexDisplacement = 0.4,
+			brightnessFactor = 1.5,
+		},
+		legscavenger = {
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS + OPTION_TREADS_LEG + OPTION_HEALTH_TEXTURING + OPTION_HEALTH_DISPLACE,
+			baseVertexDisplacement = 0.4,
+			brightnessFactor = 1.5,
+		},
 		raptor = {
-			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS  + OPTION_HEALTH_DISPLACE + OPTION_HEALTH_TEXCHICKS + OPTION_TREEWIND + OPTION_SHIFT_RGBHSV,
+			bitOptions = defaultBitShaderOptions + OPTION_VERTEX_AO + OPTION_FLASHLIGHTS  + OPTION_HEALTH_DISPLACE + OPTION_HEALTH_TEXRAPTORS + OPTION_TREEWIND + OPTION_SHIFT_RGBHSV,
 			baseVertexDisplacement = 0.0,
 			brightnessFactor = 1.5,
 		},
 		otherunit = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.0, --5,
+			brightnessFactor = 1.5,
 		},
 		feature = {
 			bitOptions = defaultBitShaderOptions + OPTION_PBROVERRIDE,
@@ -303,44 +323,41 @@ do --save a ton of locals
 		featurepbr = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.1, --1.3,
+			brightnessFactor = 1.3,
 		},
 		treepbr = {
 			bitOptions = defaultBitShaderOptions + OPTION_TREEWIND + OPTION_PBROVERRIDE,
 			baseVertexDisplacement = 0.0,
-			hasAlphaShadows = 1.0,
-			brightnessFactor = 1.1, --1.3,
+			brightnessFactor = 1.3,
 		},
 		tree = {
 			bitOptions = defaultBitShaderOptions + OPTION_TREEWIND + OPTION_PBROVERRIDE,
 			baseVertexDisplacement = 0.0,
-			hasAlphaShadows = 1.0,
-			brightnessFactor = 1.1, --1.3,
+			brightnessFactor = 1.3,
 		},
 		wreck = {
 			bitOptions = defaultBitShaderOptions,
 			baseVertexDisplacement = 0.0,
-			brightnessFactor = 1.0, --1.3,
+			brightnessFactor = 1.3,
 		},
 	} -- maps uniformbins to a table of uniform names/values
 end
 
-local alphaMult = 0.35
-local alphaThresholdOpaque = 0.5
-local alphaThresholdAlpha  = 0.1
 local overrideDrawFlags = {
 	[0]  = true , --SO_OPAQUE_FLAG = 1, deferred hack
 	[1]  = true , --SO_OPAQUE_FLAG = 1,
-	[2]  = true , --SO_ALPHAF_FLAG = 2,
+	[2]  = true , --SO_ALPHAF_FLAG = 2, -- THIS IS MIXED DOWN INTO SO_OPAQUE_FLAG
 	[4]  = true , --SO_REFLEC_FLAG = 4,
 	[8]  = true , --SO_REFRAC_FLAG = 8,
 	[16] = true , --SO_SHADOW_FLAG = 16,
+	[32] = true , --SO_SHTRAN_FLAG = 32, -- this is shadow transparency flag, to draw shadows into transparent pass
+	--SO_DRICON_FLAG = 128, --
 }
 
 --implementation
-local overrideDrawFlag = 0
-for f, e in pairs(overrideDrawFlags) do
-	overrideDrawFlag = overrideDrawFlag + f * (e and 1 or 0)
+local overrideDrawFlag = 0 -- should sum to 65
+for flagbit, isset in pairs(overrideDrawFlags) do
+	overrideDrawFlag = overrideDrawFlag + flagbit * (isset and 1 or 0)
 end
 --      deferred    fw  fwrfl  fwrfr  op oprfl  oprfr  shadow
 --         0         1    5     9     2    6     10     16
@@ -348,6 +365,7 @@ end
 -- refraction and alpha are just dumped
 -- local drawBinKeys = {1, 1 + 4, 1 + 8, 2, 2 + 4, 2 + 8, 16}
 local drawBinKeys = {1, 1 + 4, 16}
+
 local overrideDrawFlagsCombined = {
 	[0    ] = overrideDrawFlags[0],
 	[1    ] = overrideDrawFlags[1],
@@ -359,40 +377,44 @@ local overrideDrawFlagsCombined = {
 	[16   ] = overrideDrawFlags[16],
 }
 
-local overriddenUnits = {} -- these remain positive, as they are traversed separately
+local cusUnitIDtoDrawFlag = {} -- {unitID = drawFlag,...}, these remain positive, as they are traversed separately
+
+-- For managing under construction units:
+local buildProgresses = {} -- keys unitID, value buildprogress, updated each frame for units being built
+local uniformCache = {}
+local spGetUnitHealth = Spring.GetUnitHealth
 -- local processedUnits = {}
 
-local overriddenFeatures = {} -- this remains positive
+local cusFeatureIDtoDrawFlag = {} -- {featureID = drawFlag,...}, this remains positive
 -- local processedFeatures = {}
 
 -- This is the main table of all the unit drawbins:
 -- It is organized like so:
 -- unitDrawBins[drawFlag][shaderID][textureKey] = {
-	-- textures = {
-	   -- 0 = %586:1 -- in this example, its just texture 1
-	-- },
-	-- objects = {
-	   -- 31357 = true
-	   -- 20174 = true
-	   -- 29714 = true
-	   -- 3024 = true
-	   -- 24268 = true
-	   -- 5584 = true
-	   -- 5374 = true
-	   -- 26687 = true
-	-- },
-	-- VAO = vao,
-	-- IBO = ibo,
-	-- objectsArray = {}, -- {index: objectID}
-	-- objectsIndex = {}, -- {objectID : index} (this is needed for efficient removal of items, as RemoveFromSubmission takes an index as arg)
-	-- numobjects = 0,  -- a 'pointer to the end'
+-- textures = {
+-- 0 = %586:1 -- in this example, its just texture 1
+-- },
+-- objects = {
+-- 31357 = true
+-- 20174 = true
+-- 29714 = true
+-- 3024 = true
+-- 24268 = true
+-- 5584 = true
+-- 5374 = true
+-- 26687 = true
+-- },
+-- VAO = vao,
+-- IBO = ibo,
+-- objectsArray = {}, -- {index: objectID}
+-- objectsIndex = {}, -- {objectID : index} (this is needed for efficient removal of items, as RemoveFromSubmission takes an index as arg)
+-- numobjects = 0,  -- a 'pointer to the end'
 -- }
 
 local unitDrawBins = nil -- this also controls wether cusgl4 is on at all!
 
 local objectIDtoDefID = {}
 
-local processedCounter = 0 -- This is incremented on every update, and is used to identify which objects are no longer drawn
 
 local shaders = {} -- double nested table of {drawflag : {"units":shaderID}}
 
@@ -428,13 +450,18 @@ local function ClearBit(x, p)
 end
 
 local featuresDefsWithAlpha = {}
+local unitDefsUseSkinning = {}
 
 local function GetShader(drawPass, objectDefID)
 	if objectDefID == nil then
 		return false
 	end
 	if objectDefID >= 0 then
-		return shaders[drawPass]['unit']
+		if unitDefsUseSkinning[objectDefID] then
+			return shaders[drawPass]['unitskinning']
+		else
+			return shaders[drawPass]['unit']
+		end
 	else
 		if featuresDefsWithAlpha[objectDefID] then
 			return shaders[drawPass]['tree']
@@ -445,11 +472,16 @@ local function GetShader(drawPass, objectDefID)
 end
 
 local function GetShaderName(drawPass, objectDefID)
+	-- this function does 2 table lookups, could get away with just one.
 	if objectDefID == nil then
 		return false
 	end
 	if objectDefID >= 0 then
-		return 'unit'
+		if unitDefsUseSkinning[objectDefID] then
+			return 'unitskinning'
+		else
+			return 'unit'
+		end
 	else
 		if featuresDefsWithAlpha[objectDefID] then
 			return 'tree'
@@ -461,32 +493,34 @@ end
 
 local function SetFixedStatePre(drawPass, shaderID)
 	if HasBit(drawPass, 4) then
-		gl.ClipDistance(2, true)
+		gl.ClipDistance(0, true)
 	elseif HasBit(drawPass, 8) then
-		gl.ClipDistance(2, true)
+		gl.ClipDistance(0, true)
 	end
 end
 
 local function SetFixedStatePost(drawPass, shaderID)
 	if HasBit(drawPass, 4) then
-		gl.ClipDistance(2, false)
+		gl.ClipDistance(0, false)
 	elseif HasBit(drawPass, 8) then
-		gl.ClipDistance(2, false)
+		gl.ClipDistance(0, false)
 	end
 end
 
 local function SetShaderUniforms(drawPass, shaderID, uniformBinID)
-	--if true then return end
 	gl.UniformInt(gl.GetUniformLocation(shaderID, "drawPass"), drawPass)
-	if drawPass <= 2 then
-		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane2"), 0.0, 0.0, 0.0, 1.0)
-	elseif drawPass == 16 then
-		--gl.Uniform(gl.GetUniformLocation(shaderID, "alphaCtrl"), alphaThresholdOpaque, 1.0, 0.0, 0.0)
-		-- set properly by default
+
+	-- The clip plane is used for above/below water, for the reflection and refraction cameras only
+	if HasBit(drawPass, 4) then
+		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane0"), 0.0, 1.0, 0.0, 0.0)
+	elseif HasBit(drawPass, 8) then
+		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane0"), 0.0, -1.0, 0.0, 0.0)
+	else
+		-- This will cull stuff that are not in view of the camera. Not too useful methinks
+		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane0"), 0.0, 0.0, 0.0, 1.0)
 	end
 
 	for uniformLocationName, uniformValue in pairs(uniformBins[uniformBinID]) do
-		--Spring.Echo("Setting uniform",uniformLocationName, uniformValue)
 		if uniformLocationName == 'bitOptions' then
 			gl.UniformInt(gl.GetUniformLocation(shaderID, uniformLocationName), uniformValue)
 		else
@@ -494,38 +528,39 @@ local function SetShaderUniforms(drawPass, shaderID, uniformBinID)
 		end
 	end
 
-	if HasBit(drawPass, 4) then
-		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane2"), 0.0, 1.0, 0.0, 0.0)
-	elseif HasBit(drawPass, 8) then
-		gl.Uniform(gl.GetUniformLocation(shaderID, "clipPlane2"), 0.0, -1.0, 0.0, 0.0)
-	end
+
 end
 ------------------------- SHADERS                   ----------------------
 ------------------------- LOADING OLD CUS MATERIALS ----------------------
-local luaShaderDir = "LuaUI/Widgets/Include/"
-local LuaShader = VFS.Include(luaShaderDir.."LuaShader.lua")
+
+local LuaShader = gl.LuaShader
+
 local engineUniformBufferDefs = LuaShader.GetEngineUniformBufferDefs()
 
-local MATERIALS_DIR = "modelmaterials_gl4/"
+local QUATERNIONDEFS = ""
+if Engine.FeatureSupport.transformsInGL4 then
+	QUATERNIONDEFS = LuaShader.GetQuaternionDefs()
+end
 
 local defaultMaterialTemplate
 local unitsNormalMapTemplate
+local unitsSkinningTemplate -- This is reserved for units with skinning animations
 local featuresNormalMapTemplate
 local treesNormalMapTemplate
 
 function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[deepcopy(orig_key)] = deepcopy(orig_value)
+		end
+		setmetatable(copy, deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
 end
 
 local function appendShaderDefinitionsToTemplate(template, alldefinitions)
@@ -554,13 +589,13 @@ local function initMaterials()
 	unitsNormalMapTemplate = appendShaderDefinitionsToTemplate(defaultMaterialTemplate, {
 		shaderDefinitions = {
 			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
-			"#define ENABLE_OPTION_THREADS 1",
+			"#define ENABLE_OPTION_TREADS 1",
 			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
 			itsXmas and "#define XMAS 1" or "#define XMAS 0",
 		},
 		deferredDefinitions = {
 			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
-			"#define ENABLE_OPTION_THREADS 1",
+			"#define ENABLE_OPTION_TREADS 1",
 			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
 			itsXmas and "#define XMAS 1" or "#define XMAS 0",
 		},
@@ -569,8 +604,37 @@ local function initMaterials()
 		},
 		reflectionDefinitions = {
 			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
-			"#define ENABLE_OPTION_THREADS 1",
+			"#define ENABLE_OPTION_TREADS 1",
 			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
+			itsXmas and "#define XMAS 1" or "#define XMAS 0",
+		},
+	})
+
+
+	unitsSkinningTemplate = appendShaderDefinitionsToTemplate(defaultMaterialTemplate, {
+		shaderDefinitions = {
+			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
+			"#define ENABLE_OPTION_TREADS 1",
+			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
+			"#define USESKINNING",
+			itsXmas and "#define XMAS 1" or "#define XMAS 0",
+		},
+		deferredDefinitions = {
+			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
+			"#define ENABLE_OPTION_TREADS 1",
+			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
+			"#define USESKINNING",
+			itsXmas and "#define XMAS 1" or "#define XMAS 0",
+		},
+		shadowDefinitions = {
+			"#define USESKINNING",
+			itsXmas and "#define XMAS 1" or "",
+		},
+		reflectionDefinitions = {
+			"#define ENABLE_OPTION_HEALTH_TEXTURING 1",
+			"#define ENABLE_OPTION_TREADS 1",
+			"#define ENABLE_OPTION_HEALTH_DISPLACE 1",
+			"#define USESKINNING",
 			itsXmas and "#define XMAS 1" or "#define XMAS 0",
 		},
 	})
@@ -631,7 +695,7 @@ local function dumpShaderCodeToInfolog(defs, src, filename) -- no IO in unsynced
 	Spring.Echo(src)
 end
 
-local function CompileLuaShader(shader, definitions, plugIns, addName)
+local function CompileLuaShader(shader, definitions, plugIns, addName, recompilation)
 	--Spring.Echo(" CompileLuaShader",shader, definitions, plugIns, addName)
 	if definitions == nil or definitions == {} then
 		Spring.Echo(addName, "nul definitions", definitions)
@@ -671,25 +735,40 @@ local function CompileLuaShader(shader, definitions, plugIns, addName)
 		end
 	end
 
+	for i, program in ipairs({"vertex", "fragment", "geometry"}) do
+		if shader[program] and QUATERNIONDEFS then
+			shader[program] = shader[program]:gsub("//__QUATERNIONDEFS__",  QUATERNIONDEFS)
+		end
+	end
+
+
 	local luaShader = LuaShader(shader, "CUS_" .. addName)
 	local compilationResult = luaShader:Initialize()
 	if compilationResult ~= true then
 		Spring.Echo("Custom Unit Shaders. " .. addName .. " shader compilation failed")
-		dumpShaderCodeToInfolog(shader.definitions, shader.vertex, "vs" .. addName)
-		dumpShaderCodeToInfolog(shader.definitions, shader.fragment, "fs" .. addName)
-		gadgetHandler:RemoveGadget()
+		--dumpShaderCodeToInfolog(shader.definitions, shader.vertex, "vs" .. addName)
+		--dumpShaderCodeToInfolog(shader.definitions, shader.fragment, "fs" .. addName)
+		if not recompilation then
+			gadgetHandler:RemoveGadget()
+		end
 		return nil
 	end
 
 	return (compilationResult and luaShader) or nil
 end
 
-local function compileMaterialShader(template, name)
+local function compileMaterialShader(template, name, recompilation)
 	--Spring.Echo("Compiling", template, name)
-	local forwardShader = CompileLuaShader(template.shader, template.shaderDefinitions, template.shaderPlugins, name .."_forward" )
-	local shadowShader = CompileLuaShader(template.shadow, template.shadowDefinitions, template.shaderPlugins, name .."_shadow" )
-	local deferredShader = CompileLuaShader(template.deferred, template.deferredDefinitions, template.shaderPlugins, name .."_deferred" )
-	local reflectionShader = CompileLuaShader(template.reflection, template.reflectionDefinitions, template.shaderPlugins, name .."_reflection" )
+	local forwardShader = CompileLuaShader(template.shader, template.shaderDefinitions, template.shaderPlugins, name .."_forward" , recompilation)
+	local shadowShader = CompileLuaShader(template.shadow, template.shadowDefinitions, template.shaderPlugins, name .."_shadow" , recompilation)
+	local deferredShader = CompileLuaShader(template.deferred, template.deferredDefinitions, template.shaderPlugins, name .."_deferred" , recompilation)
+	local reflectionShader = CompileLuaShader(template.reflection, template.reflectionDefinitions, template.shaderPlugins, name .."_reflection" , recompilation)
+	if recompilation then
+		if (not forwardShader) or (not shadowShader) or (not deferredShader) or (not reflectionShader) then
+			-- This is a recompilation attempt that failed, so we are not going to replace the shader objects themselves
+			return nil
+		end
+	end
 
 	for k = 1, #drawBinKeys do
 		local flag = drawBinKeys[k]
@@ -698,24 +777,24 @@ local function compileMaterialShader(template, name)
 	shaders[0 ][name] = deferredShader
 	shaders[5 ][name] = reflectionShader
 	shaders[16][name] = shadowShader
+	return true
 end
 
 -- Order of textures in shader:
-	-- uniform sampler2D texture1;			//0
-	-- uniform sampler2D texture2;			//1
-	-- uniform sampler2D normalTex;		//2
+-- uniform sampler2D texture1;			//0
+-- uniform sampler2D texture2;			//1
+-- uniform sampler2D normalTex;		//2
 
-	-- uniform sampler2D texture1w;		//3
-	-- uniform sampler2D texture2w;		//4
-	-- uniform sampler2D normalTexw;		//5
+-- uniform sampler2D texture1w;		//3
+-- uniform sampler2D texture2w;		//4
+-- uniform sampler2D normalTexw;		//5
 
-	-- uniform sampler2DShadow shadowTex;	//6
-	-- uniform samplerCube reflectTex;		//7
+-- uniform sampler2DShadow shadowTex;	//6
+-- uniform samplerCube reflectTex;		//7
 
-	-- uniform sampler2D losMapTex;	//8
+-- uniform sampler2D losMapTex;	//8
 
-	-- uniform sampler2D brdfLUT;			//9
-	-- uniform sampler2D envLUT;			//10
+-- uniform sampler2D brdfLUT;			//9
 
 local textureKeytoSet = {} -- table of {TextureKey : {textureTable}}
 
@@ -756,7 +835,7 @@ local function GenFastTextureKey(objectDefID, objectDef, normaltexpath, texturet
 end
 
 local wreckAtlases = {
-	["arm"] = {
+	["arm"] = { -- these are only here for posterity
 		"unittextures/Arm_wreck_color.dds",
 		"unittextures/Arm_wreck_other.dds",
 		"unittextures/Arm_wreck_color_normal.dds",
@@ -766,53 +845,84 @@ local wreckAtlases = {
 		"unittextures/cor_other_wreck.dds",
 		"unittextures/cor_color_wreck_normal.dds",
 	},
+	["leg"] = {
+		"unittextures/leg_wreck_color.dds",
+		"unittextures/leg_wreck_shader.dds",
+		"unittextures/leg_wreck_normal.dds",
+	},
 	["raptor"] = {
-		"unittextures/tap_wreck_1.dds",
-		--"luaui/images/lavadistortion.png",
+		"luaui/images/lavadistortion.png",
 	}
 }
 
 local brdfLUT = "modelmaterials_gl4/brdf_0.png"
-local envLUT = "modelmaterials_gl4/envlut_0.png"
 
 local existingfilecache = {} -- this speeds up the VFS calls
 
 local function GetNormal(unitDef, featureDef)
+	local FileExists =  VFS.FileExists
+
 	local normalMap = blankNormalMap
+	local unittextures = "unittextures/"
+	if unitDef and unitDef.model then
+		local tex1 = unittextures .. unitDef.model.textures.tex1
+		local tex2 = unittextures .. unitDef.model.textures.tex2
+		if existingfilecache[tex1] == nil and FileExists(tex1) then
+			existingfilecache[tex1] = string.format("%%%i:0", unitDef.id)
+		end
+		if existingfilecache[tex2] == nil and FileExists(tex2) then
+			existingfilecache[tex2] = string.format("%%%i:1", unitDef.id)
+		end
 
-	if unitDef and unitDef.customParams and unitDef.customParams.normaltex and
-		(existingfilecache[unitDef.customParams.normaltex] or VFS.FileExists(unitDef.customParams.normaltex)) then
-
-		existingfilecache[unitDef.customParams.normaltex] = true
-		return unitDef.customParams.normaltex
+		if unitDef.customParams and unitDef.customParams.normaltex then
+			local normaltex = unitDef.customParams.normaltex
+			if existingfilecache[normaltex] == nil and FileExists(normaltex) then
+				existingfilecache[normaltex] = normaltex
+			end
+			return normaltex
+		end
 	end
 
 	if featureDef then
-		local tex1 = featureDef.model.textures.tex1 or "DOESNTEXIST.PNG"
-		local tex2 = featureDef.model.textures.tex2 or "DOESNTEXIST.PNG"
+		local tex1 = unittextures .. (featureDef.model.textures.tex1 or "DOESNTEXIST.PNG")
+		local tex2 = unittextures .. (featureDef.model.textures.tex2 or "DOESNTEXIST.PNG")
 
-		if featureDef.customParams and featureDef.customParams.normaltex and
-			(existingfilecache[featureDef.customParams.normaltex] or VFS.FileExists(featureDef.customParams.normaltex)) then
-
-			existingfilecache[featureDef.customParams.normaltex] = true
-			return featureDef.customParams.normaltex
+		-- cache them:
+		if existingfilecache[tex1] == nil and FileExists(tex1) then
+			existingfilecache[tex1] = string.format("%%%i:0", -1*featureDef.id)
+		end
+		if existingfilecache[tex2] == nil and FileExists(tex2) then
+			existingfilecache[tex2] = string.format("%%%i:1", -1*featureDef.id)
 		end
 
-		local unittexttures = "unittextures/"
-		if  (existingfilecache[unittexttures .. tex1] or VFS.FileExists(unittexttures .. tex1)) and
-			(existingfilecache[unittexttures .. tex2] or VFS.FileExists(unittexttures .. tex2)) then
+		if featureDef.customParams and featureDef.customParams.normaltex then
+			local normaltex = featureDef.customParams.normaltex
+			if existingfilecache[normaltex] == nil and FileExists(normaltex) then
+				existingfilecache[normaltex] = normaltex
+			end
+			return normaltex
+		else
+			if featureDef.model.textures.tex1 == "Arm_wreck_color.dds" then
+				return unittextures.."Arm_wreck_color_normal.dds"
+			end
 
-			existingfilecache[unittexttures .. tex1] = true
-			existingfilecache[unittexttures .. tex2] = true
-			normalMap = unittexttures .. tex1:gsub("%.","_normals.")
+			if featureDef.model.textures.tex1 == "cor_color_wreck.dds" then
+				return unittextures.."cor_color_wreck_normal.dds"
+			end
+
+			if featureDef.model.textures.tex1 == "leg_wreck_color.dds" then
+				return unittextures.."leg_wreck_normal.dds"
+			end
+			-- try to search for an appropriate normal
+			normalMap = tex1:gsub("%.","_normals.")
 			-- Spring.Echo(normalMap)
-			if (existingfilecache[normalMap] or VFS.FileExists(normalMap)) then
+			if (existingfilecache[normalMap] or FileExists(normalMap)) then
 				existingfilecache[normalMap] = true
 				return normalMap
 			end
-			normalMap = unittexttures .. tex1:gsub("%.","_normal.")
+			normalMap = tex1:gsub("%.","_normal.")
 			-- Spring.Echo(normalMap)
-			if (existingfilecache[normalMap] or VFS.FileExists(normalMap)) then
+			if (existingfilecache[normalMap] or FileExists(normalMap)) then
 				existingfilecache[normalMap] = true
 				return normalMap
 			end
@@ -820,87 +930,20 @@ local function GetNormal(unitDef, featureDef)
 	end
 	return blankNormalMap
 end
+-- BIG TODO:
+-- Replace lua texture names with overrides of WreckTex et al!
+--
+-- %34:1 = unitDef 34 s3o tex2 (:0->tex1,:1->tex2)
+-- %-102:0 = featureDef 102 s3o tex1
+-- The problem here being hat tex1 and tex2 dont participate in texture key hashing.
+-- so e.g. raptors may have been drawn with incorrect textures all along, due to them being keyed
+
+
 
 local knowntrees = VFS.Include("modelmaterials_gl4/known_feature_trees.lua")
 local function initBinsAndTextures()
-	--if true then return end
-	Spring.Echo("[CUS GL4] Init Unit bins")
-	for unitDefID, unitDef in pairs(UnitDefs) do
-		if unitDef.model then
-			objectDefToUniformBin[unitDefID] = "otherunit"
-			if unitDef.name:sub(1,3) == 'arm' or unitDef.name:sub(1,3) == 'bow' then
-				objectDefToUniformBin[unitDefID] = 'armunit'
-			elseif 	unitDef.name:sub(1,3) == 'cor' or unitDef.name:sub(1,4) == 'kern' then
-				objectDefToUniformBin[unitDefID] = 'corunit'
-			elseif 	unitDef.name:sub(1,3) == 'leg' then
-				objectDefToUniformBin[unitDefID] = 'armunit'
-			end
-			local normalTex = GetNormal(unitDef, nil)
-			local textureTable = {
-				--%-102:0 = featureDef 102 s3o tex1
-				[0] = string.format("%%%s:%i", unitDefID, 0),
-				[1] = string.format("%%%s:%i", unitDefID, 1),
-				[2] = normalTex,
-				[3] = normalTex,
-				[4] = normalTex,
-				[5] = normalTex,
-				[6] = "$shadow",
-				[7] = "$reflection",
-				[8] = "$info:los",
-				[9] = GG.GetBrdfTexture(), --brdfLUT,
-				[10] = noisetex3dcube,
-				--[10] = envLUT,
-			}
 
-			local lctex1 = string.lower(unitDef.model.textures.tex1 or "")
-			local lctex2 = string.lower(unitDef.model.textures.tex2 or "")
-			local lcnormaltex = string.lower(normalTex or "")
-
-			--local wreckTex1 = (lowercasetex1:find("arm_color", nil, true) and "unittextures/Arm_wreck_color.dds") or
-			--					(lowercasetex1:find("cor_color", nil, true) and "unittextures/Cor_color_wreck.dds")  or false
-			--local wreckTex2 = (lowercasetex2:find("arm_other", nil, true) and "unittextures/Arm_wreck_other.dds") or
-			--					(lowercasetex2:find("cor_other", nil, true) and "unittextures/Cor_other_wreck.dds")  or false
-			--local wreckNormalTex = (lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
-			--		(lowercasenormaltex:find("cor_normal") and "unittextures/Cor_color_wreck_normal.dds") or false
-
-			---TODO: Add bots textures + normal
-			local wreckTex1 = (lctex1:find("tap_texture1", nil, true) and "unittextures/tap_wreck_1.dds") or
-					(lctex1:find("tap_texture2", nil, true) and "unittextures/tap_wreck_2.dds") or
-					(lctex1:find("bow_bot_texture1.dds", nil, true) and "unittextures/bow_bot_wreck1.dds") or
-					(lctex1:find("kern_bot_texture1.dds", nil, true) and "unittextures/bow_bot_wreck1.dds") or
-					false
-			local wreckTex2 = (lctex2:find("tap_texture3", nil, true) and "unittextures/tap_wreck_3.dds") or
-					(lctex2:find("bow_bot_texture2.dds", nil, true) and "unittextures/bow_bot_wreck2.dds")  or
-			false
-			local wreckNormalTex = (lcnormaltex:find("tap_normal") and "unittextures/tap_wreck_normal.png") or
-					(lcnormaltex:find("cor_normal") and "unittextures/Cor_color_wreck_normal.dds") or false
-
-			if unitDef.name:find("_scav", nil, true) then -- it better be a scavenger unit, or ill kill you
-				textureTable[3] = wreckTex1
-				textureTable[4] = wreckTex2
-				textureTable[5] = wreckNormalTex
-				if unitDef.name:sub(1,3) == 'arm' then
-					objectDefToUniformBin[unitDefID] = 'armscavenger'
-				elseif 	unitDef.name:sub(1,3) == 'cor' then
-					objectDefToUniformBin[unitDefID] = 'corscavenger'
-				end
-			elseif unitDef.name:find("raptor", nil, true) or unitDef.name:find("raptor_hive", nil, true) then
-				textureTable[5] = wreckAtlases['raptor'][1]
-				objectDefToUniformBin[unitDefID] = 'raptor'
-				--Spring.Echo("Raptorwreck", textureTable[5])
-			elseif wreckTex1 and wreckTex2 then -- just a true unit:
-				textureTable[3] = wreckTex1
-				textureTable[4] = wreckTex2
-				textureTable[5] = wreckNormalTex
-			end
-
-			local texKeyFast = GenFastTextureKey(unitDefID, unitDef, normalTex, textureTable)
-			if textureKeytoSet[texKeyFast] == nil then
-				textureKeytoSet[texKeyFast] = textureTable
-			end
-		end
-	end
-
+	-- init features first, to gain access to stored wreck textures!
 	Spring.Echo("[CUS GL4] Init Feature bins")
 	for featureDefID, featureDef in pairs(FeatureDefs) do
 		if featureDef.model then -- this is kind of a hack to work around specific modelless features metalspots found on Otago 1.4
@@ -917,7 +960,6 @@ local function initBinsAndTextures()
 				[8] = "$info",
 				[9] = brdfLUT,
 				[10] = noisetex3dcube,
-				--[10] = envLUT,
 			}
 
 			objectDefToUniformBin[-1 * featureDefID] = 'feature'
@@ -926,13 +968,13 @@ local function initBinsAndTextures()
 				objectDefToUniformBin[-1 * featureDefID] = 'wreck'
 				--featuresDefsWithAlpha[-1 * featureDefID] = "yes"
 			elseif (featureDef.customParams and featureDef.customParams.treeshader == 'yes')
-				or knowntrees[featureDef.name] then
+					or knowntrees[featureDef.name] then
 				objectDefToUniformBin[-1 * featureDefID] = 'tree'
 				featuresDefsWithAlpha[-1 * featureDefID] = "yes"
 			elseif featureDef.name:find("_dead", nil, true) or featureDef.name:find("_heap", nil, true) then
 				objectDefToUniformBin[-1 * featureDefID] = 'wreck'
 			elseif featureDef.name:find("pilha_crystal", nil, true) or (featureDef.customParams and featureDef.customParams.cuspbr) then
-				objectDefToUniformBin[-1 * featureDefID] = 'featurepbr'	
+				objectDefToUniformBin[-1 * featureDefID] = 'featurepbr'
 			end
 			--Spring.Echo("Assigned normal map to", featureDef.name, normalTex)
 
@@ -942,6 +984,98 @@ local function initBinsAndTextures()
 			end
 		end
 	end
+	--if true then return end
+	Spring.Echo("[CUS GL4] Init Unit bins")
+	for unitDefID, unitDef in pairs(UnitDefs) do
+		if unitDef.model then
+			local lowercasetex1 = string.lower(unitDef.model.textures.tex1 or "")
+			local lowercasetex2 = string.lower(unitDef.model.textures.tex2 or "")
+			local normalTex = GetNormal(unitDef, nil)
+			local lowercasenormaltex = string.lower(normalTex or "")
+
+			-- bin units according to what faction's texture they use
+			local factionBinTag = lowercasetex1:sub(1,3)
+
+			objectDefToUniformBin[unitDefID] = "otherunit"
+			if factionBinTag == 'arm' then
+				objectDefToUniformBin[unitDefID] = 'armunit'
+			elseif factionBinTag == 'cor' then
+				objectDefToUniformBin[unitDefID] = 'corunit'
+			elseif factionBinTag == 'leg' then
+				objectDefToUniformBin[unitDefID] = 'legunit'
+			end
+
+			local textureTable = {
+				--%-102:0 = featureDef 102 s3o tex1
+				[0] = string.format("%%%s:%i", unitDefID, 0),
+				[1] = string.format("%%%s:%i", unitDefID, 1),
+				[2] = normalTex,
+				[3] = normalTex,
+				[4] = normalTex,
+				[5] = normalTex,
+				[6] = "$shadow",
+				[7] = "$reflection",
+				[8] = "$info:los",
+				[9] = GG.GetBrdfTexture(), --brdfLUT,
+				[10] = noisetex3dcube,
+			}
+
+			local wreckTex1 =
+			(lowercasetex1:find("arm_color", nil, true) and "unittextures/Arm_wreck_color.dds") or
+					(lowercasetex1:find("cor_color", nil, true) and "unittextures/cor_color_wreck.dds") or
+					(lowercasetex1:find("leg_color", nil, true) and "unittextures/leg_wreck_color.dds") or
+					false
+			if wreckTex1 and existingfilecache[wreckTex1] then -- this part is what ensures that these textures dont get loaded separately, but instead use ones provided by featuredefs
+				wreckTex1 = existingfilecache[wreckTex1]
+			end
+			local wreckTex2 =
+			(lowercasetex2:find("arm_other", nil, true) and "unittextures/Arm_wreck_other.dds") or
+					(lowercasetex2:find("cor_other", nil, true) and "unittextures/cor_other_wreck.dds") or
+					(lowercasetex2:find("leg_shader", nil, true) and "unittextures/leg_wreck_shader.dds") or
+					false
+			if wreckTex2 and existingfilecache[wreckTex2] then  -- this part is what ensures that these textures dont get loaded separately, but instead use ones provided by featuredefs
+				wreckTex2 = existingfilecache[wreckTex2]
+			end
+			local wreckNormalTex =
+			(lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
+					(lowercasenormaltex:find("cor_normal") and "unittextures/cor_color_wreck_normal.dds") or
+					(lowercasenormaltex:find("leg_normal") and "unittextures/leg_wreck_normal.dds") or
+					false
+
+			if unitDef.name:find("_scav", nil, true) then -- it better be a scavenger unit, or ill kill you
+				textureTable[3] = wreckTex1
+				textureTable[4] = wreckTex2
+				textureTable[5] = wreckNormalTex
+				if factionBinTag == 'arm' then
+					objectDefToUniformBin[unitDefID] = 'armscavenger'
+				elseif factionBinTag == 'cor' then
+					objectDefToUniformBin[unitDefID] = 'corscavenger'
+				elseif factionBinTag == 'leg' then
+					objectDefToUniformBin[unitDefID] = 'legscavenger'
+				end
+			elseif unitDef.name:find("raptor", nil, true) or unitDef.name:find("raptor_hive", nil, true) then
+				textureTable[5] = wreckAtlases['raptor'][1]
+				objectDefToUniformBin[unitDefID] = 'raptor'
+				--Spring.Echo("Raptorwreck", textureTable[5])
+			elseif wreckTex1 and wreckTex2 then -- just a true unit:
+				textureTable[3] = wreckTex1
+				textureTable[4] = wreckTex2
+				textureTable[5] = wreckNormalTex
+			end
+
+			if unitDef.customParams and unitDef.customParams.useskinning then
+				unitDefsUseSkinning[unitDefID] = true
+				objectDefToUniformBin[unitDefID]  = 'otherunit' -- This will temporarily disable raptor shader
+			end
+
+			local texKeyFast = GenFastTextureKey(unitDefID, unitDef, normalTex, textureTable)
+			if textureKeytoSet[texKeyFast] == nil then
+				textureKeytoSet[texKeyFast] = textureTable
+			end
+		end
+	end
+
+
 
 end
 
@@ -949,31 +1083,21 @@ local preloadedTextures = false
 local function PreloadTextures()
 	Spring.Echo("[CUS GL4] Cache Textures")
 	-- init the arm and core wrecks, and wreck normals
-	gl.Texture(0, "unittextures/tap_texture1.dds")
-	gl.Texture(0, "unittextures/tap_texture2.dds")
-	gl.Texture(0, "unittextures/tap_texture3.dds")
-	gl.Texture(0, "unittextures/tap_wreck_1.dds")
-	gl.Texture(0, "unittextures/tap_wreck_2.dds")
-	gl.Texture(0, "unittextures/tap_wreck_3.dds")
-	gl.Texture(0, "unittextures/tap_wreck_normal.png")
-	gl.Texture(0, "unittextures/corota_tex1.dds")
-	gl.Texture(0, "unittextures/corota_tex2.dds")
-	gl.Texture(0, "unittextures/armota_tex1.dds")
-	gl.Texture(0, "unittextures/armota_tex2.dds")
-	gl.Texture(0, "unittextures/armOTA_normal.png")
-	gl.Texture(0, "unittextures/corOTA_normal.png")
-	--gl.Texture(0, "unittextures/Arm_wreck_color_normal.dds")
+	gl.Texture(0, "unittextures/Arm_wreck_color_normal.dds")
 	--gl.Texture(0, "unittextures/Arm_wreck_color.dds")
 	--gl.Texture(0, "unittextures/Arm_wreck_other.dds")
-	--gl.Texture(0, "unittextures/Arm_normal.dds")
-	--gl.Texture(0, "unittextures/Arm_color.dds")
+	gl.Texture(0, "unittextures/Arm_normal.dds")
+	--gl.Texture(0, "unittextures/Arm_color.dds") -- these absolutely never need to be loaded like this
 	--gl.Texture(0, "unittextures/Arm_other.dds")
-	--gl.Texture(0, "unittextures/cor_normal.dds")
+	gl.Texture(0, "unittextures/cor_normal.dds")
 	--gl.Texture(0, "unittextures/cor_other.dds")
 	--gl.Texture(0, "unittextures/cor_color.dds")
 	--gl.Texture(0, "unittextures/cor_other_wreck.dds")
 	--gl.Texture(0, "unittextures/cor_color_wreck.dds")
-	--gl.Texture(0, "unittextures/cor_color_wreck_normal.dds")
+	gl.Texture(0, "unittextures/cor_color_wreck_normal.dds")
+	if Spring.GetModOptions().experimentallegionfaction then
+		gl.Texture(0, "unittextures/leg_wreck_normal.dds")
+	end
 	gl.Texture(0, false)
 	preloadedTextures = true
 end
@@ -1000,7 +1124,7 @@ end
 
 local badassigns = {} -- a table of unitDefs so that we only warn once
 
-local asssigncalls = 0
+local assigncalls = 0
 --- Assigns a unit to a material bin
 -- This function gets called from AddUnit every time a unit enters drawrange (or gets its flags changed)
 -- @param objectID The unitID of the unit, or negative for featureID's
@@ -1009,16 +1133,16 @@ local asssigncalls = 0
 -- @param shader which shader should be assigned to it
 -- @param textures A table of {bindPosition:texturename} for this unit
 -- @param texKey A unique key hashed from the textures names, bindpositions
-local function AsssignObjectToBin(objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom)
-	asssigncalls = (asssigncalls + 1 ) % (2^20)
+local function AssignObjectToBin(objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom)
+	assigncalls = (assigncalls + 1 ) % (2^20)
 	shader = shader or GetShaderName(flag, objectDefID)
 	texKey = texKey or fastObjectDefIDtoTextureKey[objectDefID]
 
 	if objectDefID == nil then
-		Spring.Echo("AsssignObjectToBin",objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom)
+		Spring.Echo("AssignObjectToBin",objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom)
 	end
-	uniformBinID = uniformBinID or GetUniformBinID(objectDefID, "AsssignObjectToBin")
-	--Spring.Echo("AsssignObjectToBin", objectID, objectDefID, flag, shader, textures, texKey, uniformBinID)
+	uniformBinID = uniformBinID or GetUniformBinID(objectDefID, "AssignObjectToBin")
+	--Spring.Echo("AssignObjectToBin", objectID, objectDefID, flag, shader, textures, texKey, uniformBinID)
 	--	Spring.Debug.TraceFullEcho()
 	if (texKey == nil or uniformBinID == nil) then
 		if badassigns[objectID] == nil then
@@ -1087,7 +1211,7 @@ local function AsssignObjectToBin(objectID, objectDefID, flag, shader, textures,
 	if unitDrawBinsFlagShaderUniformsTexKey.objectsIndex[objectID] then
 		Spring.Echo("Trying to add a unit to a bin that it is already in!")
 	else
-		if debugmode then Spring.Echo("AsssignObjectToBin success:",objectID, objectDefID, flag, shader, texKey, uniformBinID	) end
+		if debugmode then Spring.Echo("AssignObjectToBin success:",objectID, objectDefID, flag, shader, texKey, uniformBinID	) end
 	end
 
 	local maxElements = unitDrawBinsFlagShaderUniformsTexKey.maxElements
@@ -1179,7 +1303,7 @@ local function AsssignObjectToBin(objectID, objectDefID, flag, shader, textures,
 	unitDrawBinsFlagShaderUniformsTexKey.objectsIndex[objectID  ] = numobjects
 
 	if debugmode and flag == 0 then
-		Spring.Echo("AsssignObjectToBin", objectID, objectDefID, texKey,uniformBinID, shader,flag, numobjects)
+		Spring.Echo("AssignObjectToBin", objectID, objectDefID, texKey,uniformBinID, shader,flag, numobjects)
 		local objids = "objectsArray "
 		for k,v in pairs(unitDrawBinsFlagShaderUniformsTexKey.objectsArray) do
 			objids = objids .. tostring(k) .. ":" ..tostring(v) .. " "
@@ -1188,51 +1312,68 @@ local function AsssignObjectToBin(objectID, objectDefID, flag, shader, textures,
 	end
 end
 
+local spGetUnitDefID = Spring.GetUnitDefID
+local spValidUnitID = Spring.ValidUnitID
+local spSetUnitEngineDrawMask = Spring.SetUnitEngineDrawMask
+local spGetFeatureDefID = Spring.GetFeatureDefID
+local spValidFeatureID = Spring.ValidFeatureID
+local spSetFeatureEngineDrawMask = Spring.SetFeatureEngineDrawMask
+local spSetFeatureNoDraw = Spring.SetFeatureNoDraw
+local spSetFeatureFade = Spring.SetFeatureFade
+local glSetUnitBufferUniforms = gl.SetUnitBufferUniforms
+
 local function AddObject(objectID, drawFlag, reason)
-	if debugmode then Spring.Echo("AddObject",objectID, objectDefID, drawFlag) end
 	if (drawFlag >= 128) then --icon
-		return
-	end
-	if (drawFlag >=  32) then --far tex
 		return
 	end
 
 	local objectDefID
 	if objectID >= 0 then
-		objectDefID = Spring.GetUnitDefID(objectID)
+		objectDefID = spGetUnitDefID(objectID)
 		objectIDtoDefID[objectID] = objectDefID
 	else
-		objectDefID = -1 *  Spring.GetFeatureDefID(-1 * objectID)
+		objectDefID = -1 * spGetFeatureDefID(-1 * objectID)
 		objectIDtoDefID[objectID] = objectDefID
 	end
+	if debugmode then Spring.Echo("AddObject",objectID, objectDefID, drawFlag, reason) end
 	if objectDefID == nil then return end -- This bail is needed so that we dont add/update units that dont actually exist any more, when cached from the catchup phase
 
-	for k = 1, #drawBinKeys do
+	local drawBinKeysLen = #drawBinKeys
+	for k = 1, drawBinKeysLen do
 		local flag = drawBinKeys[k]
 		if HasAllBits(drawFlag, flag) then
 			if overrideDrawFlagsCombined[flag] then
-								 --objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom
-				AsssignObjectToBin(objectID, objectDefID, flag, nil,	nil,	  nil,	  nil, 			"addobject")
+				--objectID, objectDefID, flag, shader, textures, texKey, uniformBinID, calledfrom
+				AssignObjectToBin(objectID, objectDefID, flag, nil,	nil,	  nil,	  nil, 			"addobject")
 			end
 		end
 	end
 	if objectID >= 0 then
-		Spring.SetUnitEngineDrawMask(objectID, 255 - overrideDrawFlag) -- ~overrideDrawFlag & 255
-		overriddenUnits[objectID] = drawFlag
+		spSetUnitEngineDrawMask(objectID, 255 - overrideDrawFlag) -- ~overrideDrawFlag & 255
+		cusUnitIDtoDrawFlag[objectID] = drawFlag
+		local health, maxHealth, paralyzeDamage, capture, build = spGetUnitHealth(objectID)
+		if health then
+			uniformCache[1] = ((build < 1) and build) or -1
+			glSetUnitBufferUniforms(objectID, uniformCache, 0) -- buildprogress (0.x)
+			if build < 1 then buildProgresses[objectID] = build end
+
+			--uniformCache[1] = spGetUnitHeight(objectID)
+			--glSetUnitBufferUniforms(objectID, uniformCache, 11) -- height is 11 (2.w)
+		end
 	else
-		if Spring.ValidFeatureID(-1 * objectID) == false then Spring.Echo("Invalid feature for drawmask", objectID, objectDefID) end
-		Spring.SetFeatureEngineDrawMask(-1 * objectID, 255 - overrideDrawFlag) -- ~overrideDrawFlag & 255
-		Spring.SetFeatureNoDraw(-1 * objectID, false) -- ~overrideDrawFlag & 255
-		Spring.SetFeatureFade(-1 * objectID, true) -- ~overrideDrawFlag & 255
-		overriddenFeatures[-1 *objectID] = drawFlag
+		if spValidFeatureID(-1 * objectID) == false then Spring.Echo("Invalid feature for drawmask", objectID, objectDefID) end
+		spSetFeatureEngineDrawMask(-1 * objectID, 255 - overrideDrawFlag) -- ~overrideDrawFlag & 255
+		spSetFeatureNoDraw(-1 * objectID, false) -- ~overrideDrawFlag & 255
+		spSetFeatureFade(-1 * objectID, true) -- ~overrideDrawFlag & 255
+		cusFeatureIDtoDrawFlag[-1 *objectID] = drawFlag
 	end
-	--overriddenUnits[unitID] = overrideDrawFlag
+	--cusUnitIDtoDrawFlag[unitID] = overrideDrawFlag
 end
 
 local function RemoveObjectFromBin(objectID, objectDefID, texKey, shader, flag, uniformBinID, reason)
 	shader = shader or GetShaderName(flag, objectDefID)
 	texKey = texKey or fastObjectDefIDtoTextureKey[objectDefID]
-	if debugmode then Spring.Echo("RemoveObjectFromBin", objectID, objectDefID, texKey,shader,flag,objectIndex, reason)  end
+	if debugmode then Spring.Echo("RemoveObjectFromBin", objectID, objectDefID, texKey,shader,flag,uniformBinID, reason)  end
 
 	if unitDrawBins[flag][shader] then
 		if unitDrawBins[flag][shader][uniformBinID] then
@@ -1276,9 +1417,6 @@ local function RemoveObjectFromBin(objectID, objectDefID, texKey, shader, flag, 
 					unitDrawBinsFlagShaderTexKey.objectsArray[objectIndex] = objectIDatEnd -- Bring the last objectID here
 					unitDrawBinsFlagShaderTexKey.numobjects = numobjects -1
 				end
-			else
-				--Spring.Echo("Failed to find texKey for", objectID, objectDefID, texKey, shader, flag, uniformBinID)
-				--	Spring.Debug.TableEcho(textures)
 			end
 		else
 			if debugmode then Spring.Echo("Failed to find uniformBinID for", objectID, objectDefID, texKey, shader, flag, uniformBinID) end
@@ -1304,22 +1442,16 @@ local function UpdateObject(objectID, drawFlag, reason)
 	if (drawFlag >= 128) then --icon
 		return
 	end
-	if (drawFlag >=  32) then --far tex
-		return
-	end
 
 	local objectDefID = objectIDtoDefID[objectID]
 
 	--if debugmode then Spring.Debug.TraceEcho("UpdateObject", objectID, drawFlag, objectDefID) end
-	for k = 1, #drawBinKeys do
+	local oldDrawFlag = (objectID >= 0) and cusUnitIDtoDrawFlag[objectID] or cusFeatureIDtoDrawFlag[-1 * objectID]
+	local drawBinKeysLen = #drawBinKeys
+	for k = 1, drawBinKeysLen do
 		local flag = drawBinKeys[k]
-		local hasFlagOld
-		if objectID >= 0 then
-			hasFlagOld = HasAllBits(overriddenUnits[objectID], flag)
-		else
-			hasFlagOld = HasAllBits(overriddenFeatures[-1 * objectID], flag)
-		end
-		local hasFlagNew = HasAllBits(               drawFlag, flag)
+		local hasFlagOld = HasAllBits(oldDrawFlag, flag)
+		local hasFlagNew = HasAllBits(drawFlag, flag)
 
 		if hasFlagOld ~= hasFlagNew and overrideDrawFlagsCombined[flag] then
 			local shader = GetShaderName(flag, objectDefID)
@@ -1333,17 +1465,17 @@ local function UpdateObject(objectID, drawFlag, reason)
 				--end
 			end
 			if hasFlagNew then -- didn't have this flag, but now has
-				AsssignObjectToBin(objectID, objectDefID, flag, shader, nil, texKey, uniformBinID, "UpdateObject")
+				AssignObjectToBin(objectID, objectDefID, flag, shader, nil, texKey, uniformBinID, "UpdateObject")
 				--if flag == 1 then
-				--	AsssignObjectToBin(objectID, objectDefID, 0, nil, nil, texKey, uniformBinID) --deferred
+				--	AssignObjectToBin(objectID, objectDefID, 0, nil, nil, texKey, uniformBinID) --deferred
 				--end
 			end
 		end
 	end
 	if objectID >= 0 then
-		overriddenUnits[objectID] = drawFlag
+		cusUnitIDtoDrawFlag[objectID] = drawFlag
 	else
-		overriddenFeatures[-1 * objectID] = drawFlag
+		cusFeatureIDtoDrawFlag[-1 * objectID] = drawFlag
 	end
 end
 
@@ -1356,13 +1488,24 @@ local function RemoveObject(objectID, reason) -- we get pos/neg objectID here
 
 	--if debugmode then Spring.Debug.TraceEcho("RemoveObject", objectID) end
 
-	for k = 1, #drawBinKeys do
+	-- RemoveObject forces removal from ALL bins, even if it is not in the bin, or that bin straight up doesnt exist (like reflection and shadows)
+	local oldFlag
+	if objectID >= 0 then
+		oldFlag = cusUnitIDtoDrawFlag[objectID]
+	else
+		oldFlag = cusFeatureIDtoDrawFlag[-1 * objectID]
+	end
+
+	local shader = GetShaderName(1, objectDefID)
+	local texKey = fastObjectDefIDtoTextureKey[objectDefID]
+	local uniformBinID = GetUniformBinID(objectDefID,'RemoveObject')
+
+	local drawBinKeysLen = #drawBinKeys
+	for k = 1, drawBinKeysLen do --drawBinKeys = {1, 1 + 4, 16}
 		local flag = drawBinKeys[k]
+		if (oldFlag < flag) then break end -- if shadows are off, then dont even try to remove from them
 		if debugmode then Spring.Echo("RemoveObject Flags", objectID, flag, overrideDrawFlagsCombined[flag] ) end
 		if overrideDrawFlagsCombined[flag] then
-			local shader = GetShaderName(flag, objectDefID)
-			local texKey  = fastObjectDefIDtoTextureKey[objectDefID]
-			local uniformBinID = GetUniformBinID(objectDefID,'RemoveObject')
 			RemoveObjectFromBin(objectID, objectDefID, texKey, shader, flag, uniformBinID, "removeobject")
 			--if flag == 1 then
 			--	RemoveObjectFromBin(objectID, objectDefID, texKey, nil, 0, uniformBinID)
@@ -1371,35 +1514,39 @@ local function RemoveObject(objectID, reason) -- we get pos/neg objectID here
 	end
 	objectIDtoDefID[objectID] = nil
 	if objectID >= 0 then
-		overriddenUnits[objectID] = nil
-		-- processedUnits[objectID] = nil
-		Spring.SetUnitEngineDrawMask(objectID, 255)
+		cusUnitIDtoDrawFlag[objectID] = nil
+		buildProgresses[objectID] = nil
+		spSetUnitEngineDrawMask(objectID, 255)
 	else
-		overriddenFeatures[-1 * objectID] = nil
-		-- processedFeatures[-1 * objectID] = nil
-		Spring.SetFeatureEngineDrawMask(-1 * objectID, 255)
+		cusFeatureIDtoDrawFlag[-1 * objectID] = nil
+		spSetFeatureEngineDrawMask(-1 * objectID, 255)
 	end
-
-	--Spring.Debug.TableEcho(unitDrawBins)
 end
 
-local spGetUnitHealth = Spring.GetUnitHealth
 local spGetUnitIsCloaked = Spring.GetUnitIsCloaked
+local spValidUnitID = Spring.ValidUnitID
+local glSetUnitBufferUniforms = gl.SetUnitBufferUniforms
 
 local function ProcessUnits(units, drawFlags, reason)
-	--processedCounter = (processedCounter + 1) % (2 ^ 16
-	for i = 1, #units do
+	local numUnits = #units
+	for i = 1, numUnits do
 		local unitID = units[i]
 		local drawFlag = drawFlags[i]
-		if debugmode then Spring.Echo("ProcessUnit", unitID, drawFlag) end
-		local _,_,_,_,buildpercent = spGetUnitHealth(unitID)
+		if debugmode then Spring.Echo("ProcessUnits", unitID, drawFlag, reason) end
 
-		if drawFlag % 4 > 1 then -- check if its at least in opaque or alpha pass
+
+		if math_bit_and(drawFlag, 34) > 0 then -- has alpha (2) or alphashadow(32) flag
+			-- cloaked units get mapped to pure forward + deferred, no refl/refr either
+			drawFlag = 1
+		end
+
+		local drawFlagMod4 = drawFlag % 4
+		if drawFlagMod4 > 1 then -- check if its at least in opaque or alpha pass
 			if unitsInViewport[unitID] == nil then
 				-- CALL the UnitViewportAPI
 				numUnitsInViewport = numUnitsInViewport + 1
 			end
-			unitsInViewport[unitID] = true
+			unitsInViewport[unitID] = drawFlag
 		else
 			if unitsInViewport[unitID] then
 				-- CALL the UnitViewportAPI
@@ -1408,39 +1555,36 @@ local function ProcessUnits(units, drawFlags, reason)
 			unitsInViewport[unitID] = nil
 		end
 
-		if (drawFlag == 0) or (drawFlag >= 32) then
+		if (drawFlag == 0) or (drawFlag >= 128) then
 			RemoveObject(unitID, reason)
-		elseif (buildpercent and buildpercent < 1) or spGetUnitIsCloaked(unitID) then
-			--under construction
-			--using processedUnits here actually good, as it will dynamically handle unitfinished and cloak on-off
 		else
-
-			--Spring.Echo("ProcessUnit", unitID, drawFlag)
-			if overriddenUnits[unitID] == nil then --object was not seen
+			local oldDrawFlag = cusUnitIDtoDrawFlag[unitID]
+			if oldDrawFlag == nil then --object was not seen
+				if spValidUnitID(unitID) and (not spGetUnitIsCloaked(unitID)) then
+					uniformCache[1] = 0
+					glSetUnitBufferUniforms(unitID, uniformCache, 12) -- cloak
+				end
 				AddObject(unitID, drawFlag, reason)
-			else --if overriddenUnits[unitID] ~= drawFlag then --flags have changed
+			elseif oldDrawFlag ~= drawFlag then --flags have changed
 				UpdateObject(unitID, drawFlag, reason)
 			end
-			-- processedUnits[unitID] = processedCounter
 		end
 	end
 
-	-- for unitID, _ in pairs(overriddenUnits) do
-	-- 	if processedUnits[unitID] ~= processedCounter then --object was not updated thus was removed
-	-- 		RemoveObject(unitID)
-	-- 	end
-	-- end
 end
-
+local spValidFeatureID = Spring.ValidFeatureID
+local spSetFeatureEngineDrawMask = Spring.SetFeatureEngineDrawMask
+local spSetFeatureNoDraw = Spring.SetFeatureNoDraw
+local spSetFeatureFade = Spring.SetFeatureFade
 
 local function ProcessFeatures(features, drawFlags, reason)
-	-- processedCounter = (processedCounter + 1) % (2 ^ 16)
-
-	for i = 1, #features do
+	local numFeatures = #features
+	for i = 1, numFeatures do
 		local featureID = features[i]
 		local drawFlag = drawFlags[i]
 
-		if drawFlag % 4 > 1 then
+		local drawFlagMod4 = drawFlag % 4
+		if drawFlagMod4 > 1 then
 			if featuresInViewport[featureID] == nil then
 				-- CALL the UnitViewportAPI
 				numFeaturesInViewport = numFeaturesInViewport + 1
@@ -1458,28 +1602,28 @@ local function ProcessFeatures(features, drawFlags, reason)
 		-- I leave this wonderful bug to any future soul who has to maintain this
 		if featureID > 0 then
 			--Spring.Echo("ProcessFeature", featureID	, drawFlag)
-			if (drawFlag == 0) or (drawFlag >= 32) then
-				RemoveObject(-1 * featureID, reason)
-			elseif overriddenFeatures[featureID] == nil then --object was not seen
-				AddObject(-1 * featureID, drawFlag, reason)
-			else --if overriddenFeatures[featureID] ~= drawFlag then --flags have changed
-				UpdateObject(-1 * featureID, drawFlag, reason)
+			if math_bit_and(drawFlag, 34) > 0 then -- has alpha (2) or alphashadow(32) flag
+				-- cloaked units get mapped to pure forward + deferred, no refl/refr either
+				drawFlag = 1
 			end
-			-- processedFeatures[featureID] = processedCounter
+			if (drawFlag == 0) or (drawFlag >= 128) then
+				RemoveObject(-1 * featureID, reason)
+			else
+				local oldDrawFlag = cusFeatureIDtoDrawFlag[featureID]
+				if oldDrawFlag == nil then --object was not seen
+					AddObject(-1 * featureID, drawFlag, reason)
+				elseif oldDrawFlag ~= drawFlag then --flags have changed
+					UpdateObject(-1 * featureID, drawFlag, reason)
+				end
+			end
 		end
-		-- processedFeatures[featureID] = processedCounter
 	end
 
-	-- for featureID, _ in pairs(overriddenFeatures) do
-	-- 	if processedFeatures[featureID] ~= processedCounter then --object was not updated thus was removed
-	-- 		RemoveObject(-1 * featureID)
-	-- 	end
-	-- end
 end
 
 local shaderactivations = 0
 
-local shaderOrder = {'tree','feature','unit',} -- this forces ordering, no real reason to do so, just for testing
+local shaderOrder = {'tree','feature','unit','unitskinning'} -- this forces ordering, no real reason to do so, just for testing
 
 local drawpassstats = {} -- a table of drawpass number and the actual number of units and batches performed by that pass
 for drawpass, _ in pairs(overrideDrawFlagsCombined) do drawpassstats[drawpass] = {shaders = 0, batches = 0, units = 0} end
@@ -1497,7 +1641,13 @@ local function ExecuteDrawPass(drawPass)
 	local batches = 0
 	local units = 0
 	local shaderswaps = 0
+	local unbindtextures = false
 	gl.Culling(GL.BACK)
+	if (drawPass == 1) then --forward opaque pass
+		gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA) --
+		--gl.PolygonOffset(-2.0, -2.0);
+	end
+
 	--for shaderName, data in pairs(unitDrawBins[drawPass]) do
 	for _, shaderName in ipairs(shaderOrder) do
 		if unitDrawBins[drawPass][shaderName] then
@@ -1514,7 +1664,7 @@ local function ExecuteDrawPass(drawPass)
 			local shaderTable = shaders[drawPass][shaderName]
 
 			if unitscountforthisshader > 0 then
-				gl.UseShader(shaderTable.shaderObj)
+				shaderTable:Activate()
 				shaderswaps = shaderswaps + 1
 				for uniformBinID, uniformBin in pairs(data) do
 
@@ -1530,9 +1680,6 @@ local function ExecuteDrawPass(drawPass)
 							units = units + texAndObj.numobjects
 							local mybinVAO = texAndObj.VAO
 							for bindPosition, tex in pairs(texAndObj.textures) do
-								if Spring.GetGameFrame() % 60 == 0 then
-									--Spring.Echo(bindPosition, tex)
-								end
 								gl.Texture(bindPosition, tex)
 							end
 
@@ -1542,17 +1689,25 @@ local function ExecuteDrawPass(drawPass)
 							mybinVAO:Submit()
 
 							SetFixedStatePost(drawPass, shaderTable)
+							unbindtextures = true
 
-							for bindPosition, tex in pairs(texAndObj.textures) do
-								gl.Texture(bindPosition, false)
-							end
 						end
 					end
 				end
 
-				gl.UseShader(0)
+				shaderTable:Deactivate()
 			end
 		end
+	end
+
+	if unbindtextures then
+		for i=0,10 do
+			gl.Texture(i, false)
+		end
+	end
+	if drawPass == 1 then
+		gl.Blending(GL.ONE, GL.ZERO) -- do full opaque
+		--gl.PolygonOffset(0, 0);
 	end
 
 	--drawpassstats[drawPass].batches = batches
@@ -1560,6 +1715,19 @@ local function ExecuteDrawPass(drawPass)
 	--drawpassstats[drawPass].shaders = shaderswaps
 	return batches, units, shaderswaps
 end
+
+local function RecompileShaders(recompilation)
+	initMaterials()
+
+	Spring.Echo("[CUS GL4] Compiling Shaders")
+	-- Initialize shaders types like so::
+	-- shaders[0]['unit_deferred'] = LuaShaderObject
+	compileMaterialShader(unitsNormalMapTemplate, "unit", recompilation)
+	compileMaterialShader(unitsSkinningTemplate, "unitskinning", recompilation)
+	compileMaterialShader(featuresNormalMapTemplate, "feature", recompilation)
+	compileMaterialShader(treesNormalMapTemplate, "tree",recompilation)
+end
+
 
 local function initGL4()
 	if initiated then return end
@@ -1586,14 +1754,8 @@ local function initGL4()
 		[16   ] = {},	-- shadow
 	}
 	Spring.Echo("[CUS GL4] Initializing materials")
-	initMaterials()
 
-	Spring.Echo("[CUS GL4] Compiling Shaders")
-	-- Initialize shaders types like so::
-	-- shaders[0]['unit_deferred'] = LuaShaderObject
-	compileMaterialShader(unitsNormalMapTemplate, "unit")
-	compileMaterialShader(featuresNormalMapTemplate, "feature")
-	compileMaterialShader(treesNormalMapTemplate, "tree")
+	RecompileShaders()
 
 	modelsVertexVBO = gl.GetVBO(GL.ARRAY_BUFFER, false)
 	modelsIndexVBO = gl.GetVBO(GL.ELEMENT_ARRAY_BUFFER, false)
@@ -1618,35 +1780,10 @@ local function initGL4()
 	initiated = true
 end
 
-local function tableEcho(data, name, indent, tableChecked)
-	name = name or "TableEcho"
-	indent = indent or ""
-	if not tableChecked and type(data) ~= "table" then
-		Spring.Echo(indent .. name, data)
-		return
-	end
-	if type (name) == "table" then
-		name = '<table>'
-	end
-	Spring.Echo(indent .. name .. " = {")
-	local newIndent = indent .. "    "
-	for name, v in pairs(data) do
-		local ty = type(v)
-		if ty == "table" then
-			tableEcho(v, name, newIndent, true)
-		elseif ty == "boolean" then
-			Spring.Echo(newIndent .. name .. " = " .. (v and "true" or "false"))
-		elseif ty == "string" or ty == "number" then
-			Spring.Echo(newIndent .. name .. " = " .. v)
-		else
-			Spring.Echo(newIndent .. name .. " = ", v)
-		end
-	end
-	Spring.Echo(indent .. "},")
-end
 
 local function ReloadCUSGL4(optName, line, words, playerID)
-	if initiated then return end
+	if initiated and (not words) then return end
+	manualReload = true
 	if playerID ~= Spring.GetMyPlayerID() then
 		return
 	end
@@ -1670,6 +1807,18 @@ function gadget:GameFrame(n)
 		itsXmas = true
 		initiated = false
 		ReloadCUSGL4(nil,nil,nil, Spring.GetMyPlayerID())
+	end
+	for unitID, buildProgress in pairs(buildProgresses) do
+		local health, maxHealth, paralyzeDamage, capture, build = spGetUnitHealth(unitID)
+		if health and build ~= buildProgress then
+			uniformCache[1] = ((build < 1) and build) or -1
+			gl.SetUnitBufferUniforms(unitID, uniformCache, 0) -- buildprogress (0.x)
+			if build < 1 then
+				buildProgresses[unitID] = build
+			else
+				buildProgresses[unitID] = nil
+			end
+		end
 	end
 end
 
@@ -1708,7 +1857,7 @@ local function DumpCUSGL4(optName, line, words, playerID)
 			for uniformbinid, texandobjset in pairs(uniformbin) do
 				Spring.Echo(string.format("    %s = { -- uniformbin",uniformbinid))
 				for texturekey, minibin in pairs(texandobjset) do
-				Spring.Echo(string.format("      %i = { -- textureset",texturekey))
+					Spring.Echo(string.format("      %i = { -- textureset",texturekey))
 					for minibinattr, minibinvalue in pairs(minibin) do
 						if type( minibinvalue ) == "table" then
 							Spring.Echo(string.format("        %s = {",minibinattr))
@@ -1766,11 +1915,11 @@ local function MarkBinCUSGL4(optName, line, words, playerID)
 						end
 						if px then
 							Spring.MarkerAddPoint(px,py,pz,
-								tostring(drawPass) .. "/" ..
-								tostring(shadername) .. "/" ..
-								tostring(uniformbinid) .. "/" ..
-								tostring(texturekey) .. "/" ..
-								tostring(objectID))
+									tostring(drawPass) .. "/" ..
+											tostring(shadername) .. "/" ..
+											tostring(uniformbinid) .. "/" ..
+											tostring(texturekey) .. "/" ..
+											tostring(objectID))
 							count = count + 1
 						end
 					end
@@ -1783,6 +1932,55 @@ local function MarkBinCUSGL4(optName, line, words, playerID)
 	markBin(passnum)
 end
 
+local function FreeTextures() -- pre we are using 2200mb
+	-- free all raptor texes
+	-- free all pilha texes
+	Spring.Echo("Freeing textures")
+	--delete raptor texes if no raptors are present
+	for unitDefID, uniformBin in pairs(objectDefToUniformBin) do
+		if uniformBin == 'raptor' then
+			local textureTable = textureKeytoSet[fastObjectDefIDtoTextureKey[unitDefID]]
+			local s1 = gl.DeleteTexture(textureTable[0])
+			local s2 = gl.DeleteTexture(textureTable[1])
+
+			Spring.Echo("Freeing ",textureTable[0],textureTable[1], s1, s2)
+		end
+	end
+
+	-- delete feature texes if not present, except wrecks of course
+	local features = Spring.GetAllFeatures()
+
+	local delFeatureDefs = {}
+	for featureDefID, featureDef in pairs(FeatureDefs) do delFeatureDefs[featureDefID] = true end
+
+	for i, featureID in ipairs(features) do
+		local existingFeatureDefID = Spring.GetFeatureDefID(featureID)
+		delFeatureDefs[existingFeatureDefID] = false
+	end
+
+	for featureDefID, deleteme in pairs(delFeatureDefs) do
+		local textureTable = textureKeytoSet[fastObjectDefIDtoTextureKey[-featureDefID]]
+		local s1 = gl.DeleteTexture(textureTable[0])
+		local s2 = gl.DeleteTexture(textureTable[1])
+
+		Spring.Echo("Freeing ",textureTable[0],textureTable[1], s1, s2)
+	end
+
+	Spring.Echo("RawDelete")
+	local unittexfiles = VFS.DirList("unittextures/")
+	for i, fname in ipairs(unittexfiles) do
+		if string.find(fname,'chicken', nil, true) then
+			local s1 = gl.DeleteTexture(fname)
+			Spring.Echo("Freeing ",fname, s1)
+
+		end
+
+	end
+
+
+end
+
+
 function gadget:Initialize()
 	gadgetHandler:AddChatAction("reloadcusgl4", ReloadCUSGL4)
 	gadgetHandler:AddChatAction("disablecusgl4", DisableCUSGL4)
@@ -1790,19 +1988,35 @@ function gadget:Initialize()
 	gadgetHandler:AddChatAction("debugcusgl4", DebugCUSGL4)
 	gadgetHandler:AddChatAction("dumpcusgl4", DumpCUSGL4)
 	gadgetHandler:AddChatAction("markbincusgl4", MarkBinCUSGL4)
+	gadgetHandler:AddChatAction("freetextures", FreeTextures)
 	if not initiated and tonumber(Spring.GetConfigInt("cus2", 1) or 1) == 1 then
 		initGL4()
 	end
+
+	GG.CUSGL4 = {}
+	GG.CUSGL4.unitsInViewport = unitsInViewport
+	GG.CUSGL4.featuresInViewport = featuresInViewport
+	GG.CUSGL4.objectDefToBitShaderOptions = objectDefToBitShaderOptions
+	GG.CUSGL4.objectDefToUniformBin = objectDefToUniformBin
+	GG.CUSGL4.GetUniformBinID = GetUniformBinID
+	GG.CUSGL4.uniformBins = uniformBins
+	GG.CUSGL4.uniformBins = uniformBins
+	GG.CUSGL4.shaders = shaders
+	GG.CUSGL4.GetShader = GetShader
+	GG.CUSGL4.GetShaderName = GetShaderName
+	GG.CUSGL4.SetShaderUniforms = SetShaderUniforms
+	GG.CUSGL4.enabled = true
+
 end
 
 function gadget:Shutdown()
-	if debugmode then tableEcho(unitDrawBins, 'unitDrawBins') end
+	if debugmode then Spring.Echo(unitDrawBins, 'unitDrawBins') end
 
-	for unitID, _ in pairs(overriddenUnits) do
+	for unitID, _ in pairs(cusUnitIDtoDrawFlag) do
 		RemoveObject(unitID, "shutdown")
 	end
 
-	for featureID, _ in pairs(overriddenFeatures) do
+	for featureID, _ in pairs(cusFeatureIDtoDrawFlag) do
 		RemoveObject(-1 * featureID, "shutdown")
 	end
 	if unitDrawBins then
@@ -1820,17 +2034,20 @@ function gadget:Shutdown()
 	--gadgetHandler:RemoveChatAction("disablecusgl4")
 	--gadgetHandler:RemoveChatAction("reloadcusgl4")
 	--gadgetHandler:RemoveChatAction("cusgl4updaterate")
+	if GG.CUSGL4 then
+		for k,v in pairs(GG.CUSGL4) do
+			GG.CUSGL4[k] = nil
+		end
+	end
+
+	GG.CUSGL4 = nil
 end
 
 
-local totalbatches = 0
-local totalunits = 0
 
 local updateframe = 0
 
-local updatecount = 0
 
-local prevobjectcount = 0
 
 
 local function countbintypes(flagarray)
@@ -1863,13 +2080,24 @@ local destroyedFeatureIDs = {}
 local destroyedFeatureDrawFlags = {}
 local numdestroyedFeatures = 0
 
+-- The Call order for event triggered draw changes is the following:
+--During Sim:
+-- 1. gadget:Unit*
+-- 2. UpdateUnit(unitID, flag), adds it to the destroyedUnitIDs queue
+--On next Update:
+-- 3. next gadget:DrawWorldPreUnit is called
+-- 4. ProcessUnits(destroyedUnitIDs)
+-- 4.1 can either AddUnit, UpdateUnit or RemoveUnit
+-- 5. Regular draw flag changes are processed
+
+
 local function UpdateUnit(unitID, flag)
 	numdestroyedUnits = numdestroyedUnits + 1
 	destroyedUnitIDs[numdestroyedUnits] = unitID
 	destroyedUnitDrawFlags[numdestroyedUnits] = flag
 end
 
-function gadget:UnitDestroyed(unitID)
+function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID, attackerDefID, attackerTeam, weaponDefID)
 	--UpdateUnit(unitID, 0) -- having this here means that dying units lose CUS, RenderUnitDestroyed _should_ be fine
 end
 
@@ -1878,12 +2106,31 @@ function gadget:RenderUnitDestroyed(unitID, unitDefID)
 end
 
 function gadget:UnitFinished(unitID)
+	gl.SetUnitBufferUniforms(unitID, {-1}, 0) -- set build progress to built
+	buildProgresses[unitID] = nil
+	UpdateUnit(unitID,Spring.GetUnitDrawFlag(unitID))
+end
+
+local unitDefModelMaxY = {}
+function gadget:UnitCreated(unitID, unitDefID)
+	if not unitDefModelMaxY[unitDefID] then
+		--local unitHeight = Spring.GetUnitHeight(unitID)
+		--local maxY = UnitDefs[unitDefID].model.maxy
+		--Spring.Echo(UnitDefs[unitDefID].name, unitHeight, maxY)
+		unitDefModelMaxY[unitDefID] = UnitDefs[unitDefID].model.maxy or 10
+	end
+	uniformCache[1] = unitDefModelMaxY[unitDefID]
+	gl.SetUnitBufferUniforms(unitID, uniformCache, 11) -- set unit height
+	uniformCache[1] = 0
+	gl.SetUnitBufferUniforms(unitID, uniformCache, 12) -- clear cloak effect
+	gl.SetUnitBufferUniforms(unitID, uniformCache, 6) -- clear selectedness effect
+
 	UpdateUnit(unitID,Spring.GetUnitDrawFlag(unitID))
 end
 
 function gadget:UnitGiven(unitID)
 	local flag = Spring.GetUnitDrawFlag(unitID)
-	if flag > 0 and flag < 32 then
+	if flag > 0 and flag < 128 then
 		UpdateUnit(unitID, 0)
 		UpdateUnit(unitID, Spring.GetUnitDrawFlag(unitID))
 	end
@@ -1891,18 +2138,28 @@ end
 
 function gadget:UnitGiven(unitID)
 	local flag = Spring.GetUnitDrawFlag(unitID)
-	if flag > 0 and flag < 32 then
+	if flag > 0 and flag < 128 then
 		UpdateUnit(unitID, 0)
 		UpdateUnit(unitID, Spring.GetUnitDrawFlag(unitID))
 	end
 end
 
 function gadget:UnitCloaked(unitID)
-	UpdateUnit(unitID,0)
+	uniformCache[1] = Spring.GetGameFrame()
+	gl.SetUnitBufferUniforms(unitID, uniformCache, 12)
+	UpdateUnit(unitID,Spring.GetUnitDrawFlag(unitID))
+	if debugmode then
+		Spring.Echo("UnitCloaked", unitID, Spring.GetUnitDrawFlag(unitID))
+	end
 end
 
-function gadget:UnitDeCloaked(unitID)
+function gadget:UnitDecloaked(unitID)
 	UpdateUnit(unitID,Spring.GetUnitDrawFlag(unitID))
+	uniformCache[1] = -1 * Spring.GetGameFrame()
+	gl.SetUnitBufferUniforms(unitID, uniformCache, 12)
+	if debugmode then
+		Spring.Echo("UnitDecloaked", unitID, Spring.GetUnitDrawFlag(unitID))
+	end
 end
 
 function gadget:FeatureDestroyed(featureID)
@@ -1913,24 +2170,49 @@ end
 
 local firstDraw = false
 function gadget:DrawWorldPreUnit()
---function gadget:DrawGenesis() -- nope, shadow flags still a frame late https://github.com/beyond-all-reason/spring/issues/264
+	--function gadget:DrawGenesis() -- nope, shadow flags still a frame late https://github.com/beyond-all-reason/spring/issues/264
 	if unitDrawBins == nil then return end
 
 	updateframe = (updateframe + 1) % updaterate
 
 	if updateframe == 0 then
 		local t0 = Spring.GetTimerMicros()
-		-- local units, drawFlagsUnits = Spring.GetRenderUnits(overrideDrawFlag, true)
-		-- local features, drawFlagsFeatures = Spring.GetRenderFeatures(overrideDrawFlag, true)
-		local units, drawFlagsUnits = Spring.GetRenderUnitsDrawFlagChanged(true)
-		local features, drawFlagsFeatures = Spring.GetRenderFeaturesDrawFlagChanged(true)
+
+		local units, drawFlagsUnits, features, drawFlagsFeatures
+
+		if autoReload.enabled then
+			if Spring.DiffTimers(Spring.GetTimer(), autoReload.lastUpdate) > autoReload.updateRate then
+				-- Check for fs and vs src identity
+				autoReload.lastUpdate = Spring.GetTimer()
+
+				local defaulttemplate = VFS.Include("modelmaterials_gl4/templates/defaultMaterialTemplate.lua")
+				if (defaulttemplate.shader.vertex ~= defaultMaterialTemplate.shader.vertex) or
+						(defaulttemplate.shader.fragment ~= defaultMaterialTemplate.shader.fragment) then
+					-- recompile on change:
+					Spring.Echo("Changes to CUS shaders detected, recompiling...")
+					RecompileShaders(true)
+				end
+			end
+		end
+
+
+		if manualReload then
+			manualReload = false
+			units, drawFlagsUnits = Spring.GetRenderUnits(overrideDrawFlag, true)
+			features, drawFlagsFeatures = Spring.GetRenderFeatures(overrideDrawFlag, true)
+		else
+			units, drawFlagsUnits = Spring.GetRenderUnitsDrawFlagChanged(true)
+			features, drawFlagsFeatures = Spring.GetRenderFeaturesDrawFlagChanged(true)
+		end
+
 		--if (Spring.GetGameFrame() % 31)  == 0 then
 		--	Spring.Echo("Updatenums", #units, #features, # drawFlagsUnits, #drawFlagsFeatures, numdestroyedUnits, numdestroyedFeatures)
 		--	Spring.Echo(printDrawPassStats())
 		--end
 		local totalobjects = #units + #features + numdestroyedUnits + numdestroyedFeatures
 
-		if debugmode and (#destroyedUnitIDs>0 or #units > 0) then Spring.Echo("Processing", #units, #destroyedUnitIDs) end
+		-- Why do we also do this processing round if #units > 0?
+		if debugmode and (#destroyedUnitIDs>0 or #units > 0) then Spring.Echo("Processing destroyedUnitIDs", #units, #destroyedUnitIDs) end
 		if numdestroyedUnits > 0 then
 			ProcessUnits(destroyedUnitIDs, destroyedUnitDrawFlags, "destroyed")
 			for i=numdestroyedUnits,1,-1 do
@@ -1941,7 +2223,7 @@ function gadget:DrawWorldPreUnit()
 		end
 
 		if numdestroyedFeatures > 0 then
-			
+
 			ProcessFeatures(destroyedFeatureIDs, destroyedFeatureDrawFlags, "destroyed")
 			for i=numdestroyedFeatures,1,-1 do
 				destroyedFeatureIDs[i] = nil
@@ -1949,30 +2231,30 @@ function gadget:DrawWorldPreUnit()
 			end
 			numdestroyedFeatures = 0
 		end
-		if firstDraw then 
+		if firstDraw then
 			local firstfeatures = Spring.GetVisibleFeatures()
 			local firstdrawFlagsFeatures = {}
 			local validFirstFeatures = {}
 			local numfirstfeatures = 0
-			for i, featureID in ipairs(firstfeatures) do 
+			for i, featureID in ipairs(firstfeatures) do
 				local flag = Spring.GetFeatureDrawFlag(featureID)
-				if flag and flag > 0 then 
-					numfirstfeatures = numfirstfeatures + 1 
+				if flag and flag > 0 then
+					numfirstfeatures = numfirstfeatures + 1
 					validFirstFeatures[numfirstfeatures] = featureID
 					firstdrawFlagsFeatures[numfirstfeatures] = flag
 				end
-					
-			end 
+
+			end
 			ProcessFeatures(validFirstFeatures, firstdrawFlagsFeatures, "firstDraw")
-			
+
 			local firstunits = Spring.GetVisibleUnits()
 			local firstdrawFlagsUnits = {}
-			for i, unitID in ipairs(firstunits) do firstdrawFlagsUnits[i] = 1 + 4 + 16 end 
+			for i, unitID in ipairs(firstunits) do firstdrawFlagsUnits[i] = 1 + 4 + 16 end
 			ProcessUnits(firstunits, firstdrawFlagsUnits, "firstDraw")
-			
+
 			firstDraw = false
 		end
-		
+
 
 		ProcessUnits(units, drawFlagsUnits, "changed")
 		ProcessFeatures(features, drawFlagsFeatures, "changed")
@@ -1983,40 +2265,41 @@ function gadget:DrawWorldPreUnit()
 			local usecperobjectchange = (1000* deltat)  / (totalobjects)
 			Spring.Echo("[CUS GL4] [",Spring.GetDrawFrame(),"]",totalobjects," Update time 2 < ", deltat, string.format("ms, per object change: %.2fus ", usecperobjectchange),  totalobjects , 'objs')
 			-- PERF CONCULUSION:
-				-- Additions of units are about 30 uS
-				-- Removals of units is about 50 uS
+			-- Additions of units are about 30 uS
+			-- Removals of units is about 50 uS
 			-- After faster texture key lookups, this has dropped significantly:
-				-- Additions of units are about 7 uS
-				-- Removals of units is about 10 uS
+			-- Additions of units are about 7 uS
+			-- Removals of units is about 10 uS
 			-- Using shared deferred and forward bin perf is now even closer:
-				-- Addition 6 us
-				-- Removal 7 us
+			-- Addition 6 us
+			-- Removal 7 us
 			-- Further optimizations:
-				-- addition is 2.2us per unit
-				-- removal is 3.2us per unit
+			-- addition is 2.2us per unit
+			-- removal is 3.2us per unit
 			-- After only handling fw, refl and shadow:
-				-- Addition is 1.98us per unit
-				-- removal is 2.40 us per unit
+			-- Addition is 1.98us per unit
+			-- removal is 2.40 us per unit
 		end
 	end
 end
 
 local nightFactorBins = {tree = 1.3, feature = 1.3, featurepbr = 1.3, treepbr = 1.3}
-local lastSunChanged = -1 
+local lastSunChanged = -1
 function gadget:SunChanged() -- Note that map_nightmode.lua gadget has to change sun twice in a single draw frame to update all
 	local df = Spring.GetDrawFrame()
 	if df == lastSunChanged then return end
 	lastSunChanged = df
 	local nightFactor = 1.0
-	if GG['NightFactor'] then 
-		local altitudefactor = 1.0 --+ (1.0 - WG['NightFactor'].altitude) * 0.5
+	if GG['NightFactor'] then
 		nightFactor = (GG['NightFactor'].red + GG['NightFactor'].green + GG['NightFactor'].blue) * 0.33
 	end
-	for uniformBinName, defaultBrightnessFactor in pairs(nightFactorBins) do 
+	for uniformBinName, defaultBrightnessFactor in pairs(nightFactorBins) do
 		uniformBins[uniformBinName].brightnessFactor = defaultBrightnessFactor * nightFactor
-	end 
+	end
 end
 
+-- Returns 0 for deferred pass
+-- bit 1 is the opaque forward pass
 local function drawPassBitsToNumber(opaquePass, deferredPass, drawReflection, drawRefraction)
 	local drawPass = 0
 	if deferredPass then return drawPass end
@@ -2038,36 +2321,14 @@ local function drawPassBitsToNumber(opaquePass, deferredPass, drawReflection, dr
 end
 
 function gadget:DrawOpaqueUnitsLua(deferredPass, drawReflection, drawRefraction)
+
 	if unitDrawBins == nil then return end
 	if preloadedTextures == false then PreloadTextures() end
 	local drawPass = drawPassBitsToNumber(true, deferredPass, drawReflection, drawRefraction)
 	local batches, units = ExecuteDrawPass(drawPass)
 end
 
-function gadget:DrawAlphaUnitsLua(drawReflection, drawRefraction)
-	if unitDrawBins == nil then return end
-	local drawPass = drawPassBitsToNumber(false, false, drawReflection, drawRefraction)
-	--local batches, units = ExecuteDrawPass(drawPass)
-end
-
-function gadget:DrawOpaqueFeaturesLua(deferredPass, drawReflection, drawRefraction)
-	if unitDrawBins == nil then return end
-	local drawPass = drawPassBitsToNumber(true, deferredPass, drawReflection, drawRefraction)
-	--local batches, units = ExecuteDrawPass(drawPass)
-end
-
-function gadget:DrawAlphaFeaturesLua(drawReflection, drawRefraction)
-	if unitDrawBins == nil then return end
-	local drawPass = drawPassBitsToNumber(true, false, drawReflection, drawRefraction)
-	--local batches, units = ExecuteDrawPass(drawPass)
-end
-
 function gadget:DrawShadowUnitsLua()
 	if unitDrawBins == nil then return end
 	local batches, units = ExecuteDrawPass(16)
-end
-
-function gadget:DrawShadowFeaturesLua() -- These are drawn together with units
-	if unitDrawBins == nil then return end
-	--ExecuteDrawPass(16)
 end
