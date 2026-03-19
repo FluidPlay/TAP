@@ -592,15 +592,17 @@ end
 
 local iconTypeCache = {}
 local function GetUnitIcon(unitDefID)
-	if unitDefID and iconTypeCache[unitDefID] then
-		return iconTypeCache[unitDefID]
-	end
-	local ud = UnitDefs[unitDefID]
-	if not ud or not unitDefID then
-		return
-	end
-	iconTypeCache[unitDefID] = iconTypes[(ud and ud.iconType or "default")].bitmap or iconsPath..(ud.iconType)..iconFormat
-	return iconTypeCache[unitDefID]
+	return iconTypes[(ud and (ud.iconType and ud.iconType or "default"))].bitmap
+	--if unitDefID and iconTypeCache[unitDefID] then
+	--	return iconTypeCache[unitDefID]
+	--end
+	--local ud = UnitDefs[unitDefID]
+	--if not ud or not unitDefID then
+	--	return
+	--end
+	--Spring.Echo("") --TO-DO
+	--iconTypeCache[unitDefID] = iconTypes[(ud and (ud.iconType and ud.iconType or "default"))].bitmap or iconsPath..(ud.iconType)..iconFormat
+	--return iconTypeCache[unitDefID]
 end
 
 local function GetCurrentBuildSpeed(unitID, buildSpeed)
