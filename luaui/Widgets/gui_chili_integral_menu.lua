@@ -73,6 +73,8 @@ local SELECT_BUTTON_FOCUS_COLOR = {0.98, 0.48, 0.26, 0.85}
 local BUTTON_DISABLE_COLOR = {0.1, 0.1, 0.1, 0.85}
 local BUTTON_DISABLE_FOCUS_COLOR = {0.1, 0.1, 0.1, 0.85}
 
+CMD_ONECLICK_WEAPON = 35000
+
 local DRAW_NAME_COMMANDS = {
 	[CMD.STOCKPILE] = true, -- draws stockpile progress (command handler sends correct string).
 }

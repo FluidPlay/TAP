@@ -32,15 +32,6 @@ local function _DrawTextureAspect(x,y,w,h ,tw,th, flipy)
 	--w = w * (WG.imageScale or 1) --0.5
 	--h = h * (WG.imageScale or 1) --0.5
 
-  --if isNaN(x) then
-  --  x = 10 end
-  --if isNaN(y) then
-  --  y = 10 end
-  --if isNaN(w) then
-  --  w = 10 end
-  --if isNaN(h) then
-  --  h = 10 end
-
   local twa = w/tw
   local tha = h/th
 
@@ -59,6 +50,19 @@ local function _DrawTextureAspect(x,y,w,h ,tw,th, flipy)
   local bottom = math.ceil(y+h)
   x = math.ceil(x)
   y = math.ceil(y)
+
+  if isNaN(x) then
+    --Spring.Echo("IsNan x: "..(this.name or "nil"))
+    x = 10 end
+  if isNaN(y) then
+    --Spring.Echo("IsNan y: "..(this.name or "nil"))
+    y = 10 end
+  if isNaN(right) then
+    --Spring.Echo("IsNan r: "..(this.name or "nil"))
+    right = 20 end
+  if isNaN(bottom) then
+    --Spring.Echo("IsNan b: "..(this.name or "nil"))
+    bottom = 20 end
 
   gl.TexRect(x,y,right,bottom,false,flipy)
 end

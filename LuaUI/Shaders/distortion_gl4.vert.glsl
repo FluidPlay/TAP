@@ -26,16 +26,16 @@ layout (location = 10) in uvec4 instData; // matoffset, uniformoffset, teamIndex
 #define LIFETIME   lifeParams.y
 #define RAMPUP     lifeParams.z
 #define DECAY      lifeParams.w
-			
+
 //__ENGINEUNIFORMBUFFERDEFS__
 //__DEFINES__
 
 #if USEQUATERNIONS == 0
-	layout(std140, binding = 0) readonly buffer MatrixBuffer {
-		mat4 mat[];
-	};
+layout(std140, binding = 0) readonly buffer MatrixBuffer {
+	mat4 mat[];
+};
 #else
-	//__QUATERNIONDEFS__
+//__QUATERNIONDEFS__
 #endif
 
 
@@ -51,9 +51,9 @@ struct SUniformsBuffer {
 	float unused5;
 	float unused6;
 
-    vec4 drawPos;
-    vec4 speed;
-    vec4[4] userDefined; //can't use float[16] because float in arrays occupies 4 * float space
+	vec4 drawPos;
+	vec4 speed;
+	vec4[4] userDefined; //can't use float[16] because float in arrays occupies 4 * float space
 };
 
 layout(std140, binding=1) readonly buffer UniformsBuffer {
@@ -63,10 +63,10 @@ layout(std140, binding=1) readonly buffer UniformsBuffer {
 #define UNITID (uni[instData.y].composite >> 16)
 
 #ifdef UNIFORMSBUFFERCOPY
-	// Note that this is an incorrect copy of the uniformsbuffer, and is computed via a compute shader, so its _HIGHLY EXPERIMENTAL_
-	layout(std140, binding=4) buffer UniformsBufferCopy {
-		SUniformsBuffer uniCopy[];
-	};
+// Note that this is an incorrect copy of the uniformsbuffer, and is computed via a compute shader, so its _HIGHLY EXPERIMENTAL_
+layout(std140, binding=4) buffer UniformsBufferCopy {
+	SUniformsBuffer uniCopy[];
+};
 #endif
 
 #line 10000
@@ -92,7 +92,7 @@ out DataVS {
 	flat vec4 v_lifeParams; // spawnFrame, lifeTime, rampUp, decay
 	flat vec4 v_effectParams; // effectparam1, effectparam2, windAffected, effectType
 	#ifdef UNIFORMSBUFFERCOPY
-		flat vec4 v_unibuffercopy;
+	flat vec4 v_unibuffercopy;
 	#endif
 	noperspective vec2 v_screenUV;
 };
@@ -121,12 +121,12 @@ void main()
 	v_lifeParams = lifeParams;
 
 	vec4 vertexPosition = vec4(1.0);
-	
+
 	mat4 placeInWorldMatrix = mat4(1.0); // this is unity for non-unitID tied stuff
-	#if USEQUATERNIONS == 1 
-		Transform tx;
+	#if USEQUATERNIONS == 1
+	Transform tx;
 	#endif
-	
+
 	// Ok so here comes the fun part, where we if we have a unitID then fun things happen
 	// v_worldPosRad contains the incoming piece-level offset
 	// v_worldPosRad should be after changing to unit-space
@@ -136,54 +136,54 @@ void main()
 	vec3 distortionCenterPosition =  v_worldPosRad.xyz;
 	v_baseparams = baseparams;
 	if (attachedtounitID > 0){
-		#if USEQUATERNIONS == 0 
-			mat4 worldMatrix = mat[instData.x];
-			placeInWorldMatrix = worldMatrix;
-			if (pieceIndex > 0u) {
-				mat4 pieceMatrix = mat[instData.x + pieceIndex];
-				placeInWorldMatrix = placeInWorldMatrix * pieceMatrix;
-			}
-		#else
-			tx = GetModelWorldTransform(instData.x);
-			if (pieceIndex > 0u){
-                // Note the pieceIndex is Lua so, 1-based, so we need to subtract 1 to get the correct index
-				Transform ty = GetPieceModelTransform(instData.x, pieceIndex - 1);
-				tx = ApplyTransform(tx, ty);
-			}
-			placeInWorldMatrix = TransformToMatrix(tx);
+		#if USEQUATERNIONS == 0
+		mat4 worldMatrix = mat[instData.x];
+		placeInWorldMatrix = worldMatrix;
+		if (pieceIndex > 0u) {
+			mat4 pieceMatrix = mat[instData.x + pieceIndex];
+			placeInWorldMatrix = placeInWorldMatrix * pieceMatrix;
+		}
+			#else
+		tx = GetModelWorldTransform(instData.x);
+		if (pieceIndex > 0u){
+			// Note the pieceIndex is Lua so, 1-based, so we need to subtract 1 to get the correct index
+			Transform ty = GetPieceModelTransform(instData.x, pieceIndex - 1);
+			tx = ApplyTransform(tx, ty);
+		}
+		placeInWorldMatrix = TransformToMatrix(tx);
 		#endif
 		//uint drawFlags = (instData.z & 0x0000100u);// >> 8 ; // hopefully this works
 		//if (drawFlags == 0u)  placeInWorldMatrix = mat4(0.0); // disable if drawflag is set to 0
-		// disable if drawflag is set to 0, note that we are exploiting the fact that these should be drawn even if unit is transparent, or if unit only has its shadows drawn. 
+		// disable if drawflag is set to 0, note that we are exploiting the fact that these should be drawn even if unit is transparent, or if unit only has its shadows drawn.
 		// This is good because the tolerance for distant shadows is much greater
-		if ((uni[instData.y].composite & 0x00001fu) == 0u )  placeInWorldMatrix = mat4(0.0); 
-		
+		if ((uni[instData.y].composite & 0x00001fu) == 0u )  placeInWorldMatrix = mat4(0.0);
+
 
 		#ifdef UNIFORMSBUFFERCOPY
-			v_unibuffercopy = uni[instData.y].speed - uniCopy[instData.y].speed;
+		v_unibuffercopy = uni[instData.y].speed - uniCopy[instData.y].speed;
 		#endif
 
 		uint teamIndex = (instData.z & 0x000000FFu); //leftmost ubyte is teamIndex
 		vec4 teamCol = teamColor[teamIndex];
 	}
-	
+
 	vec4 worldPos = vec4(1.0);
 	#line 11000
 	if (pointbeamcone < 0.5){ // point
 		// Scale it and place it into the world
 		// Make it a tiny bit bigger *(1.1) cause the blocky sphere is smaller than the actual radius
 		// The -1 is for inverting it so we always see the back faces (great for occlusion testing!) (this should be exploited later on!
-		
+
 		// this is centered around the target positional offset, and scaled locally
 		vec3 distortionVertexPosition = distortionCenterPosition + -1 * position.xyz * distortionRadius * 1.15; // 1.15 is a magic number that makes the sphere actually fit inside the sphere-ish geometry
-		
+
 		// tranform the vertices to world-space
-		distortionVertexPosition = (placeInWorldMatrix * vec4(distortionVertexPosition, 1.0)).xyz; 
-		
+		distortionVertexPosition = (placeInWorldMatrix * vec4(distortionVertexPosition, 1.0)).xyz;
+
 		// tranform the center to world-space
-		distortionCenterPosition = (placeInWorldMatrix * vec4(distortionCenterPosition, 1.0)).xyz; 
-		
-		
+		distortionCenterPosition = (placeInWorldMatrix * vec4(distortionCenterPosition, 1.0)).xyz;
+
+
 		// Projectile-attached distortions need their own positional smoothing based on the velocity of the projectile and timeOffset (timeInfo.w)
 		if  (attachedtounitID > 0.5) {
 			// Distortions attached to unitID's need no positional correction
@@ -196,11 +196,11 @@ void main()
 
 			}
 		}
-		
+
 		v_worldPosRad.xyz = distortionCenterPosition;
 		vertexPosition = vec4( distortionVertexPosition, 1.0);
 	}
-	#line 12000
+		#line 12000
 	else if (pointbeamcone < 1.5){ // beam
 		// we will tranform along this vector, where Y shall be the upvector
 		// our null vector is +X
@@ -217,18 +217,18 @@ void main()
 		vec3 newup = normalize(cross(newright, newfw)); // the new up direction shall be the vector perpendicular to new right and new forward
 		// TODO: handle the two edge cases where newfw == (oldfw or -1*oldfw)
 		mat3 rotmat = mat3( // assemble the rotation matrix
-				newup,
-				newfw, 
-				newright 
-			);
+		newup,
+		newfw,
+		newright
+		);
 		worldPos.xyz = rotmat * worldPos.xyz;
-		
+
 		// so we now have our rotated box, we need to place it not at the center, but where the piece matrix tells us to
 		// or where the distortioncenterpos tells us to
-		
+
 		// Place the box in the world
 		worldPos.xyz += distortionCenterPosition;
-		
+
 		// Copy the parameters to the fragment shader varyings and place the vertex
 		v_worldPosRad2.xyz = (placeInWorldMatrix * vec4(v_worldPosRad2.xyz, 1.0)).xyz;;
 		v_worldPosRad.xyz = (placeInWorldMatrix * vec4(distortionCenterPosition.xyz, 1.0)).xyz;
@@ -236,14 +236,14 @@ void main()
 		vertexPosition.xyz = (placeInWorldMatrix * vec4(worldPos.xyz, 1.0)).xyz;
 
 	}
-	#line 12000
+		#line 12000
 	else if (pointbeamcone > 1.5){ // cone
 		// Input cone that has pointy end up, (y = 1), with radius =1, flat on Y=0 plane
 		// Make it so that cone tip is at 0 and the opening points to -y
 		worldPos.xyz = position.xyz;
 		worldPos.x *= -1.0; // flip the cone inside out
 		worldPos.y = (worldPos.y*1.1 - 1.) * -1;
-	
+
 		worldPos.xz *= tan(worldposrad2.w); // Scale the flat of the cone by the half-angle of its opening
 		v_worldPosRad2.w = cos(worldposrad2.w); // pass through the cosine to avoid this calc later on
 		v_worldPosRad2.xyz = normalize(worldposrad2.xyz); // normalize this here for sanity
@@ -254,9 +254,9 @@ void main()
 			// if its projectile slaved, then flip its direction
 			v_worldPosRad2.xyz *= -1.0;
 		}
-		
-		worldPos.xyz *= distortionRadius * 1.05; // scale it all by the height of the cone, and a bit of extra 
-		
+
+		worldPos.xyz *= distortionRadius * 1.05; // scale it all by the height of the cone, and a bit of extra
+
 		// Now our cone is opening forward towards  -y, but we want it to point into the worldposrad2.xyz
 		vec3 oldfw = vec3(0.001, -1, 0.001); // The old forward direction is -y, plus a tiny bit to avoid singularity in vector cross products
 		vec3 newfw = normalize(v_worldPosRad2.xyz); // the new forward direction shall be the normal that we want
@@ -264,11 +264,11 @@ void main()
 		vec3 newup = normalize(cross(newright, newfw)); // the new up direction shall be the vector perpendicular to new right and new forward
 
 		mat3 rotmat = mat3( // assemble the rotation matrix
-				newup,
-				newfw, 
-				newright 
-			);
-			
+		newup,
+		newfw,
+		newright
+		);
+
 		vec3 rotOffset = rotmat * vec3(0,YOFFSET,0);
 		distortionCenterPosition += rotOffset;
 		// rotate the cone, and place it into local space
@@ -276,17 +276,17 @@ void main()
 
 		// move the cone into piece or world space:
 		worldPos.xyz = (placeInWorldMatrix * vec4(worldPos.xyz, 1.0)).xyz;
-		
+
 		// set the center pos of the distortion:
 		v_worldPosRad.xyz = (placeInWorldMatrix * vec4(distortionCenterPosition.xyz, 1.0)).xyz;
-		
+
 		// Clear out the translation from the cone direction, and turn the cone according to the piece matrix
 		v_worldPosRad2.xyz = mat3(placeInWorldMatrix) * v_worldPosRad2.xyz;
-		
+
 		vertexPosition =  worldPos;
 	}
-	#line 13000
-	
+		#line 13000
+
 	//-------------------------- BEGIN SHARED SECTION ---------------------
 	// This section is shared between all distortion shapes
 
@@ -299,13 +299,13 @@ void main()
 	// if the distortion is attached to a unit, and the lifeTime is 0, and the decay is nonzero, then modulate the strength with the units selfillummod
 	if ((attachedtounitID > 0.5) && (LIFETIME == 0) && (DECAY < 0)){
 		float selfIllumMod = max(-0.2, sin(time * 2.0/30.0 + float(UNITID) * 0.1 - 0.5)) + 0.2;
-		selfIllumMod *= selfIllumMod * (2.0 - selfIllumMod); //Almost Unit Identity 
-		// Almost 
-    	selfIllumMod = mix(1.0, selfIllumMod, -1.0 / DECAY);
+		selfIllumMod *= selfIllumMod * (2.0 - selfIllumMod); //Almost Unit Identity
+		// Almost
+		selfIllumMod = mix(1.0, selfIllumMod, -1.0 / DECAY);
 		v_baseparams.x *= selfIllumMod;
 	}
 
-	// If a lifeParams.z rampup is specified, then 
+	// If a lifeParams.z rampup is specified, then
 	// >1 : how many frames to linearly ramp up to full power
 	// 0< z <1: use a power curve with exponent Z to ramp up
 	// Note that rampup can also be used for infinite lifetime distortions to ramp up the distortion strength
@@ -314,7 +314,7 @@ void main()
 	}
 
 	if (LIFETIME > 1){ // Decay only makes sense if lifetime is > 1
-		// If a lifeParams.w decay is specified, then 
+		// If a lifeParams.w decay is specified, then
 		// >1 : how many frames to linearly decay to zero
 		// 0< z <1: use a power curve with exponent Z to decay
 		if (DECAY > 0.0){

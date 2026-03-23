@@ -592,7 +592,15 @@ end
 
 local iconTypeCache = {}
 local function GetUnitIcon(unitDefID)
-	return iconTypes[(ud and (ud.iconType and ud.iconType or "default"))].bitmap
+	local ud = UnitDefs[unitDefID]
+	if (not ud or not unitDefID) then
+		return
+	end
+	local idx = (ud and (ud.iconType or "default"))
+	if iconTypes[idx] then
+		return iconTypes[idx].bitmap
+	end
+		---MaDD: TO-DO - Reenable cache
 	--if unitDefID and iconTypeCache[unitDefID] then
 	--	return iconTypeCache[unitDefID]
 	--end

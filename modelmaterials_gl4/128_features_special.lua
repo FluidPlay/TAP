@@ -415,8 +415,8 @@ for id = 1, #FeatureDefs do
 						-- MaDD: TAP specific ones below
 				---- Bow
 					(lowercasetex1:find("bow_bot_wreck1.dds",1,true) and "unittextures/bot_normal.dds") or
-					(lowercasetex1:find("tap_wreck_1.dds",1,true) and "tap_wreck_normal.png") or
-					(lowercasetex1:find("tap_dead_1.dds",1,true) and "tap_wreck_normal.png") or
+					(lowercasetex1:find("tap_wreck_1.dds",1,true) and "unittextures/tap_wreck_normal.png") or
+					(lowercasetex1:find("tap_dead_1.dds",1,true) and "unittextures/tap_wreck_normal.png") or
 				---- Kern
 					(lowercasetex1:find("kern_bot_texture1",1,true) and "unittextures/bot_normal.dds")
 

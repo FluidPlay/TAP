@@ -902,24 +902,25 @@ local function GetNormal(unitDef, featureDef)
 			end
 			return normaltex
 		else
-			if featureDef.model.textures.tex1 == "Arm_wreck_color.dds" then
-				return unittextures.."Arm_wreck_color_normal.dds"
+			-- MaDD: TAP specific ones below
+			------ Bow
+			--(lowercasetex1:find("bow_bot_wreck1.dds",1,true) and "unittextures/bot_normal.dds") or
+			--		(lowercasetex1:find("tap_wreck_1.dds",1,true) and "tap_wreck_normal.png") or
+			--		(lowercasetex1:find("tap_dead_1.dds",1,true) and "tap_wreck_normal.png") or
+			--		---- Kern
+			--		(lowercasetex1:find("kern_bot_texture1",1,true) and "unittextures/bot_normal.dds")
+			if featureDef.model.textures.tex1 == "bow_bot_wreck1.dds" then
+				return unittextures.."unittextures/bot_normal.dds"
 			end
 
-			if featureDef.model.textures.tex1 == "cor_color_wreck.dds" then
-				return unittextures.."cor_color_wreck_normal.dds"
+			if featureDef.model.textures.tex1 == "tap_wreck_1.dds" then
+				return unittextures.."tap_wreck_normal.png"
 			end
 
-			if featureDef.model.textures.tex1 == "leg_wreck_color.dds" then
-				return unittextures.."leg_wreck_normal.dds"
+			if featureDef.model.textures.tex1 == "tap_dead_1.dds" then
+				return unittextures.."tap_wreck_normal.png"
 			end
 			-- try to search for an appropriate normal
-			normalMap = tex1:gsub("%.","_normals.")
-			-- Spring.Echo(normalMap)
-			if (existingfilecache[normalMap] or FileExists(normalMap)) then
-				existingfilecache[normalMap] = true
-				return normalMap
-			end
 			normalMap = tex1:gsub("%.","_normal.")
 			-- Spring.Echo(normalMap)
 			if (existingfilecache[normalMap] or FileExists(normalMap)) then
@@ -1037,10 +1038,16 @@ local function initBinsAndTextures()
 				wreckTex2 = existingfilecache[wreckTex2]
 			end
 			local wreckNormalTex =
-			(lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
-					(lowercasenormaltex:find("cor_normal") and "unittextures/cor_color_wreck_normal.dds") or
-					(lowercasenormaltex:find("leg_normal") and "unittextures/leg_wreck_normal.dds") or
-					false
+				---- Bow
+				(lowercasetex1:find("bow_bot_wreck1.dds",1,true) and "unittextures/bot_normal.dds") or
+				(lowercasetex1:find("tap_wreck_1.dds",1,true) and "tap_wreck_normal.png") or
+				(lowercasetex1:find("tap_dead_1.dds",1,true) and "tap_wreck_normal.png") or
+				---- Kern
+				(lowercasetex1:find("kern_bot_texture1",1,true) and "unittextures/bot_normal.dds") or
+			--(lowercasenormaltex:find("arm_normal") and "unittextures/Arm_wreck_color_normal.dds") or
+			--(lowercasenormaltex:find("cor_normal") and "unittextures/cor_color_wreck_normal.dds") or
+			--(lowercasenormaltex:find("leg_normal") and "unittextures/leg_wreck_normal.dds") or
+				false
 
 			if unitDef.name:find("_scav", nil, true) then -- it better be a scavenger unit, or ill kill you
 				textureTable[3] = wreckTex1
@@ -1082,22 +1089,12 @@ end
 local preloadedTextures = false
 local function PreloadTextures()
 	Spring.Echo("[CUS GL4] Cache Textures")
-	-- init the arm and core wrecks, and wreck normals
-	gl.Texture(0, "unittextures/Arm_wreck_color_normal.dds")
-	--gl.Texture(0, "unittextures/Arm_wreck_color.dds")
-	--gl.Texture(0, "unittextures/Arm_wreck_other.dds")
-	gl.Texture(0, "unittextures/Arm_normal.dds")
-	--gl.Texture(0, "unittextures/Arm_color.dds") -- these absolutely never need to be loaded like this
-	--gl.Texture(0, "unittextures/Arm_other.dds")
-	gl.Texture(0, "unittextures/cor_normal.dds")
-	--gl.Texture(0, "unittextures/cor_other.dds")
-	--gl.Texture(0, "unittextures/cor_color.dds")
-	--gl.Texture(0, "unittextures/cor_other_wreck.dds")
-	--gl.Texture(0, "unittextures/cor_color_wreck.dds")
-	gl.Texture(0, "unittextures/cor_color_wreck_normal.dds")
-	if Spring.GetModOptions().experimentallegionfaction then
-		gl.Texture(0, "unittextures/leg_wreck_normal.dds")
-	end
+	-- init the Bow and Kern wreck normals
+
+	gl.Texture(0, "unittextures/bot_normal.dds")
+
+	gl.Texture(0, "unittextures/tap_wreck_normal.png")
+
 	gl.Texture(0, false)
 	preloadedTextures = true
 end

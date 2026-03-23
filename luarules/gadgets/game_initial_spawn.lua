@@ -1,3 +1,4 @@
+local gadget = gadget ---@type Gadget
 
 function gadget:GetInfo()
 	return {
@@ -8,7 +9,7 @@ function gadget:GetInfo()
 		date	= 'April 2011',
 		license	= 'GNU GPL, v2 or later',
 		layer	= 0,
-		enabled	= true
+		enabled	= false, --true
 	}
 end
 
@@ -78,7 +79,7 @@ local validStartUnits = {
 	[kernhqDefID] = true,
 }
 local spawnTeams = {} -- spawnTeams[teamID] = allyID
-local nSpawnTeams
+local teamsCount
 
 --each player gets to choose a faction
 local playerStartingUnits = {} -- playerStartingUnits[unitID] = unitDefID
@@ -116,50 +117,17 @@ function GetFFAStartPoints()
     end
 end
 
-----------------------------------------------------------------
--- NewbiePlacer (modoption)
-----------------------------------------------------------------
-
---Newbie Placer (prevents newbies from choosing their own a startpoint and faction)
-local NewbiePlacer
-local processedNewbies = false
-if (tonumber((Spring.GetModOptions() or {}).newbie_placer) == 1) and (Game.startPosType == 2) then
-	NewbiePlacer = true
-else
-	NewbiePlacer = false
-end
-
---check if a player is to be considered as a 'newbie', in terms of startpoint placements
-function isPlayerNewbie(pID)
-	local name,_,isSpec,tID,_,_,_,_,pRank = Spring.GetPlayerInfo(pID) 
-	playerRank = tonumber(pRank) or 0
-	local customtable = select(11,Spring.GetPlayerInfo(pID)) or {} -- player custom table
-	local tsMu = tostring(customtable.skill) or ""
-	local tsSigma = tonumber(customtable.skilluncertainty) or 3
-	local isNewbie
-	if pRank == 0 and (string.find(tsMu, ")") or tsSigma >= 3) then --rank 0 and not enough ts data
-		isNewbie = true
-	else
-		isNewbie = false
-	end
-	return isNewbie
-end
-
---a team is a newbie team if it contains at least one newbie player
-function isNewbie(teamID)
-	if not NewbiePlacer then return false end
-	local playerList = Spring.GetPlayerList(teamID) or {}
-	local isNewbie = false
-	for _,playerID in pairs(playerList) do
-		if playerID then
-		local _,_,isSpec,_ = Spring.GetPlayerInfo(playerID) 
-			if not isSpec then
-				isNewbie = isNewbie or isPlayerNewbie(playerID)
-			end
+local isUnitValid = function(unitDefID, allyTeamID)
+		if not unitDefID then
+			return false
+		end
+		if tableContains(validStartUnits[allyTeamID], unitDefID) then
+			return true
+		end
+		if unitDefID == RANDOM_DUMMY then
+			return true
 		end
 	end
-	return isNewbie
-end
 
 ----------------------------------------------------------------
 -- NoCloseSpawns (modoption)
@@ -181,72 +149,61 @@ end
 -- Initialize
 ----------------------------------------------------------------
 function gadget:Initialize()
+	Spring.SetLogSectionFilterLevel(gadget:GetInfo().name, LOG.INFO)
 
-	if enabled then
-
-		local gaiaTeamID = Spring.GetGaiaTeamID()
-		local teamList = Spring.GetTeamList()
-		for i = 1, #teamList do
-			local teamID = teamList[i]
-			if teamID ~= gaiaTeamID then
-				--set & broadcast (current) start unit
-				local _, _, _, _, teamSide, teamAllyID = spGetTeamInfo(teamID)
-				teamSide = string.lower(teamSide)
-				if teamSide == 'kern' or teamSide == "cor" then
-					spSetTeamRulesParam(teamID, startUnitParamName, kernhqDefID)
-				else
-					spSetTeamRulesParam(teamID, startUnitParamName, bowhqDefID)
-				end
-				spawnTeams[teamID] = teamAllyID
-
-				--broadcast if newbie
-				local newbieParam
-				if isNewbie(teamID) then
-					newbieParam = 1
-				else
-					newbieParam = 0
-				end
-				spSetTeamRulesParam(teamID, 'isNewbie', newbieParam, {public=true}) --visible to all; some widgets (faction choose, initial queue) need to know if its a newbie -> they unload
-
-				--record that this allyteam will spawn something
-				local _,_,_,_,_,allyTeamID = Spring.GetTeamInfo(teamID)
-				allyTeams[allyTeamID] = allyTeamID
+	local gaiaTeamID = Spring.GetGaiaTeamID()
+	local teamList = Spring.GetTeamList()
+	for i = 1, #teamList do
+		local teamID = teamList[i]
+		if teamID ~= gaiaTeamID then
+			--set & broadcast (current) start unit
+			local _, _, _, isAI, teamSide, teamAllyID = spGetTeamInfo(teamID, false)
+			teamSide = string.lower(teamSide)
+			if teamSide == 'kern' or teamSide == "cor" then
+				spSetTeamRulesParam(teamID, startUnitParamName, kernhqDefID, { allied = true, public = false })
+			else
+				spSetTeamRulesParam(teamID, startUnitParamName, bowhqDefID, { allied = true, public = false })
 			end
-		end
-		processedNewbies = true
+			spawnTeams[teamID] = teamAllyID
 
-		-- count allyteams
-		nAllyTeams = 0
-		for k,v in pairs(allyTeams) do
-			nAllyTeams = nAllyTeams + 1
+			--record that this allyteam will spawn something
+			local _,_,_,_,_,allyTeamID = Spring.GetTeamInfo(teamID)
+			allyTeams[allyTeamID] = allyTeamID
 		end
+	end
+	processedNewbies = true
 
-		-- count teams
-		nSpawnTeams = 0
-		for k,v in pairs(spawnTeams) do
-			nSpawnTeams = nSpawnTeams + 1
-		end
+	-- count allyteams
+	nAllyTeams = 0
+	for k,v in pairs(allyTeams) do
+		nAllyTeams = nAllyTeams + 1
+	end
 
-		-- create the ffaStartPoints table, if we need it & can get it
-		if useFFAStartPoints then
-			GetFFAStartPoints()
-		end
-		-- make the relevant part of ffaStartPoints accessible to all, if it is use-able
-		if ffaStartPoints then
-			GG.ffaStartPoints = ffaStartPoints[nAllyTeams] -- NOT indexed by allyTeamID
-		end
+	-- count teams
+	teamsCount = 0
+	for k,v in pairs(spawnTeams) do
+		teamsCount = teamsCount + 1
+	end
 
-		-- mark all players as 'not yet placed'
-		local initState = 0	--MaDD: Test
-		--if Game.startPosType ~= 2 or ffaStartPoints then
-		--	initState = -1 -- if players won't be allowed to place startpoints
-		--else
-		--	initState = 0 -- players will be allowed to place startpoints
-		--end
-		local playerList = Spring.GetPlayerList()
-		for _,playerID in pairs(playerList) do
-			Spring.SetGameRulesParam("player_" .. playerID .. "_readyState" , initState)
-		end
+	-- create the ffaStartPoints table, if we need it & can get it
+	if useFFAStartPoints then
+		GetFFAStartPoints()
+	end
+	-- make the relevant part of ffaStartPoints accessible to all, if it is use-able
+	if ffaStartPoints then
+		GG.ffaStartPoints = ffaStartPoints[nAllyTeams] -- NOT indexed by allyTeamID
+	end
+
+	-- mark all players as 'not yet placed'
+	local initState
+	if Game.startPosType ~= 2 then --or ffaStartPoints then
+		initState = -1 -- if players won't be allowed to place startpoints
+	else
+		initState = 0 -- players will be allowed to place startpoints
+	end
+	local playerList = Spring.GetPlayerList()
+	for _,playerID in pairs(playerList) do
+		Spring.SetGameRulesParam("player_" .. playerID .. "_readyState" , initState)
 	end
 end
 
@@ -259,12 +216,49 @@ end
 function gadget:RecvLuaMsg(msg, playerID)
 	local startUnit = tonumber(msg:match(changeStartUnitRegex))
 	if startUnit and validStartUnits[startUnit] then
-		local _, _, playerIsSpec, playerTeam = spGetPlayerInfo(playerID)
-		if not playerIsSpec then
-			playerStartingUnits[playerID] = startUnit
-			spSetTeamRulesParam(playerTeam, startUnitParamName, startUnit, {allied=true, public=false}) -- visible to allies only, set visible to all on GameStart
-			return true
+		local _, _, playerIsSpec, playerTeam, allyTeamID = spGetPlayerInfo(playerID, false)
+		if isUnitValid(startUnit, allyTeamID) then
+			if not playerIsSpec then
+				playerStartingUnits[playerID] = startUnit
+				spSetTeamRulesParam(playerTeam, startUnitParamName, startUnit, {allied=true, public=false}) -- visible to allies only, set visible to all on GameStart
+				return true
+			end
 		end
+	end
+
+	-- keep track of ready status gameside.
+	-- sending ready status in GameSetup early prevents players from repositioning
+	-- thus, the plan is to keep track of readystats gameside, and only send through GameSetup
+	-- when everyone is ready
+	if msg == "ready_to_start_game" then
+		Spring.SetGameRulesParam("player_" .. playerID .. "_readyState", 1)
+	end
+
+	-- keep track of who has joined
+	-- so when last person joins, start the auto-ready countdown
+	if msg == "joined_game" then
+		Spring.SetGameRulesParam("player_" .. playerID .. "_joined", 1)
+		local playerList = Spring.GetPlayerList()
+		local all_players_joined = true
+		for _, PID in pairs(playerList) do
+			local _, _, spectator_flag = spGetPlayerInfo(PID, false)
+			if spectator_flag == false then
+				if Spring.GetGameRulesParam("player_" .. PID .. "_joined") == nil then
+					all_players_joined = false
+				end
+			end
+		end
+		if all_players_joined == true then
+			Spring.SetGameRulesParam("all_players_joined", 1)
+		end
+	end
+
+	-- keep track of lock state
+	if msg == "locking_in_place" then
+		Spring.SetGameRulesParam("player_" .. playerID .. "_lockState", 1)
+	end
+	if msg == "unlocking_in_place" then
+		Spring.SetGameRulesParam("player_" .. playerID .. "_lockState", 0)
 	end
 end
 
@@ -298,16 +292,9 @@ function gadget:AllowStartPosition(playerID,teamID,readyState,x,y,z)
 	--if Game.startPosType ~= 2 then return true end -- accept blindly unless we are in choose-in-game mode
 	--if useFFAStartPoints then return true end
 
-	local _,_,_,teamID,allyTeamID,_,_,_,_,_ = Spring.GetPlayerInfo(playerID)
-	if not teamID or not allyTeamID then return false end --fail
-
-	-- NewbiePlacer
-	if NewbiePlacer then
-		if not processedNewbies then return false end
-		if readyState == 0 and Spring.GetTeamRulesParam(teamID, 'isNewbie') == 1 then
-			return false
-		end
-	end
+	local _,_,_,teamID,allyTeamID,_,_,_,_,_ = Spring.GetPlayerInfo(playerID, false)
+	if not teamID or not allyTeamID then
+		return false end --fail
 
 	-- don't allow player to place startpoint unless its inside the startbox, if we have a startbox
 	if allyTeamID == nil then return false end
@@ -371,10 +358,10 @@ function gadget:GameStart()
 		end
 
     -- use ffa mode startpoints for random spawning, if possible, but per team instead of per allyTeam
-    if Game.startPosType==1 and ffaStartPoints and ffaStartPoints[nSpawnTeams] and #(ffaStartPoints[nSpawnTeams])==nSpawnTeams then
-        local teamSpawn = SetPermutedSpawns(nSpawnTeams, spawnTeams)
+    if Game.startPosType==1 and ffaStartPoints and ffaStartPoints[teamsCount] and #(ffaStartPoints[teamsCount])== teamsCount then
+        local teamSpawn = SetPermutedSpawns(teamsCount, spawnTeams)
         for teamID, allyTeamID in pairs(spawnTeams) do
-            SpawnFFAStartUnit(nSpawnTeams, teamSpawn[teamID], teamID)
+            SpawnFFAStartUnit(teamsCount, teamSpawn[teamID], teamID)
         end
         return
 	end
@@ -495,7 +482,7 @@ local bgcorner = ":n:LuaRules/Images/bgcorner.png"
 local customScale = 1.23
 local uiScale = customScale
 local myPlayerID = Spring.GetMyPlayerID()
-local _,_,spec,myTeamID = Spring.GetPlayerInfo(myPlayerID)
+local _,_,spec,myTeamID = Spring.GetPlayerInfo(myPlayerID, false)
 local amNewbie
 local ffaMode = (tonumber(Spring.GetModOptions().ffa_mode) or 0) == 1
 local isReplay = Spring.IsReplay()
@@ -707,102 +694,98 @@ local timer3 = 20
 function gadget:DrawScreen()
 
 	-- only support AI's:  NullAI, DAI and KAIK
-	if enabled then
-		local teams = Spring.GetTeamList()
-		for i =1, #teams do
-			if select(4,Spring.GetTeamInfo(teams[i])) then	-- is AI?
-				local aiName = Spring.GetTeamLuaAI(teams[i])
-				if aiName == "" then
-					aiName = select(4,Spring.GetAIInfo(teams[i]))
-				end
-				if aiName and aiName ~= '' and not string.find(aiName, "Chicken:") and not string.find(aiName, "DAI") and not string.find(aiName, "KAIK") and not string.find(aiName, "NullAI") and not string.find(aiName, "SimpleAI") and not string.find(aiName, "SimpleCheaterAI") then
-					enabled = false
-					unsupportedAI = aiName
-				end
+	local teams = Spring.GetTeamList()
+	for i =1, #teams do
+		if select(4,Spring.GetTeamInfo(teams[i])) then	-- is AI?
+			local aiName = Spring.GetTeamLuaAI(teams[i])
+			if aiName == "" then
+				aiName = select(4,Spring.GetAIInfo(teams[i]))
+			end
+			if aiName and aiName ~= '' and not string.find(aiName, "Chicken:") and not string.find(aiName, "DAI") and not string.find(aiName, "KAIK") and not string.find(aiName, "NullAI") and not string.find(aiName, "SimpleAI") and not string.find(aiName, "SimpleCheaterAI") then
+				enabled = false
+				unsupportedAI = aiName
 			end
 		end
 	end
 
-	if enabled then
+	uiScale = (0.75 + (vsx*vsy / 7500000)) * customScale
 
-	 	uiScale = (0.75 + (vsx*vsy / 7500000)) * customScale
-
-		if Script.LuaUI("GuishaderInsertRect") then
-			if not readied and not spec then
-				Script.LuaUI.GuishaderInsertRect(
-					readyX+(readyW/2)-(((readyW/2)+bgMargin)*uiScale),
-					readyY+(readyH/2)-(((readyH/2)+bgMargin)*uiScale),
-					readyX+(readyW/2)+(((readyW/2)+bgMargin)*uiScale),
-					readyY+(readyH/2)+(((readyH/2)+bgMargin)*uiScale),
-					'ready'
-				)
-			else
-				Script.LuaUI.GuishaderRemoveRect('ready')
-			end
+	if Script.LuaUI("GuishaderInsertRect") then
+		if not readied and not spec then
+			Script.LuaUI.GuishaderInsertRect(
+				readyX+(readyW/2)-(((readyW/2)+bgMargin)*uiScale),
+				readyY+(readyH/2)-(((readyH/2)+bgMargin)*uiScale),
+				readyX+(readyW/2)+(((readyW/2)+bgMargin)*uiScale),
+				readyY+(readyH/2)+(((readyH/2)+bgMargin)*uiScale),
+				'ready'
+			)
+		else
+			Script.LuaUI.GuishaderRemoveRect('ready')
 		end
+	end
 
-		gl.PushMatrix()
-			gl.Translate(readyX+(readyW/2),readyY+(readyH/2),0)
-			gl.Scale(uiScale, uiScale, 1)
+	gl.PushMatrix()
+		gl.Translate(readyX+(readyW/2),readyY+(readyH/2),0)
+		gl.Scale(uiScale, uiScale, 1)
 
-			if not readied and readyButton and Game.startPosType == 2 and gameStarting==nil and not spec and not isReplay then
-			--if not readied and readyButton and not spec and not isReplay then
+		if not readied and readyButton and Game.startPosType == 2 and gameStarting==nil and not spec and not isReplay then
+		--if not readied and readyButton and not spec and not isReplay then
 
-				-- draw ready button and text
-				local x,y = Spring.GetMouseState()
-				x,y = correctMouseForScaling(x,y)
-				if x > readyX-bgMargin and x < readyX+readyW+bgMargin and y > readyY-bgMargin and y < readyY+readyH+bgMargin then
-					gl.CallList(readyButtonHover)
-					colorString = "\255\255\222\0"
-				else
-					gl.CallList(readyButton)
-			  		timer2 = timer2 + Spring.GetLastUpdateSeconds()
-					if timer2 % 0.75 <= 0.375 then
-						colorString = "\255\233\215\20"
-					else
-						colorString = "\255\255\255\255"
-					end
-				end
-				gl.Text(colorString .. "Ready", -((readyW/2)-12.5), -((readyH/2)-9.5), 25, "o")
-				gl.Color(1,1,1,1)
-			end
-
-			if gameStarting and not isReplay then
-				timer = timer + Spring.GetLastUpdateSeconds()
-				if timer % 0.75 <= 0.375 then
-					colorString = "\255\233\233\20"
+			-- draw ready button and text
+			local x,y = Spring.GetMouseState()
+			x,y = correctMouseForScaling(x,y)
+			if x > readyX-bgMargin and x < readyX+readyW+bgMargin and y > readyY-bgMargin and y < readyY+readyH+bgMargin then
+				gl.CallList(readyButtonHover)
+				colorString = "\255\255\222\0"
+			else
+				gl.CallList(readyButton)
+				timer2 = timer2 + Spring.GetLastUpdateSeconds()
+				if timer2 % 0.75 <= 0.375 then
+					colorString = "\255\233\215\20"
 				else
 					colorString = "\255\255\255\255"
 				end
-				local text = colorString .. "Game starting in " .. math.max(1,3-math.floor(timer)) .. " seconds..."
-				gl.Text(text, vsx*0.5 - gl.GetTextWidth(text)/2*17, vsy*0.75, 17, "o")
 			end
-		gl.PopMatrix()
+			gl.Text(colorString .. "Ready", -((readyW/2)-12.5), -((readyH/2)-9.5), 25, "o")
+			gl.Color(1,1,1,1)
+		end
 
-		--remove if after gamestart
-		if Spring.GetGameFrame() > 0 then
-			gadgetHandler:RemoveGadget(self)
-			return
+		if gameStarting and not isReplay then
+			timer = timer + Spring.GetLastUpdateSeconds()
+			if timer % 0.75 <= 0.375 then
+				colorString = "\255\233\233\20"
+			else
+				colorString = "\255\255\255\255"
+			end
+			local text = colorString .. "Game starting in " .. math.max(1,3-math.floor(timer)) .. " seconds..."
+			gl.Text(text, vsx*0.5 - gl.GetTextWidth(text)/2*17, vsy*0.75, 17, "o")
 		end
-	else
+	gl.PopMatrix()
 
-		timer3 = timer3 - Spring.GetLastUpdateSeconds()
-		if timer3 < 0 then timer3 = 0 end
-
-		gl.Color(0,0,0,0.7)
-		gl.Rect(0,0,vsx,vsy)
-		if unsupportedAI then
-			gl.Text("\255\200\200\200Unsupported AI  ("..unsupportedAI..")\n\nYou need \255\255\255\255DAI\255\200\200\200, \255\255\255\255KAIK \255\200\200\200or \255\255\255\255Chickens  \255\200\200\200(or NullAI)\n\n\255\130\130\130closing in... "..math.floor(timer3), vsx/2, vsy/2, vsx/95, "con")
-		else
-			gl.Text("\255\200\200\200Unsupported engine\n\nYou need at least version  \255\255\255\255"..minEngineVersionTitle.."\n\n\255\130\130\130closing in... "..math.floor(timer3), vsx/2, vsy/2, vsx/95, "con")
-		end
-		if Script.LuaUI("GuishaderInsertRect") then
-			Script.LuaUI.GuishaderInsertRect(0,0,vsx,vsy,'unsupportedquit')
-		end
-		if timer3 <= 0 then
-			Spring.SendCommands("QuitForce")
-		end
+	--remove if after gamestart
+	if Spring.GetGameFrame() > 0 then
+		gadgetHandler:RemoveGadget(self)
+		return
 	end
+	--else --//was: enabled
+	--
+	--	timer3 = timer3 - Spring.GetLastUpdateSeconds()
+	--	if timer3 < 0 then timer3 = 0 end
+	--
+	--	gl.Color(0,0,0,0.7)
+	--	gl.Rect(0,0,vsx,vsy)
+	--	if unsupportedAI then
+	--		gl.Text("\255\200\200\200Unsupported AI  ("..unsupportedAI..")\n\nYou need \255\255\255\255DAI\255\200\200\200, \255\255\255\255KAIK \255\200\200\200or \255\255\255\255Chickens  \255\200\200\200(or NullAI)\n\n\255\130\130\130closing in... "..math.floor(timer3), vsx/2, vsy/2, vsx/95, "con")
+	--	else
+	--		gl.Text("\255\200\200\200Unsupported engine\n\nYou need at least version  \255\255\255\255"..minEngineVersionTitle.."\n\n\255\130\130\130closing in... "..math.floor(timer3), vsx/2, vsy/2, vsx/95, "con")
+	--	end
+	--	if Script.LuaUI("GuishaderInsertRect") then
+	--		Script.LuaUI.GuishaderInsertRect(0,0,vsx,vsy,'unsupportedquit')
+	--	end
+	--	if timer3 <= 0 then
+	--		Spring.SendCommands("QuitForce")
+	--	end
+
 end
 
 function gadget:Shutdown()

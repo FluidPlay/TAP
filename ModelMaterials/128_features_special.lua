@@ -442,8 +442,17 @@ for id = 1, #FeatureDefs do
                 --Spring.Echo("featureDef.name", featureDef.name)
                 --Spring.Echo("featureDef.model.textures", featureDef.model.textures)
                 local wreckNormalTex = featureDef.model.textures.tex1  and
-                        ((featureDef.model.textures.tex1:find("Arm_wreck") and "unittextures/Arm_wreck_color_normal.dds") or
-                                (featureDef.model.textures.tex1:find("cor_color_wreck") and "unittextures/cor_color_wreck_normal.dds"))
+                        --((lowercasetex1:find("arm_wreck") and "unittextures/Arm_wreck_color_normal.dds") or
+                        --(lowercasetex1:find("arm_color") and "unittextures/Arm_normal.dds") or -- for things like dead dragons claw armclaw
+                        --(lowercasetex1:find("cor_color.dds",1,true) and "unittextures/cor_normal.dds") or -- for things like dead dragons maw cormaw
+                        --(lowercasetex1:find("cor_color_wreck") and "unittextures/cor_color_wreck_normal.dds")) or
+                        -- MaDD: TAP specific ones below
+                        ---- Bow
+                        (lowercasetex1:find("bow_bot_wreck1.dds",1,true) and "unittextures/bot_normal.dds") or
+                        (lowercasetex1:find("tap_wreck_1.dds",1,true) and "unittextures/tap_wreck_normal.png") or
+                        (lowercasetex1:find("tap_dead_1.dds",1,true) and "unittextures/tap_wreck_normal.png") or
+                        ---- Kern
+                        (lowercasetex1:find("kern_bot_texture1",1,true) and "unittextures/bot_normal.dds")
 
                 if not wreckNormalTex then
                     Spring.Echo("Failed to find normal map for unit wreck: ", featureDef.name)

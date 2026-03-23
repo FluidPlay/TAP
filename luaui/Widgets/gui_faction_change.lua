@@ -7,7 +7,7 @@ function widget:GetInfo()
         date    = 'May 2011',
         license = 'GNU GPL v2',
         layer   = 1002, -- must go after initial queue, or depthtest goes wrong
-        enabled = true,
+        enabled = false, --true,
     }
 end
 
@@ -30,8 +30,8 @@ local spGetGroundHeight = Spring.GetGroundHeight
 local spSendLuaRulesMsg = Spring.SendLuaRulesMsg
 local spGetSpectatingState = Spring.GetSpectatingState
 
-local armcomDefID = UnitDefNames.armcom.id
-local corcomDefID = UnitDefNames.corcom.id
+local startunitFaction1Id = UnitDefNames.bowhq.id
+local startunitFaction2Id = UnitDefNames.kernhq.id
 
 local commanderDefID = spGetTeamRulesParam(myTeamID, 'startUnit')
 local amNewbie = (spGetTeamRulesParam(myTeamID, 'isNewbie') == 1)
@@ -96,7 +96,7 @@ function widget:Initialize()
         onclick = {SetArm},
         caption = "",
         backgroundColor = buttonColour,
-        children = { Chili.Image:New{width='100%', height='100%', file='LuaUI/Images/ARM.png'} }
+        children = { Chili.Image:New{width='100%', height='100%', file='LuaUI/Images/bow.png'} }
     }
 
     core_button = Chili.Button:New{
@@ -107,7 +107,7 @@ function widget:Initialize()
         onclick = {SetCore},
         caption = "",
         backgroundColor = buttonColour,
-        children = { Chili.Image:New{width='100%', height='100%', file='LuaUI/Images/CORE.png'} }
+        children = { Chili.Image:New{width='100%', height='100%', file='LuaUI/Images/kern.png'} }
     }
     
     ResizeUI()
@@ -121,7 +121,7 @@ function widget:DrawWorld()
         local teamID = teamList[i]
         local tsx, tsy, tsz = spGetTeamStartPosition(teamID)
         if tsx and tsx > 0 then
-            if spGetTeamRulesParam(teamID, 'startUnit') == armcomDefID then
+            if spGetTeamRulesParam(teamID, 'startUnit') == startunitFaction1Id then
                 glTexture('LuaUI/Images/bow.png')
                 glBeginEnd(GL_QUADS, QuadVerts, tsx, tsz, 80)
                 glTexture(false)
@@ -137,12 +137,12 @@ function widget:DrawWorld()
 end
 
 function SetArm()
-    SetFaction(armcomDefID)
+    SetFaction(startunitFaction1Id)
     return true
 end
 
 function SetCore()
-    SetFaction(corcomDefID)
+    SetFaction(startunitFaction2Id)
     return true
 end
 
