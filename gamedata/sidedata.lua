@@ -1,11 +1,11 @@
 
 return {
     {
-        name = 'Bow', --ARM
+        name = 'bow', --ARM
         startunit = 'bowhq',   --'armcom'
     },
     {
-        name = 'Kern', --CORE
+        name = 'kern', --CORE
         startunit = 'kernhq',   --'corcom'
     },
 }

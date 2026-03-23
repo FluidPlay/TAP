@@ -7,7 +7,7 @@ function widget:GetInfo()
         date    = 'May 2011',
         license = 'GNU GPL v2',
         layer   = 1002, -- must go after initial queue, or depthtest goes wrong
-        enabled = false, --true,
+        enabled = true,
     }
 end
 
@@ -34,7 +34,7 @@ local startunitFaction1Id = UnitDefNames.bowhq.id
 local startunitFaction2Id = UnitDefNames.kernhq.id
 
 local commanderDefID = spGetTeamRulesParam(myTeamID, 'startUnit')
-local amNewbie = (spGetTeamRulesParam(myTeamID, 'isNewbie') == 1)
+--local amNewbie = (spGetTeamRulesParam(myTeamID, 'isNewbie') == 1)
 
 local buttonColour, panelColour, sliderColour 
 
@@ -70,8 +70,8 @@ end
 function widget:Initialize()
     if spGetSpectatingState() or
         Spring.GetGameFrame() > 0 or
-        amNewbie or
-        (#Spring.GetTeamList()<=2 and Game.startPosType~=2) or
+        --amNewbie or
+        --(#Spring.GetTeamList()<=2 and Game.startPosType~=2) or
         WG.isMission then
         widgetHandler:RemoveWidget(self)
         return

@@ -122,16 +122,6 @@ function widget:TextCommand(command)
 			Spring.SendCommands("godmode")
 		end
 		return
-	elseif (command == CMD_PICKFACTION and active) then
-		-- change side/faction
-		if (Spring.GetGameFrame() <= 0) then
-			side = parameters[shift+2]
-			if side then
-				Spring.SetTeamRulesParam(teamId, 'faction_selected', side , {public=true})
-				--Spring.Echo("faction set to "..side.." for team "..teamId)
-			end
-		end
-		return
     elseif command == "setmaxspeed" and Spring.IsCheatingEnabled() then
         Spring.SendCommands{"setmaxspeed 5"}
 		return

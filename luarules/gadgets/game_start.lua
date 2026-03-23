@@ -37,8 +37,8 @@ local startUnits = { "bowhq", "kernhq",}
 local validSide = {
     arm = true,
     cor = true,
-    Bow = true,
-    Kern = true,
+    bow = true,
+    kern = true,
 }
 
 local unitToFaction = {
@@ -52,9 +52,12 @@ local idsRequiringTeleportFx = {}
 
 local function GetStartUnit(teamID)
     local side = select(5, Spring.GetTeamInfo(teamID))
+    Spring.Echo("Side Chosen #1: "..(side or "nil"))
     if (not validSide[side]) then
         side = "random"
     end
+
+    Spring.Echo("Side Chosen #2: "..(side or "nil"))
 
     -- check for ingame faction selection
     local ingameSide = Spring.GetTeamRulesParam(teamID,"faction_selected")
@@ -144,7 +147,6 @@ end
 
 
 function gadget:Initialize()
-    Spring.Echo("game_start: Initialize")
     -- mark players ready state if required
     if Game.startPosType == 2 then
         local playerList = Spring.GetPlayerList()
@@ -159,7 +161,6 @@ end
 
 
 function gadget:GameStart()
-    Spring.Echo("game_start: GameStart")
     -- only activate if engine didn't already spawn units (compatibility)
     --if (#Spring.GetAllUnits() > 0) then
     --    return
@@ -168,7 +169,6 @@ function gadget:GameStart()
     -- spawn start units
     local gaiaTeamID = Spring.GetGaiaTeamID()
     local teams = Spring.GetTeamList()
-    Spring.Echo("Team Count: "..(#teams or "nil").." Gaia Team Id: "..(gaiaTeamID or "nil"))
     for i = 1,#teams do
         local teamID = teams[i]
         -- don't spawn a start unit for the Gaia team

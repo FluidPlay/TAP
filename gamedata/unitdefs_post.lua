@@ -45,26 +45,95 @@ function tableMergeSpecial(t1, t2)
     end
     return t1
 end
+-- create BAR alternatives [ Not used in TAP, we're adding our own revamped stuff ]
+--if not (Spring.GetModOptions and (tonumber(Spring.GetModOptions().barmodels) or 0) ~= 0) then
+--    if Game and Game.gameVersion and (string.find(Game.gameVersion, 'test') or string.find(Game.gameVersion, '$VERSION')) then
+--        local oldUnitName = {	-- mostly duplicates
+--            armdecom = 'armcom',
+--            cordecom = 'corcom',
+--            armdf = 'armfus',
+--            corgantuw = 'corgant',
+--            armshltxuw = 'armshltx',
+--        }
+--        --local barUnitDefs = {}
+--        --for name,uDef in pairs(UnitDefs) do
+--        --    local barUnitName = oldUnitName[name] and oldUnitName[name] or name
+--        --    if VFS.FileExists('objects3d/BAR/'..uDef.objectname..'.s3o') or VFS.FileExists('objects3d/BAR/'..barUnitName..'.s3o') then
+--        --        barUnitDefs[name..'_bar'] = deepcopy(uDef)
+--        --    end
+--        --end
+--        --for name,ud in pairs(barUnitDefs) do
+--        --    UnitDefs[name] = ud
+--        --end
+--    end
+--end
+--
+--for categoryName, categoryUnits in pairs(ArmorDefs) do
+--    for _, thisUdID in pairs(categoryUnits) do
+--        if not string.find(thisUdID, '_scav') then
+--            table.insert(ArmorDefs.categoryName, thisUdID+"_scav")
+--            Spring.Echo("Added Scav Unit: ", thisUdID, " to armorclass: "..categoryName)
+--        end
+--    end
+--end
 
-
--- -- handle unitdefs and the weapons they contain
+-- handle unitdefs and the weapons they contain
 
 
 -- Apply unitdefs_data (exported from Google Sheets)
 for name,ud in pairs(UnitDefs) do
-	--UnitDef_Post(name,ud)
-	if ud.weapondefs then
-		for wname,wd in pairs(ud.weapondefs) do
-			WeaponDef_Post(wname,wd)
-		end
-	end 
+    UnitDef_Post(name,ud)
+    if ud.weapondefs then
+        for wname,wd in pairs(ud.weapondefs) do
+            WeaponDef_Post(wname,wd)
+        end
+    end
+
+    --ud.acceleration = 0.75
+    --ud.turnrate = 800
+
+    if SaveDefsToCustomParams then
+        SaveDefToCustomParams("UnitDefs", name, ud)
+    end
 end
 
+--VFS.Include("gamedata/scavengers/unitdef_changes.lua")
+--local scavengerUnitDefs = {}
+
+--for name,uDef in pairs(UnitDefs) do
+--    --local faction = string.sub(name, 1, 3)
+--    if not string.find(name, '_scav') then
+--        if customDefs[name] ~= nil then
+--            scavengerUnitDefs[name..'_scav'] = tableMergeSpecial(deepcopy(uDef), deepcopy(customDefs[name]))
+--        else
+--            scavengerUnitDefs[name..'_scav'] = deepcopy(uDef)
+--        end
+--    end
+--end
+
+--for name,uDef in pairs(scavengerUnitDefs) do
+--    UnitDefs[name] = uDef
+--end
+
+--VFS.Include("gamedata/scavengers/unitdef_post.lua")
+--VFS.Include("gamedata/scavengers/weapondef_post.lua")
+
 for name,uDef in pairs(UnitDefs) do
-	if SaveDefsToCustomParams then
-		SaveDefToCustomParams("UnitDefs", name, uDef)
-	end
+    --if string.find(name, '_scav') then
+    --    uDef = scav_Udef_Post(name, uDef)
+    --    if uDef.weapondefs then
+    --        for wname,wDef in pairs(uDef.weapondefs) do
+    --            wDef = scav_Wdef_Post(name, wDef)
+    --        end
+    --    end
+    --end
+    if SaveDefsToCustomParams then
+        SaveDefToCustomParams("UnitDefs", name, uDef)
+    end
 end
+
+
+
 
 
 ---- TAP ::

@@ -189,14 +189,6 @@ local options={
         section= "tap_others",
     },
     {
-		key    = "newbie_placer",
-		name   = "Newbie Placer",
-		desc   = "Chooses a startpoint and a random faction for all rank 1 accounts (online only)",
-		type   = "bool",
-		def    = false,
-		section= "tap_options",
-    },
-    {
         key    = 'critters',
         name   = 'How many cute amimals? (0 is disabled)',
         desc   = 'This multiplier will be applied on the amount of critters a map will end up with',
