@@ -10,6 +10,8 @@ piece  base_root, base, turretaxis, turretbase, turret1, turret1spawner, turret2
 #define SIG_MOVE			2
 #define SIG_AIM				4
 
+#define base_rot_speed		180
+
 Create()
 {
 //	turn lflare to y-axis <180.000000> now;
@@ -22,10 +24,10 @@ Create()
 RestoreAfterDelay()
 {
 	sleep 100;
-	turn base to z-axis <0.000000> speed <600.000000>;
-	turn base_root to z-axis <0.000000> speed <600.000000>;
+	turn base to z-axis <0.000000> speed <180.071429>; //<600.000000>;
+	turn base_root to z-axis <0.000000> speed <180.071429>; //<600.000000>;
 //	turn lwing to x-axis <0.000000> speed <50.000000>;
-	//turn turretaxis to z-axis <0.000000> speed <180.000000>;
+	turn turretaxis to z-axis <0.000000> speed <180.000000>;
 	turn turretbase to x-axis <0.000000> speed <180.000000>;	
 }
 
@@ -84,7 +86,7 @@ AimPrimary(heading, pitch)
 	//turn base to z-axis <0.000000> - heading speed <300.071429>; //invert heading, up = z-axis (not y-axis)
 	turn turretaxis to z-axis <0.000000> - heading speed <600.043956>;	//invert heading here too
 	turn turretbase to x-axis <0.000000> - pitch speed <600.043956>;
-	turn base to z-axis <0.000000> - heading speed <180.071429>; //invert heading, up = z-axis (not y-axis)	
+	turn base to z-axis <0.000000> - heading speed <180.071429>; //<180.071429>; //invert heading, up = z-axis (not y-axis)	
 	wait-for-turn turretaxis around z-axis;
 	wait-for-turn base around z-axis;
 
