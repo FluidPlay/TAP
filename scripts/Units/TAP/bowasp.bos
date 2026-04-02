@@ -3,245 +3,211 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece  base, turret1, turret1spawner, turret2, turret2spawner, turret3, turret3spawner, turretaxis, turretbase, wingBL, wingBR, wingFR, wingFL;
+piece  base_root, base, turretaxis, turretbase, turret1, turret1spawner, turret2, turret2spawner, turret3, turret3spawner, wingBL, wingBR, wingFL, wingFR;
+// base, carlingue, raile, rwing, laile, lwing, lflare, rflare, flash;
 
-static-var  Static_Var_4, gun_1, statechg_DesiredState, statechg_StateChanging, restore_delay; //Aiming Dgun
-
-#define SIG_AIM				2
-
-SmokeUnit(healthpercent, sleeptime, smoketype)
-{
-	while( get BUILD_PERCENT_LEFT )
-	{
-		sleep 400;
-	}
-	while( TRUE )
-	{
-		healthpercent = get HEALTH;
-		if( healthpercent < 66 )
-		{
-			smoketype = 256 | 2;
-			if( Rand( 1, 66 ) < healthpercent )
-			{
-				smoketype = 256 | 1;
-			}
-			emit-sfx smoketype from base;
-		}
-		sleeptime = healthpercent * 50;
-		if( sleeptime < 200 )
-		{
-			sleeptime = 200;
-		}
-		sleep sleeptime;
-	}
-}
-
-//=======
-
-Go()
-{
-	turn wingBL to y-axis <0.000000> speed <120.000000>;
-	turn wingBR to y-axis <0.000000> speed <120.000000>;
-	turn wingFL to y-axis <0.000000> speed <120.000000>;
-	turn wingFR to y-axis <0.000000> speed <120.000000>;
-}
-
-Stop()
-{
-	turn wingBL to y-axis <67.000000> speed <120.000000>;
-	turn wingBR to y-axis <-67.000000> speed <120.000000>;
-	turn wingFL to y-axis <35.500000> speed <120.000000>;
-	turn wingFR to y-axis <-35.500000> speed <120.000000>;
-}
-
-InitState()
-{
-	statechg_DesiredState = TRUE;
-	statechg_StateChanging = FALSE;
-}
-
-RequestState(requestedstate, currentstate)
-{
-	if( statechg_StateChanging )
-	{
-		statechg_DesiredState = requestedstate;
-		return (0);
-	}
-	statechg_StateChanging = TRUE;
-	currentstate = statechg_DesiredState;
-	statechg_DesiredState = requestedstate;
-	while( statechg_DesiredState != currentstate )
-	{
-		if( statechg_DesiredState == 0 )
-		{
-			call-script Go();
-			currentstate = 0;
-		}
-		if( statechg_DesiredState == 1 )
-		{
-			call-script Stop();
-			currentstate = 1;
-		}
-	}
-	statechg_StateChanging = FALSE;
-}
-
-//========
+// Signal definitions
+#define SIG_MOVE			2
+#define SIG_AIM				4
 
 Create()
 {
-	//7 points
-	//turn wingBL to y-axis <67.000000>/7 speed <170.000000>/24;
-	//wait-for-turn wingBL around y-axis;	
-	//turn wingBL to y-axis <67.000000>/6 speed <170.000000>/6;
-	//wait-for-turn wingBL around y-axis;	
-	//turn wingBL to y-axis <67.000000>/5 speed <170.000000>/2;
-	//wait-for-turn wingBL around y-axis;
-	//turn wingBL to y-axis <67.000000>/4 speed <170.000000>;
-	//wait-for-turn wingBL around y-axis;
-	//turn wingBL to y-axis <67.000000>/3 speed <170.000000>/2;
-	//wait-for-turn wingBL around y-axis;
-	//turn wingBL to y-axis <67.000000>/2 speed <170.000000>/6;
-	//wait-for-turn wingBL around y-axis;	
-	//turn wingBL to y-axis <67.000000> speed <170.000000>/24;
-	//wait-for-turn wingBL around y-axis;	
-
-	restore_delay = 5000;
-	call-script InitState();	
-	start-script SmokeUnit();
-	gun_1 = turret1;
-}
-
-Activate()
-{
-	start-script RequestState(0);
-}
-
-Deactivate()
-{
-	start-script RequestState(1);
-}
-
-QueryPrimary(piecenum)
-{
-	//if( gun_1 == turret1 )
-	//{
-		piecenum = turret1spawner;
-		return 0;
-	//}
-	//if( gun_1 == turret2 )
-	//{
-	//	piecenum = turret2spawner;
-	//	return 0;		
-	//}
-	//piecenum = turret3spawner;
-}
-
-AimFromPrimary(piecenum)
-{
-	piecenum = turret1;
+//	turn lflare to y-axis <180.000000> now;
+//	turn rflare to y-axis <180.000000> now;
+//	hide lflare;
+//	hide rflare;
+//	hide flash;
 }
 
 RestoreAfterDelay()
 {
-	sleep restore_delay;
-	turn turretaxis to y-axis <0.000000> speed <90.000000>;
-	turn turretbase to x-axis <0.000000> speed <90>;
-	turn turretbase to z-axis <0.000000> speed <90>;
+	sleep 100;
+	turn base to z-axis <0.000000> speed <600.000000>;
+	turn base_root to z-axis <0.000000> speed <600.000000>;
+//	turn lwing to x-axis <0.000000> speed <50.000000>;
+	//turn turretaxis to z-axis <0.000000> speed <180.000000>;
+	turn turretbase to x-axis <0.000000> speed <180.000000>;	
 }
+
+ProcessFlames()
+{
+//TODO: Re-enable thruster particle fx
+	//while( TRUE )
+	//{
+		//emit-sfx 0 from rflare;
+		//emit-sfx 0 from lflare;
+		//sleep 30;
+	//}
+}
+
+MoveRate1()
+{
+	start-script RestoreAfterDelay();
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	//turn base to z-axis <0.000000> speed <120.000000>;
+	start-script ProcessFlames();
+}
+
+MoveRate2()
+{
+	start-script RestoreAfterDelay();
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	start-script ProcessFlames();
+	sleep 500;
+//	turn base to z-axis <240.000000> speed <120.000000>;
+//	wait-for-turn base around z-axis;
+//	turn base to z-axis <120.000000> speed <180.000000>;
+//	wait-for-turn base around z-axis;
+//	turn base to z-axis <0.000000> speed <120.000000>;
+}
+
+MoveRate3()
+{
+	start-script RestoreAfterDelay();
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	start-script ProcessFlames();
+//	turn base to z-axis <0.000000> speed <120.000000>;
+}
+
+//AimPrimary(heading, pitch)
+//{
+//	return (1);
+//}
 
 AimPrimary(heading, pitch)
 {
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
-	turn turretaxis to y-axis (-1.000000 * heading) speed <275.000000>; //turret
-	turn turretbase to x-axis (-1.000000 * pitch) speed <175>;
-	wait-for-turn turretaxis around y-axis;
-	wait-for-turn turretbase around x-axis;
-	
-	//s3o version:
-	//turn turretaxis to y-axis heading speed <275.000000>; //turret
-	//turn turretbase to x-axis <0.0000> - pitch speed <175>;
-	//wait-for-turn turretaxis around y-axis;	//z-axis
-	//wait-for-turn turretbase around x-axis;
-	
-	start-script RestoreAfterDelay();
+	//turn base to z-axis <0.000000> - heading speed <300.071429>; //invert heading, up = z-axis (not y-axis)
+	turn turretaxis to z-axis <0.000000> - heading speed <600.043956>;	//invert heading here too
+	turn turretbase to x-axis <0.000000> - pitch speed <600.043956>;
+	turn base to z-axis <0.000000> - heading speed <180.071429>; //invert heading, up = z-axis (not y-axis)	
+	wait-for-turn turretaxis around z-axis;
+	wait-for-turn base around z-axis;
+
 	return (1);
 }
 
-//PostFire()
-//{
-    //show flare;
-	//sleep 200;
-	//hide flare;
-//}
+AimFromPrimary(piecenum)
+{
+	piecenum = turret1; //flash; TODO: Switch turret_l/turret_r
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = turret1spawner; //firep_l; //flash;
+	return (0);	
+}
 
 FirePrimary()
 {
-	if( gun_1 == turret1 )
-	{
-		gun_1 = turret2;
-		//move turret1 to y-axis [2.000000] now;
-		//move turret1 to y-axis [-0.6] speed [120.000000];
-		return (0);
-	}
-	if( gun_1 == turret2 )
-	{
-		//move turret2 to y-axis [2.000000] now;
-		//move turret2 to y-axis [-0.6] speed [120.000000];
-	
-		gun_1 = turret3;
-		return (0);
-	}
-	//move turret3 to y-axis [2.000000] now;
-	//move turret3 to y-axis [-0.6] speed [120.000000];
-	
-	gun_1 = turret1;
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	//turn rwing to x-axis <270.000000> speed <50.000000>;
+	//turn lwing to x-axis <270.000000> speed <50.000000>;
+	//wait-for-turn rwing around x-axis;
+	//wait-for-turn lwing around x-axis;
+	//show flash;
+	//sleep 200;
+	//hide flash;
+	return (0);
 }
 
-//----------
-QuerySecondary(piecenum)
+StartMoving()
 {
-	piecenum = turret1spawner; //flare;
+	start-script RestoreAfterDelay();
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	//turn raile to z-axis <0.000000> speed <60.000000>;
+	//turn laile to z-axis <0.000000> speed <60.000000>;
+	//wait-for-turn raile around z-axis;
+	//wait-for-turn laile around z-axis;
 }
 
-AimFromSecondary(piecenum)
+StopMoving()
 {
-	piecenum = turret1;
+	start-script RestoreAfterDelay();
+	signal SIG_MOVE;
+	set-signal-mask SIG_MOVE;
+	//turn raile to z-axis <270.000000> speed <40.000000>;
+	//turn laile to z-axis <90.000000> speed <40.000000>;
+	//wait-for-turn raile around z-axis;
+	//wait-for-turn laile around z-axis;
 }
 
-AimSecondary(heading, pitch)
+SweetSpot(piecenum)
 {
-//    signal SIG_AIM;
-//	set-signal-mask SIG_AIM;
-	//Static_Var_4 = 1;	
-//	 	while( 255 > heading )
-//		{
-//			set UNKNOWN_UNIT_VALUE(82) to 0 - 1500 + get UNKNOWN_UNIT_VALUE(82);
-//			heading = heading + 1500;
-//			sleep 1;
-//		}
-//		while( heading > 255 )
-//		{
-//			set UNKNOWN_UNIT_VALUE(82) to 1500 + get UNKNOWN_UNIT_VALUE(82);
-//			heading = heading - 1500;
-//			sleep 1;
-//		}	
-	return (1);
-}
-
-FireSecondary()
-{
-	//Static_Var_4 = 0;
-	//start-script PostFire();
-	return (1);
+	piecenum = base_root; //base;
 }
 
 Killed(severity, corpsetype)
 {
+	if( severity <= 25 )
+	{
+		corpsetype = 1;
+		explode turretaxis type BITMAPONLY | BITMAP1;
+		explode turretbase type BITMAPONLY | BITMAP1;
+		explode turret1 type BITMAPONLY | BITMAP1;
+		explode turret1spawner type BITMAPONLY | BITMAP1;
+		explode turret2 type BITMAPONLY | BITMAP1;
+		explode turret2spawner type BITMAPONLY | BITMAP1;
+		explode turret3 type BITMAPONLY | BITMAP1;
+		explode turret3spawner type BITMAPONLY | BITMAP1;
+		explode wingBL type BITMAPONLY | BITMAP1;
+		explode wingBR type BITMAPONLY | BITMAP1;
+		explode wingFL type BITMAPONLY | BITMAP1;
+		explode wingFR type BITMAPONLY | BITMAP1;
+		return (corpsetype);
+	}
+	if( severity <= 50 )
+	{
+		corpsetype = 2;
+		explode turretaxis type FALL | BITMAP1;
+		explode turretbase type FALL | BITMAP1;
+		explode turret1 type FALL | BITMAP1;
+		explode turret1spawner type FALL | BITMAP1;
+		explode turret2 type FALL | BITMAP1;
+		explode turret2spawner type FALL | BITMAP1;
+		explode turret3 type FALL | BITMAP1;
+		explode turret3spawner type FALL | BITMAP1;
+		explode wingBL type FALL | BITMAP1;
+		explode wingBR type FALL | BITMAP1;
+		explode wingFL type FALL | BITMAP1;
+		explode wingFR type FALL | BITMAP1;
+		return (corpsetype);
+	}
+	if( severity <= 99 )
+	{
+		corpsetype = 3;
+		explode turretaxis type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turretbase type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		return (corpsetype);
+	}
 	corpsetype = 3;
-	explode wingBL type FALL;
-	explode wingBR type FALL;	
-	explode turretbase type FALL;	
+	explode turretaxis type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turretbase type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
 	return corpsetype;
 }
