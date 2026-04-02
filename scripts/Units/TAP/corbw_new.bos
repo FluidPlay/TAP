@@ -1,0 +1,210 @@
+#define TA			// This is a TA script
+
+#include "sfxtype.h"
+#include "exptype.h"
+
+piece base_root, base, turretaxis, turretbase, turret1, turret1spawner, turret2, turret2spawner, turret3, turret3spawner, wingBL, wingBR, wingFL, wingFR;
+
+static-var Static_Var_4; //Aiming Dgun
+
+#define SIG_AIM				2
+
+SmokeUnit(healthpercent, sleeptime, smoketype)
+{
+	while( get BUILD_PERCENT_LEFT )
+	{
+		sleep 400;
+	}
+	while( TRUE )
+	{
+		healthpercent = get HEALTH;
+		if( healthpercent < 66 )
+		{
+			smoketype = 256 | 2;
+			if( Rand( 1, 66 ) < healthpercent )
+			{
+				smoketype = 256 | 1;
+			}
+			emit-sfx smoketype from base;
+		}
+		sleeptime = healthpercent * 50;
+		if( sleeptime < 200 )
+		{
+			sleeptime = 200;
+		}
+		sleep sleeptime;
+	}
+}
+
+Create()
+{
+	//hide flare;
+	//Static_Var_4 = 0;
+	start-script SmokeUnit();
+}
+
+QueryPrimary(piecenum)
+{
+	piecenum = turret1spawner;
+}
+
+AimFromPrimary(piecenum)
+{
+	piecenum = turret1;
+}
+
+AimPrimary(heading, pitch)
+{
+	signal SIG_AIM;
+	set-signal-mask SIG_AIM;
+	turn turretaxis to y-axis heading speed <500.000000>;
+	turn turretbase to x-axis <0.000000> - pitch speed <250.000000>;
+	wait-for-turn turretaxis around y-axis;
+	wait-for-turn turretbase around x-axis;
+	return (1);
+	//if( Static_Var_4 == 1 )
+	//{
+	//	return (0);
+	//}
+//    signal SIG_AIM;
+//	set-signal-mask SIG_AIM;
+//	 	while( 255 > heading )
+//		{
+//			set UNKNOWN_UNIT_VALUE(82) to 0 - 1500 + get UNKNOWN_UNIT_VALUE(82);
+//			heading = heading + 1500;
+//			sleep 1;
+//		}
+//		while( heading > 255 )
+//		{
+//			set UNKNOWN_UNIT_VALUE(82) to 1500 + get UNKNOWN_UNIT_VALUE(82);
+//			heading = heading - 1500;
+//			sleep 1;
+//		}	
+}
+
+//PostFire()
+//{
+    //show flare;
+	//sleep 200;
+	//hide flare;
+//}
+
+FirePrimary()
+{
+	//start-script PostFire();
+	return (1);
+}
+
+//----------
+
+QuerySecondary(piecenum)
+{
+	piecenum = turret1spawner;
+}
+
+AimFromSecondary(piecenum)
+{
+	piecenum = turret1;
+}
+
+AimSecondary(heading, pitch)
+{
+	signal SIG_AIM;
+	set-signal-mask SIG_AIM;
+	turn turretaxis to y-axis heading speed <500.000000>;
+	turn turretbase to x-axis <0.000000> - pitch speed <250.000000>;
+	wait-for-turn turretaxis around y-axis;
+	wait-for-turn turretbase around x-axis;
+	return (1);
+//    signal SIG_AIM;
+//	set-signal-mask SIG_AIM;
+	//Static_Var_4 = 1;	
+//	 	while( 255 > heading )
+//		{
+//			set UNKNOWN_UNIT_VALUE(82) to 0 - 1500 + get UNKNOWN_UNIT_VALUE(82);
+//			heading = heading + 1500;
+//			sleep 1;
+//		}
+//		while( heading > 255 )
+//		{
+//			set UNKNOWN_UNIT_VALUE(82) to 1500 + get UNKNOWN_UNIT_VALUE(82);
+//			heading = heading - 1500;
+//			sleep 1;
+//		}	
+}
+
+FireSecondary()
+{
+	//Static_Var_4 = 0;
+	//start-script PostFire();
+	return (1);
+}
+
+Killed(severity, corpsetype)
+{
+	if( severity <= 25 )
+	{
+		corpsetype = 1;
+		explode turretaxis type BITMAPONLY | BITMAP1;
+		explode turretbase type BITMAPONLY | BITMAP1;
+		explode turret1 type BITMAPONLY | BITMAP1;
+		explode turret1spawner type BITMAPONLY | BITMAP1;
+		explode turret2 type BITMAPONLY | BITMAP1;
+		explode turret2spawner type BITMAPONLY | BITMAP1;
+		explode turret3 type BITMAPONLY | BITMAP1;
+		explode turret3spawner type BITMAPONLY | BITMAP1;
+		explode wingBL type BITMAPONLY | BITMAP1;
+		explode wingBR type BITMAPONLY | BITMAP1;
+		explode wingFL type BITMAPONLY | BITMAP1;
+		explode wingFR type BITMAPONLY | BITMAP1;
+		return (corpsetype);
+	}
+	if( severity <= 50 )
+	{
+		corpsetype = 2;
+		explode turretaxis type FALL | BITMAP1;
+		explode turretbase type FALL | BITMAP1;
+		explode turret1 type FALL | BITMAP1;
+		explode turret1spawner type FALL | BITMAP1;
+		explode turret2 type FALL | BITMAP1;
+		explode turret2spawner type FALL | BITMAP1;
+		explode turret3 type FALL | BITMAP1;
+		explode turret3spawner type FALL | BITMAP1;
+		explode wingBL type FALL | BITMAP1;
+		explode wingBR type FALL | BITMAP1;
+		explode wingFL type FALL | BITMAP1;
+		explode wingFR type FALL | BITMAP1;
+		return (corpsetype);
+	}
+	if( severity <= 99 )
+	{
+		corpsetype = 3;
+		explode turretaxis type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turretbase type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		return (corpsetype);
+	}
+	corpsetype = 3;
+	explode turretaxis type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turretbase type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret1spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret2spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3 type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode turret3spawner type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingBR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFL type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+		explode wingFR type FALL | SMOKE | FIRE | EXPLODE_ON_HIT | BITMAP1;
+	return corpsetype;
+}

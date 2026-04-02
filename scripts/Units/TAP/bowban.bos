@@ -3,7 +3,8 @@
 #include "sfxtype.h"
 #include "exptype.h"
 
-piece base, turretaxis, turretbase, firep, wing_L, wingbase_L, wing_R, wingbase_R;
+piece hull, turret_l, firep_l, turret_r, firep_r, lflare, rflare;
+// base, carlingue, raile, rwing, laile, lwing, lflare, rflare, flash;
 
 // Signal definitions
 #define SIG_MOVE			2
@@ -11,8 +12,8 @@ piece base, turretaxis, turretbase, firep, wing_L, wingbase_L, wing_R, wingbase_
 
 Create()
 {
-//	turn lflare to y-axis <180.000000> now;
-//	turn rflare to y-axis <180.000000> now;
+	turn lflare to y-axis <180.000000> now;
+	turn rflare to y-axis <180.000000> now;
 //	hide lflare;
 //	hide rflare;
 //	hide flash;
@@ -21,18 +22,18 @@ Create()
 RestoreAfterDelay()
 {
 	sleep 100;
-	turn base to y-axis <0.000000> speed <300.000000>;
+	turn hull to y-axis <0.000000> speed <300.000000>;
 //	turn lwing to x-axis <0.000000> speed <50.000000>;
-//	turn turret_r to x-axis <0.000000> speed <180.000000>;
-//	turn turret_l to x-axis <0.000000> speed <180.000000>;	
+	turn turret_r to x-axis <0.000000> speed <180.000000>;
+	turn turret_l to x-axis <0.000000> speed <180.000000>;	
 }
 
 ProcessFlames()
 {
 	while( TRUE )
 	{
-		//emit-sfx 0 from rflare;
-		//emit-sfx 0 from lflare;
+		emit-sfx 0 from rflare;
+		emit-sfx 0 from lflare;
 		sleep 30;
 	}
 }
@@ -78,11 +79,11 @@ AimPrimary(heading, pitch)
 {
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
-	turn base to z-axis <0.000000> - heading speed <300.071429>;
+	turn hull to y-axis heading speed <300.071429>;
 	//turn turret_l to y-axis heading speed <600.071429>;
-	turn turretaxis to x-axis <0.000000> - pitch speed <600.043956>;
-	turn turretbase to z-axis <0.000000> - heading speed <600.043956>;
-	wait-for-turn base around z-axis;	
+	turn turret_l to x-axis <0.000000> - pitch speed <600.043956>;
+	turn turret_r to x-axis <0.000000> - pitch speed <600.043956>;
+	wait-for-turn hull around y-axis;	
 	//wait-for-turn turret_l around x-axis;
 	
 	//wait-for-turn sleeve around x-axis;
@@ -91,12 +92,12 @@ AimPrimary(heading, pitch)
 
 AimFromPrimary(piecenum)
 {
-	piecenum = firep; //flash; TODO: Switch turret_l/turret_r
+	piecenum = firep_l; //flash; TODO: Switch turret_l/turret_r
 }
 
 QueryPrimary(piecenum)
 {
-	piecenum = turretbase; //firep_l; //flash;
+	piecenum = turret_l; //firep_l; //flash;
 	return (0);	
 }
 
@@ -138,15 +139,15 @@ StopMoving()
 
 SweetSpot(piecenum)
 {
-	piecenum = base; //base;
+	piecenum = hull; //base;
 }
 
 Killed(severity, corpsetype)
 {
 	corpsetype = 1;
-	explode base type 3; //base
+	explode hull type 3; //base
 	//explode carlingue type 3;
-	explode wing_r type 30; //rwing
-	explode wing_l type 30; //lwing
+	explode turret_r type 30; //rwing
+	explode turret_l type 30; //lwing
 	return corpsetype;
 }
