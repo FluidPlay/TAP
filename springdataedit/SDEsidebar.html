@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+<!--    <script>
+      google.script.run.doSomething();
+    </script> 
+-->
+  <script>
+    function runWithCallback(method, ...params) { 
+       var promise = new Promise((resolve, failure) => {
+         google.script.run
+           .withSuccessHandler((...args) => { resolve(...args) })
+           .withFailureHandler((...args) => { failure(...args) })[method](...params)
+       })
+       return promise
+    }
+  
+    window.onload = function() {
+      // Fields and Buttons
+      const multiplierField = document.getElementById('multFieldId')
+      const tableField = document.getElementById('tableFieldId')
+      const applyButton = document.getElementById('applyButtonId')
+      const updateSelBtn = document.getElementById('updateSelBtnId')
+      const inTableBtn = document.getElementById('inTableBtnId')
+      const outTableBtn = document.getElementById('outTableBtnId')
+      const showColumnsField = document.getElementById('showColumnsFieldId')
+      const showColumnsBtn = document.getElementById('showColumnsBtnId')
+      const updateRefBtn = document.getElementById('updatedRefBtnId')
+      const exportDataBtn = document.getElementById('exportDataBtnId')
+      const exportIconTypesBtn = document.getElementById('exportIconTypesBtnId')
+
+      // Labels and Divs
+      const selectionOutLbl = document.getElementById('selectionOutId')   
+      const outputDiv = document.getElementById('outputDivId')
+      
+      // Button Callbacks
+      updateRefBtn.onclick = function() {
+        runWithCallback('updateReferences')
+      }
+      
+      exportDataBtn.onclick = function() {
+//        tableField.value = "Processing.."
+        runWithCallback('getExportData')
+        .then ( (value) => { tableField.value = value } )        
+      }
+      
+      exportIconTypesBtn.onclick = function() {
+        runWithCallback('exportIconTypes')
+      }
+      
+      applyButton.onclick = function() {
+        var multiplier = multiplierField.value
+        runWithCallback('multiplyValues', multiplier)
+        .then( (value) => { outputDiv.innerHTML = 'Callback Result: ' + value } )
+      }
+                          
+      updateSelBtn.onclick = function() {
+            runWithCallback('getSelectedRangeA1', null)
+            .then( (value) => { selectionOutLbl.value = value } )
+      }
+      
+      inTableBtn.onclick = function() {
+        runWithCallback('getTableFromSheet', null)
+        .then ( (value) => { tableField.value = value } )
+      }
+      
+      outTableBtn.onclick = function() {
+        runWithCallback('putTableToSheet', tableField.value)
+        //.then ( (value) => { tableField.value = value } )        
+      }
+      
+      showColumnsBtn.onclick = function() {
+          runWithCallback('showColumns', showColumnsField.value)
+      }
+
+// 'Old way'
+//          google.script.run.withSuccessHandler(
+//             (value) => {
+//              console.log(value)
+//              var div = document.getElementById('output');
+//              div.innerHTML = 'Callback Result: ' + value;
+//             }).multiplyValues(multiplier)
+//      }
+  }
+
+  </script>
+  </head>
+  <body>
+    <!--<h1>Welcome</h1>-->
+    <input id = "updatedRefBtnId" type="button" value = "Update References" />
+    <input id = "exportDataBtnId" type="button" value = "Export Data" />    
+    <input id = "exportIconTypesBtnId" type="button" value = "Export IconTypes" />
+    
+    <p>Selection Range:  
+    <output id="selectionOutId">NN</output> 
+    <input id="updateSelBtnId" type="button" value="<<"/>    
+    </p>
+    <p>Multiply selected by:
+    <input id="multFieldId" type="text" value="1.0" size="35" maxlength="10"/>
+    <input id="applyButtonId" type="button" value="Apply"/>  
+    </p>
+    <div id="outputDivId"></div>
+    Edit Table: <input id="inTableBtnId" type="button" value=">>"/>
+    <textarea id="tableFieldId" rows="30" cols="40">
+{
+        arm_triton={
+                craterboost=0,
+                gravityaffected="true",
+                reloadtime=1.5,
+                impulsefactor=0.123,
+                areaofeffect=96,
+                explosiongenerator="custom:FLASH64",
+                avoidfeature=false,
+                craterareaofeffect=96,
+                damage={
+                        peon=130.5,
+                        defense=130.5,
+                        aiv=261,
+                        rpg=43.5,
+                        defenseaa=174,
+                        chopper=348,
+                        assault=174,
+                        bomber=217.5,
+                        commander=43.5,
+                        default=174,
+                        artillery=348,
+                        fighter=261,
+                        stalwart=87,
+                        structure=174,
+                        tank=174,
+                },
+                turret=true,
+                cratermult=0,
+                weaponvelocity=290,
+                soundhit="xplomed4",
+                soundstart="cannon2",
+                weapontype="Cannon",
+                name="PlasmaCannon",
+                soundhitwetvolume=0.5,
+                range=480,
+                soundhitwet="splsmed",
+                noselfdamage=true,
+                impulseboost=0.123,
+        },
+}
+    </textarea>
+    Store Table: <input id="outTableBtnId" type="button" value="<<"/>
+    
+    <p>Show Columns: 
+    <textarea id="showColumnsFieldId" rows="2" cols="40">name,c_costmetal,buildcostmetal,buildcostenergy,maxdamage,weapondefs,weapons,ArmorType,DamageType
+    </textarea>
+    <input id="showColumnsBtnId" type="button" value="Apply"/>
+    </p>
+    
+    <!--    <p><input type="button" value="Close" onclick="google.script.host.close()" /></p>   -->
+    
+<!--    <?!= include('JavaScript'); ?> -->
+  </body>
+</html>
+
+
