@@ -364,8 +364,9 @@ function widget:DrawScreen()
     local sonarJammingRadius = uDef.sonarJamRadius
     local seismicRadius = uDef.seismicRadius
     local armoredMultiple = uDef.armoredMultiple
+    local uCurHp, buildProg --start as nil, make it compatible with EmmyLua2
     if uID then
-        local uCurHp, _, _, _, buildProg = spGetUnitHealth(uID)
+        uCurHp, _, _, _, buildProg = spGetUnitHealth(uID)
         maxHP = select(2, spGetUnitHealth(uID))
         uTeam = spGetUnitTeam(uID)
         losRadius = spGetUnitSensorRadius(uID, 'los') or 0
@@ -547,6 +548,7 @@ function widget:DrawScreen()
 
 		local wDefId = wepsCompact[i]
 		local uWep = wDefs[wDefId]
+		local wpnName = uWep.name
 
         if uWep.customParams and uWep.customParams.def then
             uWep = wDefs[WeaponDefNames[uWep.customParams.def].id]

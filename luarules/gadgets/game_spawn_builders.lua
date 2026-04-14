@@ -123,8 +123,8 @@ if gadgetHandler:IsSyncedCode() then
         --spCreateUnit(commanderID, x, y, z-50, 0, teamID)
         --spCreateUnit(daemonID, x, y, z+50, 0, teamID)
         spCreateUnit(commanderID, x-40, y, z-100, 0, teamID)
-        spawnBuilder(builderID, x+40, y, z-100, teamID, unitDef)
-        spCreateUnit(daemonID, x+40, y, z+100, 0, teamID)
+        spawnBuilder(builderID, x+40, y, z-130, teamID, unitDef)
+        spCreateUnit(daemonID, x+40, y, z+130, 0, teamID)
         spawnBuilder(builderID, x-40, y, z+100, teamID, unitDef)
 
         local piecemap = Spring.GetUnitPieceMap(unitID)
