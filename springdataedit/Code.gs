@@ -284,6 +284,8 @@ function exportIconTypes() {
       fullIconId = icontypeRaw;
     }
     
+    if (baseIcon === "" || baseIcon === "0" || baseIcon === "false") continue;
+    
     if (!uniqueIconsMap[fullIconId]) {
       var baseSize = baseSizesMap[baseIcon];
       if (isNaN(baseSize) || baseSize === undefined) baseSize = 1.0;
