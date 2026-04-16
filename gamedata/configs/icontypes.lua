@@ -1,16 +1,4 @@
 return {
-	0 = {
-		bitmap='LuaUI/icons/.png',
-		size=1,
-	},
-	2 = {
-		bitmap='LuaUI/icons/.png',
-		size=1.25,
-	},
-	4 = {
-		bitmap='LuaUI/icons/.png',
-		size=1.5,
-	},
 	bot_missile2 = {
 		bitmap='LuaUI/icons/bot_missile.png',
 		size=1.25,
