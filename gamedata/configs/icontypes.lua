@@ -5,19 +5,19 @@ return {
 	},
 	structure_factory2 = {
 		bitmap='LuaUI/icons/structure_factory.png',
-		size=2.125,
+		size=2.13,
 	},
 	sea_flak2 = {
 		bitmap='LuaUI/icons/sea_flak.png',
-		size=1.3125,
+		size=1.31,
 	},
 	air_builder2 = {
 		bitmap='LuaUI/icons/air_builder.png',
-		size=1.5625,
+		size=1.56,
 	},
 	bot_builder2 = {
 		bitmap='LuaUI/icons/bot_builder.png',
-		size=1.375,
+		size=1.38,
 	},
 	sea_builder2 = {
 		bitmap='LuaUI/icons/sea_builder.png',
@@ -25,11 +25,11 @@ return {
 	},
 	veh_builder2 = {
 		bitmap='LuaUI/icons/veh_builder.png',
-		size=1.875,
+		size=1.88,
 	},
 	structure_energy1 = {
 		bitmap='LuaUI/icons/structure_energy.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	structure_energy4 = {
 		bitmap='LuaUI/icons/structure_energy.png',
@@ -37,19 +37,19 @@ return {
 	},
 	structure_energy2 = {
 		bitmap='LuaUI/icons/structure_energy.png',
-		size=1.875,
+		size=1.88,
 	},
 	def_plasma2 = {
 		bitmap='LuaUI/icons/def_plasma.png',
-		size=1.8125,
+		size=1.81,
 	},
 	structure_antinuke2 = {
 		bitmap='LuaUI/icons/structure_antinuke.png',
-		size=1.875,
+		size=1.88,
 	},
 	structure_metal1 = {
 		bitmap='LuaUI/icons/structure_metal.png',
-		size=1.4375,
+		size=1.44,
 	},
 	veh_tank0 = {
 		bitmap='LuaUI/icons/veh_tank.png',
@@ -57,7 +57,7 @@ return {
 	},
 	def_neutron2 = {
 		bitmap='LuaUI/icons/def_neutron.png',
-		size=1.875,
+		size=1.88,
 	},
 	structure_factory0 = {
 		bitmap='LuaUI/icons/structure_factory.png',
@@ -65,7 +65,7 @@ return {
 	},
 	structure_radar2 = {
 		bitmap='LuaUI/icons/structure_radar.png',
-		size=1.375,
+		size=1.38,
 	},
 	structure_pad2 = {
 		bitmap='LuaUI/icons/structure_pad.png',
@@ -73,7 +73,7 @@ return {
 	},
 	def_generic1 = {
 		bitmap='LuaUI/icons/def_generic.png',
-		size=0.9199999999999999,
+		size=0.92,
 	},
 	air_generic0 = {
 		bitmap='LuaUI/icons/air_generic.png',
@@ -81,7 +81,7 @@ return {
 	},
 	air_generic2 = {
 		bitmap='LuaUI/icons/air_generic.png',
-		size=1.5625,
+		size=1.56,
 	},
 	bot_missile4 = {
 		bitmap='LuaUI/icons/bot_missile.png',
@@ -89,11 +89,11 @@ return {
 	},
 	sea_plasma2 = {
 		bitmap='LuaUI/icons/sea_plasma.png',
-		size=1.375,
+		size=1.38,
 	},
 	def_laser1 = {
 		bitmap='LuaUI/icons/def_laser.png',
-		size=1.4949999999999999,
+		size=1.5,
 	},
 	air_gunshipmissile3 = {
 		bitmap='LuaUI/icons/air_gunshipmissile.png',
@@ -121,7 +121,7 @@ return {
 	},
 	def_missile1 = {
 		bitmap='LuaUI/icons/def_missile.png',
-		size=1.5525,
+		size=1.55,
 	},
 	bot_builder0 = {
 		bitmap='LuaUI/icons/bot_builder.png',
@@ -133,35 +133,35 @@ return {
 	},
 	commander0 = {
 		bitmap='LuaUI/icons/commander.png',
-		size=1,
+		size=1.25,
 	},
 	commander1 = {
 		bitmap='LuaUI/icons/commander.png',
-		size=1.15,
+		size=1.44,
 	},
 	commander2 = {
 		bitmap='LuaUI/icons/commander.png',
-		size=1.25,
+		size=1.56,
 	},
 	commander3 = {
 		bitmap='LuaUI/icons/commander.png',
-		size=1.4,
+		size=1.75,
 	},
 	commander4 = {
 		bitmap='LuaUI/icons/commander.png',
-		size=1.5,
+		size=1.88,
 	},
 	veh_farc2 = {
 		bitmap='LuaUI/icons/veh_farc.png',
-		size=1.5625,
+		size=1.56,
 	},
 	veh_tank3 = {
 		bitmap='LuaUI/icons/veh_tank.png',
-		size=2.2399999999999998,
+		size=2.24,
 	},
 	sea_cannon2 = {
 		bitmap='LuaUI/icons/sea_cannon.png',
-		size=1.4375,
+		size=1.44,
 	},
 	sea_builder0 = {
 		bitmap='LuaUI/icons/sea_builder.png',
@@ -189,7 +189,7 @@ return {
 	},
 	sea_cannon4 = {
 		bitmap='LuaUI/icons/sea_cannon.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	structure_radar0 = {
 		bitmap='LuaUI/icons/structure_radar.png',
@@ -205,7 +205,7 @@ return {
 	},
 	bot_plasma2 = {
 		bitmap='LuaUI/icons/bot_plasma.png',
-		size=1.375,
+		size=1.38,
 	},
 	structure_shield3 = {
 		bitmap='LuaUI/icons/structure_shield.png',
@@ -213,7 +213,7 @@ return {
 	},
 	def_neutron1 = {
 		bitmap='LuaUI/icons/def_neutron.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	air_fighter0 = {
 		bitmap='LuaUI/icons/air_fighter.png',
@@ -221,7 +221,7 @@ return {
 	},
 	veh_antibot1 = {
 		bitmap='LuaUI/icons/veh_antibot.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	structure_metal0 = {
 		bitmap='LuaUI/icons/structure_metal.png',
@@ -229,7 +229,7 @@ return {
 	},
 	structure_generic2 = {
 		bitmap='LuaUI/icons/structure_generic.png',
-		size=0.625,
+		size=0.63,
 	},
 	def_missile0 = {
 		bitmap='LuaUI/icons/def_missile.png',
@@ -241,11 +241,11 @@ return {
 	},
 	structure_energy3 = {
 		bitmap='LuaUI/icons/structure_energy.png',
-		size=2.0999999999999996,
+		size=2.1,
 	},
 	def_plasma1 = {
 		bitmap='LuaUI/icons/def_plasma.png',
-		size=1.6674999999999998,
+		size=1.67,
 	},
 	bot_plasma0 = {
 		bitmap='LuaUI/icons/bot_plasma.png',
@@ -257,11 +257,11 @@ return {
 	},
 	veh_generic2 = {
 		bitmap='LuaUI/icons/veh_generic.png',
-		size=1.875,
+		size=1.88,
 	},
 	def_generic3 = {
 		bitmap='LuaUI/icons/def_generic.png',
-		size=1.1199999999999999,
+		size=1.12,
 	},
 	def_generic0 = {
 		bitmap='LuaUI/icons/def_generic.png',
@@ -277,15 +277,15 @@ return {
 	},
 	air_bomber1 = {
 		bitmap='LuaUI/icons/air_bomber.png',
-		size=2.0124999999999997,
+		size=2.01,
 	},
 	veh_assault2 = {
 		bitmap='LuaUI/icons/veh_assault.png',
-		size=1.875,
+		size=1.88,
 	},
 	air_bomber4 = {
 		bitmap='LuaUI/icons/air_bomber.png',
-		size=2.625,
+		size=2.63,
 	},
 	def_laser0 = {
 		bitmap='LuaUI/icons/def_laser.png',
@@ -293,15 +293,15 @@ return {
 	},
 	veh_neutron3 = {
 		bitmap='LuaUI/icons/veh_neutron.png',
-		size=2.0999999999999996,
+		size=2.1,
 	},
 	bot_generic1 = {
 		bitmap='LuaUI/icons/bot_generic.png',
-		size=0.9199999999999999,
+		size=0.92,
 	},
 	veh_artillery1 = {
 		bitmap='LuaUI/icons/veh_artillery.png',
-		size=1.6099999999999999,
+		size=1.61,
 	},
 	bot_flak2 = {
 		bitmap='LuaUI/icons/bot_flak.png',
@@ -317,7 +317,7 @@ return {
 	},
 	structure_mine1 = {
 		bitmap='LuaUI/icons/structure_mine.png',
-		size=0.575,
+		size=0.57,
 	},
 	sea_generic0 = {
 		bitmap='LuaUI/icons/sea_generic.png',
@@ -329,15 +329,15 @@ return {
 	},
 	structure_metal2 = {
 		bitmap='LuaUI/icons/structure_metal.png',
-		size=1.5625,
+		size=1.56,
 	},
 	sea_artillery2 = {
 		bitmap='LuaUI/icons/sea_artillery.png',
-		size=1.5625,
+		size=1.56,
 	},
 	structure_factory1 = {
 		bitmap='LuaUI/icons/structure_factory.png',
-		size=1.9549999999999998,
+		size=1.95,
 	},
 	structure_factory3 = {
 		bitmap='LuaUI/icons/structure_factory.png',
@@ -361,7 +361,7 @@ return {
 	},
 	air_bomber2 = {
 		bitmap='LuaUI/icons/air_bomber.png',
-		size=2.1875,
+		size=2.19,
 	},
 	sea_missile0 = {
 		bitmap='LuaUI/icons/sea_missile.png',
@@ -381,7 +381,7 @@ return {
 	},
 	bot_builder1 = {
 		bitmap='LuaUI/icons/bot_builder.png',
-		size=1.265,
+		size=1.26,
 	},
 	bot_missile0 = {
 		bitmap='LuaUI/icons/bot_missile.png',
@@ -417,7 +417,7 @@ return {
 	},
 	def_plasma4 = {
 		bitmap='LuaUI/icons/def_plasma.png',
-		size=2.175,
+		size=2.17,
 	},
 	bot_assault1 = {
 		bitmap='LuaUI/icons/bot_assault.png',
@@ -425,11 +425,11 @@ return {
 	},
 	veh_antibot2 = {
 		bitmap='LuaUI/icons/veh_antibot.png',
-		size=1.875,
+		size=1.88,
 	},
 	daemon0 = {
 		bitmap='LuaUI/icons/daemon.png',
-		size=1.5,
+		size=1.15,
 	},
 	structure_hq0 = {
 		bitmap='LuaUI/icons/structure_hq.png',
@@ -449,7 +449,7 @@ return {
 	},
 	bot_farc2 = {
 		bitmap='LuaUI/icons/bot_farc.png',
-		size=1.375,
+		size=1.38,
 	},
 	air_gunshipmissile1 = {
 		bitmap='LuaUI/icons/air_gunshipmissile.png',
@@ -457,11 +457,11 @@ return {
 	},
 	air_radar2 = {
 		bitmap='LuaUI/icons/air_radar.png',
-		size=1.375,
+		size=1.38,
 	},
 	def_generic4 = {
 		bitmap='LuaUI/icons/def_generic.png',
-		size=1.2000000000000002,
+		size=1.2,
 	},
 	drone_antibot0 = {
 		bitmap='LuaUI/icons/drone_antibot.png',
@@ -469,11 +469,11 @@ return {
 	},
 	bot_neutron2 = {
 		bitmap='LuaUI/icons/bot_neutron.png',
-		size=1.4375,
+		size=1.44,
 	},
 	bot_artillery4 = {
 		bitmap='LuaUI/icons/bot_artillery.png',
-		size=1.6500000000000001,
+		size=1.65,
 	},
 	air_gunshiplaser3 = {
 		bitmap='LuaUI/icons/air_gunshiplaser.png',
@@ -485,15 +485,15 @@ return {
 	},
 	structure_generic1 = {
 		bitmap='LuaUI/icons/structure_generic.png',
-		size=0.575,
+		size=0.57,
 	},
 	bot_artillery2 = {
 		bitmap='LuaUI/icons/bot_artillery.png',
-		size=1.375,
+		size=1.38,
 	},
 	air_bomber3 = {
 		bitmap='LuaUI/icons/air_bomber.png',
-		size=2.4499999999999997,
+		size=2.45,
 	},
 	veh_antinuke2 = {
 		bitmap='LuaUI/icons/veh_antinuke.png',
@@ -501,15 +501,15 @@ return {
 	},
 	structure_mine2 = {
 		bitmap='LuaUI/icons/structure_mine.png',
-		size=0.625,
+		size=0.63,
 	},
 	veh_missile1 = {
 		bitmap='LuaUI/icons/veh_missile.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	bot_artillery1 = {
 		bitmap='LuaUI/icons/bot_artillery.png',
-		size=1.265,
+		size=1.26,
 	},
 	veh_farc0 = {
 		bitmap='LuaUI/icons/veh_farc.png',
@@ -521,23 +521,23 @@ return {
 	},
 	sub_rezz1 = {
 		bitmap='LuaUI/icons/sub_rezz.png',
-		size=1.0924999999999998,
+		size=1.09,
 	},
 	veh_flak2 = {
 		bitmap='LuaUI/icons/veh_flak.png',
-		size=1.875,
+		size=1.88,
 	},
 	sub_cannon1 = {
 		bitmap='LuaUI/icons/sub_cannon.png',
-		size=1.035,
+		size=1.03,
 	},
 	bot_explosive2 = {
 		bitmap='LuaUI/icons/bot_explosive.png',
-		size=1.375,
+		size=1.38,
 	},
 	sub_cannon2 = {
 		bitmap='LuaUI/icons/sub_cannon.png',
-		size=1.125,
+		size=1.13,
 	},
 	air_empbomber3 = {
 		bitmap='LuaUI/icons/air_empbomber.png',
@@ -545,19 +545,19 @@ return {
 	},
 	bot_neutron3 = {
 		bitmap='LuaUI/icons/bot_neutron.png',
-		size=1.6099999999999999,
+		size=1.61,
 	},
 	veh_artillery3 = {
 		bitmap='LuaUI/icons/veh_artillery.png',
-		size=1.9599999999999997,
+		size=1.96,
 	},
 	def_nuke2 = {
 		bitmap='LuaUI/icons/def_nuke.png',
-		size=2.0625,
+		size=2.06,
 	},
 	veh_radar1 = {
 		bitmap='LuaUI/icons/veh_radar.png',
-		size=1.7249999999999999,
+		size=1.73,
 	},
 	blank3 = {
 		bitmap='LuaUI/icons/blank.png',
@@ -577,7 +577,7 @@ return {
 	},
 	bot_rifle2 = {
 		bitmap='LuaUI/icons/bot_rifle.png',
-		size=1.125,
+		size=1.13,
 	},
 	blank0 = {
 		bitmap='LuaUI/icons/blank.png',
@@ -589,7 +589,7 @@ return {
 	},
 	generic_unit2 = {
 		bitmap='LuaUI/icons/generic_unit.png',
-		size=0.625,
+		size=0.63,
 	},
 	generic_unit3 = {
 		bitmap='LuaUI/icons/generic_unit.png',
@@ -597,7 +597,7 @@ return {
 	},
 	generic_unit1 = {
 		bitmap='LuaUI/icons/generic_unit.png',
-		size=0.575,
+		size=0.57,
 	},
 	generic_unit4 = {
 		bitmap='LuaUI/icons/generic_unit.png',

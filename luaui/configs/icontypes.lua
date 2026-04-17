@@ -9,266 +9,615 @@
 
 --------------------------------------------------------------------------------
 --This file is used by engine, it's just placed here so LuaUI can access it too
+--Attention: Copy the auto-generated content from gamedata\configs\icontypes.lua here
 --------------------------------------------------------------------------------
 
-local icontypes = {
-	default = {
-		size=1.3,
-		radiusadjust=1,
+return {
+	bot_missile2 = {
+		bitmap='LuaUI/icons/bot_missile.png',
+		size=1.25,
 	},
-
-	none = {
-		size=0,
-		radiusadjust=0,
+	structure_factory2 = {
+		bitmap='LuaUI/icons/structure_factory.png',
+		size=2.13,
 	},
-
-	blank = {
-		size=0,
-		radiusadjust=0,
+	sea_flak2 = {
+		bitmap='LuaUI/icons/sea_flak.png',
+		size=1.31,
 	},
-
-	-- commanders
-	commander = {
-		bitmap='LuaUI/icons/armcom.png',
-		size=1.9,
+	air_builder2 = {
+		bitmap='LuaUI/icons/air_builder.png',
+		size=1.56,
 	},
-	daemon = {
-		bitmap='LuaUI/icons/daemon.png',
+	bot_builder2 = {
+		bitmap='LuaUI/icons/bot_builder.png',
+		size=1.38,
+	},
+	sea_builder2 = {
+		bitmap='LuaUI/icons/sea_builder.png',
+		size=1.25,
+	},
+	veh_builder2 = {
+		bitmap='LuaUI/icons/veh_builder.png',
+		size=1.88,
+	},
+	structure_energy1 = {
+		bitmap='LuaUI/icons/structure_energy.png',
+		size=1.73,
+	},
+	structure_energy4 = {
+		bitmap='LuaUI/icons/structure_energy.png',
+		size=2.25,
+	},
+	structure_energy2 = {
+		bitmap='LuaUI/icons/structure_energy.png',
+		size=1.88,
+	},
+	def_plasma2 = {
+		bitmap='LuaUI/icons/def_plasma.png',
+		size=1.81,
+	},
+	structure_antinuke2 = {
+		bitmap='LuaUI/icons/structure_antinuke.png',
+		size=1.88,
+	},
+	structure_metal1 = {
+		bitmap='LuaUI/icons/structure_metal.png',
+		size=1.44,
+	},
+	veh_tank0 = {
+		bitmap='LuaUI/icons/veh_tank.png',
 		size=1.6,
 	},
-	bot_builder = {
+	def_neutron2 = {
+		bitmap='LuaUI/icons/def_neutron.png',
+		size=1.88,
+	},
+	structure_factory0 = {
+		bitmap='LuaUI/icons/structure_factory.png',
+		size=1.7,
+	},
+	structure_radar2 = {
+		bitmap='LuaUI/icons/structure_radar.png',
+		size=1.38,
+	},
+	structure_pad2 = {
+		bitmap='LuaUI/icons/structure_pad.png',
+		size=2.5,
+	},
+	def_generic1 = {
+		bitmap='LuaUI/icons/def_generic.png',
+		size=0.92,
+	},
+	air_generic0 = {
+		bitmap='LuaUI/icons/air_generic.png',
+		size=1.25,
+	},
+	air_generic2 = {
+		bitmap='LuaUI/icons/air_generic.png',
+		size=1.56,
+	},
+	bot_missile4 = {
+		bitmap='LuaUI/icons/bot_missile.png',
+		size=1.5,
+	},
+	sea_plasma2 = {
+		bitmap='LuaUI/icons/sea_plasma.png',
+		size=1.38,
+	},
+	def_laser1 = {
+		bitmap='LuaUI/icons/def_laser.png',
+		size=1.5,
+	},
+	air_gunshipmissile3 = {
+		bitmap='LuaUI/icons/air_gunshipmissile.png',
+		size=1.68,
+	},
+	air_gunshiplaser1 = {
+		bitmap='LuaUI/icons/air_gunshiplaser.png',
+		size=1.38,
+	},
+	def_artillery3 = {
+		bitmap='LuaUI/icons/def_artillery.png',
+		size=2.52,
+	},
+	veh_tank2 = {
+		bitmap='LuaUI/icons/veh_tank.png',
+		size=2,
+	},
+	air_builder0 = {
+		bitmap='LuaUI/icons/air_builder.png',
+		size=1.25,
+	},
+	sea_generic2 = {
+		bitmap='LuaUI/icons/sea_generic.png',
+		size=1.25,
+	},
+	def_missile1 = {
+		bitmap='LuaUI/icons/def_missile.png',
+		size=1.55,
+	},
+	bot_builder0 = {
 		bitmap='LuaUI/icons/bot_builder.png',
+		size=1.1,
+	},
+	bot_builder3 = {
+		bitmap='LuaUI/icons/bot_builder.png',
+		size=1.54,
+	},
+	commander0 = {
+		bitmap='LuaUI/icons/commander.png',
+		size=1.25,
+	},
+	commander1 = {
+		bitmap='LuaUI/icons/commander.png',
+		size=1.44,
+	},
+	commander2 = {
+		bitmap='LuaUI/icons/commander.png',
+		size=1.56,
+	},
+	commander3 = {
+		bitmap='LuaUI/icons/commander.png',
+		size=1.75,
+	},
+	commander4 = {
+		bitmap='LuaUI/icons/commander.png',
+		size=1.88,
+	},
+	veh_farc2 = {
+		bitmap='LuaUI/icons/veh_farc.png',
+		size=1.56,
+	},
+	veh_tank3 = {
+		bitmap='LuaUI/icons/veh_tank.png',
+		size=2.24,
+	},
+	sea_cannon2 = {
+		bitmap='LuaUI/icons/sea_cannon.png',
+		size=1.44,
+	},
+	sea_builder0 = {
+		bitmap='LuaUI/icons/sea_builder.png',
 		size=1,
 	},
-	veh_builder = {
+	veh_builder0 = {
 		bitmap='LuaUI/icons/veh_builder.png',
+		size=1.5,
+	},
+	sea_cannon0 = {
+		bitmap='LuaUI/icons/sea_cannon.png',
+		size=1.15,
+	},
+	def_flak2 = {
+		bitmap='LuaUI/icons/def_flak.png',
+		size=1.75,
+	},
+	structure_generic0 = {
+		bitmap='LuaUI/icons/structure_generic.png',
+		size=0.5,
+	},
+	def_generic2 = {
+		bitmap='LuaUI/icons/def_generic.png',
+		size=1,
+	},
+	sea_cannon4 = {
+		bitmap='LuaUI/icons/sea_cannon.png',
+		size=1.73,
+	},
+	structure_radar0 = {
+		bitmap='LuaUI/icons/structure_radar.png',
+		size=1.1,
+	},
+	bot_farc0 = {
+		bitmap='LuaUI/icons/bot_farc.png',
+		size=1.1,
+	},
+	veh_assault0 = {
+		bitmap='LuaUI/icons/veh_assault.png',
+		size=1.5,
+	},
+	bot_plasma2 = {
+		bitmap='LuaUI/icons/bot_plasma.png',
+		size=1.38,
+	},
+	structure_shield3 = {
+		bitmap='LuaUI/icons/structure_shield.png',
+		size=1.54,
+	},
+	def_neutron1 = {
+		bitmap='LuaUI/icons/def_neutron.png',
+		size=1.73,
+	},
+	air_fighter0 = {
+		bitmap='LuaUI/icons/air_fighter.png',
+		size=1.4,
+	},
+	veh_antibot1 = {
+		bitmap='LuaUI/icons/veh_antibot.png',
+		size=1.73,
+	},
+	structure_metal0 = {
+		bitmap='LuaUI/icons/structure_metal.png',
 		size=1.25,
 	},
-	generic_unit = {
-		bitmap='LuaUI/icons/generic_unit.png',
+	structure_generic2 = {
+		bitmap='LuaUI/icons/structure_generic.png',
+		size=0.63,
+	},
+	def_missile0 = {
+		bitmap='LuaUI/icons/def_missile.png',
+		size=1.35,
+	},
+	structure_energy0 = {
+		bitmap='LuaUI/icons/structure_energy.png',
+		size=1.5,
+	},
+	structure_energy3 = {
+		bitmap='LuaUI/icons/structure_energy.png',
+		size=2.1,
+	},
+	def_plasma1 = {
+		bitmap='LuaUI/icons/def_plasma.png',
+		size=1.67,
+	},
+	bot_plasma0 = {
+		bitmap='LuaUI/icons/bot_plasma.png',
+		size=1.1,
+	},
+	air_fighter2 = {
+		bitmap='LuaUI/icons/air_fighter.png',
+		size=1.75,
+	},
+	veh_generic2 = {
+		bitmap='LuaUI/icons/veh_generic.png',
+		size=1.88,
+	},
+	def_generic3 = {
+		bitmap='LuaUI/icons/def_generic.png',
+		size=1.12,
+	},
+	def_generic0 = {
+		bitmap='LuaUI/icons/def_generic.png',
+		size=0.8,
+	},
+	drone_missile0 = {
+		bitmap='LuaUI/icons/drone_missile.png',
 		size=1.25,
 	},
-	structure_hq = {
+	drone_scout0 = {
+		bitmap='LuaUI/icons/drone_scout.png',
+		size=0.9,
+	},
+	air_bomber1 = {
+		bitmap='LuaUI/icons/air_bomber.png',
+		size=2.01,
+	},
+	veh_assault2 = {
+		bitmap='LuaUI/icons/veh_assault.png',
+		size=1.88,
+	},
+	air_bomber4 = {
+		bitmap='LuaUI/icons/air_bomber.png',
+		size=2.63,
+	},
+	def_laser0 = {
+		bitmap='LuaUI/icons/def_laser.png',
+		size=1.3,
+	},
+	veh_neutron3 = {
+		bitmap='LuaUI/icons/veh_neutron.png',
+		size=2.1,
+	},
+	bot_generic1 = {
+		bitmap='LuaUI/icons/bot_generic.png',
+		size=0.92,
+	},
+	veh_artillery1 = {
+		bitmap='LuaUI/icons/veh_artillery.png',
+		size=1.61,
+	},
+	bot_flak2 = {
+		bitmap='LuaUI/icons/bot_flak.png',
+		size=1.25,
+	},
+	def_missile3 = {
+		bitmap='LuaUI/icons/def_missile.png',
+		size=1.89,
+	},
+	veh_artillery2 = {
+		bitmap='LuaUI/icons/veh_artillery.png',
+		size=1.75,
+	},
+	structure_mine1 = {
+		bitmap='LuaUI/icons/structure_mine.png',
+		size=0.57,
+	},
+	sea_generic0 = {
+		bitmap='LuaUI/icons/sea_generic.png',
+		size=1,
+	},
+	veh_generic0 = {
+		bitmap='LuaUI/icons/veh_generic.png',
+		size=1.5,
+	},
+	structure_metal2 = {
+		bitmap='LuaUI/icons/structure_metal.png',
+		size=1.56,
+	},
+	sea_artillery2 = {
+		bitmap='LuaUI/icons/sea_artillery.png',
+		size=1.56,
+	},
+	structure_factory1 = {
+		bitmap='LuaUI/icons/structure_factory.png',
+		size=1.95,
+	},
+	structure_factory3 = {
+		bitmap='LuaUI/icons/structure_factory.png',
+		size=2.38,
+	},
+	structure_factory4 = {
+		bitmap='LuaUI/icons/structure_factory.png',
+		size=2.55,
+	},
+	structure_pad0 = {
+		bitmap='LuaUI/icons/structure_pad.png',
+		size=2,
+	},
+	def_cannon0 = {
+		bitmap='LuaUI/icons/def_cannon.png',
+		size=1.5,
+	},
+	air_radar0 = {
+		bitmap='LuaUI/icons/air_radar.png',
+		size=1.1,
+	},
+	air_bomber2 = {
+		bitmap='LuaUI/icons/air_bomber.png',
+		size=2.19,
+	},
+	sea_missile0 = {
+		bitmap='LuaUI/icons/sea_missile.png',
+		size=1,
+	},
+	sea_assault0 = {
+		bitmap='LuaUI/icons/sea_assault.png',
+		size=0.9,
+	},
+	bot_rifle0 = {
+		bitmap='LuaUI/icons/bot_rifle.png',
+		size=0.9,
+	},
+	bot_assault3 = {
+		bitmap='LuaUI/icons/bot_assault.png',
+		size=1.4,
+	},
+	bot_builder1 = {
+		bitmap='LuaUI/icons/bot_builder.png',
+		size=1.26,
+	},
+	bot_missile0 = {
+		bitmap='LuaUI/icons/bot_missile.png',
+		size=1,
+	},
+	veh_missile0 = {
+		bitmap='LuaUI/icons/veh_missile.png',
+		size=1.5,
+	},
+	veh_antinuke3 = {
+		bitmap='LuaUI/icons/veh_antinuke.png',
+		size=2.8,
+	},
+	structure_nuke3 = {
+		bitmap='LuaUI/icons/structure_nuke.png',
+		size=2.73,
+	},
+	bot_rifle3 = {
+		bitmap='LuaUI/icons/bot_rifle.png',
+		size=1.26,
+	},
+	bot_generic0 = {
+		bitmap='LuaUI/icons/bot_generic.png',
+		size=0.8,
+	},
+	sub_cannon0 = {
+		bitmap='LuaUI/icons/sub_cannon.png',
+		size=0.9,
+	},
+	structure_metal3 = {
+		bitmap='LuaUI/icons/structure_metal.png',
+		size=1.75,
+	},
+	def_plasma4 = {
+		bitmap='LuaUI/icons/def_plasma.png',
+		size=2.17,
+	},
+	bot_assault1 = {
+		bitmap='LuaUI/icons/bot_assault.png',
+		size=1.15,
+	},
+	veh_antibot2 = {
+		bitmap='LuaUI/icons/veh_antibot.png',
+		size=1.88,
+	},
+	daemon0 = {
+		bitmap='LuaUI/icons/daemon.png',
+		size=1.15,
+	},
+	structure_hq0 = {
 		bitmap='LuaUI/icons/structure_hq.png',
-		size=2.00,
+		size=2,
+	},
+	structure_hq2 = {
+		bitmap='LuaUI/icons/structure_hq.png',
+		size=2.5,
+	},
+	structure_hq3 = {
+		bitmap='LuaUI/icons/structure_hq.png',
+		size=2.8,
+	},
+	structure_hq4 = {
+		bitmap='LuaUI/icons/structure_hq.png',
+		size=3,
+	},
+	bot_farc2 = {
+		bitmap='LuaUI/icons/bot_farc.png',
+		size=1.38,
+	},
+	air_gunshipmissile1 = {
+		bitmap='LuaUI/icons/air_gunshipmissile.png',
+		size=1.38,
+	},
+	air_radar2 = {
+		bitmap='LuaUI/icons/air_radar.png',
+		size=1.38,
+	},
+	def_generic4 = {
+		bitmap='LuaUI/icons/def_generic.png',
+		size=1.2,
+	},
+	drone_antibot0 = {
+		bitmap='LuaUI/icons/drone_antibot.png',
+		size=1.2,
+	},
+	bot_neutron2 = {
+		bitmap='LuaUI/icons/bot_neutron.png',
+		size=1.44,
+	},
+	bot_artillery4 = {
+		bitmap='LuaUI/icons/bot_artillery.png',
+		size=1.65,
+	},
+	air_gunshiplaser3 = {
+		bitmap='LuaUI/icons/air_gunshiplaser.png',
+		size=1.68,
+	},
+	bot_assault2 = {
+		bitmap='LuaUI/icons/bot_assault.png',
+		size=1.25,
+	},
+	structure_generic1 = {
+		bitmap='LuaUI/icons/structure_generic.png',
+		size=0.57,
+	},
+	bot_artillery2 = {
+		bitmap='LuaUI/icons/bot_artillery.png',
+		size=1.38,
+	},
+	air_bomber3 = {
+		bitmap='LuaUI/icons/air_bomber.png',
+		size=2.45,
+	},
+	veh_antinuke2 = {
+		bitmap='LuaUI/icons/veh_antinuke.png',
+		size=2.5,
+	},
+	structure_mine2 = {
+		bitmap='LuaUI/icons/structure_mine.png',
+		size=0.63,
+	},
+	veh_missile1 = {
+		bitmap='LuaUI/icons/veh_missile.png',
+		size=1.73,
+	},
+	bot_artillery1 = {
+		bitmap='LuaUI/icons/bot_artillery.png',
+		size=1.26,
+	},
+	veh_farc0 = {
+		bitmap='LuaUI/icons/veh_farc.png',
+		size=1.25,
+	},
+	bot_rezz1 = {
+		bitmap='LuaUI/icons/bot_rezz.png',
+		size=1.15,
+	},
+	sub_rezz1 = {
+		bitmap='LuaUI/icons/sub_rezz.png',
+		size=1.09,
+	},
+	veh_flak2 = {
+		bitmap='LuaUI/icons/veh_flak.png',
+		size=1.88,
+	},
+	sub_cannon1 = {
+		bitmap='LuaUI/icons/sub_cannon.png',
+		size=1.03,
+	},
+	bot_explosive2 = {
+		bitmap='LuaUI/icons/bot_explosive.png',
+		size=1.38,
+	},
+	sub_cannon2 = {
+		bitmap='LuaUI/icons/sub_cannon.png',
+		size=1.13,
+	},
+	air_empbomber3 = {
+		bitmap='LuaUI/icons/air_empbomber.png',
+		size=2.8,
+	},
+	bot_neutron3 = {
+		bitmap='LuaUI/icons/bot_neutron.png',
+		size=1.61,
+	},
+	veh_artillery3 = {
+		bitmap='LuaUI/icons/veh_artillery.png',
+		size=1.96,
+	},
+	def_nuke2 = {
+		bitmap='LuaUI/icons/def_nuke.png',
+		size=2.06,
+	},
+	veh_radar1 = {
+		bitmap='LuaUI/icons/veh_radar.png',
+		size=1.73,
+	},
+	blank3 = {
+		bitmap='LuaUI/icons/blank.png',
+		size=1.4,
+	},
+	blank2 = {
+		bitmap='LuaUI/icons/blank.png',
+		size=1.25,
+	},
+	blank1 = {
+		bitmap='LuaUI/icons/blank.png',
+		size=1.15,
+	},
+	blank4 = {
+		bitmap='LuaUI/icons/blank.png',
+		size=1.5,
+	},
+	bot_rifle2 = {
+		bitmap='LuaUI/icons/bot_rifle.png',
+		size=1.13,
+	},
+	blank0 = {
+		bitmap='LuaUI/icons/blank.png',
+		size=1,
+	},
+	generic_unit0 = {
+		bitmap='LuaUI/icons/generic_unit.png',
+		size=0.5,
+	},
+	generic_unit2 = {
+		bitmap='LuaUI/icons/generic_unit.png',
+		size=0.63,
+	},
+	generic_unit3 = {
+		bitmap='LuaUI/icons/generic_unit.png',
+		size=0.7,
+	},
+	generic_unit1 = {
+		bitmap='LuaUI/icons/generic_unit.png',
+		size=0.57,
+	},
+	generic_unit4 = {
+		bitmap='LuaUI/icons/generic_unit.png',
+		size=0.75,
 	},
 }
 
-return icontypes
 
---// Older logic
-
---local iconsPath = "LuaUI/Icons/"
---local format = ".png"
---
------ iconID, baseIconSize
------- Eg: commanders
-----	commander0 = {
-----  	bitmap='icons/armcommander.dds',
-----  	size=1.9,
----- 		distance=1.0,
-----	},
---
---local unitIconTable = {
---	air_generic=1.25,
---	air_radar=1.1,
---	air_bomber=1.75,
---	air_empbomber=2,
---	air_nukebomber=2,
---	air_builder=1.25,
---	air_fighter=1.4,
---	air_gunshiplaser=1.2,
---	air_gunshipmissile=1.2,
---	daemon=1.5,
---	drone_scout=0.9,
---	drone_antibot=1.2,
---	drone_missile=1.25,
---	def_artillery=1.8,
---	def_builder=1.4,
---	def_cannon=1.5,
---	def_flak=1.4,
---	def_generic=0.8,
---	def_laser=1.3,
---	def_missile=1.4,
---	def_neutron=1.45,
---	def_plasma=1.5,
---	def_nuke=1.6,
---	bot_artillery=1.1,
---	bot_assault=1,
---	bot_builder=1.1,
---	bot_explosive=1.1,
---	bot_farc=1.1,
---	bot_generic=0.8,
---	bot_missile=1,
---	bot_flak=1,
---	bot_rezz=1,
---	bot_neutron=1.15,
---	bot_antinuke=1.25,
---	bot_plasma=1.1,
---	bot_radar=1.1,
---	bot_rifle=0.9,
---	structure_mine=0.5,
---	structure_antinuke=1.5,
---	structure_energy=1.5,
---	structure_factory=1.7,
---	structure_generic=0.5,
---	structure_metal=1.25,
---	structure_nuke=1.95,
---	structure_radar=1.1,
---	structure_shield=1.1,
---	structure_tech=1.5,
---	structure_pad=2, --1.25
---	structure_hq=2, --1.25
---	veh_antibot=1.5,
---	veh_artillery=1.4,
---	veh_assault=1.5,
---	veh_builder=1.5,
---	veh_farc=1.25,
---	veh_flak=1.5,
---	veh_generic=1.5,
---	veh_missile=1.5,
---	veh_neutron=1.5,
---	veh_antinuke=2,
---	veh_radar=1.5,
---	veh_tank=1.6,
---	sea_generic = 1,
---	sea_builder = 1,
---	sea_assault = 0.9,
---	sea_missile = 1,
---	sea_flak = 1.05,
---	sea_plasma = 1.1,
---	sub_generic = 0.9,
---	sea_cannon = 1.15,
---	sea_neutron = 1.25,
---	sea_artillery = 1.3,
---	sub_builder = 0.9,
---	sub_rezz = 0.95,
---	sub_cannon = 0.9,
---	--
---	generic_unit=0.5, --1
---	standard=1,
---}
---
---local tierSizeMult = {
---	[0]=1.1,
---	[1]=1.25,
---	[2]=1.4,
---	[3]=1.6,
---	[4]=2,
---}
---
----- 'Default' and 'None' standard iconType entries
---local default = {
---	size = 1.0,
---	radiusadjust = 1,
---}
---local none = {
---	size = 0,
---	radiusadjust = 0,
---}
---
----- iconTypes Processor, takes an 'iconTypes' table and initializes it (and found unit icons too)
---local iconTypesProc = {
---	Initialize = function (iconTypes) --loadUnitIcons
---		local function addUnitIcon(iconName, path, size)
---			if (path) then
---				Spring.AddUnitIcon(iconName, path, size) end
---			iconTypes[iconName] = {
---				bitmap = path,
---				size = size,
---			}
---		end
---		local function tryAddUnitIcon(iconName, fileName, size)
---			if VFS.LoadFile(fileName) then
---				addUnitIcon(iconName, fileName, size)
---			else
---				Spring.Echo("Icon file not found: "..fileName)
---			end
---		end
---		iconTypes.default = default
---		iconTypes.none = none
---		for iconid, baseSize in pairs(unitIconTable) do
---			for tier = 0, 4 do  -- eg.: veh_tank_1.png (for a tier 1 tank)
---				local calcSize = baseSize * tierSizeMult[tier]
---				local fileName = iconsPath..iconid..".png"
---				tryAddUnitIcon(iconid.."_"..tier, fileName, calcSize )
---			end
---		end
---		-- Tech Centers (don't change size, just different images)
---		local fileName = iconsPath.."structure_techcenter"
---		for tier = 0, 4 do  -- eg.: veh_tank_1.png (for a tier 1 tank)
---			local fileName = fileName..tier..".png"
---			tryAddUnitIcon("structure_techcenter"..tier, fileName, 1.9 )
---		end
---		-- Outposts (don't change size, just different images)
---		fileName = iconsPath.."structure_outpost"
---		tryAddUnitIcon("structure_outpost", fileName..".png", 1.5 )
---		tryAddUnitIcon("structure_outpost1", fileName..".png", 1.6 )
---		tryAddUnitIcon( "structure_outpost2", fileName.."2.png", 1.7 )
---		tryAddUnitIcon( "structure_outpost3", fileName.."3.png", 1.8 )
---		tryAddUnitIcon( "structure_outpost4", fileName.."4.png", 1.9 )
---
---		-- Commanders et al (fixed sizes)
---		addUnitIcon("armcom.user", "LuaUI/Icons/armcom.png",2)
---		addUnitIcon("corcom.user", "LuaUI/Icons/corcom.png",2)
---		addUnitIcon("krogoth.user", "LuaUI/Icons/krogoth.png",3.3)
---		addUnitIcon("bantha.user", "LuaUI/Icons/bantha.png",2.6)
---		addUnitIcon("corjugg.user", "LuaUI/Icons/juggernaut.png",3.5)
---		addUnitIcon("star.user", "LuaUI/Icons/star.png")
---		addUnitIcon("blank.user", "LuaUI/Icons/blank.png")
---
---		-- Setup the unitdef icons
---		for udid,ud in pairs(UnitDefs) do
---			if ud then
---				local tier = ud.customParams.tier or 0
---				local iconTag = ud.customParams.icontag
---				--Spring.Echo(" udid | name: "..udid.." | "..ud.name.." subs: "..ud.name:sub(0,6))
---				--      -- Icontag defined
---				--      --Spring.Echo("Unit name for icon: "..ud.name)
---				if iconTag and iconTag ~= "blank" then
---					--Spring.Echo("Set icon: "..iconTag.."_"..tier)
---					Spring.SetUnitDefIcon(udid, iconTag.."_"..tier)
---
---				-- #################
---				-- Exceptional Cases
---				-- #################
----- 				elseif (ud.name=="roost") or (ud.name=="meteor") then
----- 					Spring.SetUnitDefIcon(udid, "star.user")
----- 				--elseif string.sub(ud.name, 0, 7) == "critter" then
----- 				--	Spring.SetUnitDefIcon(udid, "blank.user")
----- 				elseif ud.name == "armcom" or ud.name:sub(0,6)=="armcom" then    -- Tiers 1 through 4
----- 					--Spring.Echo("Commander found")
----- 					Spring.SetUnitDefIcon(udid, "armcom.user")
----- 				elseif ud.name == "corcom" or ud.name:sub(0,6)=="corcom" then    -- Tiers 1 through 4
----- 					--Spring.Echo("Commander found")
----- 					Spring.SetUnitDefIcon(udid, "corcom.user")
----- 				elseif ud.name == "armtech" or ud.name:sub(0,7)=="armtech" or    -- Tiers 1 through 4
----- 						ud.name == "cortech" or ud.name:sub(0,7)=="cortech" then
----- 					Spring.SetUnitDefIcon(udid, "structure_techcenter"..tier)
----- 				elseif ud.name == "armoutpost" or ud.name == "coroutpost" then    -- Tiers 0 (no Tier 1)
----- 					Spring.SetUnitDefIcon(udid, "structure_outpost")
----- 				elseif not tier == 0 and (ud.name:sub(0,10)=="armoutpost" or ud.name:sub(0,10)=="coroutpost") then -- Tiers 2 ~ 4
----- 					Spring.SetUnitDefIcon(udid, "structure_outpost"..tier)
----- 				elseif ud.name=="armbanth" then
----- 					Spring.SetUnitDefIcon(udid, "bantha.user")
----- 				elseif ud.name=="corkrog" then
----- 					Spring.SetUnitDefIcon(udid, "krogoth.user")
----- 				elseif ud.name=="corjugg" then
----- 					Spring.SetUnitDefIcon(udid, "corjugg.user")
----- 					--else
----- 					--  Spring.SetUnitDefIcon(udid, "generic_unit_"..tier)
----- 					--  Spring.Echo("Icontag for "..ud.name.." not found, setting it to generic_unit_"..tier)
--- 				end
---			end
---		end
---	end
---}
---
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
---
---return iconTypesProc
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
 
